@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <profile name="SBT 1" modules="logikaRuntime">
+      <option name="experimental" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-target:jvm-1.8" />
+        <parameter value="-Ybackend:GenBCode" />
+        <parameter value="-Ydelambdafy:method" />
+        <parameter value="-optimize" />
+        <parameter value="-Yopt:l:classpath" />
+      </parameters>
+    </profile>
+  </component>
+</project>
