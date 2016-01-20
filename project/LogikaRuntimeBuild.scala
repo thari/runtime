@@ -38,14 +38,14 @@ object LogikaRuntimeBuild extends Build {
       name := "logika-runtime",
       incOptions := incOptions.value.withNameHashing(true),
       retrieveManaged := true,
-      version := "3.0.0",
+      version := "3.0.0-1-SNAPSHOT",
       scalaVersion := scalaVer,
       scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
       parallelExecution in Test := true,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
       libraryDependencies ++= Seq(
         "org.scala-lang" % "scala-reflect" % scalaVer,
-        "com.novocode" % "junit-interface" % "0.11"
+        "com.novocode" % "junit-interface" % "0.11" % Test
       ),
       EclipseKeys.withSource := true,
       EclipseKeys.relativizeLibs := true,
@@ -71,8 +71,8 @@ object LogikaRuntimeBuild extends Build {
             </license>
           </licenses>
           <scm>
-            <url>git://github.com/sireum/v3-logika-runtime.git</url>
-            <connection>scm:git://github.com/sireum/v3-logika-runtime.git</connection>
+            <url>https://github.com/sireum/v3-logika-runtime.git</url>
+            <connection>scm:git:https://github.com/sireum/v3-logika-runtime.git</connection>
           </scm>
           <developers>
             <developer>
