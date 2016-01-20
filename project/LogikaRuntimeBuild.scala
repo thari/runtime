@@ -30,17 +30,16 @@ import sbt._
 object LogikaRuntimeBuild extends Build {
   val scalaVer = "2.11.7"
 
-  lazy val logikaRuntime = (project in file(".")).
-    settings(
+  lazy val logikaRuntime = Project(
+    id = "logika-runtime",
+    base = file("."),
+    settings = Seq(
       organization := "org.sireum",
       name := "logika-runtime",
       incOptions := incOptions.value.withNameHashing(true),
       retrieveManaged := true,
       version := "3.0.0",
       scalaVersion := scalaVer,
-      scalacOptions ++= Seq("-target:jvm-1.8", "-Ybackend:GenBCode",
-        "-Ydelambdafy:method", "-feature", "-Xexperimental",
-        "-optimize", "-Yopt:l:classpath"),
       scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
       parallelExecution in Test := true,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
@@ -83,5 +82,5 @@ object LogikaRuntimeBuild extends Build {
             </developer>
           </developers>
     )
-
+  )
 }

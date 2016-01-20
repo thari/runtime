@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logikaRuntime.iml" filepath="$PROJECT_DIR$/.idea/modules/logikaRuntime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" />
     </modules>
   </component>
