@@ -25,102 +25,26 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.sireum
 
-import scala.annotation.Annotation
-
 package object logika {
   type B = Boolean
-  type Z = BigInt
+  type Z = math.Z
+  type ZS = collection.ZS
 
   final val T = true
   final val F = false
 
-  final def Z(s: String): Z = BigInt(s)
+  import scala.language.implicitConversions
+  final implicit def _Z(n: Int): Z = math.Z(n)
 
-  final def Z(i: Int): Z = BigInt(i)
+  final def Z(s: String): Z = math.Z(s)
+
+  final def ZS(args: Z*): ZS = collection.ZS(args: _*)
 
   final implicit class Logika(val sc: StringContext) extends AnyVal {
 
     import scala.language.experimental.macros
 
-    def l(args: Any*): Unit = macro _lImpl
-
-  }
-
-  final def _lImpl(c: scala.reflect.macros.blackbox.Context)(
-    args: c.Expr[Any]*): c.Expr[Unit] =
-    c.universe.reify {}
-
-  final implicit class ZHelper(val n: Z) extends AnyVal {
-    def ==(other: Int): Boolean = n == Z(other)
-  }
-
-  import scala.collection.mutable.{ListMap => LM}
-
-  object ZS {
-    final def apply(args: Z*): ZS = {
-      val lm = LM[Z, Z]()
-      var i = BigInt(0)
-      for (e <- args) {
-        lm(i) = e
-        i += 1
-      }
-      new ZS(lm, i)
-    }
-  }
-
-  final class ZS private[logika](lmArg: LM[Z, Z], lmSize: Z) {
-    private[logika] val lm: LM[Z, Z] = lmArg
-
-    val size: Z = lmSize
-
-    def apply(index: Z): Z = {
-      lm.get(index) match {
-        case Some(value) => value
-        case _ => throw new IndexOutOfBoundsException(index.toString)
-      }
-    }
-
-    def update(index: Z, value: Z): Unit = {
-      if (lm.contains(index)) lm(index) = value
-      else throw new IndexOutOfBoundsException(index.toString)
-    }
-
-    def :+(value: Z): ZS = {
-      val lm = LM[Z, Z]()
-      for ((i, v) <- this.lm) {
-        lm(i) = v
-      }
-      lm(BigInt(lm.size)) = value
-      new ZS(lm, this.lm.size + 1)
-    }
-
-    def +:(value: Z): ZS = {
-      val lm = LM[Z, Z]()
-      lm(BigInt(0)) = value
-      for ((i, v) <- this.lm) {
-        lm(i + 1) = v
-      }
-      new ZS(lm, this.lm.size + 1)
-    }
-
-    override def clone: ZS = new ZS(lm.clone, size)
-
-    override def toString: String = {
-      val sb = new StringBuilder
-      sb.append('[')
-      if (lm.nonEmpty) {
-        var i: Z = 0
-        sb.append(lm(i))
-        i += 1
-        while (i < size) {
-          sb.append(", ")
-          sb.append(lm(i))
-          i += 1
-        }
-      }
-      sb.append(']')
-      sb.toString
-    }
+    def l(args: Any*): Unit = macro _macro.lImpl
   }
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
@@ -136,7 +60,7 @@ package object logika {
           Console.err.flush()
       }
     }
-    Z(0)
+    math.Z.zero
   }
 
   final def println(as: Any*): Unit = {
@@ -148,10 +72,15 @@ package object logika {
     for (a <- as) scala.Predef.print(a)
 
   final def randomInt(): Z =
-    BigInt(
+    math.Z(BigInt(
       numbits = new scala.util.Random().nextInt(1024),
-      rnd = new scala.util.Random())
+      rnd = new scala.util.Random()))
 
-  final class helper extends Annotation
+  final class helper extends scala.annotation.Annotation
 
+  object _macro {
+    final def lImpl(c: scala.reflect.macros.blackbox.Context)(
+      args: c.Expr[Any]*): c.Expr[Unit] =
+      c.universe.reify {}
+  }
 }

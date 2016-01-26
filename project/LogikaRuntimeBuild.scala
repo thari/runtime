@@ -44,6 +44,7 @@ object LogikaRuntimeBuild extends Build {
       parallelExecution in Test := true,
       testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
       libraryDependencies ++= Seq(
+        "org.apfloat" % "apfloat" % "1.8.2",
         "org.scala-lang" % "scala-reflect" % scalaVer,
         "com.novocode" % "junit-interface" % "0.11" % Test
       ),
