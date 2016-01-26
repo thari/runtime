@@ -79,6 +79,42 @@ trait Z extends ScalaNumericConversions {
 
   def <=(other: Z): B
 
+  def +(other: Int): Z = this + Z(other)
+
+  def -(other: Int): Z = this - Z(other)
+
+  def *(other: Int): Z = this * Z(other)
+
+  def /(other: Int): Z = this * Z(other)
+
+  def %(other: Int): Z = this * Z(other)
+
+  def <(other: Int): B = this < Z(other)
+
+  def <=(other: Int): B = this <= Z(other)
+
+  def >(other: Int): B = this > Z(other)
+
+  def >=(other: Int): B = this >= Z(other)
+
+  def +(other: Long): Z = this + Z(other)
+
+  def -(other: Long): Z = this - Z(other)
+
+  def *(other: Long): Z = this * Z(other)
+
+  def /(other: Long): Z = this * Z(other)
+
+  def %(other: Long): Z = this * Z(other)
+
+  def <(other: Long): B = this < Z(other)
+
+  def <=(other: Long): B = this <= Z(other)
+
+  def >(other: Long): B = this > Z(other)
+
+  def >=(other: Long): B = this >= Z(other)
+
   def toBigInteger: java.math.BigInteger
 
   def toBigInt: BigInt
@@ -241,28 +277,6 @@ private final case class ZApint(value: Apint) extends Z {
     val c = value.compareTo(other.toZApint)
     c < 0 || c == 0
   }
-
-  def +(other: Int): Z = this + Z(other)
-
-  def -(other: Int): Z = this - Z(other)
-
-  def *(other: Int): Z = this * Z(other)
-
-  def /(other: Int): Z = this * Z(other)
-
-  def %(other: Int): Z = this * Z(other)
-
-  def ==(other: Int): B = this == Z(other)
-
-  def !=(other: Int): B = this != Z(other)
-
-  def <(other: Int): B = this < Z(other)
-
-  def <=(other: Int): B = this <= Z(other)
-
-  def >(other: Int): B = this > Z(other)
-
-  def >=(other: Int): B = this >= Z(other)
 
   override def toInt: Int = {
     assert(Z(Z.intMin) <= this && this <= Z(Z.intMax))

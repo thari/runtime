@@ -29,11 +29,12 @@ import org.junit.Test
 
 
 class ZTest {
+  final val z5 = Z("5")
+  final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
+  final val zBig = Z(bigVal)
+
   @Test
   def eqs(): Unit = {
-    val z5 = Z("5")
-    val bigVal = "10000000000000000000000000000000000000000000000000000000000"
-    val zBig = Z(bigVal)
     assert(!(5 == z5)) // does not support Int == Z
     assert(5 != z5) // does not support Int != Z
     assert(z5 == 5)
@@ -46,5 +47,18 @@ class ZTest {
     assert(z5 == BigInt("5"))
     assert(zBig == new java.math.BigInteger(bigVal))
     assert(zBig == BigInt(bigVal))
+  }
+
+  @Test
+  def comps(): Unit = {
+    assert(z5 < 6)
+    assert(z5 <= 6)
+    assert(z5 <= 5)
+    assert(!(z5 < 5))
+    assert(!(z5 <= 4))
+    assert(z5 > 4)
+    assert(z5 >= 4)
+    assert(!(z5 > 5))
+    assert(!(z5 >= 6))
   }
 }
