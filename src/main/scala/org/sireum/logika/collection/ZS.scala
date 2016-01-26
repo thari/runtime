@@ -43,6 +43,8 @@ trait ZS {
 
   def +:(v: Z): ZS
 
+  override def clone: ZS = ???
+
   final override def hashCode: Int = "ZS".hashCode + size.toInt
 
   final override def equals(other: Any): B = other match {
