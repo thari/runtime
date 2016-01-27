@@ -38,7 +38,7 @@ object LogikaRuntimeBuild extends Build {
       name := "logika-runtime",
       incOptions := incOptions.value.withNameHashing(true),
       retrieveManaged := true,
-      version := "3.0.0-1-SNAPSHOT",
+      version := "3.0.0-2-SNAPSHOT",
       scalaVersion := scalaVer,
       scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
       parallelExecution in Test := true,
