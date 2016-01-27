@@ -1,0 +1,14 @@
+cache: true
+
+language: scala
+
+jdk:
+  - oraclejdk8
+
+script:
+  - sbt clean test:compile test
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
