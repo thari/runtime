@@ -26,8 +26,10 @@
 package org.sireum.logika
 
 import org.junit.Test
+import scala.collection.mutable.{ListMap => LM}
 
 class ZSTest {
+  final val size = math.Z(1024)
 
   @Test
   def append(): Unit = {
@@ -37,5 +39,57 @@ class ZSTest {
   @Test
   def prepend(): Unit = {
     assert(ZS(1, 2, 3) == 1 +: ZS(2, 3))
+  }
+
+  @Test
+  def zsArray(): Unit = {
+    var i = math.Z.zero
+    var append: ZS = new collection.ZSArray(new Array[Z](0))
+    var prepend: ZS = new collection.ZSArray(new Array[Z](0))
+    while (i < size) {
+      append :+= i
+      prepend +:= size - i - 1
+      i += 1
+    }
+    assert(append == prepend)
+  }
+
+  @Test
+  def zsImpl(): Unit = {
+    var i = math.Z.zero
+    var append: ZS = new collection.ZSImpl(LM(), 0)
+    var prepend: ZS = new collection.ZSImpl(LM(), 0)
+    while (i < size) {
+      append :+= i
+      prepend +:= size - i - 1
+      i += 1
+    }
+    assert(append == prepend)
+  }
+
+  @Test
+  def zsArrayImpl(): Unit = {
+    var i = math.Z.zero
+    var append: ZS = new collection.ZSImpl(LM(), 0)
+    var prepend: ZS = new collection.ZSArray(new Array[Z](0))
+    while (i < size) {
+      append :+= i
+      prepend +:= size - i - 1
+      i += 1
+    }
+    assert(append == prepend)
+  }
+
+  @Test
+  def zsImplArray(): Unit = {
+    var i = math.Z.zero
+    var append: ZS = new collection.ZSImpl(LM(), 0)
+    var prepend: ZS = new collection.ZSArray(new Array[Z](0))
+    while (i < size) {
+      append :+= i
+      prepend +:= size - i - 1
+      i += 1
+    }
+    assert(append == prepend)
   }
 }

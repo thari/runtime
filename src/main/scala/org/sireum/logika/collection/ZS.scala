@@ -29,7 +29,7 @@ import org.sireum.logika.{B, Z}
 import org.sireum.logika.math.{Z => ZM}
 
 object ZS {
-  def apply(elements: Z*): ZS = ZSArray(elements.toArray)
+  def apply(elements: Z*): ZS = new ZSArray(elements.toArray)
 }
 
 trait ZS {
@@ -37,23 +37,23 @@ trait ZS {
 
   def apply(index: Z): Z
 
-  def update(index: Z, v: Z): Unit
+  def update(index: Z, value: Z): Unit
 
-  def :+(v: Z): ZS
+  def :+(value: Z): ZS
 
-  def +:(v: Z): ZS
+  def +:(value: Z): ZS
 
-  override def clone: ZS = ???
+  override def clone: ZS = sys.error("stub")
 
   final override def hashCode: Int = "ZS".hashCode + size.toInt
 
   final override def equals(other: Any): B = other match {
     case other: ZS =>
       if (this eq other) return true
-      if (size == other.size) return true
+      if (size != other.size) return false
       var i = ZM.zero
       while (i < size) {
-        if (this (i) != other(i)) return false
+        if (apply(i) != other(i)) return false
         i += ZM.one
       }
       true
@@ -63,50 +63,50 @@ trait ZS {
 
 import scala.collection.mutable.{ListMap => LM}
 
-private final case class ZSArray(value: Array[Z]) extends ZS {
-  override def size: Z = ZM(value.length)
+private[logika] final class ZSArray(a: Array[Z]) extends ZS {
+  override val size: Z = ZM(a.length)
 
   override def apply(index: Z): Z = {
     assert(index < ZM(ZM.intMax))
-    value(index.toInt)
+    a(index.toInt)
   }
 
-  override def update(index: Z, v: Z): Unit = {
+  override def update(index: Z, value: Z): Unit = {
     assert(index < ZM(ZM.intMax))
-    value(index.toInt) = v
+    a(index.toInt) = value
   }
 
-  override def :+(v: Z): ZS =
-    if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ v
+  override def :+(value: Z): ZS =
+    if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
     else {
-      val newValue = new Array[Z](value.length + 1)
-      System.arraycopy(value, 0, newValue, 0, value.length)
-      newValue(value.length) = v
-      ZSArray(newValue)
+      val newValue = new Array[Z](a.length + 1)
+      System.arraycopy(a, 0, newValue, 0, a.length)
+      newValue(a.length) = value
+      new ZSArray(newValue)
     }
 
-  override def +:(v: Z): ZS =
-    if (size + ZM.one == ZM(ZM.intMax)) v +: upgrade
+  override def +:(value: Z): ZS =
+    if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
     else {
-      val newValue = new Array[Z](value.length + 1)
-      System.arraycopy(value, 0, newValue, 1, value.length)
-      newValue(0) = v
-      ZSArray(newValue)
+      val newValue = new Array[Z](a.length + 1)
+      newValue(0) = value
+      System.arraycopy(a, 0, newValue, 1, a.length)
+      new ZSArray(newValue)
     }
 
-  override def clone: ZS = ZSArray(value.clone)
+  override def clone: ZS = new ZSArray(a.clone)
 
   override def toString: String = {
     val sb = new StringBuilder
     sb.append('[')
-    if (value.nonEmpty) {
+    if (a.nonEmpty) {
       var i = 0
-      sb.append(value(i))
+      sb.append(a(i))
       i += 1
-      val sz = value.length
+      val sz = a.length
       while (i < sz) {
         sb.append(", ")
-        sb.append(value(i))
+        sb.append(a(i))
         i += 1
       }
     }
@@ -117,7 +117,7 @@ private final case class ZSArray(value: Array[Z]) extends ZS {
   private def upgrade: ZSImpl = {
     val lm = LM[Z, Z]()
     var i = ZM.zero
-    for (e <- value) {
+    for (e <- a) {
       lm(i) = e
       i += ZM.one
     }
@@ -125,39 +125,29 @@ private final case class ZSArray(value: Array[Z]) extends ZS {
   }
 }
 
-private final class ZSImpl(lmArg: LM[Z, Z], lmSize: Z) extends ZS {
-  private[logika] val lm: LM[Z, Z] = lmArg
-
-  val size: Z = lmSize
-
-  def apply(index: Z): Z = {
-    lm.get(index) match {
-      case Some(value) => value
-      case _ => throw new IndexOutOfBoundsException(index.toString)
-    }
+private[logika] final class ZSImpl(lm: LM[Z, Z],
+                                   override val size: Z) extends ZS {
+  def apply(index: Z): Z = lm.get(index) match {
+    case Some(value) => value
+    case _ => throw new IndexOutOfBoundsException(index.toString)
   }
 
-  def update(index: Z, value: Z): Unit = {
+  def update(index: Z, value: Z): Unit =
     if (lm.contains(index)) lm(index) = value
     else throw new IndexOutOfBoundsException(index.toString)
-  }
 
   def :+(value: Z): ZS = {
     val lm = LM[Z, Z]()
-    for ((i, v) <- this.lm) {
-      lm(i) = v
-    }
-    lm(ZM(lm.size)) = value
+    for ((i, v) <- this.lm) lm(i) = v
+    lm(size) = value
     new ZSImpl(lm, ZM(this.lm.size) + ZM.one)
   }
 
   def +:(value: Z): ZS = {
     val lm = LM[Z, Z]()
     lm(ZM.zero) = value
-    for ((i, v) <- this.lm) {
-      lm(i + ZM.one) = v
-    }
-    new ZSImpl(lm, ZM(this.lm.size) + ZM.one)
+    for ((i, v) <- this.lm) lm(i + ZM.one) = v
+    new ZSImpl(lm, size + ZM.one)
   }
 
   override def clone: ZS = new ZSImpl(lm.clone, size)

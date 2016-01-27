@@ -85,9 +85,9 @@ trait Z extends ScalaNumericConversions {
 
   def *(other: Int): Z = this * Z(other)
 
-  def /(other: Int): Z = this * Z(other)
+  def /(other: Int): Z = this / Z(other)
 
-  def %(other: Int): Z = this * Z(other)
+  def %(other: Int): Z = this % Z(other)
 
   def <(other: Int): B = this < Z(other)
 
@@ -103,9 +103,9 @@ trait Z extends ScalaNumericConversions {
 
   def *(other: Long): Z = this * Z(other)
 
-  def /(other: Long): Z = this * Z(other)
+  def /(other: Long): Z = this / Z(other)
 
-  def %(other: Long): Z = this * Z(other)
+  def %(other: Long): Z = this % Z(other)
 
   def <(other: Long): B = this < Z(other)
 
@@ -129,12 +129,12 @@ trait Z extends ScalaNumericConversions {
 
   final override def longValue = toBigInt.longValue
 
-  final override def underlying = toBigInt
+  final override def underlying = toBigInteger
 
   final override def isWhole = true
 }
 
-private final case class ZLong(value: Long) extends Z {
+private[logika] final case class ZLong(value: Long) extends Z {
   override def unary_- : Z =
     if (value == Long.MinValue) -upgrade else Z(-value)
 
@@ -157,7 +157,7 @@ private final case class ZLong(value: Long) extends Z {
   override def *(other: Z): Z = other match {
     case ZLong(n) =>
       val r = value * n
-      if (r == 0) return Z(r)
+      if (r == 0) return Z.zero
       if (n > value) {
         if (((n == -1) && (value == Long.MinValue)) || (r / n != value))
           return upgrade * other
@@ -172,10 +172,8 @@ private final case class ZLong(value: Long) extends Z {
   override def /(other: Z): Z = other match {
     case ZLong(n) =>
       val r = value / n
-      if ((value == Long.MinValue) && (n == -1))
-        upgrade / other
-      else
-        ZLong(r)
+      if ((value == Long.MinValue) && (n == -1)) upgrade / other
+      else ZLong(r)
     case _ => upgrade / other
   }
 
@@ -216,13 +214,6 @@ private final case class ZLong(value: Long) extends Z {
     case _ => upgrade <= other
   }
 
-  override def toInt: Int = {
-    assert(Int.MinValue <= value && value <= Int.MaxValue)
-    value.toInt
-  }
-
-  override def toLong: Long = value
-
   override def toBigInteger: java.math.BigInteger =
     new java.math.BigInteger(value.toString)
 
@@ -235,7 +226,7 @@ private final case class ZLong(value: Long) extends Z {
   private def upgrade: ZApint = ZApint(new Apint(value))
 }
 
-private final case class ZApint(value: Apint) extends Z {
+private[logika] final case class ZApint(value: Apint) extends Z {
   def unary_- : Z = ZApint(value.negate)
 
   def +(other: Z): Z = ZApint(value.add(other.toZApint))
@@ -259,37 +250,20 @@ private final case class ZApint(value: Apint) extends Z {
       case other: Short => new Apint(other) == value
       case other: Int => new Apint(other) == value
       case other: Long => new Apint(other) == value
-      case other: java.math.BigInteger => other == toBigInteger
-      case other: BigInt => other == toBigInt
+      case other: java.math.BigInteger => new Apint(other) == value
+      case other: BigInt => new Apint(other.bigInteger) == value
       case _ => false
     }
 
   def <(other: Z): B = value.compareTo(other.toZApint) < 0
 
-  def <=(other: Z): B = {
-    val c = value.compareTo(other.toZApint)
-    c < 0 || c == 0
-  }
+  def <=(other: Z): B = value.compareTo(other.toZApint) <= 0
 
   def >(other: Z): B = value.compareTo(other.toZApint) > 0
 
-  def >=(other: Z): B = {
-    val c = value.compareTo(other.toZApint)
-    c < 0 || c == 0
-  }
+  def >=(other: Z): B = value.compareTo(other.toZApint) >= 0
 
-  override def toInt: Int = {
-    assert(Z(Z.intMin) <= this && this <= Z(Z.intMax))
-    value.toBigInteger.intValue
-  }
-
-  override def toLong: Long = {
-    assert(Z(Z.longMin) <= this && this <= Z(Z.longMax))
-    value.toBigInteger.longValue
-  }
-
-  override def toBigInteger: java.math.BigInteger =
-    value.toBigInteger
+  override def toBigInteger: java.math.BigInteger = value.toBigInteger
 
   override def toBigInt: BigInt = BigInt(value.toBigInteger)
 

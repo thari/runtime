@@ -32,6 +32,7 @@ class ZTest {
   final val z5 = Z("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val zBig = Z(bigVal)
+  final val size = 1024
 
   @Test
   def eqs(): Unit = {
@@ -60,5 +61,56 @@ class ZTest {
     assert(z5 >= 4)
     assert(!(z5 > 5))
     assert(!(z5 >= 6))
+
+    val zBig1 = zBig + 1
+    val zBigM1 = zBig - 1
+    assert(zBig < zBig1)
+    assert(zBig <= zBig1)
+    assert(zBig <= zBig)
+    assert(!(zBig < zBig))
+    assert(!(zBig <= zBigM1))
+    assert(zBig > zBigM1)
+    assert(zBig >= zBigM1)
+    assert(!(zBig > zBig))
+    assert(!(zBig >= zBig1))
+  }
+
+  @Test
+  def randomOps(): Unit = {
+    type I = BigInt
+    val add = ("+", (z1: Z, z2: Z) => z1 + z2, (i1: I, i2: I) => i1 + i2)
+    val sub = ("-", (z1: Z, z2: Z) => z1 - z2, (i1: I, i2: I) => i1 - i2)
+    val mul = ("*", (z1: Z, z2: Z) => z1 * z2, (i1: I, i2: I) => i1 * i2)
+    for (i <- 0 until size)
+      for ((op, zop, iop) <- Seq(add, sub, mul)) {
+        val z1 = randomInt()
+        val z2 = randomInt()
+        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+      }
+
+    val div = ("/", (z1: Z, z2: Z) => z1 / z2, (i1: I, i2: I) => i1 / i2)
+    val rem = ("%", (z1: Z, z2: Z) => z1 % z2, (i1: I, i2: I) => i1 % i2)
+    for (i <- 0 until size)
+      for ((op, zop, iop) <- Seq(div, rem)) {
+        val z1 = randomInt()
+        var z2 = randomInt()
+        while (z2 == math.Z.zero) {
+          z2 = randomInt()
+        }
+        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+      }
+
+    val eq = ("==", (z1: Z, z2: Z) => z1 == z2, (i1: I, i2: I) => i1 == i2)
+    val ne = ("!=", (z1: Z, z2: Z) => z1 != z2, (i1: I, i2: I) => i1 != i2)
+    val gt = (">", (z1: Z, z2: Z) => z1 > z2, (i1: I, i2: I) => i1 > i2)
+    val ge = (">=", (z1: Z, z2: Z) => z1 >= z2, (i1: I, i2: I) => i1 >= i2)
+    val lt = ("<", (z1: Z, z2: Z) => z1 < z2, (i1: I, i2: I) => i1 < i2)
+    val le = ("<=", (z1: Z, z2: Z) => z1 <= z2, (i1: I, i2: I) => i1 <= i2)
+    for (i <- 0 until size)
+      for ((op, zop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
+        val z1 = randomInt()
+        val z2 = randomInt()
+        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+      }
   }
 }
