@@ -58,7 +58,7 @@ object Z {
   final def apply(z: Apint): Z = ZApint(z).pack
 }
 
-trait Z extends ScalaNumericConversions {
+sealed trait Z extends ScalaNumericConversions with Comparable[Z] {
   def unary_- : Z
 
   def +(other: Z): Z
@@ -194,6 +194,12 @@ private[logika] final case class ZLong(value: Long) extends Z {
     case _ => false
   }
 
+  override def compareTo(other: Z): Int =
+    other match {
+      case ZLong(n) => value.compareTo(n)
+      case _ => upgrade.compareTo(other)
+    }
+
   override def >(other: Z): B = other match {
     case ZLong(n) => value > n
     case _ => upgrade > other
@@ -253,6 +259,12 @@ private[logika] final case class ZApint(value: Apint) extends Z {
       case other: java.math.BigInteger => new Apint(other) == value
       case other: BigInt => new Apint(other.bigInteger) == value
       case _ => false
+    }
+
+  override def compareTo(other: Z): Int =
+    other match {
+      case ZLong(n) => value.compareTo(new Apint(n))
+      case other: ZApint => value.compareTo(other.value)
     }
 
   def <(other: Z): B = value.compareTo(other.toZApint) < 0
