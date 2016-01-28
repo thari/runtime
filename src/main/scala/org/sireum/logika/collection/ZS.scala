@@ -27,12 +27,25 @@ package org.sireum.logika.collection
 
 import org.sireum.logika.{B, Z}
 import org.sireum.logika.math.{Z => ZM}
+import scala.collection.mutable.{ArrayBuffer, Map => MMap}
 
 object ZS {
-  def apply(elements: Z*): ZS = new ZSArray(elements.toArray)
+  type MM = MMap[Z, Z]
+  type TM = java.util.TreeMap[Z, Z]
+
+  def apply(elements: Z*): ZS = new ZSArray(ArrayBuffer(elements: _*))
+
+  private[collection] def newZSMap: (MM, TM) = {
+    val tm = new TM
+    val a: scala.collection.mutable.Map[Z, Z] = {
+      import scala.collection.JavaConversions._
+      tm
+    }
+    (a, tm)
+  }
 }
 
-trait ZS {
+sealed trait ZS {
   def size: Z
 
   def apply(index: Z): Z
@@ -44,8 +57,6 @@ trait ZS {
   def +:(value: Z): ZS
 
   override def clone: ZS = sys.error("stub")
-
-  final override def hashCode: Int = "ZS".hashCode + size.toInt
 
   final override def equals(other: Any): B = other match {
     case other: ZS =>
@@ -61,9 +72,9 @@ trait ZS {
   }
 }
 
-import scala.collection.mutable.{ListMap => LM}
+private[logika] final class ZSArray(a: ArrayBuffer[Z]) extends ZS {
+  var (dirty, _hashCode) = (true, 0)
 
-private[logika] final class ZSArray(a: Array[Z]) extends ZS {
   override val size: Z = ZM(a.length)
 
   override def apply(index: Z): Z = {
@@ -73,28 +84,29 @@ private[logika] final class ZSArray(a: Array[Z]) extends ZS {
 
   override def update(index: Z, value: Z): Unit = {
     assert(index < ZM(ZM.intMax))
+    dirty = true
     a(index.toInt) = value
   }
 
   override def :+(value: Z): ZS =
     if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
-    else {
-      val newValue = new Array[Z](a.length + 1)
-      System.arraycopy(a, 0, newValue, 0, a.length)
-      newValue(a.length) = value
-      new ZSArray(newValue)
-    }
+    else new ZSArray(a :+ value)
 
   override def +:(value: Z): ZS =
     if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
-    else {
-      val newValue = new Array[Z](a.length + 1)
-      newValue(0) = value
-      System.arraycopy(a, 0, newValue, 1, a.length)
-      new ZSArray(newValue)
-    }
+    else new ZSArray(value +: a)
 
   override def clone: ZS = new ZSArray(a.clone)
+
+  override def hashCode: Int = {
+    if (dirty) {
+      _hashCode = computeHashCode
+      dirty = false
+    }
+    _hashCode
+  }
+
+  def computeHashCode: Int = a.hashCode
 
   override def toString: String = {
     val sb = new StringBuilder
@@ -114,54 +126,72 @@ private[logika] final class ZSArray(a: Array[Z]) extends ZS {
     sb.toString
   }
 
-  private def upgrade: ZSImpl = {
-    val lm = LM[Z, Z]()
+  private[logika] def upgrade: ZSTreeMap = {
+    val (a, tm) = ZS.newZSMap
     var i = ZM.zero
-    for (e <- a) {
-      lm(i) = e
+    for (e <- this.a) {
+      a(i) = e
       i += ZM.one
     }
-    new ZSImpl(lm, i)
+    new ZSTreeMap(tm, i)
   }
 }
 
-private[logika] final class ZSImpl(lm: LM[Z, Z],
-                                   override val size: Z) extends ZS {
-  def apply(index: Z): Z = lm.get(index) match {
+private[logika] final class ZSTreeMap(tm: ZS.TM,
+                                      override val size: Z) extends ZS {
+  var (dirty, _hashCode) = (true, 0)
+  val a: ZS.MM = {
+    import scala.collection.JavaConversions._
+    tm
+  }
+
+  def apply(index: Z): Z = a.get(index) match {
     case Some(value) => value
     case _ => throw new IndexOutOfBoundsException(index.toString)
   }
 
-  def update(index: Z, value: Z): Unit =
-    if (lm.contains(index)) lm(index) = value
+  def update(index: Z, value: Z): Unit = {
+    dirty = true
+    if (ZM.zero <= index && index < size) a(index) = value
     else throw new IndexOutOfBoundsException(index.toString)
+  }
 
   def :+(value: Z): ZS = {
-    val lm = LM[Z, Z]()
-    for ((i, v) <- this.lm) lm(i) = v
-    lm(size) = value
-    new ZSImpl(lm, ZM(this.lm.size) + ZM.one)
+    val (a, tm) = ZS.newZSMap
+    for ((i, v) <- this.a) a(i) = v
+    a(size) = value
+    new ZSTreeMap(tm, ZM(this.tm.size) + ZM.one)
   }
 
   def +:(value: Z): ZS = {
-    val lm = LM[Z, Z]()
-    lm(ZM.zero) = value
-    for ((i, v) <- this.lm) lm(i + ZM.one) = v
-    new ZSImpl(lm, size + ZM.one)
+    val (a, tm) = ZS.newZSMap
+    a(ZM.zero) = value
+    for ((i, v) <- this.a) a(i + ZM.one) = v
+    new ZSTreeMap(tm, size + ZM.one)
   }
 
-  override def clone: ZS = new ZSImpl(lm.clone, size)
+  override def clone: ZS = new ZSTreeMap(tm.clone.asInstanceOf[ZS.TM], size)
+
+  override def hashCode: Int = {
+    if (dirty) {
+      _hashCode = computeHashCode
+      dirty = false
+    }
+    _hashCode
+  }
+
+  def computeHashCode = a.values.toSeq.hashCode
 
   override def toString: String = {
     val sb = new StringBuilder
     sb.append('[')
-    if (lm.nonEmpty) {
+    if (a.nonEmpty) {
       var i = ZM.zero
-      sb.append(lm(i))
+      sb.append(a(i))
       i += ZM.one
       while (i < size) {
         sb.append(", ")
-        sb.append(lm(i))
+        sb.append(a(i))
         i += ZM.one
       }
     }
