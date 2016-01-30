@@ -73,9 +73,12 @@ package object logika {
 
     import scala.language.experimental.macros
 
-    def l(args: Any*): Unit = macro lImpl
+    def l(args: Any*): Unit = macro _macro.lImpl
 
-    private def lImpl(c: scala.reflect.macros.blackbox.Context)(
+  }
+
+  object _macro {
+    def lImpl(c: scala.reflect.macros.blackbox.Context)(
       args: c.Expr[Any]*): c.Expr[Unit] =
       c.universe.reify {}
   }
