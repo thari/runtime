@@ -39,6 +39,31 @@ object Z {
   final val zero = Z(0)
   final val one = Z(1)
 
+  final val bitWidth = {
+    def err = sys.error("org.sireum.logika.Z.bitWidth should be either 8, 16, 32, or 64.")
+    try Option(System.getProperty("org.sireum.logika.Z.bitWidth")) match {
+      case Some(v) =>
+        val n = v.toInt
+        n match {
+          case 8 | 16 | 32 | 64 => n
+          case _ => err
+        }
+      case _ => 0
+    } catch {
+      case _: Throwable => err
+    }
+  }
+
+  lazy val Min: Z = {
+    if (bitWidth == 0) sys.error("Unbounded integer does not have a minimum value.")
+    else apply(BigInt(-2).pow(bitWidth - 1))
+  }
+
+  lazy val Max: Z = {
+    if (bitWidth == 0) sys.error("Unbounded integer does not have a maximum value.")
+    else apply(BigInt(2).pow(bitWidth - 1) - 1)
+  }
+
   @inline
   final def apply(z: Int): Z = apply(new Apint(z))
 

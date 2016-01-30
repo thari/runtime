@@ -33,19 +33,7 @@ package object logika {
   final val T = true
   final val F = false
 
-  import scala.language.implicitConversions
-  final implicit def _Z(n: Int): Z = math.Z(n)
-
-  final def Z(s: String): Z = math.Z(s)
-
-  final def ZS(args: Z*): ZS = collection.ZS(args: _*)
-
-  final implicit class Logika(val sc: StringContext) extends AnyVal {
-
-    import scala.language.experimental.macros
-
-    def l(args: Any*): Unit = macro _macro.lImpl
-  }
+  final val Z = math.Z
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
@@ -60,7 +48,7 @@ package object logika {
           Console.err.flush()
       }
     }
-    math.Z.zero
+    Z.zero
   }
 
   final def println(as: Any*): Unit = {
@@ -72,14 +60,22 @@ package object logika {
     for (a <- as) scala.Predef.print(a)
 
   final def randomInt(): Z =
-    math.Z(BigInt(
+    Z(BigInt(
       numbits = new scala.util.Random().nextInt(1024),
       rnd = new scala.util.Random()))
 
   final class helper extends scala.annotation.Annotation
 
-  object _macro {
-    final def lImpl(c: scala.reflect.macros.blackbox.Context)(
+  import scala.language.implicitConversions
+  final implicit def _Z(n: Int): Z = Z(n)
+
+  final implicit class Logika(val sc: StringContext) extends AnyVal {
+
+    import scala.language.experimental.macros
+
+    def l(args: Any*): Unit = macro lImpl
+
+    private def lImpl(c: scala.reflect.macros.blackbox.Context)(
       args: c.Expr[Any]*): c.Expr[Unit] =
       c.universe.reify {}
   }
