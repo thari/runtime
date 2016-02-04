@@ -25,15 +25,20 @@
 
 package org.sireum.logika
 
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+package object math {
+  final val defaultBitWidth = {
+    def err = sys.error("org.sireum.logika.math.bitWidth should be either 8, 16, 32, or 64.")
+    try Option(System.getProperty("org.sireum.logika.math.bitWidth")) match {
+      case Some(v) =>
+        val n = v.toInt
+        n match {
+          case 8 | 16 | 32 | 64 => n
+          case _ => err
+        }
+      case _ => 0
+    } catch {
+      case _: Throwable => err
+    }
+  }
 
-@RunWith(classOf[Suite])
-@Suite.SuiteClasses(
-  Array(
-    classOf[ZTest],
-    classOf[NTest],
-    classOf[ZSTest]
-  )
-)
-class LogikaRuntimeTestSuite
+}

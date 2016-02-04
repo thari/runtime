@@ -85,7 +85,9 @@ class ZTest {
       for ((op, zop, iop) <- Seq(add, sub, mul)) {
         val z1 = randomInt()
         val z2 = randomInt()
-        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+        val zr = zop(z1, z2)
+        val ir = iop(z1.toBigInt, z2.toBigInt)
+        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
 
     val div = ("/", (z1: Z, z2: Z) => z1 / z2, (i1: I, i2: I) => i1 / i2)
@@ -97,7 +99,9 @@ class ZTest {
         while (z2 == math.Z.zero) {
           z2 = randomInt()
         }
-        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+        val zr = zop(z1, z2)
+        val ir = iop(z1.toBigInt, z2.toBigInt)
+        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
 
     val eq = ("==", (z1: Z, z2: Z) => z1 == z2, (i1: I, i2: I) => i1 == i2)
@@ -110,7 +114,9 @@ class ZTest {
       for ((op, zop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
         val z1 = randomInt()
         val z2 = randomInt()
-        assert(zop(z1, z2) == iop(z1.toBigInt, z2.toBigInt), s"$z1 $op $z2")
+        val zr = zop(z1, z2)
+        val ir = iop(z1.toBigInt, z2.toBigInt)
+        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
   }
 }

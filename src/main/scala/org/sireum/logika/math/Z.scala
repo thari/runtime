@@ -39,30 +39,13 @@ object Z {
   final val zero = Z(0)
   final val one = Z(1)
 
-  final val bitWidth = {
-    def err = sys.error("org.sireum.logika.Z.bitWidth should be either 8, 16, 32, or 64.")
-    try Option(System.getProperty("org.sireum.logika.Z.bitWidth")) match {
-      case Some(v) =>
-        val n = v.toInt
-        n match {
-          case 8 | 16 | 32 | 64 => n
-          case _ => err
-        }
-      case _ => 0
-    } catch {
-      case _: Throwable => err
-    }
-  }
+  lazy val Min: Z =
+    if (defaultBitWidth == 0) sys.error("Unbounded integer does not have a minimum value.")
+    else apply(BigInt(-2).pow(defaultBitWidth - 1))
 
-  lazy val Min: Z = {
-    if (bitWidth == 0) sys.error("Unbounded integer does not have a minimum value.")
-    else apply(BigInt(-2).pow(bitWidth - 1))
-  }
-
-  lazy val Max: Z = {
-    if (bitWidth == 0) sys.error("Unbounded integer does not have a maximum value.")
-    else apply(BigInt(2).pow(bitWidth - 1) - 1)
-  }
+  lazy val Max: Z =
+    if (defaultBitWidth == 0) sys.error("Unbounded integer does not have a maximum value.")
+    else apply(BigInt(2).pow(defaultBitWidth - 1) - 1)
 
   @inline
   final def apply(z: Int): Z = apply(new Apint(z))
@@ -139,6 +122,24 @@ sealed trait Z extends ScalaNumericConversions with Comparable[Z] {
   def >(other: Long): B = this > Z(other)
 
   def >=(other: Long): B = this >= Z(other)
+
+  def +(other: N): Z = this + other.toZ
+
+  def -(other: N): Z = this - other.toZ
+
+  def *(other: N): Z = this * other.toZ
+
+  def /(other: N): Z = this / other.toZ
+
+  def %(other: N): Z = this % other.toZ
+
+  def <(other: N): B = this < other.toZ
+
+  def <=(other: N): B = this <= other.toZ
+
+  def >(other: N): B = this > other.toZ
+
+  def >=(other: N): B = this >= other.toZ
 
   def toBigInteger: java.math.BigInteger
 
@@ -219,11 +220,10 @@ private[logika] final case class ZLong(value: Long) extends Z {
     case _ => false
   }
 
-  override def compareTo(other: Z): Int =
-    other match {
-      case ZLong(n) => value.compareTo(n)
-      case _ => upgrade.compareTo(other)
-    }
+  override def compareTo(other: Z): Int = other match {
+    case ZLong(n) => value.compareTo(n)
+    case _ => upgrade.compareTo(other)
+  }
 
   override def >(other: Z): B = other match {
     case ZLong(n) => value > n
@@ -272,25 +272,24 @@ private[logika] final case class ZApint(value: Apint) extends Z {
 
   override lazy val hashCode: Int = toBigInt.hashCode
 
-  override def equals(other: Any): B =
-    other match {
-      case ZLong(n) => value.equals(new Apint(n))
-      case other: ZApint => (this eq other) || value.equals(other.value)
-      case other: Byte => new Apint(other) == value
-      case other: Char => new Apint(other) == value
-      case other: Short => new Apint(other) == value
-      case other: Int => new Apint(other) == value
-      case other: Long => new Apint(other) == value
-      case other: java.math.BigInteger => new Apint(other) == value
-      case other: BigInt => new Apint(other.bigInteger) == value
-      case _ => false
-    }
+  override def equals(other: Any): B = other match {
+    case ZLong(n) => value.equals(new Apint(n))
+    case other: ZApint => (this eq other) || value.equals(other.value)
+    case other: NImpl => (this eq other.value) || this.equals(other.value)
+    case other: Byte => new Apint(other) == value
+    case other: Char => new Apint(other) == value
+    case other: Short => new Apint(other) == value
+    case other: Int => new Apint(other) == value
+    case other: Long => new Apint(other) == value
+    case other: java.math.BigInteger => new Apint(other) == value
+    case other: BigInt => new Apint(other.bigInteger) == value
+    case _ => false
+  }
 
-  override def compareTo(other: Z): Int =
-    other match {
-      case ZLong(n) => value.compareTo(new Apint(n))
-      case other: ZApint => value.compareTo(other.value)
-    }
+  override def compareTo(other: Z): Int = other match {
+    case ZLong(n) => value.compareTo(new Apint(n))
+    case other: ZApint => value.compareTo(other.value)
+  }
 
   def <(other: Z): B = value.compareTo(other.toZApint) < 0
 
