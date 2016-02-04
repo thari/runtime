@@ -46,6 +46,7 @@ object LogikaRuntimeBuild extends Build {
       libraryDependencies ++= Seq(
         "org.apfloat" % "apfloat" % "1.8.2",
         "org.scala-lang" % "scala-reflect" % scalaVer,
+        "org.spire-math" %% "spire" % "0.11.0",
         "com.novocode" % "junit-interface" % "0.11" % Test
       ),
       EclipseKeys.withSource := true,
