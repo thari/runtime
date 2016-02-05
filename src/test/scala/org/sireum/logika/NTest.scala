@@ -120,4 +120,8 @@ class NTest {
         assert(nr == ir, s"$n1 $op $n2 ($nr != $ir)")
       }
   }
+
+  import scala.language.implicitConversions
+
+  implicit def int2n(n: Int): N = Z(n).toN
 }

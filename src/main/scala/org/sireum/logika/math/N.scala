@@ -31,7 +31,7 @@ import scala.math.ScalaNumericConversions
 
 import org.sireum.logika._
 
-object N {
+object N extends LogikaNumberCompanion {
 
   final val zero: N = NImpl(Z.zero)
   final val one: N = NImpl(Z.one)
@@ -56,88 +56,37 @@ object N {
 
   @inline
   final def apply(z: Z): N = if (z <= 0) zero else NImpl(z)
+
+  final override def random: N = {
+    val z = Z.random
+    if (z < Z.zero) N(-z) else N(z)
+  }
 }
 
-sealed trait N extends ScalaNumericConversions with Comparable[N] {
-  def +(other: N): N = N(toZ + other.toZ)
+sealed trait N extends ScalaNumericConversions with Comparable[N] with LogikaNumber {
+  final def +(other: N): N = N(toZ + other.toZ)
 
-  def -(other: N): N = N(toZ - other.toZ)
+  final def -(other: N): N = N(toZ - other.toZ)
 
-  def *(other: N): N = N(toZ * other.toZ)
+  final def *(other: N): N = N(toZ * other.toZ)
 
-  def /(other: N): N = N(toZ / other.toZ)
+  final def /(other: N): N = N(toZ / other.toZ)
 
-  def %(other: N): N = N(toZ % other.toZ)
+  final def %(other: N): N = N(toZ % other.toZ)
 
-  def >(other: N): B = toZ > other.toZ
+  final def >(other: N): B = toZ > other.toZ
 
-  def >=(other: N): B = toZ >= other.toZ
+  final def >=(other: N): B = toZ >= other.toZ
 
-  def <(other: N): B = toZ < other.toZ
+  final def <(other: N): B = toZ < other.toZ
 
-  def <=(other: N): B = toZ <= other.toZ
+  final def <=(other: N): B = toZ <= other.toZ
 
-  def +(other: Int): N = this + N(other)
+  final override def toBigInteger: java.math.BigInteger = toZ.toBigInteger
 
-  def -(other: Int): N = this - N(other)
+  final override def toBigInt: BigInt = toZ.toBigInt
 
-  def *(other: Int): N = this * N(other)
-
-  def /(other: Int): N = this / N(other)
-
-  def %(other: Int): N = this % N(other)
-
-  def <(other: Int): B = this < N(other)
-
-  def <=(other: Int): B = this <= N(other)
-
-  def >(other: Int): B = this > N(other)
-
-  def >=(other: Int): B = this >= N(other)
-
-  def +(other: Long): N = this + N(other)
-
-  def -(other: Long): N = this - N(other)
-
-  def *(other: Long): N = this * N(other)
-
-  def /(other: Long): N = this / N(other)
-
-  def %(other: Long): N = this % N(other)
-
-  def <(other: Long): B = this < N(other)
-
-  def <=(other: Long): B = this <= N(other)
-
-  def >(other: Long): B = this > N(other)
-
-  def >=(other: Long): B = this >= N(other)
-
-  def +(other: Z): Z = toZ + other
-
-  def -(other: Z): Z = toZ - other
-
-  def *(other: Z): Z = toZ * other
-
-  def /(other: Z): Z = toZ / other
-
-  def %(other: Z): Z = toZ % other
-
-  def >(other: Z): B = toZ > other
-
-  def >=(other: Z): B = toZ >= other
-
-  def <(other: Z): B = toZ < other
-
-  def <=(other: Z): B = toZ <= other
-
-  def toZ: Z
-
-  def toBigInteger: java.math.BigInteger = toZ.toBigInteger
-
-  def toBigInt: BigInt = toZ.toBigInt
-
-  def toZApint: Apint = toZ.toZApint
+  final def toApint: Apint = toZ.toApint
 
   final override def doubleValue = toBigInt.doubleValue
 
@@ -150,23 +99,27 @@ sealed trait N extends ScalaNumericConversions with Comparable[N] {
   final override def underlying = toBigInteger
 
   final override def isWhole = true
+
+  final override def toString: String = toZ.toString
 }
 
 final private case class NImpl(value: Z) extends N {
-  def toZ: Z = value
+  override def toZ: Z = value
 
-  override lazy val hashCode: Int = toBigInt.hashCode
+  override lazy val hashCode: Int = value.hashCode
 
   override def equals(other: Any): B = other match {
-    case NImpl(z) => (value eq z) || value.equals(z)
+    case other: N => (this eq other) || value.equals(other.toZ)
     case other: Z => (value eq other) || value.equals(other)
-    case other: Byte => Z(new Apint(other)) == value
-    case other: Char => Z(new Apint(other)) == value
-    case other: Short => Z(new Apint(other)) == value
-    case other: Int => Z(new Apint(other)) == value
-    case other: Long => Z(new Apint(other)) == value
-    case other: java.math.BigInteger => Z(new Apint(other)) == value
-    case other: BigInt => Z(new Apint(other.bigInteger)) == value
+    case other: ZRange#Value => value == other.toZ
+    case other: NRange#Value => value == other.toZ
+    case other: Byte => value == Z(other)
+    case other: Char => value == Z(other)
+    case other: Short => value == Z(other)
+    case other: Int => value == Z(other)
+    case other: Long => value == Z(other)
+    case other: java.math.BigInteger => value == Z(other)
+    case other: BigInt => value == Z(other)
     case _ => false
   }
 

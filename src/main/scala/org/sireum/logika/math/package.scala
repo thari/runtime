@@ -25,6 +25,8 @@
 
 package org.sireum.logika
 
+import org.apfloat.Apint
+
 package object math {
   final val defaultBitWidth = {
     def err = sys.error("org.sireum.logika.math.bitWidth should be either 8, 16, 32, or 64.")
@@ -39,6 +41,38 @@ package object math {
     } catch {
       case _: Throwable => err
     }
+  }
+
+  trait LogikaNumberCompanion {
+    def random: LogikaNumber
+  }
+
+  trait LogikaNumber {
+    def toBigInteger: java.math.BigInteger
+
+    def toBigInt: BigInt
+
+    def toApint: Apint
+
+    def toZ: Z
+
+    final def toZ8: Z8 = Z8.checkRange(toZ)
+
+    final def toZ16: Z16 = Z16.checkRange(toZ)
+
+    final def toZ32: Z32 = Z32.checkRange(toZ)
+
+    final def toZ64: Z64 = Z64.checkRange(toZ)
+
+    final def toN: N = math.N(toZ)
+
+    final def toN8: N8 = N8.checkRange(toZ)
+
+    final def toN16: N16 = N16.checkRange(toZ)
+
+    final def toN32: N32 = N32.checkRange(toZ)
+
+    final def toN64: N64 = N64.checkRange(toZ)
   }
 
 }

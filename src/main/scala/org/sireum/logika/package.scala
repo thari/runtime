@@ -28,7 +28,15 @@ package org.sireum
 package object logika {
   type B = Boolean
   type Z = math.Z
+  type Z8 = math.Z8.Value
+  type Z16 = math.Z16.Value
+  type Z32 = math.Z32.Value
+  type Z64 = math.Z64.Value
   type N = math.N
+  type N8 = math.N8.Value
+  type N16 = math.N16.Value
+  type N32 = math.N32.Value
+  type N64 = math.N64.Value
   type ZS = collection.ZS
 
   final val T = true
@@ -61,17 +69,12 @@ package object logika {
   final def print(as: Any*): Unit =
     for (a <- as) scala.Predef.print(a)
 
-  final def randomInt(): Z =
-    Z(BigInt(
-      numbits = new scala.util.Random().nextInt(1024),
-      rnd = new scala.util.Random()))
+  final def randomInt(): Z = Z.random
 
   final class helper extends scala.annotation.Annotation
 
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)
-
-  final implicit def _N(n: Int): N = N(n)
 
   final implicit class Logika(val sc: StringContext) extends AnyVal {
 
