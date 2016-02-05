@@ -33,7 +33,7 @@ import scala.util.Random
 
 sealed trait NRange {
   final val Min: Value = ValueImpl(Z.zero)
-  final val Max: Value = ValueImpl(Z(BigInt(2).pow(bitWidth)))
+  final val Max: Value = ValueImpl(Z(BigInt(2).pow(bitWidth)) - 1)
 
   def bitWidth: Int
 
