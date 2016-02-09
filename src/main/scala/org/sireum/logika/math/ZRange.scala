@@ -42,7 +42,7 @@ sealed trait ZRange {
     ValueImpl(value.toLong)
   }
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
+  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
     final def -(other: Value): Value = checkRange(toZ - other.toZ)
@@ -91,10 +91,7 @@ sealed trait ZRange {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): B = other match {
-      case other: Value => value == other.toLong
-      case other: N => Z(value) == other.toZ
-      case other: NRange#Value => Z(value) == Z(other.toBigInt)
-      case other: Z => Z(value) == other
+      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong
       case other: Short => value == other.toLong

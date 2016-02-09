@@ -26,6 +26,7 @@
 package org.sireum.logika
 
 import org.apfloat.Apint
+import spire.math.{ULong, UInt, UShort, UByte}
 
 package object math {
   final val defaultBitWidth = {
@@ -47,7 +48,9 @@ package object math {
     def random: LogikaNumber
   }
 
-  trait LogikaNumber {
+  trait LogikaNumber
+
+  trait LogikaIntegralNumber extends LogikaNumber {
     def toBigInteger: java.math.BigInteger
 
     def toBigInt: BigInt
@@ -64,6 +67,14 @@ package object math {
 
     final def toZ64: Z64 = Z64.checkRange(toZ)
 
+    final def toS8: S8 = S8.ValueImpl(toZ.toByte)
+
+    final def toS16: S16 = S16.ValueImpl(toZ.toShort)
+
+    final def toS32: S32 = S32.ValueImpl(toZ.toInt)
+
+    final def toS64: S64 = S64.ValueImpl(toZ.toLong)
+
     final def toN: N = math.N(toZ)
 
     final def toN8: N8 = N8.checkRange(toZ)
@@ -73,6 +84,28 @@ package object math {
     final def toN32: N32 = N32.checkRange(toZ)
 
     final def toN64: N64 = N64.checkRange(toZ)
+
+    final def toU8: U8 = U8.ValueImpl(UByte((toZ % 256).toInt))
+
+    final def toU16: U16 = U16.ValueImpl(UShort((toZ % 65536).toInt))
+
+    final def toU32: U32 = U32.ValueImpl(UInt((toZ % 4294967296l).toInt))
+
+    final def toU64: U64 = U64.ValueImpl(ULong.fromBigInt(toBigInt))
+  }
+
+  trait LogikaModuloIntegralNumber[V] extends LogikaIntegralNumber {
+    def unary_~(): V
+
+    def &(other: V): V
+
+    def |(other: V): V
+
+    def ^(other: V): V
+
+    def <<(distance: N8): V
+
+    def >>>(distance: N8): V
   }
 
 }

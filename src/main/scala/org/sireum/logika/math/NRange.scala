@@ -42,7 +42,7 @@ sealed trait NRange {
     ValueImpl(value)
   }
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
+  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
     final def -(other: Value): Value = checkRange(toZ - other.toZ)
@@ -91,10 +91,7 @@ sealed trait NRange {
     override def toZ: Z = value
 
     override def equals(other: Any): B = other match {
-      case other: Value => value == other.toZ
-      case other: N => value == other.toZ
-      case other: Z => value == other
-      case other: ZRange#Value => value == Z(other.toLong)
+      case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
       case other: Byte => value == Z(other)
       case other: Char => value == Z(other)
       case other: Short => value == Z(other)
@@ -126,12 +123,12 @@ object N32 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 32
 
   final override def random: N32 =
-    N32.ValueImpl(Z(new Random().nextInt.toShort) + Z32.Max.toZ + 1)
+    N32.ValueImpl(Z(new Random().nextInt) + Z32.Max.toZ + 1)
 }
 
 object N64 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 64
 
   final override def random: N64 =
-    N64.ValueImpl(Z(new Random().nextInt.toShort) + Z64.Max.toZ + 1)
+    N64.ValueImpl(Z(new Random().nextLong) + Z64.Max.toZ + 1)
 }

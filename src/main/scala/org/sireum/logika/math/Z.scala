@@ -70,7 +70,7 @@ object Z extends LogikaNumberCompanion {
     rnd = new scala.util.Random()))
 }
 
-sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaNumber {
+sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaIntegralNumber {
   def unary_- : Z
 
   def +(other: Z): Z
@@ -191,10 +191,8 @@ private[logika] final case class ZLong(value: Long) extends Z {
 
   override def equals(other: Any): B = other match {
     case ZLong(n) => value == n
-    case other: ZApint => upgrade == other
     case other: ZRange#Value => value == other.toLong
-    case other: NRange#Value => upgrade == other.toZ
-    case other: N => this == other.toZ
+    case other: LogikaIntegralNumber => upgrade == other.toZ
     case other: Byte => value == other.toLong
     case other: Char => value == other.toLong
     case other: Short => value == other.toLong
@@ -258,10 +256,7 @@ private[logika] final case class ZApint(value: Apint) extends Z {
   override lazy val hashCode: Int = toBigInt.hashCode
 
   override def equals(other: Any): B = other match {
-    case other: Z => (this eq other) || value == other.toApint
-    case other: N => this == other.toZ
-    case other: ZRange#Value => this == other.toZ
-    case other: NRange#Value => this == other.toZ
+    case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ.toApint)
     case other: Byte => value == new Apint(other)
     case other: Char => value == new Apint(other)
     case other: Short => value == new Apint(other)

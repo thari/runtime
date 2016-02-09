@@ -32,11 +32,19 @@ package object logika {
   type Z16 = math.Z16.Value
   type Z32 = math.Z32.Value
   type Z64 = math.Z64.Value
+  type S8 = math.S8.Value
+  type S16 = math.S16.Value
+  type S32 = math.S32.Value
+  type S64 = math.S64.Value
   type N = math.N
   type N8 = math.N8.Value
   type N16 = math.N16.Value
   type N32 = math.N32.Value
   type N64 = math.N64.Value
+  type U8 = math.U8.Value
+  type U16 = math.U16.Value
+  type U32 = math.U32.Value
+  type U64 = math.U64.Value
   type ZS = collection.ZS
 
   final val T = true
