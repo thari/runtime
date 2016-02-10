@@ -45,6 +45,9 @@ package object logika {
   type U16 = math.U16.Value
   type U32 = math.U32.Value
   type U64 = math.U64.Value
+  type R = math.R
+  type F32 = math.F32.Value
+  type F64 = math.F64.Value
   type ZS = collection.ZS
 
   final val T = true
