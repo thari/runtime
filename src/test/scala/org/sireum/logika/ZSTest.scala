@@ -30,9 +30,9 @@ import scala.collection.mutable.ArrayBuffer
 
 class ZSTest {
   final val size = math.Z(1024)
-  final val zs123 = new collection.ZSArray(ArrayBuffer[Z](1, 2, 3))
-  final val zs12 = new collection.ZSArray(ArrayBuffer[Z](1, 2))
-  final val zs23 = new collection.ZSArray(ArrayBuffer[Z](2, 3))
+  final val zs123 = new collection.ZS.ValueArray(ArrayBuffer[Z](1, 2, 3))
+  final val zs12 = new collection.ZS.ValueArray(ArrayBuffer[Z](1, 2))
+  final val zs23 = new collection.ZS.ValueArray(ArrayBuffer[Z](2, 3))
 
   @Test
   def append(): Unit = {
@@ -61,8 +61,8 @@ class ZSTest {
   @Test
   def zsArray(): Unit = {
     var i = math.Z.zero
-    var append: ZS = new collection.ZSArray(ArrayBuffer())
-    var prepend: ZS = new collection.ZSArray(ArrayBuffer())
+    var append: ZS = new collection.ZS.ValueArray(ArrayBuffer())
+    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
     while (i < size) {
       append :+= i
       prepend +:= size - i - 1
@@ -74,8 +74,8 @@ class ZSTest {
   @Test
   def zsImpl(): Unit = {
     var i = math.Z.zero
-    var append: ZS = new collection.ZSTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZSTreeMap(new java.util.TreeMap[Z, Z], 0)
+    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+    var prepend: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
     while (i < size) {
       append :+= i
       prepend +:= size - i - 1
@@ -87,8 +87,8 @@ class ZSTest {
   @Test
   def zsArrayImpl(): Unit = {
     var i = math.Z.zero
-    var append: ZS = new collection.ZSTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZSArray(ArrayBuffer())
+    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
     while (i < size) {
       append :+= i
       prepend +:= size - i - 1
@@ -100,8 +100,8 @@ class ZSTest {
   @Test
   def zsImplArray(): Unit = {
     var i = math.Z.zero
-    var append: ZS = new collection.ZSTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZSArray(ArrayBuffer())
+    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
     while (i < size) {
       append :+= i
       prepend +:= size - i - 1

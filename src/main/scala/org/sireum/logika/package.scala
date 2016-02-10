@@ -48,7 +48,29 @@ package object logika {
   type R = math.R
   type F32 = math.F32.Value
   type F64 = math.F64.Value
-  type ZS = collection.ZS
+
+  type BS = collection.BS.Value
+  type ZS = collection.ZS.Value
+  type Z8S = collection.Z8S.Value
+  type Z16S = collection.Z16S.Value
+  type Z32S = collection.Z32S.Value
+  type Z64S = collection.Z64S.Value
+  type S8S = collection.S8S.Value
+  type S16S = collection.S16S.Value
+  type S32S = collection.S32S.Value
+  type S64S = collection.S64S.Value
+  type NS = collection.NS.Value
+  type N8S = collection.N8S.Value
+  type N16S = collection.N16S.Value
+  type N32S = collection.N32S.Value
+  type N64S = collection.N64S.Value
+  type U8S = collection.U8S.Value
+  type U16S = collection.U16S.Value
+  type U32S = collection.U32S.Value
+  type U64S = collection.U64S.Value
+  type RS = collection.RS.Value
+  type F32S = collection.F32S.Value
+  type F64S = collection.F64S.Value
 
   final val T = true
   final val F = false
