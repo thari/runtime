@@ -125,9 +125,9 @@ object U8 extends U with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -192,9 +192,9 @@ object U16 extends U with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -259,9 +259,9 @@ object U32 extends U with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -326,9 +326,9 @@ object U64 extends U with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 

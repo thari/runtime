@@ -103,9 +103,9 @@ package object math {
 
     def ^(other: V): V
 
-    def <<(distance: N8): V
+    def <<(distance: Z): V
 
-    def >>>(distance: N8): V
+    def >>>(distance: Z): V
   }
 
 }

@@ -54,7 +54,7 @@ sealed trait S {
 
     final def <=(other: Value): B = toZ <= other.toZ
 
-    def >>(distance: N8): Value
+    def >>(distance: Z): Value
 
     final def toBigInteger: java.math.BigInteger = toBigInt.bigInteger
 
@@ -126,11 +126,11 @@ object S8 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl((~value & 0xFF).toByte)
 
-    override def <<(distance: N8): Value = ValueImpl((value << distance.toInt).toByte)
+    override def <<(distance: Z): Value = ValueImpl((value << distance.toInt).toByte)
 
-    override def >>(distance: N8): Value = ValueImpl((value >> distance.toInt).toByte)
+    override def >>(distance: Z): Value = ValueImpl((value >> distance.toInt).toByte)
 
-    override def >>>(distance: N8): Value = ValueImpl((value >>> distance.toInt).toByte)
+    override def >>>(distance: Z): Value = ValueImpl((value >>> distance.toInt).toByte)
 
     override val hashCode: Int = value.hashCode
 
@@ -195,11 +195,11 @@ object S16 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl((~value & 0xFFFF).toShort)
 
-    override def <<(distance: N8): Value = ValueImpl((value << distance.toInt).toShort)
+    override def <<(distance: Z): Value = ValueImpl((value << distance.toInt).toShort)
 
-    override def >>(distance: N8): Value = ValueImpl((value >> distance.toInt).toShort)
+    override def >>(distance: Z): Value = ValueImpl((value >> distance.toInt).toShort)
 
-    override def >>>(distance: N8): Value = ValueImpl((value >>> distance.toInt).toShort)
+    override def >>>(distance: Z): Value = ValueImpl((value >>> distance.toInt).toShort)
 
     override val hashCode: Int = value.hashCode
 
@@ -264,11 +264,11 @@ object S32 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>(distance: N8): Value = ValueImpl(value >> distance.toInt)
+    override def >>(distance: Z): Value = ValueImpl(value >> distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -333,11 +333,11 @@ object S64 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: N8): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
 
-    override def >>(distance: N8): Value = ValueImpl(value >> distance.toInt)
+    override def >>(distance: Z): Value = ValueImpl(value >> distance.toInt)
 
-    override def >>>(distance: N8): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
