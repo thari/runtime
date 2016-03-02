@@ -44,6 +44,8 @@ package object math {
     }
   }
 
+  private final val max1ULong = math.Z(BigInt(2).pow(64))
+
   trait LogikaNumberCompanion {
     def random: LogikaNumber
   }
@@ -85,13 +87,13 @@ package object math {
 
     final def toN64: N64 = N64.checkRange(toZ)
 
-    final def toU8: U8 = U8.ValueImpl(UByte((toZ % 256).toInt))
+    final def toU8: U8 = U8.ValueImpl(UByte((toZ % 256).toByte))
 
-    final def toU16: U16 = U16.ValueImpl(UShort((toZ % 65536).toInt))
+    final def toU16: U16 = U16.ValueImpl(UShort((toZ % 65536).toShort))
 
     final def toU32: U32 = U32.ValueImpl(UInt((toZ % 4294967296l).toInt))
 
-    final def toU64: U64 = U64.ValueImpl(ULong.fromBigInt(toBigInt))
+    final def toU64: U64 = U64.ValueImpl(ULong((toZ % max1ULong).toLong))
   }
 
   trait LogikaModuloIntegralNumber[V] extends LogikaIntegralNumber {
@@ -101,11 +103,11 @@ package object math {
 
     def |(other: V): V
 
-    def ^(other: V): V
+    def ^|(other: V): V
 
-    def <<(distance: Z): V
+    def <<(distance: V): V
 
-    def >>>(distance: Z): V
+    def >>>(distance: V): V
   }
 
 }

@@ -119,15 +119,15 @@ object U8 extends U with LogikaNumberCompanion {
       case other: ValueImpl => ValueImpl(value | other.value)
     }
 
-    override def ^(other: Value): Value = other match {
+    override def ^|(other: Value): Value = other match {
       case other: ValueImpl => ValueImpl(value ^ other.value)
     }
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Value): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -186,15 +186,15 @@ object U16 extends U with LogikaNumberCompanion {
       case other: ValueImpl => ValueImpl(value | other.value)
     }
 
-    override def ^(other: Value): Value = other match {
+    override def ^|(other: Value): Value = other match {
       case other: ValueImpl => ValueImpl(value ^ other.value)
     }
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Value): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -253,15 +253,15 @@ object U32 extends U with LogikaNumberCompanion {
       case other: ValueImpl => ValueImpl(value | other.value)
     }
 
-    override def ^(other: Value): Value = other match {
+    override def ^|(other: Value): Value = other match {
       case other: ValueImpl => ValueImpl(value ^ other.value)
     }
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Value): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
@@ -320,15 +320,15 @@ object U64 extends U with LogikaNumberCompanion {
       case other: ValueImpl => ValueImpl(value | other.value)
     }
 
-    override def ^(other: Value): Value = other match {
+    override def ^|(other: Value): Value = other match {
       case other: ValueImpl => ValueImpl(value ^ other.value)
     }
 
     override def unary_~(): Value = ValueImpl(~value)
 
-    override def <<(distance: Z): Value = ValueImpl(value << distance.toInt)
+    override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 
-    override def >>>(distance: Z): Value = ValueImpl(value >>> distance.toInt)
+    override def >>>(distance: Value): Value = ValueImpl(value >>> distance.toInt)
 
     override val hashCode: Int = value.hashCode
 
