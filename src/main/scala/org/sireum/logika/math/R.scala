@@ -34,7 +34,7 @@ import org.sireum.logika._
 object R extends LogikaNumberCompanion {
 
   @inline
-  final def apply(r: String): R = apply(Real(r))
+  final def apply(r: String): R = apply(Real(r.replaceAll(" ", "")))
 
   @inline
   final def apply(r: Real): R = RImpl(r)

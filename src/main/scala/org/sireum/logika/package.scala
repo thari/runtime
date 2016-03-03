@@ -111,6 +111,44 @@ package object logika {
 
   final implicit class Logika(val sc: StringContext) extends AnyVal {
 
+    def z(args: Any*): Z = math.Z(sc.raw(args))
+
+    def z8(args: Any*): Z8 = z(args: _*).toZ8
+
+    def z16(args: Any*): Z16 = z(args: _*).toZ16
+
+    def z32(args: Any*): Z32 = z(args: _*).toZ32
+
+    def z64(args: Any*): Z64 = z(args: _*).toZ64
+
+    def n(args: Any*): N = z(args: _*).toN
+
+    def n8(args: Any*): N8 = z(args: _*).toN8
+
+    def n16(args: Any*): N16 = z(args: _*).toN16
+
+    def n32(args: Any*): N32 = z(args: _*).toN32
+
+    def n64(args: Any*): N64 = z(args: _*).toN64
+
+    def s8(args: Any*): S8 = z(args: _*).toS8
+
+    def s16(args: Any*): S16 = z(args: _*).toS16
+
+    def s32(args: Any*): S32 = z(args: _*).toS32
+
+    def s64(args: Any*): S64 = z(args: _*).toS64
+
+    def u8(args: Any*): U8 = z(args: _*).toU8
+
+    def u16(args: Any*): U16 = z(args: _*).toU16
+
+    def u32(args: Any*): U32 = z(args: _*).toU32
+
+    def u64(args: Any*): U64 = z(args: _*).toU64
+
+    def r(args: Any*): R = math.R(sc.raw(args))
+
     import scala.language.experimental.macros
 
     def l(args: Any*): Unit = macro _macro.lImpl
