@@ -56,10 +56,8 @@ object Z extends LogikaNumberCompanion {
   @inline
   final def apply(z: String): Z = {
     val s = z.replaceAll(" ", "")
-    if (s.startsWith("0x"))
-      apply(new java.math.BigInteger(s.substring(2), 16))
-    else
-      apply(new java.math.BigInteger(s))
+    if (s.startsWith("0x")) apply(BigInt(s.substring(2), 16))
+    else apply(BigInt(s))
   }
 
   @inline
