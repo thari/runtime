@@ -130,7 +130,7 @@ object S8 extends S with LogikaNumberCompanion {
 
     override def >>(distance: Value): Value = ValueImpl((value >> distance.toInt).toByte)
 
-    override def >>>(distance: Value): Value = ValueImpl((value >>> distance.toInt).toByte)
+    override def >>>(distance: Value): Value = ValueImpl(((value & 0xFF) >>> distance.toInt).toByte)
 
     override val hashCode: Int = value.hashCode
 
@@ -199,7 +199,7 @@ object S16 extends S with LogikaNumberCompanion {
 
     override def >>(distance: Value): Value = ValueImpl((value >> distance.toInt).toShort)
 
-    override def >>>(distance: Value): Value = ValueImpl((value >>> distance.toInt).toShort)
+    override def >>>(distance: Value): Value = ValueImpl(((value & 0xFFFF) >>> distance.toInt).toShort)
 
     override val hashCode: Int = value.hashCode
 
