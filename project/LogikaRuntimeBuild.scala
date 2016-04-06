@@ -28,7 +28,7 @@ import sbt.Keys._
 import sbt._
 
 object LogikaRuntimeBuild extends Build {
-  val scalaVer = "2.11.7"
+  val scalaVer = "2.11.8"
 
   lazy val logikaRuntime = Project(
     id = "logika-runtime",
