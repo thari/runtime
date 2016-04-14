@@ -61,6 +61,8 @@ sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNum
 
   final def <=(other: R): B = toReal.compare(other.toReal) <= 0
 
+  final def unary_-(): R = R(-toReal)
+
   final override def compareTo(other: R): Int = toReal.compare(other.toReal)
 
   final override def doubleValue = toReal.doubleValue

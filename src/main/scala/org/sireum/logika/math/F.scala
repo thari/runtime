@@ -53,6 +53,8 @@ sealed trait F {
 
     def <=(other: Value): B
 
+    def unary_-(): Value
+
     def isNaN: B
 
     def isPosInfinity: B
@@ -113,6 +115,8 @@ object F32 extends F with LogikaNumberCompanion {
     override def <=(other: Value): B = other match {
       case other: ValueImpl => value <= other.value
     }
+
+    override def unary_-(): Value = ValueImpl(-value)
 
     override def isNaN: B = value.isNaN
 
@@ -197,6 +201,8 @@ object F64 extends F with LogikaNumberCompanion {
     override def <=(other: Value): B = other match {
       case other: ValueImpl => value <= other.value
     }
+
+    override def unary_-(): Value = ValueImpl(-value)
 
     override def isNaN: B = value.isNaN
 

@@ -56,6 +56,8 @@ sealed trait S {
 
     def >>(distance: Value): Value
 
+    def unary_-(): Value
+
     final def toBigInteger: java.math.BigInteger = toBigInt.bigInteger
 
     final def toBigInt: BigInt = toZ.toBigInt
@@ -126,6 +128,8 @@ object S8 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl((~value & 0xFF).toByte)
 
+    override def unary_-(): Value = ValueImpl((-value).toByte)
+
     override def <<(distance: Value): Value = ValueImpl((value << distance.toInt).toByte)
 
     override def >>(distance: Value): Value = ValueImpl((value >> distance.toInt).toByte)
@@ -194,6 +198,8 @@ object S16 extends S with LogikaNumberCompanion {
     }
 
     override def unary_~(): Value = ValueImpl((~value & 0xFFFF).toShort)
+
+    override def unary_-(): Value = ValueImpl((-value).toShort)
 
     override def <<(distance: Value): Value = ValueImpl((value << distance.toInt).toShort)
 
@@ -264,6 +270,8 @@ object S32 extends S with LogikaNumberCompanion {
 
     override def unary_~(): Value = ValueImpl(~value)
 
+    override def unary_-(): Value = ValueImpl(-value)
+
     override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 
     override def >>(distance: Value): Value = ValueImpl(value >> distance.toInt)
@@ -332,6 +340,8 @@ object S64 extends S with LogikaNumberCompanion {
     }
 
     override def unary_~(): Value = ValueImpl(~value)
+
+    override def unary_-(): Value = ValueImpl(-value)
 
     override def <<(distance: Value): Value = ValueImpl(value << distance.toInt)
 

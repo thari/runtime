@@ -61,6 +61,8 @@ sealed trait ZRange {
 
     final def <=(other: Value): B = toLong <= other.toLong
 
+    final def unary_-(): Value = checkRange(-toZ)
+
     final def toZ: Z = Z(toLong)
 
     final def toBigInteger: java.math.BigInteger = BigInt(toLong).bigInteger
