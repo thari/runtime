@@ -36,6 +36,7 @@ sealed trait U {
   def bitWidth: Int
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaModuloIntegralNumber[Value] {
+    final def bitWidth: Int = U.this.bitWidth
 
     def +(other: Value): Value
 

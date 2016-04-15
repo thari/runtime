@@ -43,6 +43,8 @@ sealed trait ZRange {
   }
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
+    final def bitWidth = ZRange.this.bitWidth
+
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
     final def -(other: Value): Value = checkRange(toZ - other.toZ)
