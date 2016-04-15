@@ -43,6 +43,8 @@ object MS {
 trait MS[E] {
 
   protected trait Value {
+    def elements: scala.collection.Seq[E]
+
     def size: Z
 
     def apply(index: Z): E
@@ -72,6 +74,8 @@ trait MS[E] {
   protected abstract class
   ValueArray[T <: ValueArray[T]](a: ArrayBuffer[E]) extends Value {
     var (dirty, _hashCode) = (true, 0)
+
+    final def elements = a.toVector
 
     final override val size: Z = ZM(a.length)
 
@@ -123,6 +127,11 @@ trait MS[E] {
   ValueTreeMap[T <: ValueTreeMap[T]](tm: java.util.TreeMap[Z, E],
                                      final override val size: Z) extends Value {
     var (dirty, _hashCode) = (true, 0)
+
+    final def elements = {
+      import scala.collection.JavaConversions._
+      tm.values.toVector
+    }
 
     final val a: MMap[Z, E] = {
       import scala.collection.JavaConversions._
