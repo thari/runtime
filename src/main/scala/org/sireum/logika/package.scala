@@ -75,8 +75,54 @@ package object logika {
   final val T = true
   final val F = false
 
+  object B {
+    def random: B = new java.util.Random().nextBoolean
+  }
+
   final val Z = math.Z
+  final val Z8 = math.Z8
+  final val Z16 = math.Z16
+  final val Z32 = math.Z32
+  final val Z64 = math.Z64
+  final val S8 = math.S8
+  final val S16 = math.S16
+  final val S32 = math.S32
+  final val S64 = math.S64
   final val N = math.N
+  final val N8 = math.N8
+  final val N16 = math.N16
+  final val N32 = math.N32
+  final val N64 = math.N64
+  final val U8 = math.U8
+  final val U16 = math.U16
+  final val U32 = math.U32
+  final val U64 = math.U64
+  final val R = math.R
+  final val F32 = math.F32
+  final val F64 = math.F64
+
+  final val BS = collection.BS
+  final val ZS = collection.ZS
+  final val Z8S = collection.Z8S
+  final val Z16S = collection.Z16S
+  final val Z32S = collection.Z32S
+  final val Z64S = collection.Z64S
+  final val S8S = collection.S8S
+  final val S16S = collection.S16S
+  final val S32S = collection.S32S
+  final val S64S = collection.S64S
+  final val NS = collection.NS
+  final val N8S = collection.N8S
+  final val N16S = collection.N16S
+  final val N32S = collection.N32S
+  final val N64S = collection.N64S
+  final val U8S = collection.U8S
+  final val U16S = collection.U16S
+  final val U32S = collection.U32S
+  final val U64S = collection.U64S
+  final val RS = collection.RS
+  final val F32S = collection.F32S
+  final val F64S = collection.F64S
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
