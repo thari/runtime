@@ -42,7 +42,7 @@ object MS {
 
 trait MS[E] {
 
-  protected trait Value {
+  trait Value {
     def elements: scala.collection.Seq[E]
 
     def size: Z
