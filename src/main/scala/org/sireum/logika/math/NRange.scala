@@ -38,7 +38,8 @@ sealed trait NRange {
   def bitWidth: Int
 
   private[math] final def checkRange(value: Z): Value = {
-    assert(Min.toZ <= value && value <= Max.toZ)
+    if (!(Min.toZ <= value && value <= Max.toZ))
+      throw new IllegalArgumentException
     ValueImpl(value)
   }
 

@@ -38,7 +38,8 @@ sealed trait ZRange {
   def bitWidth: Int
 
   private[math] final def checkRange(value: Z): Value = {
-    assert(Z(Min.toLong) <= value && value <= Z(Max.toLong))
+    if(!(Z(Min.toLong) <= value && value <= Z(Max.toLong)))
+      throw new IllegalArgumentException
     ValueImpl(value.toLong)
   }
 
