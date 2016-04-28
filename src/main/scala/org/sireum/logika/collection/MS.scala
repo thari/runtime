@@ -30,7 +30,7 @@ import org.sireum.logika.math.{Z => ZM}
 import scala.collection.mutable.{ArrayBuffer, Map => MMap}
 
 object MS {
-  private[collection] def newMS[E]: (MMap[Z, E], java.util.TreeMap[Z, E]) = {
+  private[collection] def newTreeMS[E]: (MMap[Z, E], java.util.TreeMap[Z, E]) = {
     val tm = new java.util.TreeMap[Z, E]
     val a: MMap[Z, E] = {
       import scala.collection.JavaConversions._
@@ -150,14 +150,14 @@ trait MS[E] {
     }
 
     final def :+(value: E): T = {
-      val (a, tm) = MS.newMS[E]
+      val (a, tm) = MS.newTreeMS[E]
       for ((i, v) <- this.a) a(i) = v
       a(size) = value
       make(tm, ZM(this.tm.size) + ZM.one)
     }
 
     final def +:(value: E): T = {
-      val (a, tm) = MS.newMS[E]
+      val (a, tm) = MS.newTreeMS[E]
       a(ZM.zero) = value
       for ((i, v) <- this.a) a(i + ZM.one) = v
       make(tm, size + ZM.one)
@@ -201,7 +201,32 @@ trait MS[E] {
 object BS extends MS[B] {
   type V = B
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: BS = {
+    val sz = N8.random.toInt
+    val elements = new Array[B](sz)
+    for (i <- 0 until sz) elements(i) = B.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: B): BS = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[B]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[B](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -218,7 +243,7 @@ object BS extends MS[B] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -251,7 +276,32 @@ object BS extends MS[B] {
 object ZS extends MS[Z] {
   type V = Z
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: ZS = {
+    val sz = N8.random.toInt
+    val elements = new Array[Z](sz)
+    for (i <- 0 until sz) elements(i) = Z.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: Z): ZS = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[Z]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[Z](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -268,7 +318,7 @@ object ZS extends MS[Z] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -301,7 +351,32 @@ object ZS extends MS[Z] {
 object Z8S extends MS[Z8] {
   type V = Z8
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: Z8S = {
+    val sz = N8.random.toInt
+    val elements = new Array[Z8](sz)
+    for (i <- 0 until sz) elements(i) = Z8.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: Z8): Z8S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[Z8]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[Z8](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -318,7 +393,7 @@ object Z8S extends MS[Z8] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -351,7 +426,32 @@ object Z8S extends MS[Z8] {
 object Z16S extends MS[Z16] {
   type V = Z16
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: Z16S = {
+    val sz = N8.random.toInt
+    val elements = new Array[Z16](sz)
+    for (i <- 0 until sz) elements(i) = Z16.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: Z16): Z16S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[Z16]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[Z16](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -368,7 +468,7 @@ object Z16S extends MS[Z16] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -401,7 +501,32 @@ object Z16S extends MS[Z16] {
 object Z32S extends MS[Z32] {
   type V = Z32
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: Z32S = {
+    val sz = N8.random.toInt
+    val elements = new Array[Z32](sz)
+    for (i <- 0 until sz) elements(i) = Z32.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: Z32): Z32S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[Z32]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[Z32](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -418,7 +543,7 @@ object Z32S extends MS[Z32] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -451,7 +576,32 @@ object Z32S extends MS[Z32] {
 object Z64S extends MS[Z64] {
   type V = Z64
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: Z64S = {
+    val sz = N8.random.toInt
+    val elements = new Array[Z64](sz)
+    for (i <- 0 until sz) elements(i) = Z64.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: Z64): Z64S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[Z64]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[Z64](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -468,7 +618,7 @@ object Z64S extends MS[Z64] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -501,7 +651,32 @@ object Z64S extends MS[Z64] {
 object S8S extends MS[S8] {
   type V = S8
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: S8S = {
+    val sz = N8.random.toInt
+    val elements = new Array[S8](sz)
+    for (i <- 0 until sz) elements(i) = S8.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: S8): S8S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[S8]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[S8](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -518,7 +693,7 @@ object S8S extends MS[S8] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -551,7 +726,32 @@ object S8S extends MS[S8] {
 object S16S extends MS[S16] {
   type V = S16
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: S16S = {
+    val sz = N8.random.toInt
+    val elements = new Array[S16](sz)
+    for (i <- 0 until sz) elements(i) = S16.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: S16): S16S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[S16]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[S16](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -568,7 +768,7 @@ object S16S extends MS[S16] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -601,7 +801,32 @@ object S16S extends MS[S16] {
 object S32S extends MS[S32] {
   type V = S32
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: S32S = {
+    val sz = N8.random.toInt
+    val elements = new Array[S32](sz)
+    for (i <- 0 until sz) elements(i) = S32.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: S32): S32S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[S32]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[S32](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -618,7 +843,7 @@ object S32S extends MS[S32] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -651,7 +876,32 @@ object S32S extends MS[S32] {
 object S64S extends MS[S64] {
   type V = S64
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: S64S = {
+    val sz = N8.random.toInt
+    val elements = new Array[S64](sz)
+    for (i <- 0 until sz) elements(i) = S64.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: S64): S64S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[S64]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[S64](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -668,7 +918,7 @@ object S64S extends MS[S64] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -701,7 +951,32 @@ object S64S extends MS[S64] {
 object NS extends MS[N] {
   type V = N
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: NS = {
+    val sz = N8.random.toInt
+    val elements = new Array[N](sz)
+    for (i <- 0 until sz) elements(i) = N.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: N): NS = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[N]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[N](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -718,7 +993,7 @@ object NS extends MS[N] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -751,7 +1026,32 @@ object NS extends MS[N] {
 object N8S extends MS[N8] {
   type V = N8
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: N8S = {
+    val sz = N8.random.toInt
+    val elements = new Array[N8](sz)
+    for (i <- 0 until sz) elements(i) = N8.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: N8): N8S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[N8]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[N8](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -768,7 +1068,7 @@ object N8S extends MS[N8] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -801,7 +1101,32 @@ object N8S extends MS[N8] {
 object N16S extends MS[N16] {
   type V = N16
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: N16S = {
+    val sz = N8.random.toInt
+    val elements = new Array[N16](sz)
+    for (i <- 0 until sz) elements(i) = N16.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: N16): N16S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[N16]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[N16](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -818,7 +1143,7 @@ object N16S extends MS[N16] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -851,7 +1176,32 @@ object N16S extends MS[N16] {
 object N32S extends MS[N32] {
   type V = N32
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: N32S = {
+    val sz = N8.random.toInt
+    val elements = new Array[N32](sz)
+    for (i <- 0 until sz) elements(i) = N32.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: N32): N32S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[N32]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[N32](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -868,7 +1218,7 @@ object N32S extends MS[N32] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -901,7 +1251,32 @@ object N32S extends MS[N32] {
 object N64S extends MS[N64] {
   type V = N64
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: N64S = {
+    val sz = N8.random.toInt
+    val elements = new Array[N64](sz)
+    for (i <- 0 until sz) elements(i) = N64.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: N64): N64S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[N64]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[N64](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -918,7 +1293,7 @@ object N64S extends MS[N64] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -951,7 +1326,32 @@ object N64S extends MS[N64] {
 object U8S extends MS[U8] {
   type V = U8
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: U8S = {
+    val sz = N8.random.toInt
+    val elements = new Array[U8](sz)
+    for (i <- 0 until sz) elements(i) = U8.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: U8): U8S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[U8]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[U8](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -968,7 +1368,7 @@ object U8S extends MS[U8] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1001,7 +1401,32 @@ object U8S extends MS[U8] {
 object U16S extends MS[U16] {
   type V = U16
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: U16S = {
+    val sz = N8.random.toInt
+    val elements = new Array[U16](sz)
+    for (i <- 0 until sz) elements(i) = U16.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: U16): U16S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[U16]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[U16](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1018,7 +1443,7 @@ object U16S extends MS[U16] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1051,7 +1476,32 @@ object U16S extends MS[U16] {
 object U32S extends MS[U32] {
   type V = U32
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: U32S = {
+    val sz = N8.random.toInt
+    val elements = new Array[U32](sz)
+    for (i <- 0 until sz) elements(i) = U32.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: U32): U32S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[U32]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[U32](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1068,7 +1518,7 @@ object U32S extends MS[U32] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1101,7 +1551,32 @@ object U32S extends MS[U32] {
 object U64S extends MS[U64] {
   type V = U64
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: U64S = {
+    val sz = N8.random.toInt
+    val elements = new Array[U64](sz)
+    for (i <- 0 until sz) elements(i) = U64.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: U64): U64S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[U64]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[U64](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1118,7 +1593,7 @@ object U64S extends MS[U64] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1151,7 +1626,32 @@ object U64S extends MS[U64] {
 object RS extends MS[R] {
   type V = R
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: RS = {
+    val sz = N8.random.toInt
+    val elements = new Array[R](sz)
+    for (i <- 0 until sz) elements(i) = R.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: R): RS = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[R]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[R](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1168,7 +1668,7 @@ object RS extends MS[R] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1201,7 +1701,32 @@ object RS extends MS[R] {
 object F32S extends MS[F32] {
   type V = F32
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: F32S = {
+    val sz = N8.random.toInt
+    val elements = new Array[F32](sz)
+    for (i <- 0 until sz) elements(i) = F32.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: F32): F32S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[F32]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[F32](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1218,7 +1743,7 @@ object F32S extends MS[F32] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
@@ -1251,7 +1776,32 @@ object F32S extends MS[F32] {
 object F64S extends MS[F64] {
   type V = F64
 
-  def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
+  final def random: F64S = {
+    val sz = N8.random.toInt
+    val elements = new Array[F64](sz)
+    for (i <- 0 until sz) elements(i) = F64.random
+    apply(elements: _*)
+  }
+
+  final def create(size: Z, dflt: F64): F64S = {
+    if (size < 0) throw new IllegalArgumentException
+    if (size > Int.MaxValue) {
+      val (a, tm) = MS.newTreeMS[F64]
+      var i = Z(0)
+      while (i < size) {
+        tm.put(i, dflt)
+        i = i + 1
+      }
+      new ValueTreeMap(tm, size)
+    } else {
+      val sz = size.toInt
+      val elements = new Array[F64](sz)
+      for (i <- 0 until sz) elements(i) = dflt
+      apply(elements: _*)
+    }
+  }
+
+  final def apply(elements: V*): Value = new ValueArray(ArrayBuffer(elements: _*))
 
   sealed trait Value extends super.Value {
     override def apply(index: Z): V
@@ -1268,7 +1818,7 @@ object F64S extends MS[F64] {
     extends super.ValueArray[ValueArray](a) with Value {
 
     private[logika] def upgrade: ValueTreeMap = {
-      val (a, tm) = MS.newMS[V]
+      val (a, tm) = MS.newTreeMS[V]
       var i = ZM.zero
       for (e <- this.a) {
         a(i) = e
