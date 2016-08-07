@@ -90,8 +90,6 @@ trait MS[E] {
       a(index.toInt) = value
     }
 
-    final override def clone: T = make(a.clone)
-
     protected def make(a: ArrayBuffer[E]): T
 
     final override def hashCode: Int = {
@@ -163,9 +161,6 @@ trait MS[E] {
       make(tm, size + ZM.one)
     }
 
-    final override def clone: T =
-      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, E]], size)
-
     protected def make(tm: java.util.TreeMap[Z, E], size: Z): T
 
     final override def hashCode: Int = {
@@ -236,6 +231,10 @@ object BS extends MS[B] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -260,6 +259,8 @@ object BS extends MS[B] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -267,6 +268,9 @@ object BS extends MS[B] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -311,6 +315,10 @@ object ZS extends MS[Z] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -335,6 +343,8 @@ object ZS extends MS[Z] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -342,6 +352,9 @@ object ZS extends MS[Z] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -386,6 +399,10 @@ object Z8S extends MS[Z8] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -410,6 +427,8 @@ object Z8S extends MS[Z8] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -417,6 +436,9 @@ object Z8S extends MS[Z8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -461,6 +483,10 @@ object Z16S extends MS[Z16] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -485,6 +511,8 @@ object Z16S extends MS[Z16] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -492,6 +520,9 @@ object Z16S extends MS[Z16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -536,6 +567,10 @@ object Z32S extends MS[Z32] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -560,6 +595,8 @@ object Z32S extends MS[Z32] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -567,6 +604,9 @@ object Z32S extends MS[Z32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -611,6 +651,10 @@ object Z64S extends MS[Z64] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -635,6 +679,8 @@ object Z64S extends MS[Z64] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -642,6 +688,9 @@ object Z64S extends MS[Z64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -686,6 +735,10 @@ object S8S extends MS[S8] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -710,6 +763,8 @@ object S8S extends MS[S8] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -717,6 +772,9 @@ object S8S extends MS[S8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -761,6 +819,10 @@ object S16S extends MS[S16] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -785,6 +847,8 @@ object S16S extends MS[S16] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -792,6 +856,9 @@ object S16S extends MS[S16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -836,6 +903,10 @@ object S32S extends MS[S32] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -860,6 +931,8 @@ object S32S extends MS[S32] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -867,6 +940,9 @@ object S32S extends MS[S32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -911,6 +987,10 @@ object S64S extends MS[S64] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -935,6 +1015,8 @@ object S64S extends MS[S64] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -942,6 +1024,9 @@ object S64S extends MS[S64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -986,6 +1071,10 @@ object NS extends MS[N] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1010,6 +1099,8 @@ object NS extends MS[N] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1017,6 +1108,9 @@ object NS extends MS[N] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1061,6 +1155,10 @@ object N8S extends MS[N8] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1085,6 +1183,8 @@ object N8S extends MS[N8] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1092,6 +1192,9 @@ object N8S extends MS[N8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1136,6 +1239,10 @@ object N16S extends MS[N16] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1160,6 +1267,8 @@ object N16S extends MS[N16] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1167,6 +1276,9 @@ object N16S extends MS[N16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1211,6 +1323,10 @@ object N32S extends MS[N32] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1235,6 +1351,8 @@ object N32S extends MS[N32] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1242,6 +1360,9 @@ object N32S extends MS[N32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1286,6 +1407,10 @@ object N64S extends MS[N64] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1310,6 +1435,8 @@ object N64S extends MS[N64] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1317,6 +1444,9 @@ object N64S extends MS[N64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1361,6 +1491,10 @@ object U8S extends MS[U8] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1385,6 +1519,8 @@ object U8S extends MS[U8] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1392,6 +1528,9 @@ object U8S extends MS[U8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1436,6 +1575,10 @@ object U16S extends MS[U16] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1460,6 +1603,8 @@ object U16S extends MS[U16] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1467,6 +1612,9 @@ object U16S extends MS[U16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1511,6 +1659,10 @@ object U32S extends MS[U32] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1535,6 +1687,8 @@ object U32S extends MS[U32] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1542,6 +1696,9 @@ object U32S extends MS[U32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1586,6 +1743,10 @@ object U64S extends MS[U64] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1610,6 +1771,8 @@ object U64S extends MS[U64] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1617,6 +1780,9 @@ object U64S extends MS[U64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1661,6 +1827,10 @@ object RS extends MS[R] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1685,6 +1855,8 @@ object RS extends MS[R] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1692,6 +1864,9 @@ object RS extends MS[R] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1736,6 +1911,10 @@ object F32S extends MS[F32] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1760,6 +1939,8 @@ object F32S extends MS[F32] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1767,6 +1948,9 @@ object F32S extends MS[F32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
@@ -1811,6 +1995,10 @@ object F64S extends MS[F64] {
     override def :+(value: V): Value
 
     override def +:(value: V): Value
+
+    override def size: Z
+
+    override def clone: Value = sys.error("stub")
   }
 
   private[logika] final class
@@ -1835,6 +2023,8 @@ object F64S extends MS[F64] {
       if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
       else make(value +: a)
 
+    override def clone = make(a.clone)
+
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
 
@@ -1842,6 +2032,9 @@ object F64S extends MS[F64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
+    override def clone =
+      make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
+
     protected def make(tm: java.util.TreeMap[Z, V],
                        size: Z) = new ValueTreeMap(tm, size)
   }
