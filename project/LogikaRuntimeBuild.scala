@@ -38,7 +38,7 @@ object LogikaRuntimeBuild extends Build {
       name := "logika-runtime",
       incOptions := incOptions.value.withNameHashing(true),
       retrieveManaged := true,
-      version := "3.0.0-7-SNAPSHOT",
+      version := "3.0.0-7",
       scalaVersion := scalaVer,
       scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
       parallelExecution in Test := true,
@@ -80,7 +80,7 @@ object LogikaRuntimeBuild extends Build {
             <developer>
               <id>robby-phd</id>
               <name>Robby</name>
-              <url>http://people.cis.ksu.edu/~robby</url>
+              <url>http://people.cs.ksu.edu/~robby</url>
             </developer>
           </developers>
     )
