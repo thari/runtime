@@ -23,12 +23,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.typesafe.sbteclipse.core.EclipsePlugin._
 import sbt.Keys._
 import sbt._
 
 object LogikaRuntimeBuild extends Build {
-  val scalaVer = "2.11.8"
+  val scalaVer = "2.12.1"
 
   lazy val logikaRuntime = Project(
     id = "logika-runtime",
@@ -46,14 +45,9 @@ object LogikaRuntimeBuild extends Build {
       libraryDependencies ++= Seq(
         "org.apfloat" % "apfloat" % "1.8.2",
         "org.scala-lang" % "scala-reflect" % scalaVer,
-        "org.spire-math" %% "spire" % "0.11.0",
+        "org.spire-math" %% "spire" % "0.13.0",
         "com.novocode" % "junit-interface" % "0.11" % Test
       ),
-      EclipseKeys.withSource := true,
-      EclipseKeys.relativizeLibs := true,
-      EclipseKeys.useProjectId := true,
-      EclipseKeys.withBundledScalaContainers := false,
-      EclipseKeys.eclipseOutput := Some("bin"),
       publishMavenStyle := true,
       publishTo := {
         val nexus = "https://oss.sonatype.org/"
