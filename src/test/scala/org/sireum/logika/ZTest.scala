@@ -29,9 +29,9 @@ import org.junit.Test
 
 
 class ZTest {
-  final val z5 = Z("5")
+  final val z5 = z"5"
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
-  final val zBig = Z(bigVal)
+  final val zBig = z"10000000000000000000000000000000000000000000000000000000000"
   final val size = 1024
 
   @Test
