@@ -198,7 +198,6 @@ package object logika {
     import scala.language.experimental.macros
 
     def l(args: Any*): Unit = macro _macro.lImpl
-
   }
 
   object _macro {
