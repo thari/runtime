@@ -157,7 +157,7 @@ package object logika {
 
   final implicit class Logika(val sc: StringContext) extends AnyVal {
 
-    def z(args: Any*): Z = math.Z(sc.raw(args))
+    def z(args: Any*): Z = math.Z(sc.parts.mkString(""))
 
     def z8(args: Any*): Z8 = z(args: _*).toZ8
 
