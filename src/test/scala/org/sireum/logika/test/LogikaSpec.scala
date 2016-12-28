@@ -23,17 +23,28 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.logika
+package org.sireum.logika.test
 
-import org.junit.runner.RunWith
-import org.junit.runners.Suite
+import org.scalatest.FreeSpec
 
-@RunWith(classOf[Suite])
-@Suite.SuiteClasses(
-  Array(
-    classOf[ZTest],
-    classOf[NTest],
-    classOf[ZSTest]
-  )
-)
-class LogikaRuntimeTestSuite
+class LogikaSpec extends FreeSpec {
+  private val m: scala.collection.mutable.Map[Int, Int] = {
+    import scala.collection.JavaConverters._
+    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
+  }
+
+  private def name(line: Int): String = {
+    val last = m.getOrElseUpdate(line, 0)
+    val next = last + 1
+    m(line) = next
+    if (last == 0) s"L$line" else s"L$line # $next"
+  }
+
+  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
+    registerTest(name(pos.lineNumber))(assert(b))(pos)
+  }
+
+  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
+    registerTest(name(pos.lineNumber))(assert(b, msg))(pos)
+  }
+}

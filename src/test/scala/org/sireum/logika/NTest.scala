@@ -25,58 +25,56 @@
 
 package org.sireum.logika
 
-import org.junit.Test
+import org.sireum.logika.test.LogikaSpec
 
-
-class NTest {
+class NTest extends LogikaSpec {
   final val n5 = N("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val nBig = N(bigVal)
   final val size = 1024
 
-  @Test
-  def eqs(): Unit = {
-    assert(!(5 == n5)) // does not support Int == Z
-    assert(5 != n5) // does not support Int != Z
-    assert(n5 == 5)
-    assert(n5 == java.lang.Byte.valueOf("5"))
-    assert(n5 == new java.lang.Character(5.toChar))
-    assert(n5 == java.lang.Short.valueOf("5"))
-    assert(n5 == java.lang.Integer.valueOf("5"))
-    assert(n5 == java.lang.Long.valueOf("5"))
-    assert(n5 == new java.math.BigInteger("5"))
-    assert(n5 == BigInt("5"))
-    assert(nBig == new java.math.BigInteger(bigVal))
-    assert(nBig == BigInt(bigVal))
+  "eqs" - {
+    * (true)
+    * (!(5 == n5)) // does not support Int == Z
+    * (5 != n5) // does not support Int != Z
+    * (n5 == 5)
+    * (n5 == java.lang.Byte.valueOf("5"))
+    * (n5 == new java.lang.Character(5.toChar))
+    * (n5 == java.lang.Short.valueOf("5"))
+    * (n5 == java.lang.Integer.valueOf("5"))
+    * (n5 == java.lang.Long.valueOf("5"))
+    * (n5 == new java.math.BigInteger("5"))
+    * (n5 == BigInt("5"))
+    * (nBig == new java.math.BigInteger(bigVal))
+    * (nBig == BigInt(bigVal))
   }
 
-  @Test
-  def comps(): Unit = {
-    assert(n5 < 6)
-    assert(n5 <= 6)
-    assert(n5 <= 5)
-    assert(!(n5 < 5))
-    assert(!(n5 <= 4))
-    assert(n5 > 4)
-    assert(n5 >= 4)
-    assert(!(n5 > 5))
-    assert(!(n5 >= 6))
+  "comps" - {
+    * (n5 < n"6")
+    * (n5 <= n"6")
+    * (n5 <= n"5")
+    * (!(n5 < n"5"))
+    * (!(n5 <= n"4"))
+    * (n5 > n"4")
+    * (n5 >= n"4")
+    * (!(n5 > n"5"))
+    * (!(n5 >= n"6"))
 
-    val zBig1 = nBig + 1
-    val zBigM1 = nBig - 1
-    assert(nBig < zBig1)
-    assert(nBig <= zBig1)
-    assert(nBig <= nBig)
-    assert(!(nBig < nBig))
-    assert(!(nBig <= zBigM1))
-    assert(nBig > zBigM1)
-    assert(nBig >= zBigM1)
-    assert(!(nBig > nBig))
-    assert(!(nBig >= zBig1))
+    val zBig1 = nBig + n"1"
+    val zBigM1 = nBig - n"1"
+
+    * (nBig < zBig1)
+    * (nBig <= zBig1)
+    * (nBig <= nBig)
+    * (!(nBig < nBig))
+    * (!(nBig <= zBigM1))
+    * (nBig > zBigM1)
+    * (nBig >= zBigM1)
+    * (!(nBig > nBig))
+    * (!(nBig >= zBig1))
   }
 
-  @Test
-  def randomOps(): Unit = {
+  "randomOps" - {
     type I = BigInt
     val add = ("+", (n1: N, n2: N) => n1 + n2, (i1: I, i2: I) => i1 + i2)
     val sub = ("-", (n1: N, n2: N) => n1 - n2, (i1: I, i2: I) => i1 - i2)
@@ -84,25 +82,30 @@ class NTest {
     val zero = BigInt(0)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(add, sub, mul)) {
-        val n1 = N(randomInt().toBigInt.abs)
-        val n2 = N(randomInt().toBigInt.abs)
-        val nr = nop(n1, n2)
-        val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
-        assert(nr == ir, s"$n1 $op $n2 ($nr != $ir)")
+        lazy val n1 = N(randomInt().toBigInt.abs)
+        lazy val n2 = N(randomInt().toBigInt.abs)
+        lazy val nr = nop(n1, n2)
+        lazy val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
+
+        * (nr == ir, s"$n1 $op $n2 ($nr != $ir)")
       }
 
     val div = ("/", (n1: N, n2: N) => n1 / n2, (i1: I, i2: I) => i1 / i2)
     val rem = ("%", (n1: N, n2: N) => n1 % n2, (i1: I, i2: I) => i1 % i2)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(div, rem)) {
-        val n1 = N(randomInt().toBigInt.abs)
-        var n2 = N(randomInt().toBigInt.abs)
-        while (n2 == math.N.zero) {
-          n2 = N(randomInt().toBigInt.abs)
+        lazy val n1 = N(randomInt().toBigInt.abs)
+        lazy val n2 = {
+          var r = N(randomInt().toBigInt.abs)
+
+          while (r == math.N.zero) {
+            r = N(randomInt().toBigInt.abs)
+          }
+          r
         }
-        val nr = nop(n1, n2)
-        val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
-        assert(nr == ir, s"$n1 $op $n2 ($nr != $ir)")
+        lazy val nr = nop(n1, n2)
+        lazy val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
+        * (nr == ir, s"$n1 $op $n2 ($nr != $ir)")
       }
 
     val eq = ("==", (n1: N, n2: N) => n1 == n2, (i1: I, i2: I) => i1 == i2)
@@ -113,15 +116,12 @@ class NTest {
     val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => i1 <= i2)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
-        val n1 = N(randomInt().toBigInt.abs)
-        val n2 = N(randomInt().toBigInt.abs)
-        val nr = nop(n1, n2)
-        val ir = iop(n1.toBigInt, n2.toBigInt)
-        assert(nr == ir, s"$n1 $op $n2 ($nr != $ir)")
+        lazy val n1 = N(randomInt().toBigInt.abs)
+        lazy val n2 = N(randomInt().toBigInt.abs)
+        lazy val nr = nop(n1, n2)
+        lazy val ir = iop(n1.toBigInt, n2.toBigInt)
+
+        * (nr == ir, s"$n1 $op $n2 ($nr != $ir)")
       }
   }
-
-  import scala.language.implicitConversions
-
-  implicit def int2n(n: Int): N = Z(n).toN
 }

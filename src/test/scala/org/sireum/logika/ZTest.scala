@@ -25,83 +25,85 @@
 
 package org.sireum.logika
 
-import org.junit.Test
+import org.sireum.logika.test.LogikaSpec
 
-
-class ZTest {
+class ZTest extends LogikaSpec {
   final val z5 = z"5"
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val zBig = z"10000000000000000000000000000000000000000000000000000000000"
   final val size = 1024
 
-  @Test
-  def eqs(): Unit = {
-    assert(!(5 == z5)) // does not support Int == Z
-    assert(5 != z5) // does not support Int != Z
-    assert(z5 == 5)
-    assert(z5 == java.lang.Byte.valueOf("5"))
-    assert(z5 == new java.lang.Character(5.toChar))
-    assert(z5 == java.lang.Short.valueOf("5"))
-    assert(z5 == java.lang.Integer.valueOf("5"))
-    assert(z5 == java.lang.Long.valueOf("5"))
-    assert(z5 == new java.math.BigInteger("5"))
-    assert(z5 == BigInt("5"))
-    assert(zBig == new java.math.BigInteger(bigVal))
-    assert(zBig == BigInt(bigVal))
+  "eqs" - {
+    *(!(5 == z5)) // does not support Int == Z
+    *(5 != z5) // does not support Int != Z
+    *(z5 == 5)
+    *(z5 == java.lang.Byte.valueOf("5"))
+    *(z5 == new java.lang.Character(5.toChar))
+    *(z5 == java.lang.Short.valueOf("5"))
+    *(z5 == java.lang.Integer.valueOf("5"))
+    *(z5 == java.lang.Long.valueOf("5"))
+    *(z5 == new java.math.BigInteger("5"))
+    *(z5 == BigInt("5"))
+    *(zBig == new java.math.BigInteger(bigVal))
+    *(zBig == BigInt(bigVal))
   }
 
-  @Test
-  def comps(): Unit = {
-    assert(z5 < 6)
-    assert(z5 <= 6)
-    assert(z5 <= 5)
-    assert(!(z5 < 5))
-    assert(!(z5 <= 4))
-    assert(z5 > 4)
-    assert(z5 >= 4)
-    assert(!(z5 > 5))
-    assert(!(z5 >= 6))
+  "comps" - {
+    *(z5 < 6)
+    *(z5 <= 6)
+    *(z5 <= 5)
+    *(!(z5 < 5))
+    *(!(z5 <= 4))
+    *(z5 > 4)
+    *(z5 >= 4)
+    *(!(z5 > 5))
+    *(!(z5 >= 6))
 
     val zBig1 = zBig + 1
     val zBigM1 = zBig - 1
-    assert(zBig < zBig1)
-    assert(zBig <= zBig1)
-    assert(zBig <= zBig)
-    assert(!(zBig < zBig))
-    assert(!(zBig <= zBigM1))
-    assert(zBig > zBigM1)
-    assert(zBig >= zBigM1)
-    assert(!(zBig > zBig))
-    assert(!(zBig >= zBig1))
+
+    *(zBig < zBig1)
+    *(zBig <= zBig1)
+    *(zBig <= zBig)
+    *(!(zBig < zBig))
+    *(!(zBig <= zBigM1))
+    *(zBig > zBigM1)
+    *(zBig >= zBigM1)
+    *(!(zBig > zBig))
+    *(!(zBig >= zBig1))
   }
 
-  @Test
-  def randomOps(): Unit = {
+  "randomOps" - {
     type I = BigInt
     val add = ("+", (z1: Z, z2: Z) => z1 + z2, (i1: I, i2: I) => i1 + i2)
     val sub = ("-", (z1: Z, z2: Z) => z1 - z2, (i1: I, i2: I) => i1 - i2)
     val mul = ("*", (z1: Z, z2: Z) => z1 * z2, (i1: I, i2: I) => i1 * i2)
     for (i <- 0 until size)
       for ((op, zop, iop) <- Seq(add, sub, mul)) {
-        val z1 = randomInt()
-        val z2 = randomInt()
-        val zr = zop(z1, z2)
-        val ir = iop(z1.toBigInt, z2.toBigInt)
-        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
+        lazy val z1 = randomInt()
+        lazy val z2 = randomInt()
+        lazy val zr = zop(z1, z2)
+        lazy val ir = iop(z1.toBigInt, z2.toBigInt)
+
+        *(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
 
     val div = ("/", (z1: Z, z2: Z) => z1 / z2, (i1: I, i2: I) => i1 / i2)
     val rem = ("%", (z1: Z, z2: Z) => z1 % z2, (i1: I, i2: I) => i1 % i2)
     for (i <- 0 until size)
       for ((op, zop, iop) <- Seq(div, rem)) {
-        val z1 = randomInt()
-        var z2 = randomInt()
-        while (z2 == math.Z.zero) {
-          z2 = randomInt()
+        lazy val z1 = randomInt()
+        lazy val z2 = {
+          var r = randomInt()
+          while (r == math.Z.zero) {
+            r = randomInt()
+          }
+          r
         }
-        val zr = zop(z1, z2)
-        val ir = iop(z1.toBigInt, z2.toBigInt)
-        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
+        lazy val zr = zop(z1, z2)
+        lazy val ir = iop(z1.toBigInt, z2.toBigInt)
+
+        *(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
 
     val eq = ("==", (z1: Z, z2: Z) => z1 == z2, (i1: I, i2: I) => i1 == i2)
@@ -112,11 +114,12 @@ class ZTest {
     val le = ("<=", (z1: Z, z2: Z) => z1 <= z2, (i1: I, i2: I) => i1 <= i2)
     for (i <- 0 until size)
       for ((op, zop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
-        val z1 = randomInt()
-        val z2 = randomInt()
-        val zr = zop(z1, z2)
-        val ir = iop(z1.toBigInt, z2.toBigInt)
-        assert(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
+        lazy val z1 = randomInt()
+        lazy val z2 = randomInt()
+        lazy val zr = zop(z1, z2)
+        lazy val ir = iop(z1.toBigInt, z2.toBigInt)
+
+        *(zr == ir, s"$z1 $op $z2 ($zr != $ir)")
       }
   }
 }

@@ -22,91 +22,87 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.sireum.logika
 
-import org.junit.Test
+import org.sireum.logika.test.LogikaSpec
 import scala.collection.mutable.ArrayBuffer
 
-class ZSTest {
+class ZSTest extends LogikaSpec {
   final val size = math.Z(1024)
   final val zs123 = new collection.ZS.ValueArray(ArrayBuffer[Z](1, 2, 3))
   final val zs12 = new collection.ZS.ValueArray(ArrayBuffer[Z](1, 2))
   final val zs23 = new collection.ZS.ValueArray(ArrayBuffer[Z](2, 3))
 
-  @Test
-  def append(): Unit = {
-    assert(zs123 == zs12 :+ 3)
-    assert(zs123.upgrade == zs12.upgrade :+ 3)
-    assert(zs123.upgrade == zs12 :+ 3)
-    assert(zs123 == zs12.upgrade :+ 3)
-    assert(zs123.hashCode == (zs12 :+ 3).hashCode)
-    assert(zs123.upgrade.hashCode == (zs12.upgrade :+ 3).hashCode)
-    assert(zs123.upgrade.hashCode == (zs12 :+ 3).hashCode)
-    assert(zs123.hashCode == (zs12.upgrade :+ 3).hashCode)
+  "append" - {
+    * (zs123 == zs12 :+ 3)
+    * (zs123.upgrade == zs12.upgrade :+ 3)
+    * (zs123.upgrade == zs12 :+ 3)
+    * (zs123 == zs12.upgrade :+ 3)
+    * (zs123.hashCode == (zs12 :+ 3).hashCode)
+    * (zs123.upgrade.hashCode == (zs12.upgrade :+ 3).hashCode)
+    * (zs123.upgrade.hashCode == (zs12 :+ 3).hashCode)
+    * (zs123.hashCode == (zs12.upgrade :+ 3).hashCode)
   }
 
-  @Test
-  def prepend(): Unit = {
-    assert(zs123 == 1 +: zs23)
-    assert(zs123.upgrade == 1 +: zs23.upgrade)
-    assert(zs123 == 1 +: zs23.upgrade)
-    assert(zs123.upgrade == 1 +: zs23)
-    assert(zs123.hashCode == (1 +: zs23).hashCode)
-    assert(zs123.upgrade.hashCode == (1 +: zs23.upgrade).hashCode)
-    assert(zs123.hashCode == (1 +: zs23.upgrade).hashCode)
-    assert(zs123.upgrade.hashCode == (1 +: zs23).hashCode)
+  "prepend" - {
+    * (zs123 == 1 +: zs23)
+    * (zs123.upgrade == 1 +: zs23.upgrade)
+    * (zs123 == 1 +: zs23.upgrade)
+    * (zs123.upgrade == 1 +: zs23)
+    * (zs123.hashCode == (1 +: zs23).hashCode)
+    * (zs123.upgrade.hashCode == (1 +: zs23.upgrade).hashCode)
+    * (zs123.hashCode == (1 +: zs23.upgrade).hashCode)
+    * (zs123.upgrade.hashCode == (1 +: zs23).hashCode)
   }
 
-  @Test
-  def zsArray(): Unit = {
-    var i = math.Z.zero
-    var append: ZS = new collection.ZS.ValueArray(ArrayBuffer())
-    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
-    while (i < size) {
-      append :+= i
-      prepend +:= size - i - 1
-      i += 1
+  "impl" - {
+
+    "zsArray" in {
+      var i = math.Z.zero
+      var append: ZS = new collection.ZS.ValueArray(ArrayBuffer())
+      var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
+      while (i < size) {
+        append :+= i
+        prepend +:= size - i - 1
+        i += 1
+      }
+      assert(append == prepend)
     }
-    assert(append == prepend)
-  }
 
-  @Test
-  def zsImpl(): Unit = {
-    var i = math.Z.zero
-    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
-    while (i < size) {
-      append :+= i
-      prepend +:= size - i - 1
-      i += 1
+    "zsImpl" in {
+      var i = math.Z.zero
+      var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+      var prepend: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+      while (i < size) {
+        append :+= i
+        prepend +:= size - i - 1
+        i += 1
+      }
+      assert(append == prepend)
     }
-    assert(append == prepend)
-  }
 
-  @Test
-  def zsArrayImpl(): Unit = {
-    var i = math.Z.zero
-    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
-    while (i < size) {
-      append :+= i
-      prepend +:= size - i - 1
-      i += 1
+    "zsArrayImpl" in {
+      var i = math.Z.zero
+      var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+      var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
+      while (i < size) {
+        append :+= i
+        prepend +:= size - i - 1
+        i += 1
+      }
+      assert(append == prepend)
     }
-    assert(append == prepend)
-  }
 
-  @Test
-  def zsImplArray(): Unit = {
-    var i = math.Z.zero
-    var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
-    var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
-    while (i < size) {
-      append :+= i
-      prepend +:= size - i - 1
-      i += 1
+    "zsImplArray" in {
+      var i = math.Z.zero
+      var append: ZS = new collection.ZS.ValueTreeMap(new java.util.TreeMap[Z, Z], 0)
+      var prepend: ZS = new collection.ZS.ValueArray(ArrayBuffer())
+      while (i < size) {
+        append :+= i
+        prepend +:= size - i - 1
+        i += 1
+      }
+      assert(append == prepend)
     }
-    assert(append == prepend)
   }
 }
