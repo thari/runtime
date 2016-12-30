@@ -152,6 +152,8 @@ package object logika {
 
   final class helper extends scala.annotation.Annotation
 
+  final class pure extends scala.annotation.Annotation
+
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)
 
