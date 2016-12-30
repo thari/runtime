@@ -12,7 +12,6 @@ lazy val logikaRuntime = Project(
     scalaVersion := scalaVer,
     scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
     parallelExecution in Test := true,
-    crossPaths := false,
     libraryDependencies ++= Seq(
       "org.apfloat" % "apfloat" % "1.8.2",
       "org.scala-lang" % "scala-reflect" % scalaVer,
