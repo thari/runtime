@@ -203,6 +203,8 @@ package object logika {
 
   }
 
+  final class immutable extends scala.annotation.StaticAnnotation
+
   @scala.annotation.compileTimeOnly("Record")
   final class record extends scala.annotation.StaticAnnotation {
     def macroTransform(annottees: Any*): Any = macro _macro.recordImpl
