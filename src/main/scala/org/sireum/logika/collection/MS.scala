@@ -33,8 +33,8 @@ object MS {
   private[collection] def newTreeMS[E]: (MMap[Z, E], java.util.TreeMap[Z, E]) = {
     val tm = new java.util.TreeMap[Z, E]
     val a: MMap[Z, E] = {
-      import scala.collection.JavaConversions._
-      tm
+      import scala.collection.JavaConverters._
+      tm.asScala
     }
     (a, tm)
   }
@@ -127,13 +127,13 @@ trait MS[E] {
     var (dirty, _hashCode) = (true, 0)
 
     final def elements = {
-      import scala.collection.JavaConversions._
-      tm.values.toVector
+      import scala.collection.JavaConverters._
+      tm.values.asScala.toVector
     }
 
     final val a: MMap[Z, E] = {
-      import scala.collection.JavaConversions._
-      tm
+      import scala.collection.JavaConverters._
+      tm.asScala
     }
 
     final def apply(index: Z): E = a.get(index) match {

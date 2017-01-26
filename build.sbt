@@ -1,5 +1,7 @@
 val scalaVer = "2.12.1"
 
+val paradiseVersion = "2.1.0"
+
 lazy val logikaRuntime = Project(
   id = "logika-runtime",
   base = file("."),
@@ -10,7 +12,7 @@ lazy val logikaRuntime = Project(
     retrieveManaged := true,
     version := "3.0.0-11-SNAPSHOT",
     scalaVersion := scalaVer,
-    scalacOptions in(Compile, doc) := Seq("-groups", "-implicits"),
+    scalacOptions := Seq("-deprecation", "-unchecked"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
       "org.apfloat" % "apfloat" % "1.8.2",
@@ -18,6 +20,7 @@ lazy val logikaRuntime = Project(
       "org.spire-math" %% "spire" % "0.13.0",
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"

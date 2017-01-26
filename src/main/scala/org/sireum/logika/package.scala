@@ -157,6 +157,8 @@ package object logika {
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)
 
+  import scala.language.experimental.macros
+
   final implicit class Logika(val sc: StringContext) extends AnyVal {
 
     def z(args: Any*): Z = math.Z(sc.parts.mkString(""))
@@ -197,14 +199,12 @@ package object logika {
 
     def r(args: Any*): R = math.R(sc.raw(args))
 
-    import scala.language.experimental.macros
-
     def l(args: Any*): Unit = macro _macro.lImpl
+
   }
 
-  object _macro {
-    def lImpl(c: scala.reflect.macros.blackbox.Context)(
-      args: c.Expr[Any]*): c.Expr[Unit] =
-      c.universe.reify {}
+  @scala.annotation.compileTimeOnly("Record")
+  final class record extends scala.annotation.StaticAnnotation {
+    def macroTransform(annottees: Any*): Any = macro _macro.recordImpl
   }
 }
