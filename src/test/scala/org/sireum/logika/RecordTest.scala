@@ -27,8 +27,10 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
-@record case class Foo(x: Z, var bar: Bar)
-@record case class Bar(x: Z, var y: Z)
+sealed trait F
+@record case class Foo(x: Z, var bar: Bar) extends F
+@record case class Bar(x: Z, var y: Z) extends F
+@irecord case class Baz(x: Z, y: Z)
 
 class RecordTest extends LogikaSpec {
   * {
@@ -38,4 +40,3 @@ class RecordTest extends LogikaSpec {
     fooClone.bar.y != foo.bar.y
   }
 }
-
