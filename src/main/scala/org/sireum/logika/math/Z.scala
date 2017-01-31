@@ -133,15 +133,15 @@ sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaInt
 
   final override def toZ: Z = this
 
-  final override def doubleValue = toBigInt.doubleValue
+  final override def doubleValue: Double = toBigInt.doubleValue
 
-  final override def floatValue = toBigInt.floatValue
+  final override def floatValue: Float = toBigInt.floatValue
 
-  final override def intValue = toBigInt.intValue
+  final override def intValue: Int = toBigInt.intValue
 
-  final override def longValue = toBigInt.longValue
+  final override def longValue: Long = toBigInt.longValue
 
-  final override def underlying = toBigInteger
+  final override def underlying: java.math.BigInteger = toBigInteger
 
   final override def isWhole = true
 }

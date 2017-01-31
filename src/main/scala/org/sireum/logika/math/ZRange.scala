@@ -44,7 +44,7 @@ sealed trait ZRange {
   }
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
-    final def bitWidth = ZRange.this.bitWidth
+    final def bitWidth: Int = ZRange.this.bitWidth
 
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
@@ -74,13 +74,13 @@ sealed trait ZRange {
 
     final def toApint: Apint = new Apint(toBigInteger)
 
-    final override def doubleValue = toLong.doubleValue
+    final override def doubleValue: Double = toLong.doubleValue
 
-    final override def floatValue = toLong.floatValue
+    final override def floatValue: Float = toLong.floatValue
 
-    final override def intValue = toLong.intValue
+    final override def intValue: Int = toLong.intValue
 
-    final override def underlying = new java.lang.Long(toLong)
+    final override def underlying: java.lang.Long = new java.lang.Long(toLong)
 
     final override def compareTo(other: Value): Int =
       toLong.compareTo(other.toLong)
@@ -91,7 +91,7 @@ sealed trait ZRange {
   }
 
   private[math] final case class ValueImpl(value: Long) extends Value {
-    override def longValue = value
+    override def longValue: Long = value
 
     override val hashCode: Int = value.hashCode
 
@@ -113,23 +113,23 @@ sealed trait ZRange {
 object Z8 extends ZRange with LogikaNumberCompanion {
   final override def bitWidth = 8
 
-  final override def random: Z8 = Z8.ValueImpl(new Random().nextInt.toByte)
+  final override def random: Z8.Value = Z8.ValueImpl(new Random().nextInt.toByte)
 }
 
 object Z16 extends ZRange with LogikaNumberCompanion {
   final override def bitWidth = 16
 
-  final override def random: Z16 = Z16.ValueImpl(new Random().nextInt.toShort)
+  final override def random: Z16.Value = Z16.ValueImpl(new Random().nextInt.toShort)
 }
 
 object Z32 extends ZRange with LogikaNumberCompanion {
   final override def bitWidth = 32
 
-  final override def random: Z32 = Z32.ValueImpl(new Random().nextInt)
+  final override def random: Z32.Value = Z32.ValueImpl(new Random().nextInt)
 }
 
 object Z64 extends ZRange with LogikaNumberCompanion {
   final override def bitWidth = 64
 
-  final override def random: Z64 = Z64.ValueImpl(new Random().nextLong)
+  final override def random: Z64.Value = Z64.ValueImpl(new Random().nextLong)
 }

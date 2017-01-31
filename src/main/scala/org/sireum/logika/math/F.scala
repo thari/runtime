@@ -70,14 +70,14 @@ sealed trait F {
 object F32 extends F with LogikaNumberCompanion {
 
   @inline
-  final def apply(value: Float): F32 = ValueImpl(value)
+  final def apply(value: Float): F32.Value = ValueImpl(value)
 
   @inline
-  final def apply(s: String): F32 = ValueImpl(s.toFloat)
+  final def apply(s: String): F32.Value = ValueImpl(s.toFloat)
 
   final override def bitWidth = 32
 
-  final override def random: F32 =
+  final override def random: F32.Value =
     F32.ValueImpl(new Random().nextFloat)
 
   private[math] final case class ValueImpl(value: Float) extends Value {
@@ -156,14 +156,14 @@ object F32 extends F with LogikaNumberCompanion {
 
 object F64 extends F with LogikaNumberCompanion {
   @inline
-  final def apply(value: Double): F64 = ValueImpl(value)
+  final def apply(value: Double): F64.Value = ValueImpl(value)
 
   @inline
-  final def apply(s: String): F64 = ValueImpl(s.toDouble)
+  final def apply(s: String): F64.Value = ValueImpl(s.toDouble)
 
   final override def bitWidth = 64
 
-  final override def random: F64 =
+  final override def random: F64.Value =
     F64.ValueImpl(new Random().nextDouble)
 
   private[math] final case class ValueImpl(value: Double) extends Value {

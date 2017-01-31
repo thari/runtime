@@ -88,15 +88,15 @@ sealed trait N extends ScalaNumericConversions with Comparable[N] with LogikaInt
 
   final def toApint: Apint = toZ.toApint
 
-  final override def doubleValue = toBigInt.doubleValue
+  final override def doubleValue: Double = toBigInt.doubleValue
 
-  final override def floatValue = toBigInt.floatValue
+  final override def floatValue: Float = toBigInt.floatValue
 
-  final override def intValue = toBigInt.intValue
+  final override def intValue: Int = toBigInt.intValue
 
-  final override def longValue = toBigInt.longValue
+  final override def longValue: Long = toBigInt.longValue
 
-  final override def underlying = toBigInteger
+  final override def underlying: java.math.BigInteger = toBigInteger
 
   final override def isWhole = true
 

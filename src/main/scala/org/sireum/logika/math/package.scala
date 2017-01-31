@@ -29,7 +29,7 @@ import org.apfloat.Apint
 import spire.math.{ULong, UInt, UShort, UByte}
 
 package object math {
-  final val defaultBitWidth = {
+  final val defaultBitWidth: Int = {
     def err = sys.error("org.sireum.logika.math.bitWidth should be either 8, 16, 32, or 64.")
     try Option(System.getProperty("org.sireum.logika.math.bitWidth")) match {
       case Some(v) =>
@@ -59,39 +59,39 @@ package object math {
 
     def toZ: Z
 
-    final def toZ8: Z8 = Z8.checkRange(toZ)
+    final def toZ8: math.Z8.Value = math.Z8.checkRange(toZ)
 
-    final def toZ16: Z16 = Z16.checkRange(toZ)
+    final def toZ16: math.Z16.Value = math.Z16.checkRange(toZ)
 
-    final def toZ32: Z32 = Z32.checkRange(toZ)
+    final def toZ32: math.Z32.Value = math.Z32.checkRange(toZ)
 
-    final def toZ64: Z64 = Z64.checkRange(toZ)
+    final def toZ64: math.Z64.Value = math.Z64.checkRange(toZ)
 
-    final def toS8: S8 = S8.ValueImpl(toZ.toByte)
+    final def toS8: math.S8.Value = math.S8.ValueImpl(toZ.toByte)
 
-    final def toS16: S16 = S16.ValueImpl(toZ.toShort)
+    final def toS16: math.S16.Value = math.S16.ValueImpl(toZ.toShort)
 
-    final def toS32: S32 = S32.ValueImpl(toZ.toInt)
+    final def toS32: math.S32.Value = math.S32.ValueImpl(toZ.toInt)
 
-    final def toS64: S64 = S64.ValueImpl(toZ.toLong)
+    final def toS64: math.S64.Value = math.S64.ValueImpl(toZ.toLong)
 
     final def toN: N = math.N(toZ)
 
-    final def toN8: N8 = N8.checkRange(toZ)
+    final def toN8: math.N8.Value = math.N8.checkRange(toZ)
 
-    final def toN16: N16 = N16.checkRange(toZ)
+    final def toN16: math.N16.Value = math.N16.checkRange(toZ)
 
-    final def toN32: N32 = N32.checkRange(toZ)
+    final def toN32: math.N32.Value = math.N32.checkRange(toZ)
 
-    final def toN64: N64 = N64.checkRange(toZ)
+    final def toN64: math.N64.Value = math.N64.checkRange(toZ)
 
-    final def toU8: U8 = U8.ValueImpl(UByte(toZ.toByte))
+    final def toU8: math.U8.Value = math.U8.ValueImpl(UByte(toZ.toByte))
 
-    final def toU16: U16 = U16.ValueImpl(UShort(toZ.toShort))
+    final def toU16: math.U16.Value = math.U16.ValueImpl(UShort(toZ.toShort))
 
-    final def toU32: U32 = U32.ValueImpl(UInt(toZ.toInt))
+    final def toU32: math.U32.Value = math.U32.ValueImpl(UInt(toZ.toInt))
 
-    final def toU64: U64 = U64.ValueImpl(ULong(toZ.toLong))
+    final def toU64: math.U64.Value = math.U64.ValueImpl(ULong(toZ.toLong))
   }
 
   trait LogikaModuloIntegralNumber[V] extends LogikaIntegralNumber {

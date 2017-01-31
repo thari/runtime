@@ -65,15 +65,15 @@ sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNum
 
   final override def compareTo(other: R): Int = toReal.compare(other.toReal)
 
-  final override def doubleValue = toReal.doubleValue
+  final override def doubleValue: Double = toReal.doubleValue
 
-  final override def floatValue = toReal.floatValue
+  final override def floatValue: Float = toReal.floatValue
 
-  final override def intValue = toReal.intValue
+  final override def intValue: Int = toReal.intValue
 
-  final override def longValue = toReal.longValue
+  final override def longValue: Long = toReal.longValue
 
-  final override def underlying = toReal
+  final override def underlying: Real = toReal
 
   final override def isWhole = false
 

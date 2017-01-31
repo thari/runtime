@@ -25,8 +25,8 @@
 
 package org.sireum.logika.collection
 
-import org.sireum.logika._
-import org.sireum.logika.math.{Z => ZM}
+import org.sireum.logika.B
+import org.sireum.logika.math._
 import scala.collection.mutable.{ArrayBuffer, Map => MMap}
 
 object MS {
@@ -61,10 +61,10 @@ trait MS[E] {
       case other: Value =>
         if (this eq other) return true
         if (size != other.size) return false
-        var i = ZM.zero
+        var i = Z.zero
         while (i < size) {
           if (apply(i) != other(i)) return false
-          i += ZM.one
+          i += Z.one
         }
         true
       case _ => false
@@ -75,17 +75,17 @@ trait MS[E] {
   ValueArray[T <: ValueArray[T]](a: ArrayBuffer[E]) extends Value {
     var (dirty, _hashCode) = (true, 0)
 
-    final def elements = a.toVector
+    final def elements: Vector[E] = a.toVector
 
-    final override val size: Z = ZM(a.length)
+    final override val size: Z = Z(a.length)
 
     final override def apply(index: Z): E = {
-      assert(index < ZM(ZM.intMax))
+      assert(index < Z(Z.intMax))
       a(index.toInt)
     }
 
     final override def update(index: Z, value: E): Unit = {
-      assert(index < ZM(ZM.intMax))
+      assert(index < Z(Z.intMax))
       dirty = true
       a(index.toInt) = value
     }
@@ -126,7 +126,7 @@ trait MS[E] {
                                      final override val size: Z) extends Value {
     var (dirty, _hashCode) = (true, 0)
 
-    final def elements = {
+    final def elements: Vector[E] = {
       import scala.collection.JavaConverters._
       tm.values.asScala.toVector
     }
@@ -143,7 +143,7 @@ trait MS[E] {
 
     final def update(index: Z, value: E): Unit = {
       dirty = true
-      if (ZM.zero <= index && index < size) a(index) = value
+      if (Z.zero <= index && index < size) a(index) = value
       else throw new IndexOutOfBoundsException(index.toString)
     }
 
@@ -151,14 +151,14 @@ trait MS[E] {
       val (a, tm) = MS.newTreeMS[E]
       for ((i, v) <- this.a) a(i) = v
       a(size) = value
-      make(tm, ZM(this.tm.size) + ZM.one)
+      make(tm, Z(this.tm.size) + Z.one)
     }
 
     final def +:(value: E): T = {
       val (a, tm) = MS.newTreeMS[E]
-      a(ZM.zero) = value
-      for ((i, v) <- this.a) a(i + ZM.one) = v
-      make(tm, size + ZM.one)
+      a(Z.zero) = value
+      for ((i, v) <- this.a) a(i + Z.one) = v
+      make(tm, size + Z.one)
     }
 
     protected def make(tm: java.util.TreeMap[Z, E], size: Z): T
@@ -171,19 +171,19 @@ trait MS[E] {
       _hashCode
     }
 
-    final def computeHashCode = a.values.toSeq.hashCode
+    final def computeHashCode: Int = a.values.toSeq.hashCode
 
     final override def toString: String = {
       val sb = new StringBuilder
       sb.append('[')
       if (a.nonEmpty) {
-        var i = ZM.zero
+        var i = Z.zero
         sb.append(a(i))
-        i += ZM.one
+        i += Z.one
         while (i < size) {
           sb.append(", ")
           sb.append(a(i))
-          i += ZM.one
+          i += Z.one
         }
       }
       sb.append(']')
@@ -196,14 +196,14 @@ trait MS[E] {
 object BS extends MS[B] {
   type V = B
 
-  final def random: BS = {
+  final def random: BS.Value = {
     val sz = N8.random.toInt
     val elements = new Array[B](sz)
-    for (i <- 0 until sz) elements(i) = B.random
+    for (i <- 0 until sz) elements(i) = org.sireum.logika.B.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: B): BS = {
+  final def create(size: Z, dflt: B): BS.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
       val (a, tm) = MS.newTreeMS[B]
@@ -243,23 +243,23 @@ object BS extends MS[B] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -268,7 +268,7 @@ object BS extends MS[B] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -280,17 +280,17 @@ object BS extends MS[B] {
 object ZS extends MS[Z] {
   type V = Z
 
-  final def random: ZS = {
+  final def random: ZS.Value = {
     val sz = N8.random.toInt
     val elements = new Array[Z](sz)
     for (i <- 0 until sz) elements(i) = Z.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: Z): ZS = {
+  final def create(size: Z, dflt: Z): ZS.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[Z]
+      val (_, tm) = MS.newTreeMS[Z]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -327,23 +327,23 @@ object ZS extends MS[Z] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -352,7 +352,7 @@ object ZS extends MS[Z] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -361,20 +361,20 @@ object ZS extends MS[Z] {
 
 }
 
-object Z8S extends MS[Z8] {
-  type V = Z8
+object Z8S extends MS[Z8.Value] {
+  type V = Z8.Value
 
-  final def random: Z8S = {
+  final def random: Z8S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[Z8](sz)
+    val elements = new Array[Z8.Value](sz)
     for (i <- 0 until sz) elements(i) = Z8.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: Z8): Z8S = {
+  final def create(size: Z, dflt: Z8.Value): Z8S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[Z8]
+      val (_, tm) = MS.newTreeMS[Z8.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -383,7 +383,7 @@ object Z8S extends MS[Z8] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[Z8](sz)
+      val elements = new Array[Z8.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -411,23 +411,23 @@ object Z8S extends MS[Z8] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -436,7 +436,7 @@ object Z8S extends MS[Z8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -445,20 +445,20 @@ object Z8S extends MS[Z8] {
 
 }
 
-object Z16S extends MS[Z16] {
-  type V = Z16
+object Z16S extends MS[Z16.Value] {
+  type V = Z16.Value
 
-  final def random: Z16S = {
+  final def random: Z16S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[Z16](sz)
+    val elements = new Array[Z16.Value](sz)
     for (i <- 0 until sz) elements(i) = Z16.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: Z16): Z16S = {
+  final def create(size: Z, dflt: Z16.Value): Z16S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[Z16]
+      val (_, tm) = MS.newTreeMS[Z16.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -467,7 +467,7 @@ object Z16S extends MS[Z16] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[Z16](sz)
+      val elements = new Array[Z16.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -495,23 +495,23 @@ object Z16S extends MS[Z16] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -520,7 +520,7 @@ object Z16S extends MS[Z16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -529,20 +529,20 @@ object Z16S extends MS[Z16] {
 
 }
 
-object Z32S extends MS[Z32] {
-  type V = Z32
+object Z32S extends MS[Z32.Value] {
+  type V = Z32.Value
 
-  final def random: Z32S = {
+  final def random: Z32S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[Z32](sz)
+    val elements = new Array[Z32.Value](sz)
     for (i <- 0 until sz) elements(i) = Z32.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: Z32): Z32S = {
+  final def create(size: Z, dflt: Z32.Value): Z32S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[Z32]
+      val (_, tm) = MS.newTreeMS[Z32.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -551,7 +551,7 @@ object Z32S extends MS[Z32] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[Z32](sz)
+      val elements = new Array[Z32.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -579,23 +579,23 @@ object Z32S extends MS[Z32] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -604,7 +604,7 @@ object Z32S extends MS[Z32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -613,20 +613,20 @@ object Z32S extends MS[Z32] {
 
 }
 
-object Z64S extends MS[Z64] {
-  type V = Z64
+object Z64S extends MS[Z64.Value] {
+  type V = Z64.Value
 
-  final def random: Z64S = {
+  final def random: Z64S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[Z64](sz)
+    val elements = new Array[Z64.Value](sz)
     for (i <- 0 until sz) elements(i) = Z64.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: Z64): Z64S = {
+  final def create(size: Z, dflt: Z64.Value): Z64S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[Z64]
+      val (_, tm) = MS.newTreeMS[Z64.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -635,7 +635,7 @@ object Z64S extends MS[Z64] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[Z64](sz)
+      val elements = new Array[Z64.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -663,23 +663,23 @@ object Z64S extends MS[Z64] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -688,7 +688,7 @@ object Z64S extends MS[Z64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -697,20 +697,20 @@ object Z64S extends MS[Z64] {
 
 }
 
-object S8S extends MS[S8] {
-  type V = S8
+object S8S extends MS[S8.Value] {
+  type V = S8.Value
 
-  final def random: S8S = {
+  final def random: S8S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[S8](sz)
+    val elements = new Array[S8.Value](sz)
     for (i <- 0 until sz) elements(i) = S8.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: S8): S8S = {
+  final def create(size: Z, dflt: S8.Value): S8S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[S8]
+      val (_, tm) = MS.newTreeMS[S8.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -719,7 +719,7 @@ object S8S extends MS[S8] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[S8](sz)
+      val elements = new Array[S8.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -747,23 +747,23 @@ object S8S extends MS[S8] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -772,7 +772,7 @@ object S8S extends MS[S8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -781,20 +781,20 @@ object S8S extends MS[S8] {
 
 }
 
-object S16S extends MS[S16] {
-  type V = S16
+object S16S extends MS[S16.Value] {
+  type V = S16.Value
 
-  final def random: S16S = {
+  final def random: S16S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[S16](sz)
+    val elements = new Array[S16.Value](sz)
     for (i <- 0 until sz) elements(i) = S16.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: S16): S16S = {
+  final def create(size: Z, dflt: S16.Value): S16S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[S16]
+      val (_, tm) = MS.newTreeMS[S16.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -803,7 +803,7 @@ object S16S extends MS[S16] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[S16](sz)
+      val elements = new Array[S16.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -831,23 +831,23 @@ object S16S extends MS[S16] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -856,7 +856,7 @@ object S16S extends MS[S16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -865,20 +865,20 @@ object S16S extends MS[S16] {
 
 }
 
-object S32S extends MS[S32] {
-  type V = S32
+object S32S extends MS[S32.Value] {
+  type V = S32.Value
 
-  final def random: S32S = {
+  final def random: S32S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[S32](sz)
+    val elements = new Array[S32.Value](sz)
     for (i <- 0 until sz) elements(i) = S32.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: S32): S32S = {
+  final def create(size: Z, dflt: S32.Value): S32S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[S32]
+      val (_, tm) = MS.newTreeMS[S32.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -887,7 +887,7 @@ object S32S extends MS[S32] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[S32](sz)
+      val elements = new Array[S32.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -915,23 +915,23 @@ object S32S extends MS[S32] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -940,7 +940,7 @@ object S32S extends MS[S32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -949,20 +949,20 @@ object S32S extends MS[S32] {
 
 }
 
-object S64S extends MS[S64] {
-  type V = S64
+object S64S extends MS[S64.Value] {
+  type V = S64.Value
 
-  final def random: S64S = {
+  final def random: S64S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[S64](sz)
+    val elements = new Array[S64.Value](sz)
     for (i <- 0 until sz) elements(i) = S64.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: S64): S64S = {
+  final def create(size: Z, dflt: S64.Value): S64S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[S64]
+      val (_, tm) = MS.newTreeMS[S64.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -971,7 +971,7 @@ object S64S extends MS[S64] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[S64](sz)
+      val elements = new Array[S64.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -999,23 +999,23 @@ object S64S extends MS[S64] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1024,7 +1024,7 @@ object S64S extends MS[S64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1036,17 +1036,17 @@ object S64S extends MS[S64] {
 object NS extends MS[N] {
   type V = N
 
-  final def random: NS = {
+  final def random: NS.Value = {
     val sz = N8.random.toInt
     val elements = new Array[N](sz)
     for (i <- 0 until sz) elements(i) = N.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: N): NS = {
+  final def create(size: Z, dflt: N): NS.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[N]
+      val (_, tm) = MS.newTreeMS[N]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1083,23 +1083,23 @@ object NS extends MS[N] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1108,7 +1108,7 @@ object NS extends MS[N] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1117,20 +1117,20 @@ object NS extends MS[N] {
 
 }
 
-object N8S extends MS[N8] {
-  type V = N8
+object N8S extends MS[N8.Value] {
+  type V = N8.Value
 
-  final def random: N8S = {
+  final def random: N8S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[N8](sz)
+    val elements = new Array[N8.Value](sz)
     for (i <- 0 until sz) elements(i) = N8.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: N8): N8S = {
+  final def create(size: Z, dflt: N8.Value): N8S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[N8]
+      val (_, tm) = MS.newTreeMS[N8.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1139,7 +1139,7 @@ object N8S extends MS[N8] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[N8](sz)
+      val elements = new Array[N8.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1167,23 +1167,23 @@ object N8S extends MS[N8] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1192,7 +1192,7 @@ object N8S extends MS[N8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1201,20 +1201,20 @@ object N8S extends MS[N8] {
 
 }
 
-object N16S extends MS[N16] {
-  type V = N16
+object N16S extends MS[N16.Value] {
+  type V = N16.Value
 
-  final def random: N16S = {
+  final def random: N16S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[N16](sz)
+    val elements = new Array[N16.Value](sz)
     for (i <- 0 until sz) elements(i) = N16.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: N16): N16S = {
+  final def create(size: Z, dflt: N16.Value): N16S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[N16]
+      val (_, tm) = MS.newTreeMS[N16.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1223,7 +1223,7 @@ object N16S extends MS[N16] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[N16](sz)
+      val elements = new Array[N16.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1251,23 +1251,23 @@ object N16S extends MS[N16] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1276,7 +1276,7 @@ object N16S extends MS[N16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1285,20 +1285,20 @@ object N16S extends MS[N16] {
 
 }
 
-object N32S extends MS[N32] {
-  type V = N32
+object N32S extends MS[N32.Value] {
+  type V = N32.Value
 
-  final def random: N32S = {
+  final def random: N32S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[N32](sz)
+    val elements = new Array[N32.Value](sz)
     for (i <- 0 until sz) elements(i) = N32.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: N32): N32S = {
+  final def create(size: Z, dflt: N32.Value): N32S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[N32]
+      val (_, tm) = MS.newTreeMS[N32.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1307,7 +1307,7 @@ object N32S extends MS[N32] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[N32](sz)
+      val elements = new Array[N32.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1335,23 +1335,23 @@ object N32S extends MS[N32] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1360,7 +1360,7 @@ object N32S extends MS[N32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1369,20 +1369,20 @@ object N32S extends MS[N32] {
 
 }
 
-object N64S extends MS[N64] {
-  type V = N64
+object N64S extends MS[N64.Value] {
+  type V = N64.Value
 
-  final def random: N64S = {
+  final def random: N64S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[N64](sz)
+    val elements = new Array[N64.Value](sz)
     for (i <- 0 until sz) elements(i) = N64.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: N64): N64S = {
+  final def create(size: Z, dflt: N64.Value): N64S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[N64]
+      val (_, tm) = MS.newTreeMS[N64.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1391,7 +1391,7 @@ object N64S extends MS[N64] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[N64](sz)
+      val elements = new Array[N64.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1419,23 +1419,23 @@ object N64S extends MS[N64] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1444,7 +1444,7 @@ object N64S extends MS[N64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1453,20 +1453,20 @@ object N64S extends MS[N64] {
 
 }
 
-object U8S extends MS[U8] {
-  type V = U8
+object U8S extends MS[U8.Value] {
+  type V = U8.Value
 
-  final def random: U8S = {
+  final def random: U8S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[U8](sz)
+    val elements = new Array[U8.Value](sz)
     for (i <- 0 until sz) elements(i) = U8.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: U8): U8S = {
+  final def create(size: Z, dflt: U8.Value): U8S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[U8]
+      val (_, tm) = MS.newTreeMS[U8.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1475,7 +1475,7 @@ object U8S extends MS[U8] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[U8](sz)
+      val elements = new Array[U8.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1503,23 +1503,23 @@ object U8S extends MS[U8] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1528,7 +1528,7 @@ object U8S extends MS[U8] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1537,20 +1537,20 @@ object U8S extends MS[U8] {
 
 }
 
-object U16S extends MS[U16] {
-  type V = U16
+object U16S extends MS[U16.Value] {
+  type V = U16.Value
 
-  final def random: U16S = {
+  final def random: U16S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[U16](sz)
+    val elements = new Array[U16.Value](sz)
     for (i <- 0 until sz) elements(i) = U16.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: U16): U16S = {
+  final def create(size: Z, dflt: U16.Value): U16S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[U16]
+      val (_, tm) = MS.newTreeMS[U16.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1559,7 +1559,7 @@ object U16S extends MS[U16] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[U16](sz)
+      val elements = new Array[U16.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1587,23 +1587,23 @@ object U16S extends MS[U16] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1612,7 +1612,7 @@ object U16S extends MS[U16] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1621,20 +1621,20 @@ object U16S extends MS[U16] {
 
 }
 
-object U32S extends MS[U32] {
-  type V = U32
+object U32S extends MS[U32.Value] {
+  type V = U32.Value
 
-  final def random: U32S = {
+  final def random: U32S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[U32](sz)
+    val elements = new Array[U32.Value](sz)
     for (i <- 0 until sz) elements(i) = U32.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: U32): U32S = {
+  final def create(size: Z, dflt: U32.Value): U32S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[U32]
+      val (_, tm) = MS.newTreeMS[U32.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1643,7 +1643,7 @@ object U32S extends MS[U32] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[U32](sz)
+      val elements = new Array[U32.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1671,23 +1671,23 @@ object U32S extends MS[U32] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1696,7 +1696,7 @@ object U32S extends MS[U32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1705,20 +1705,20 @@ object U32S extends MS[U32] {
 
 }
 
-object U64S extends MS[U64] {
-  type V = U64
+object U64S extends MS[U64.Value] {
+  type V = U64.Value
 
-  final def random: U64S = {
+  final def random: U64S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[U64](sz)
+    val elements = new Array[U64.Value](sz)
     for (i <- 0 until sz) elements(i) = U64.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: U64): U64S = {
+  final def create(size: Z, dflt: U64.Value): U64S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[U64]
+      val (_, tm) = MS.newTreeMS[U64.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1727,7 +1727,7 @@ object U64S extends MS[U64] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[U64](sz)
+      val elements = new Array[U64.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1755,23 +1755,23 @@ object U64S extends MS[U64] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1780,7 +1780,7 @@ object U64S extends MS[U64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1792,17 +1792,17 @@ object U64S extends MS[U64] {
 object RS extends MS[R] {
   type V = R
 
-  final def random: RS = {
+  final def random: RS.Value = {
     val sz = N8.random.toInt
     val elements = new Array[R](sz)
     for (i <- 0 until sz) elements(i) = R.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: R): RS = {
+  final def create(size: Z, dflt: R): RS.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[R]
+      val (_, tm) = MS.newTreeMS[R]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1839,23 +1839,23 @@ object RS extends MS[R] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1864,7 +1864,7 @@ object RS extends MS[R] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1873,20 +1873,20 @@ object RS extends MS[R] {
 
 }
 
-object F32S extends MS[F32] {
-  type V = F32
+object F32S extends MS[F32.Value] {
+  type V = F32.Value
 
-  final def random: F32S = {
+  final def random: F32S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[F32](sz)
+    val elements = new Array[F32.Value](sz)
     for (i <- 0 until sz) elements(i) = F32.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: F32): F32S = {
+  final def create(size: Z, dflt: F32.Value): F32S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[F32]
+      val (_, tm) = MS.newTreeMS[F32.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1895,7 +1895,7 @@ object F32S extends MS[F32] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[F32](sz)
+      val elements = new Array[F32.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -1923,23 +1923,23 @@ object F32S extends MS[F32] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -1948,7 +1948,7 @@ object F32S extends MS[F32] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],
@@ -1957,20 +1957,20 @@ object F32S extends MS[F32] {
 
 }
 
-object F64S extends MS[F64] {
-  type V = F64
+object F64S extends MS[F64.Value] {
+  type V = F64.Value
 
-  final def random: F64S = {
+  final def random: F64S.Value = {
     val sz = N8.random.toInt
-    val elements = new Array[F64](sz)
+    val elements = new Array[F64.Value](sz)
     for (i <- 0 until sz) elements(i) = F64.random
     apply(elements: _*)
   }
 
-  final def create(size: Z, dflt: F64): F64S = {
+  final def create(size: Z, dflt: F64.Value): F64S.Value = {
     if (size < 0) throw new IllegalArgumentException
     if (size > Int.MaxValue) {
-      val (a, tm) = MS.newTreeMS[F64]
+      val (_, tm) = MS.newTreeMS[F64.Value]
       var i = Z(0)
       while (i < size) {
         tm.put(i, dflt)
@@ -1979,7 +1979,7 @@ object F64S extends MS[F64] {
       new ValueTreeMap(tm, size)
     } else {
       val sz = size.toInt
-      val elements = new Array[F64](sz)
+      val elements = new Array[F64.Value](sz)
       for (i <- 0 until sz) elements(i) = dflt
       apply(elements: _*)
     }
@@ -2007,23 +2007,23 @@ object F64S extends MS[F64] {
 
     private[logika] def upgrade: ValueTreeMap = {
       val (a, tm) = MS.newTreeMS[V]
-      var i = ZM.zero
+      var i = Z.zero
       for (e <- this.a) {
         a(i) = e
-        i += ZM.one
+        i += Z.one
       }
       new ValueTreeMap(tm, i)
     }
 
     override def :+(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) upgrade :+ value
+      if (size + Z.one == Z(Z.intMax)) upgrade :+ value
       else make(a :+ value)
 
     override def +:(value: V): Value =
-      if (size + ZM.one == ZM(ZM.intMax)) value +: upgrade
+      if (size + Z.one == Z(Z.intMax)) value +: upgrade
       else make(value +: a)
 
-    override def clone = make(a.clone)
+    override def clone: ValueArray = make(a.clone)
 
     protected def make(a: ArrayBuffer[V]) = new ValueArray(a)
   }
@@ -2032,7 +2032,7 @@ object F64S extends MS[F64] {
   ValueTreeMap(tm: java.util.TreeMap[Z, V],
                size: Z)
     extends super.ValueTreeMap[ValueTreeMap](tm, size) with Value {
-    override def clone =
+    override def clone: ValueTreeMap =
       make(tm.clone.asInstanceOf[java.util.TreeMap[Z, V]], size)
 
     protected def make(tm: java.util.TreeMap[Z, V],

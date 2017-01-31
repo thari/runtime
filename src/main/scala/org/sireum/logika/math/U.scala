@@ -62,15 +62,15 @@ sealed trait U {
 
     final def toApint: Apint = new Apint(toBigInteger)
 
-    final override def doubleValue = toZ.toDouble
+    final override def doubleValue: Double = toZ.toDouble
 
-    final override def floatValue = toZ.toFloat
+    final override def floatValue: Float = toZ.toFloat
 
-    final override def intValue = toZ.toInt
+    final override def intValue: Int = toZ.toInt
 
-    final override def longValue = toZ.toLong
+    final override def longValue: Long = toZ.toLong
 
-    final override def underlying = toZ
+    final override def underlying: Z = toZ
 
     final override def compareTo(other: Value): Int =
       toZ.compareTo(other.toZ)
@@ -88,7 +88,7 @@ object U8 extends U with LogikaNumberCompanion {
 
   final override def bitWidth = 8
 
-  final override def random: U8 =
+  final override def random: U8.Value =
     U8.ValueImpl(UByte(new Random().nextInt))
 
   private[math] final case class ValueImpl(value: UByte) extends Value {
@@ -155,7 +155,7 @@ object U16 extends U with LogikaNumberCompanion {
 
   final override def bitWidth = 16
 
-  final override def random: U16 =
+  final override def random: U16.Value =
     U16.ValueImpl(UShort(new Random().nextInt))
 
   private[math] final case class ValueImpl(value: UShort) extends Value {
@@ -222,7 +222,7 @@ object U32 extends U with LogikaNumberCompanion {
 
   final override def bitWidth = 32
 
-  final override def random: U32 =
+  final override def random: U32.Value =
     U32.ValueImpl(UInt(new Random().nextInt))
 
   private[math] final case class ValueImpl(value: UInt) extends Value {
@@ -289,7 +289,7 @@ object U64 extends U with LogikaNumberCompanion {
 
   final override def bitWidth = 64
 
-  final override def random: U64 =
+  final override def random: U64.Value =
     U64.ValueImpl(ULong(new Random().nextLong))
 
   private[math] final case class ValueImpl(value: ULong) extends Value {

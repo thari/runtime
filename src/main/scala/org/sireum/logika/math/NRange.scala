@@ -26,10 +26,10 @@
 package org.sireum.logika.math
 
 import org.apfloat.Apint
-import org.sireum.logika._
 
 import scala.math.ScalaNumericConversions
 import scala.util.Random
+import org.sireum.logika.B
 
 sealed trait NRange {
   final val Min: Value = ValueImpl(Z.zero)
@@ -44,7 +44,7 @@ sealed trait NRange {
   }
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
-    final def bitWidth = NRange.this.bitWidth
+    final def bitWidth: Int = NRange.this.bitWidth
 
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
@@ -70,15 +70,15 @@ sealed trait NRange {
 
     final def toApint: Apint = new Apint(toBigInteger)
 
-    final override def doubleValue = toZ.toDouble
+    final override def doubleValue: Double = toZ.toDouble
 
-    final override def floatValue = toZ.toFloat
+    final override def floatValue: Float = toZ.toFloat
 
-    final override def intValue = toZ.toInt
+    final override def intValue: Int = toZ.toInt
 
-    final override def longValue = toZ.toLong
+    final override def longValue: Long = toZ.toLong
 
-    final override def underlying = toZ
+    final override def underlying: Z = toZ
 
     final override def compareTo(other: Value): Int =
       toZ.compareTo(other.toZ)
@@ -111,27 +111,27 @@ sealed trait NRange {
 object N8 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 8
 
-  final override def random: N8 =
+  final override def random: N8.Value =
     N8.ValueImpl(Z(new Random().nextInt.toByte) + Z8.Max.toZ + 1)
 }
 
 object N16 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 16
 
-  final override def random: N16 =
+  final override def random: N16.Value =
     N16.ValueImpl(Z(new Random().nextInt.toShort) + Z16.Max.toZ + 1)
 }
 
 object N32 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 32
 
-  final override def random: N32 =
+  final override def random: N32.Value =
     N32.ValueImpl(Z(new Random().nextInt) + Z32.Max.toZ + 1)
 }
 
 object N64 extends NRange with LogikaNumberCompanion {
   final override def bitWidth = 64
 
-  final override def random: N64 =
+  final override def random: N64.Value =
     N64.ValueImpl(Z(new Random().nextLong) + Z64.Max.toZ + 1)
 }
