@@ -136,6 +136,21 @@ object _macro {
       else false
 
     val result: c.Tree = annottees.map(_.tree).toList match {
+      case (record@q"case class $tpname(...$paramss)") :: _ =>
+        val args = paramss map { paramList =>
+          paramList.map {
+            case q"$_ val $param: $_ = $_" => q"$param"
+            case _ => abort()
+          }
+        }
+        val typeName = tpname.asInstanceOf[TypeName]
+        val termName = typeName.toTermName
+        val clone = q"override def clone: $typeName = $termName(...$args)"
+        q"""
+             case class $tpname(...$paramss) {
+               $clone
+             }
+         """
       case (record@q"case class $tpname(...$paramss) extends {} with $parent") :: _ =>
         val args = paramss map { paramList =>
           paramList.map {
