@@ -32,8 +32,8 @@ import scala.math.ScalaNumericConversions
 import scala.util.Random
 
 sealed trait ZRange {
-  final val Min: Value = ValueImpl(BigInt(-2).pow(bitWidth).toLong)
-  final val Max: Value = ValueImpl((BigInt(2).pow(bitWidth) - 1).toLong)
+  final val Min: Value = ValueImpl(BigInt(-2).pow(bitWidth - 1).toLong)
+  final val Max: Value = ValueImpl((BigInt(2).pow(bitWidth - 1) - 1).toLong)
 
   def bitWidth: Int
 
