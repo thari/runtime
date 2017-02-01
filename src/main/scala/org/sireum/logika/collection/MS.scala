@@ -42,7 +42,7 @@ object MS {
 
 trait MS[E] {
 
-  trait Value {
+  trait Value extends org.sireum.logika.Clonable {
     def elements: scala.collection.Seq[E]
 
     def size: Z
@@ -57,7 +57,7 @@ trait MS[E] {
 
     override def clone: Value = sys.error("stub")
 
-    final override def equals(other: Any): B = other match {
+    final override def equals(other: Any): Boolean = other match {
       case other: Value =>
         if (this eq other) return true
         if (size != other.size) return false

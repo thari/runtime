@@ -108,10 +108,10 @@ class ZTest extends LogikaSpec {
 
     val eq = ("==", (z1: Z, z2: Z) => z1 == z2, (i1: I, i2: I) => i1 == i2)
     val ne = ("!=", (z1: Z, z2: Z) => z1 != z2, (i1: I, i2: I) => i1 != i2)
-    val gt = (">", (z1: Z, z2: Z) => z1 > z2, (i1: I, i2: I) => i1 > i2)
-    val ge = (">=", (z1: Z, z2: Z) => z1 >= z2, (i1: I, i2: I) => i1 >= i2)
-    val lt = ("<", (z1: Z, z2: Z) => z1 < z2, (i1: I, i2: I) => i1 < i2)
-    val le = ("<=", (z1: Z, z2: Z) => z1 <= z2, (i1: I, i2: I) => i1 <= i2)
+    val gt = (">", (z1: Z, z2: Z) => z1 > z2, (i1: I, i2: I) => B(i1 > i2))
+    val ge = (">=", (z1: Z, z2: Z) => z1 >= z2, (i1: I, i2: I) => B(i1 >= i2))
+    val lt = ("<", (z1: Z, z2: Z) => z1 < z2, (i1: I, i2: I) => B(i1 < i2))
+    val le = ("<=", (z1: Z, z2: Z) => z1 <= z2, (i1: I, i2: I) => B(i1 <= i2))
     for (i <- 0 until size)
       for ((op, zop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
         lazy val z1 = randomInt()

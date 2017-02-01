@@ -83,7 +83,7 @@ sealed trait NRange {
     final override def compareTo(other: Value): Int =
       toZ.compareTo(other.toZ)
 
-    final override def isWhole: B = true
+    final override def isWhole: Boolean = true
 
     final override def toString: String = toZ.toString
   }
@@ -93,7 +93,7 @@ sealed trait NRange {
 
     override def toZ: Z = value
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
       case other: Byte => value == Z(other)
       case other: Char => value == Z(other)

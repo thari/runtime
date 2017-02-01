@@ -110,10 +110,10 @@ class NTest extends LogikaSpec {
 
     val eq = ("==", (n1: N, n2: N) => n1 == n2, (i1: I, i2: I) => i1 == i2)
     val ne = ("!=", (n1: N, n2: N) => n1 != n2, (i1: I, i2: I) => i1 != i2)
-    val gt = (">", (n1: N, n2: N) => n1 > n2, (i1: I, i2: I) => i1 > i2)
-    val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => i1 >= i2)
-    val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => i1 < i2)
-    val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => i1 <= i2)
+    val gt = (">", (n1: N, n2: N) => n1 > n2, (i1: I, i2: I) => B(i1 > i2))
+    val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => B(i1 >= i2))
+    val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => B(i1 < i2))
+    val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => B(i1 <= i2))
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
         lazy val n1 = N(randomInt().toBigInt.abs)

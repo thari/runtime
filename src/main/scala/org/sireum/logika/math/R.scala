@@ -79,7 +79,7 @@ sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNum
 
   final override lazy val hashCode: Int = toReal.hashCode
 
-  final override def equals(other: Any): B = other match {
+  final override def equals(other: Any): Boolean = other match {
     case other: R => (this eq other) || toReal.equals(other.toReal)
     case _ => false
   }

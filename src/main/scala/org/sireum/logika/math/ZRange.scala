@@ -85,7 +85,7 @@ sealed trait ZRange {
     final override def compareTo(other: Value): Int =
       toLong.compareTo(other.toLong)
 
-    final override def isWhole: B = true
+    final override def isWhole: Boolean = true
 
     final override def toString: String = toLong.toString
   }
@@ -95,7 +95,7 @@ sealed trait ZRange {
 
     override val hashCode: Int = value.hashCode
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong

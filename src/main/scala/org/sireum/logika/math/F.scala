@@ -62,7 +62,7 @@ sealed trait F {
 
     def isNegInfinity: B
 
-    final override def isWhole: B = false
+    final override def isWhole: Boolean = false
   }
 
 }
@@ -127,7 +127,7 @@ object F32 extends F with LogikaNumberCompanion {
 
     override val hashCode: Int = value.hashCode
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: ValueImpl => value == other.value
       case other: Float => value == other
       case other: Double => value.toDouble == other
@@ -213,7 +213,7 @@ object F64 extends F with LogikaNumberCompanion {
 
     override val hashCode: Int = value.hashCode
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: ValueImpl => value == other.value
       case other: Float => value == other
       case other: Double => value.toDouble == other

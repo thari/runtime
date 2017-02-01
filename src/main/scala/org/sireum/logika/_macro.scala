@@ -37,49 +37,12 @@ object _macro {
     def abort() =
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika record")
 
-    def typeTreeOf[T: TypeTag] = reify(sys.error(""): T).tree.asInstanceOf[Typed].tpt.tpe
-
-    def typeOf(t: Tree) = {
-      val expr = c.Expr[Any](c.typecheck(q"""(sys.error(""): $t)"""))
-      expr.actualType
-    }
-
-    def shouldClone(t: c.universe.Type): Boolean =
-      if (t <:< typeTreeOf[collection.BS.Value]) true
-      else if (t <:< typeTreeOf[collection.ZS.Value]) true
-      else if (t <:< typeTreeOf[collection.Z8S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z16S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z32S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z64S.Value]) true
-      else if (t <:< typeTreeOf[collection.NS.Value]) true
-      else if (t <:< typeTreeOf[collection.N8S.Value]) true
-      else if (t <:< typeTreeOf[collection.N16S.Value]) true
-      else if (t <:< typeTreeOf[collection.N32S.Value]) true
-      else if (t <:< typeTreeOf[collection.N64S.Value]) true
-      else if (t <:< typeTreeOf[collection.S8S.Value]) true
-      else if (t <:< typeTreeOf[collection.S16S.Value]) true
-      else if (t <:< typeTreeOf[collection.S32S.Value]) true
-      else if (t <:< typeTreeOf[collection.S64S.Value]) true
-      else if (t <:< typeTreeOf[collection.U8S.Value]) true
-      else if (t <:< typeTreeOf[collection.U16S.Value]) true
-      else if (t <:< typeTreeOf[collection.U32S.Value]) true
-      else if (t <:< typeTreeOf[collection.U64S.Value]) true
-      else if (t <:< typeTreeOf[collection.F32S.Value]) true
-      else if (t <:< typeTreeOf[collection.F64S.Value]) true
-      else if (t <:< typeTreeOf[collection.RS.Value]) true
-      else if (t <:< typeTreeOf[scala.Product]) true
-      else false
-
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (record@q"case class $tpname(...$paramss)") :: _ =>
+      case (record@q"case class $tpname(...$paramss) extends {} with ..$parents") :: _ =>
         val args = paramss map { paramList =>
           paramList.map {
-            case q"$_ val $param: $tpt = $_" =>
-              if (shouldClone(typeOf(tpt))) q"$param.clone"
-              else q"$param"
-            case q"$_ var $param: $tpt = $_" =>
-              if (shouldClone(typeOf(tpt))) q"$param.clone"
-              else q"$param"
+            case q"$_ val $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
+            case q"$_ var $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
             case _ => abort()
           }
         }
@@ -87,27 +50,7 @@ object _macro {
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(...$args)"
         q"""
-             case class $tpname(...$paramss) {
-               $clone
-             }
-         """
-      case (record@q"case class $tpname(...$paramss) extends {} with $parent") :: _ =>
-        val args = paramss map { paramList =>
-          paramList.map {
-            case q"$_ val $param: $tpt = $_" =>
-              if (shouldClone(typeOf(tpt))) q"$param.clone"
-              else q"$param"
-            case q"$_ var $param: $tpt = $_" =>
-              if (shouldClone(typeOf(tpt))) q"$param.clone"
-              else q"$param"
-            case _ => abort()
-          }
-        }
-        val typeName = tpname.asInstanceOf[TypeName]
-        val termName = typeName.toTermName
-        val clone = q"override def clone: $typeName = $termName(...$args)"
-        q"""
-             case class $tpname(...$paramss) extends {} with $parent {
+             case class $tpname(...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
                $clone
              }
          """
@@ -129,34 +72,8 @@ object _macro {
       expr.actualType
     }
 
-    def shouldClone(t: c.universe.Type): Boolean =
-      if (t <:< typeTreeOf[collection.BS.Value]) true
-      else if (t <:< typeTreeOf[collection.ZS.Value]) true
-      else if (t <:< typeTreeOf[collection.Z8S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z16S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z32S.Value]) true
-      else if (t <:< typeTreeOf[collection.Z64S.Value]) true
-      else if (t <:< typeTreeOf[collection.NS.Value]) true
-      else if (t <:< typeTreeOf[collection.N8S.Value]) true
-      else if (t <:< typeTreeOf[collection.N16S.Value]) true
-      else if (t <:< typeTreeOf[collection.N32S.Value]) true
-      else if (t <:< typeTreeOf[collection.N64S.Value]) true
-      else if (t <:< typeTreeOf[collection.S8S.Value]) true
-      else if (t <:< typeTreeOf[collection.S16S.Value]) true
-      else if (t <:< typeTreeOf[collection.S32S.Value]) true
-      else if (t <:< typeTreeOf[collection.S64S.Value]) true
-      else if (t <:< typeTreeOf[collection.U8S.Value]) true
-      else if (t <:< typeTreeOf[collection.U16S.Value]) true
-      else if (t <:< typeTreeOf[collection.U32S.Value]) true
-      else if (t <:< typeTreeOf[collection.U64S.Value]) true
-      else if (t <:< typeTreeOf[collection.F32S.Value]) true
-      else if (t <:< typeTreeOf[collection.F64S.Value]) true
-      else if (t <:< typeTreeOf[collection.RS.Value]) true
-      else if (t <:< typeTreeOf[scala.Product]) true
-      else false
-
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (record@q"case class $tpname(...$paramss)") :: _ =>
+      case (record@q"case class $tpname(...$paramss) extends {} with ..$parents") :: _ =>
         val args = paramss map { paramList =>
           paramList.map {
             case q"$_ val $param: $_ = $_" => q"$param"
@@ -167,22 +84,7 @@ object _macro {
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(...$args)"
         q"""
-             case class $tpname(...$paramss) {
-               $clone
-             }
-         """
-      case (record@q"case class $tpname(...$paramss) extends {} with $parent") :: _ =>
-        val args = paramss map { paramList =>
-          paramList.map {
-            case q"$_ val $param: $_ = $_" => q"$param"
-            case _ => abort()
-          }
-        }
-        val typeName = tpname.asInstanceOf[TypeName]
-        val termName = typeName.toTermName
-        val clone = q"override def clone: $typeName = $termName(...$args)"
-        q"""
-             case class $tpname(...$paramss) extends {} with $parent {
+             case class $tpname(...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
                $clone
              }
          """

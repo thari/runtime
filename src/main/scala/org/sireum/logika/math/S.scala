@@ -78,7 +78,7 @@ sealed trait S {
     final override def compareTo(other: Value): Int =
       toZ.compareTo(other.toZ)
 
-    final override def isWhole: B = true
+    final override def isWhole: Boolean = true
 
     final override def toString: String = toZ.toString
   }
@@ -141,7 +141,7 @@ object S8 extends S with LogikaNumberCompanion {
 
     override def toZ: Z = Z(value)
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other
       case other: Char => value.toChar == other
@@ -212,7 +212,7 @@ object S16 extends S with LogikaNumberCompanion {
 
     override def toZ: Z = Z(value)
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other
       case other: Char => value.toChar == other
@@ -283,7 +283,7 @@ object S32 extends S with LogikaNumberCompanion {
 
     override def toZ: Z = Z(value)
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other
       case other: Char => value.toChar == other
@@ -354,7 +354,7 @@ object S64 extends S with LogikaNumberCompanion {
 
     override def toZ: Z = Z(value)
 
-    override def equals(other: Any): B = other match {
+    override def equals(other: Any): Boolean = other match {
       case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other
       case other: Char => value.toChar == other

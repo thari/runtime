@@ -26,7 +26,6 @@
 package org.sireum
 
 package object logika {
-  type B = Boolean
   type Z = math.Z
   type Z8 = math.Z8.Value
   type Z16 = math.Z16.Value
@@ -48,6 +47,8 @@ package object logika {
   type R = math.R
   type F32 = math.F32.Value
   type F64 = math.F64.Value
+
+  type S[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
 
   type BS = collection.BS.Value
   type ZS = collection.ZS.Value
@@ -72,13 +73,6 @@ package object logika {
   type F32S = collection.F32S.Value
   type F64S = collection.F64S.Value
 
-  final val T = true
-  final val F = false
-
-  object B {
-    def random: B = new java.util.Random().nextBoolean
-  }
-
   final val Z = math.Z
   final val Z8 = math.Z8
   final val Z16 = math.Z16
@@ -100,6 +94,8 @@ package object logika {
   final val R = math.R
   final val F32 = math.F32
   final val F64 = math.F64
+
+  final val S = collection.S
 
   final val BS = collection.BS
   final val ZS = collection.ZS
@@ -156,6 +152,10 @@ package object logika {
 
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)
+
+  final implicit def _2B(b: Boolean): B = B(b)
+
+  final implicit def _2Boolean(b: B): Boolean = b.value
 
   import scala.language.experimental.macros
 

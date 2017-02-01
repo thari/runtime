@@ -108,7 +108,7 @@ final private case class NImpl(value: Z) extends N {
 
   override lazy val hashCode: Int = value.hashCode
 
-  override def equals(other: Any): B = other match {
+  override def equals(other: Any): Boolean = other match {
     case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
     case other: Byte => value == Z(other)
     case other: Char => value == Z(other)

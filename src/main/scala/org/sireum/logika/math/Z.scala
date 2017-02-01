@@ -193,7 +193,7 @@ private[logika] final case class ZLong(value: Long) extends Z {
 
   override def hashCode: Int = value.hashCode
 
-  override def equals(other: Any): B = other match {
+  override def equals(other: Any): Boolean = other match {
     case ZLong(n) => value == n
     case other: ZRange#Value => value == other.toLong
     case other: LogikaIntegralNumber => upgrade == other.toZ
@@ -259,7 +259,7 @@ private[logika] final case class ZApint(value: Apint) extends Z {
 
   override lazy val hashCode: Int = toBigInt.hashCode
 
-  override def equals(other: Any): B = other match {
+  override def equals(other: Any): Boolean = other match {
     case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ.toApint)
     case other: Byte => value == new Apint(other)
     case other: Char => value == new Apint(other)
