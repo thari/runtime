@@ -45,32 +45,52 @@ object _macro {
     }
 
     def shouldClone(t: c.universe.Type): Boolean =
-      if (t <:< typeTreeOf[BS.Value]) true
-      else if (t <:< typeTreeOf[ZS.Value]) true
-      else if (t <:< typeTreeOf[Z8S.Value]) true
-      else if (t <:< typeTreeOf[Z16S.Value]) true
-      else if (t <:< typeTreeOf[Z32S.Value]) true
-      else if (t <:< typeTreeOf[Z64S.Value]) true
-      else if (t <:< typeTreeOf[NS.Value]) true
-      else if (t <:< typeTreeOf[N8S.Value]) true
-      else if (t <:< typeTreeOf[N16S.Value]) true
-      else if (t <:< typeTreeOf[N32S.Value]) true
-      else if (t <:< typeTreeOf[N64S.Value]) true
-      else if (t <:< typeTreeOf[S8S.Value]) true
-      else if (t <:< typeTreeOf[S16S.Value]) true
-      else if (t <:< typeTreeOf[S32S.Value]) true
-      else if (t <:< typeTreeOf[S64S.Value]) true
-      else if (t <:< typeTreeOf[U8S.Value]) true
-      else if (t <:< typeTreeOf[U16S.Value]) true
-      else if (t <:< typeTreeOf[U32S.Value]) true
-      else if (t <:< typeTreeOf[U64S.Value]) true
-      else if (t <:< typeTreeOf[F32S.Value]) true
-      else if (t <:< typeTreeOf[F64S.Value]) true
-      else if (t <:< typeTreeOf[RS.Value]) true
+      if (t <:< typeTreeOf[collection.BS.Value]) true
+      else if (t <:< typeTreeOf[collection.ZS.Value]) true
+      else if (t <:< typeTreeOf[collection.Z8S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z16S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z32S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z64S.Value]) true
+      else if (t <:< typeTreeOf[collection.NS.Value]) true
+      else if (t <:< typeTreeOf[collection.N8S.Value]) true
+      else if (t <:< typeTreeOf[collection.N16S.Value]) true
+      else if (t <:< typeTreeOf[collection.N32S.Value]) true
+      else if (t <:< typeTreeOf[collection.N64S.Value]) true
+      else if (t <:< typeTreeOf[collection.S8S.Value]) true
+      else if (t <:< typeTreeOf[collection.S16S.Value]) true
+      else if (t <:< typeTreeOf[collection.S32S.Value]) true
+      else if (t <:< typeTreeOf[collection.S64S.Value]) true
+      else if (t <:< typeTreeOf[collection.U8S.Value]) true
+      else if (t <:< typeTreeOf[collection.U16S.Value]) true
+      else if (t <:< typeTreeOf[collection.U32S.Value]) true
+      else if (t <:< typeTreeOf[collection.U64S.Value]) true
+      else if (t <:< typeTreeOf[collection.F32S.Value]) true
+      else if (t <:< typeTreeOf[collection.F64S.Value]) true
+      else if (t <:< typeTreeOf[collection.RS.Value]) true
       else if (t <:< typeTreeOf[scala.Product]) true
       else false
 
     val result: c.Tree = annottees.map(_.tree).toList match {
+      case (record@q"case class $tpname(...$paramss)") :: _ =>
+        val args = paramss map { paramList =>
+          paramList.map {
+            case q"$_ val $param: $tpt = $_" =>
+              if (shouldClone(typeOf(tpt))) q"$param.clone"
+              else q"$param"
+            case q"$_ var $param: $tpt = $_" =>
+              if (shouldClone(typeOf(tpt))) q"$param.clone"
+              else q"$param"
+            case _ => abort()
+          }
+        }
+        val typeName = tpname.asInstanceOf[TypeName]
+        val termName = typeName.toTermName
+        val clone = q"override def clone: $typeName = $termName(...$args)"
+        q"""
+             case class $tpname(...$paramss) {
+               $clone
+             }
+         """
       case (record@q"case class $tpname(...$paramss) extends {} with $parent") :: _ =>
         val args = paramss map { paramList =>
           paramList.map {
@@ -90,7 +110,7 @@ object _macro {
              case class $tpname(...$paramss) extends {} with $parent {
                $clone
              }
-           """
+         """
       case _ => abort()
     }
     c.Expr[Any](result)
@@ -110,28 +130,28 @@ object _macro {
     }
 
     def shouldClone(t: c.universe.Type): Boolean =
-      if (t <:< typeTreeOf[BS.Value]) true
-      else if (t <:< typeTreeOf[ZS.Value]) true
-      else if (t <:< typeTreeOf[Z8S.Value]) true
-      else if (t <:< typeTreeOf[Z16S.Value]) true
-      else if (t <:< typeTreeOf[Z32S.Value]) true
-      else if (t <:< typeTreeOf[Z64S.Value]) true
-      else if (t <:< typeTreeOf[NS.Value]) true
-      else if (t <:< typeTreeOf[N8S.Value]) true
-      else if (t <:< typeTreeOf[N16S.Value]) true
-      else if (t <:< typeTreeOf[N32S.Value]) true
-      else if (t <:< typeTreeOf[N64S.Value]) true
-      else if (t <:< typeTreeOf[S8S.Value]) true
-      else if (t <:< typeTreeOf[S16S.Value]) true
-      else if (t <:< typeTreeOf[S32S.Value]) true
-      else if (t <:< typeTreeOf[S64S.Value]) true
-      else if (t <:< typeTreeOf[U8S.Value]) true
-      else if (t <:< typeTreeOf[U16S.Value]) true
-      else if (t <:< typeTreeOf[U32S.Value]) true
-      else if (t <:< typeTreeOf[U64S.Value]) true
-      else if (t <:< typeTreeOf[F32S.Value]) true
-      else if (t <:< typeTreeOf[F64S.Value]) true
-      else if (t <:< typeTreeOf[RS.Value]) true
+      if (t <:< typeTreeOf[collection.BS.Value]) true
+      else if (t <:< typeTreeOf[collection.ZS.Value]) true
+      else if (t <:< typeTreeOf[collection.Z8S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z16S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z32S.Value]) true
+      else if (t <:< typeTreeOf[collection.Z64S.Value]) true
+      else if (t <:< typeTreeOf[collection.NS.Value]) true
+      else if (t <:< typeTreeOf[collection.N8S.Value]) true
+      else if (t <:< typeTreeOf[collection.N16S.Value]) true
+      else if (t <:< typeTreeOf[collection.N32S.Value]) true
+      else if (t <:< typeTreeOf[collection.N64S.Value]) true
+      else if (t <:< typeTreeOf[collection.S8S.Value]) true
+      else if (t <:< typeTreeOf[collection.S16S.Value]) true
+      else if (t <:< typeTreeOf[collection.S32S.Value]) true
+      else if (t <:< typeTreeOf[collection.S64S.Value]) true
+      else if (t <:< typeTreeOf[collection.U8S.Value]) true
+      else if (t <:< typeTreeOf[collection.U16S.Value]) true
+      else if (t <:< typeTreeOf[collection.U32S.Value]) true
+      else if (t <:< typeTreeOf[collection.U64S.Value]) true
+      else if (t <:< typeTreeOf[collection.F32S.Value]) true
+      else if (t <:< typeTreeOf[collection.F64S.Value]) true
+      else if (t <:< typeTreeOf[collection.RS.Value]) true
       else if (t <:< typeTreeOf[scala.Product]) true
       else false
 
