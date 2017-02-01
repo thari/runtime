@@ -48,9 +48,7 @@ package object math {
     def random: LogikaNumber
   }
 
-  trait LogikaNumber extends Clonable {
-    final override def clone: java.lang.Object = this
-  }
+  trait LogikaNumber extends Clonable
 
   trait LogikaIntegralNumber extends LogikaNumber {
     def toBigInteger: java.math.BigInteger
