@@ -50,28 +50,7 @@ package object logika {
 
   type S[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
 
-  type BS = collection.BS.Value
-  type ZS = collection.ZS.Value
-  type Z8S = collection.Z8S.Value
-  type Z16S = collection.Z16S.Value
-  type Z32S = collection.Z32S.Value
-  type Z64S = collection.Z64S.Value
-  type S8S = collection.S8S.Value
-  type S16S = collection.S16S.Value
-  type S32S = collection.S32S.Value
-  type S64S = collection.S64S.Value
-  type NS = collection.NS.Value
-  type N8S = collection.N8S.Value
-  type N16S = collection.N16S.Value
-  type N32S = collection.N32S.Value
-  type N64S = collection.N64S.Value
-  type U8S = collection.U8S.Value
-  type U16S = collection.U16S.Value
-  type U32S = collection.U32S.Value
-  type U64S = collection.U64S.Value
-  type RS = collection.RS.Value
-  type F32S = collection.F32S.Value
-  type F64S = collection.F64S.Value
+  type ZS = collection.S[Z, Z]
 
   final val Z = math.Z
   final val Z8 = math.Z8
@@ -97,28 +76,10 @@ package object logika {
 
   final val S = collection.S
 
-  final val BS = collection.BS
-  final val ZS = collection.ZS
-  final val Z8S = collection.Z8S
-  final val Z16S = collection.Z16S
-  final val Z32S = collection.Z32S
-  final val Z64S = collection.Z64S
-  final val S8S = collection.S8S
-  final val S16S = collection.S16S
-  final val S32S = collection.S32S
-  final val S64S = collection.S64S
-  final val NS = collection.NS
-  final val N8S = collection.N8S
-  final val N16S = collection.N16S
-  final val N32S = collection.N32S
-  final val N64S = collection.N64S
-  final val U8S = collection.U8S
-  final val U16S = collection.U16S
-  final val U32S = collection.U32S
-  final val U64S = collection.U64S
-  final val RS = collection.RS
-  final val F32S = collection.F32S
-  final val F64S = collection.F64S
+  object ZS {
+    def apply(values: Z*): ZS = S.apply[Z, Z](values: _*)
+    def create(size: Z, default: Z): ZS = S.create[Z, Z](size, default)
+  }
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
@@ -159,7 +120,14 @@ package object logika {
 
   import scala.language.experimental.macros
 
-  final implicit class Logika(val sc: StringContext) extends AnyVal {
+  final implicit class _Clonable[T](val o: T) extends AnyVal {
+    def clone: T = o match {
+      case o: Clonable => o.clone.asInstanceOf[T]
+      case _ => o
+    }
+  }
+
+  final implicit class _Logika(val sc: StringContext) extends AnyVal {
 
     def z(args: Any*): Z = math.Z(sc.parts.mkString(""))
 
@@ -201,6 +169,7 @@ package object logika {
 
     def l(args: Any*): Unit = macro _macro.lImpl
 
+    def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
 
   @scala.annotation.compileTimeOnly("Immutable Record")
