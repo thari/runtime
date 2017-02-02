@@ -100,6 +100,30 @@ sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
   def +:(value: V): S[I, V]
 
   def ++(values: S[I, V]): S[I, V]
+
+  final override def toString: String = {
+    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
+
+    val sb = new StringBuilder
+    sb.append('[')
+    if (elements.nonEmpty) {
+      val isBoolean = elements.head.isInstanceOf[Boolean]
+      if (isBoolean) {
+        sb.append(toBit(0))
+        for (i <- 1 until elements.length) {
+          sb.append(toBit(i))
+        }
+      } else {
+        sb.append(elements.head.toString)
+        for (i <- 1 until elements.length) {
+          sb.append(", ")
+          sb.append(elements(i).toString)
+        }
+      }
+    }
+    sb.append(']')
+    sb.toString
+  }
 }
 
 private class SImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, val data: Array[V])(
@@ -140,33 +164,9 @@ private class SImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, val dat
   }
 
   override def clone: S[I, V] = {
-    S[I, V](elements.map(_ match {
+    S[I, V](elements.map({
       case o: Clonable => o.clone.asInstanceOf[V]
       case o => o
     }): _*)
-  }
-
-  override def toString: String = {
-    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
-
-    val sb = new StringBuilder
-    sb.append('[')
-    if (elements.nonEmpty) {
-      val isBoolean = elements.head.isInstanceOf[Boolean]
-      if (isBoolean) {
-        sb.append(toBit(0))
-        for (i <- 1 until elements.length) {
-          sb.append(toBit(i))
-        }
-      } else {
-        sb.append(elements.head.toString)
-        for (i <- 1 until elements.length) {
-          sb.append(", ")
-          sb.append(elements(i).toString)
-        }
-      }
-    }
-    sb.append(']')
-    sb.toString
   }
 }
