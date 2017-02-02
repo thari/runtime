@@ -30,6 +30,11 @@ object _macro {
     args: c.Expr[Any]*): c.Expr[Unit] =
     c.universe.reify {}
 
+  def cImpl[T](c: scala.reflect.macros.blackbox.Context)(
+    args: c.Expr[Any]*): c.Expr[T] = {
+    import c.universe._
+    c.Expr[T](q"???")
+  }
 
   def recordImpl(c: scala.reflect.macros.whitebox.Context)(
     annottees: c.Expr[Any]*): c.Expr[Any] = {
@@ -38,8 +43,8 @@ object _macro {
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika record")
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (record@q"case class $tpname(...$paramss) extends {} with ..$parents") :: _ =>
-        val args = paramss map { paramList =>
+      case (q"case class $tpname[..$tparams](...$paramss) extends {} with ..$parents") :: _ =>
+        val args = paramss.asInstanceOf[List[List[_]]] map { paramList =>
           paramList.map {
             case q"$_ val $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
             case q"$_ var $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
@@ -50,7 +55,7 @@ object _macro {
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(...$args)"
         q"""
-             case class $tpname(...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
+             case class $tpname[..$tparams](...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
                $clone
              }
          """
@@ -73,8 +78,8 @@ object _macro {
     }
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (record@q"case class $tpname(...$paramss) extends {} with ..$parents") :: _ =>
-        val args = paramss map { paramList =>
+      case (q"case class $tpname[..$tparams](...$paramss) extends {} with ..$parents") :: _ =>
+        val args = paramss.asInstanceOf[List[List[_]]] map { paramList =>
           paramList.map {
             case q"$_ val $param: $_ = $_" => q"$param"
             case _ => abort()
@@ -84,7 +89,7 @@ object _macro {
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(...$args)"
         q"""
-             case class $tpname(...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
+             case class $tpname[..$tparams](...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
                $clone
              }
          """
