@@ -31,12 +31,13 @@ sealed trait F
 @record case class Foo(x: Z, var bar: Bar) extends F
 @record case class Bar(x: Z, var y: Z) extends F
 @irecord case class Baz(x: Z, y: Z)
+@irecord case class Bazz()
 
 class RecordTest extends LogikaSpec {
   * {
     val foo = Foo(1, Bar(2, 3))
     val fooClone: Foo = foo.clone
     foo.bar.y = 4
-    fooClone.bar.y != foo.bar.y
+    fooClone.bar.y != foo.bar.y && foo.clone(bar = foo.bar.clone(y = 4)) == foo
   }
 }

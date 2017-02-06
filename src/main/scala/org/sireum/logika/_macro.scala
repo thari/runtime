@@ -43,22 +43,38 @@ object _macro {
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika record")
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (q"case class $tpname[..$tparams](...$paramss) extends {} with ..$parents") :: _ =>
-        val args = paramss.asInstanceOf[List[List[_]]] map { paramList =>
-          paramList.map {
-            case q"$_ val $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
-            case q"$_ var $param: $tpt = $_" => q"$param.clone.asInstanceOf[$tpt]"
-            case _ => abort()
-          }
+      case (q"case class $tpname[..$tparams](..$params) extends {} with ..$parents") :: _ =>
+        var args: Vector[c.Tree] = Vector()
+        var params2: Vector[c.Tree] = Vector()
+        var args2: Vector[c.Tree] = Vector()
+        for (param <- params) param match {
+          case q"$_ val $param: $tpt = $_" =>
+            args :+= q"$param.clone.asInstanceOf[$tpt]"
+            params2 :+= q"val $param: $tpt = $param.clone.asInstanceOf[$tpt]"
+            args2 :+= q"$param"
+          case q"$_ var $param: $tpt = $_" =>
+            args :+= q"$param.clone.asInstanceOf[$tpt]"
+            params2 :+= q"val $param: $tpt = $param.clone.asInstanceOf[$tpt]"
+            args2 :+= q"$param"
+          case _ => abort()
         }
         val typeName = tpname.asInstanceOf[TypeName]
         val termName = typeName.toTermName
-        val clone = q"override def clone: $typeName = $termName(...$args)"
-        q"""
-             case class $tpname[..$tparams](...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
-               $clone
-             }
-         """
+        val clone = q"override def clone: $typeName = $termName(..$args)"
+        val clone2 = q"def clone(..$params2): $typeName = $termName(..$args2)"
+        if (params.nonEmpty)
+          q"""
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+                $clone
+                $clone2
+              }
+          """
+        else
+          q"""
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+                $clone
+              }
+          """
       case _ => abort()
     }
     c.Expr[Any](result)
@@ -78,21 +94,34 @@ object _macro {
     }
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (q"case class $tpname[..$tparams](...$paramss) extends {} with ..$parents") :: _ =>
-        val args = paramss.asInstanceOf[List[List[_]]] map { paramList =>
-          paramList.map {
-            case q"$_ val $param: $_ = $_" => q"$param"
-            case _ => abort()
-          }
+      case (q"case class $tpname[..$tparams](..$params) extends {} with ..$parents") :: _ =>
+        var args: Vector[c.Tree] = Vector()
+        var params2: Vector[c.Tree] = Vector()
+        var args2: Vector[c.Tree] = Vector()
+        for (param <- params) param match {
+          case q"$_ val $param: $tpt = $_" =>
+            args :+= q"$param"
+            params2 :+= q"val $param: $tpt = $param"
+            args2 :+= q"$param"
+          case _ => abort()
         }
         val typeName = tpname.asInstanceOf[TypeName]
         val termName = typeName.toTermName
-        val clone = q"override def clone: $typeName = $termName(...$args)"
-        q"""
-             case class $tpname[..$tparams](...$paramss) extends {} with org.sireum.logika.Clonable with ..$parents {
-               $clone
-             }
-         """
+        val clone = q"override def clone: $typeName = $termName(..$args)"
+        val clone2 = q"def clone(..$params2): $typeName = $termName(..$args2)"
+        if (params.nonEmpty)
+          q"""
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+                $clone
+                $clone2
+              }
+          """
+        else
+          q"""
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+                $clone
+              }
+          """
       case _ => abort()
     }
     c.Expr[Any](result)
