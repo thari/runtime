@@ -101,6 +101,8 @@ sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
 
   def ++(values: S[I, V]): S[I, V]
 
+  def clone(entries: (I, V)*): S[I, V]
+
   final override def toString: String = {
     def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
 
@@ -164,9 +166,31 @@ private class SImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, val dat
   }
 
   override def clone: S[I, V] = {
-    S[I, V](elements.map({
-      case o: Clonable => o.clone.asInstanceOf[V]
-      case o => o
-    }): _*)
+    val newData = data.clone
+    for (i <- newData.indices) {
+      newData(i) = newData(i) match {
+        case o: Clonable => o.clone.asInstanceOf[V]
+        case o => o
+      }
+    }
+    new SImpl[I, V](size, newData)
+  }
+
+  override def clone(entries: (I, V)*): S[I, V] = {
+    var entryMap: Map[Int, V] = Map()
+    for ((i, v) <- entries) {
+      entryMap += i.toZ.toInt -> v
+    }
+    val newData: Array[V] = data.clone
+    for (i <- elements.indices) {
+      entryMap.get(i) match {
+        case Some(v) => newData(i) = v
+        case None => newData(i) = newData(i) match {
+          case o: Clonable => o.clone.asInstanceOf[V]
+          case o => o
+        }
+      }
+    }
+    new SImpl[I, V](size, newData)
   }
 }
