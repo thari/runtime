@@ -49,6 +49,7 @@ package object logika {
   type F64 = math.F64.Value
 
   type S[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
+  type IS[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
 
   type ZS = collection.S[Z, Z]
 
@@ -75,6 +76,7 @@ package object logika {
   final val F64 = math.F64
 
   final val S = collection.S
+  final val IS = collection.S
 
   object ZS {
     def apply(values: Z*): ZS = S.apply[Z, Z](values: _*)
