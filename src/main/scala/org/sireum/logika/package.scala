@@ -185,4 +185,9 @@ package object logika {
   final class record extends scala.annotation.StaticAnnotation {
     def macroTransform(annottees: Any*): Any = macro _macro.recordImpl
   }
+
+  @scala.annotation.compileTimeOnly("Enum")
+  final class enum extends scala.annotation.StaticAnnotation {
+    def macroTransform(annottees: Any*): Any = macro _macro.enumImpl
+  }
 }

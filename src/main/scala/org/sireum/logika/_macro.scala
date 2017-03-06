@@ -127,4 +127,22 @@ object _macro {
     c.Expr[Any](result)
   }
 
+  def enumImpl(c: scala.reflect.macros.whitebox.Context)(
+    annottees: c.Expr[Any]*): c.Expr[Any] = {
+    import c.universe._
+    def abort() =
+      c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika enum")
+
+    val result: c.Tree = annottees.map(_.tree).toList match {
+      case  (q"object $tname extends { ..$earlydefns } with ..$parents { $self => ..$body }") :: _ =>
+        q"""
+            object $tname extends {
+              type Type = Value
+              ..$earlydefns
+            } with Enumeration { $self => ..$body }
+         """
+      case _ => abort()
+    }
+    c.Expr[Any](result)
+  }
 }
