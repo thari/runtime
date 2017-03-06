@@ -48,10 +48,10 @@ package object logika {
   type F32 = math.F32.Value
   type F64 = math.F64.Value
 
-  type S[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
-  type IS[I <: math.LogikaIntegralNumber, V] = collection.S[I, V]
+  type S[I <: math.LogikaIntegralNumber, V] = collection.MS[I, V]
+  type IS[I <: math.LogikaIntegralNumber, V] = collection.IS[I, V]
 
-  type ZS = collection.S[Z, Z]
+  type ZS = collection.MS[Z, Z]
 
   final val Z = math.Z
   final val Z8 = math.Z8
@@ -75,12 +75,12 @@ package object logika {
   final val F32 = math.F32
   final val F64 = math.F64
 
-  final val S = collection.S
-  final val IS = collection.S
+  final val MS = collection.MS
+  final val IS = collection.IS
 
   object ZS {
-    def apply(values: Z*): ZS = S.apply[Z, Z](values: _*)
-    def create(size: Z, default: Z): ZS = S.create[Z, Z](size, default)
+    def apply(values: Z*): ZS = MS.apply[Z, Z](values: _*)
+    def create(size: Z, default: Z): ZS = MS.create[Z, Z](size, default)
   }
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
@@ -112,6 +112,8 @@ package object logika {
   final class helper extends scala.annotation.Annotation
 
   final class pure extends scala.annotation.Annotation
+
+  final class native extends scala.annotation.Annotation
 
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)

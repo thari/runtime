@@ -27,16 +27,16 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
-class STest extends LogikaSpec {
+class MSTest extends LogikaSpec {
   "S[Z8, B]" - {
     * {
-      val s1 = S[Z8, B](true, true)
-      val s2 = S.create[Z8, B](z8"2", true)
+      val s1 = MS[Z8, B](true, true)
+      val s2 = MS.create[Z8, B](z8"2", true)
       s1 == s2
     }
     * {
-      val s1 = S[Z8, B](false, true)
-      val s2 = S.create[Z8, B](z8"2", true)
+      val s1 = MS[Z8, B](false, true)
+      val s2 = MS.create[Z8, B](z8"2", true)
       s2(z8"0") = false
       s1 == s2
     }
