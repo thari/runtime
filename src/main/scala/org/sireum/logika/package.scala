@@ -48,7 +48,7 @@ package object logika {
   type F32 = math.F32.Value
   type F64 = math.F64.Value
 
-  type S[I <: math.LogikaIntegralNumber, V] = collection.MS[I, V]
+  type MS[I <: math.LogikaIntegralNumber, V] = collection.MS[I, V]
   type IS[I <: math.LogikaIntegralNumber, V] = collection.IS[I, V]
 
   type ZS = collection.MS[Z, Z]
