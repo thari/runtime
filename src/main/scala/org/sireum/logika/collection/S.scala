@@ -99,7 +99,7 @@ sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
 
   def ++(values: S[I, V]): S[I, V]
 
-  def clone(entries: (I, V)*): S[I, V]
+  def apply(entries: (I, V)*): S[I, V]
 }
 
 sealed trait IS[I <: LogikaIntegralNumber, V] extends S[I, V] {
@@ -109,7 +109,7 @@ sealed trait IS[I <: LogikaIntegralNumber, V] extends S[I, V] {
 
   override def ++(values: S[I, V]): IS[I, V]
 
-  override def clone(entries: (I, V)*): IS[I, V]
+  override def apply(entries: (I, V)*): IS[I, V]
 }
 
 private final class ISImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, val data: Array[V])(
@@ -169,7 +169,7 @@ private final class ISImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, 
 
   override def clone: IS[I, V] = this
 
-  override def clone(entries: (I, V)*): IS[I, V] = {
+  override def apply(entries: (I, V)*): IS[I, V] = {
     var entryMap: Map[Int, V] = Map()
     for ((i, v) <- entries) {
       entryMap += i.toZ.toInt -> v
@@ -232,7 +232,7 @@ sealed trait MS[I <: LogikaIntegralNumber, V] extends S[I, V] {
 
   override def ++(values: S[I, V]): MS[I, V]
 
-  override def clone(entries: (I, V)*): MS[I, V]
+  override def apply(entries: (I, V)*): MS[I, V]
 
   def update(index: I, value: V): Unit
 
@@ -309,7 +309,7 @@ private class MSImpl[I <: LogikaIntegralNumber, V: ClassTag](val size: I, val da
     new MSImpl[I, V](size, newData)
   }
 
-  override def clone(entries: (I, V)*): MS[I, V] = {
+  override def apply(entries: (I, V)*): MS[I, V] = {
     var entryMap: Map[Int, V] = Map()
     for ((i, v) <- entries) {
       entryMap += i.toZ.toInt -> v
