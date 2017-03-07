@@ -38,6 +38,6 @@ class RecordTest extends LogikaSpec {
     val foo = Foo(1, Bar(2, 3))
     val fooClone: Foo = foo.clone
     foo.bar.y = 4
-    fooClone.bar.y != foo.bar.y && foo.clone(bar = foo.bar.clone(y = 4)) == foo
+    fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
   }
 }

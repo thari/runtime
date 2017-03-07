@@ -61,12 +61,12 @@ object _macro {
         val typeName = tpname.asInstanceOf[TypeName]
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(..$args)"
-        val clone2 = q"def clone(..$params2): $typeName = $termName(..$args2)"
+        val apply = q"def apply(..$params2): $typeName = $termName(..$args2)"
         if (params.nonEmpty)
           q"""
               case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
                 $clone
-                $clone2
+                $apply
               }
           """
         else
@@ -108,12 +108,12 @@ object _macro {
         val typeName = tpname.asInstanceOf[TypeName]
         val termName = typeName.toTermName
         val clone = q"override def clone: $typeName = $termName(..$args)"
-        val clone2 = q"def clone(..$params2): $typeName = $termName(..$args2)"
+        val apply = q"def apply(..$params2): $typeName = $termName(..$args2)"
         if (params.nonEmpty)
           q"""
               case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
                 $clone
-                $clone2
+                $apply
               }
           """
         else
