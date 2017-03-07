@@ -31,7 +31,7 @@ import org.sireum.logika._
 import scala.math.ScalaNumericConversions
 import scala.util.Random
 
-sealed trait ZRange {
+sealed trait ZT {
   final val Min: Value = ValueImpl(BigInt(-2).pow(bitWidth - 1).toLong)
   final val Max: Value = ValueImpl((BigInt(2).pow(bitWidth - 1) - 1).toLong)
 
@@ -44,7 +44,7 @@ sealed trait ZRange {
   }
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
-    final def bitWidth: Int = ZRange.this.bitWidth
+    final def bitWidth: Int = ZT.this.bitWidth
 
     final def +(other: Value): Value = checkRange(toZ + other.toZ)
 
@@ -110,25 +110,25 @@ sealed trait ZRange {
 
 }
 
-object Z8 extends ZRange with LogikaNumberCompanion {
+object Z8 extends ZT with LogikaNumberCompanion {
   final override def bitWidth = 8
 
   final override def random: Z8.Value = Z8.ValueImpl(new Random().nextInt.toByte)
 }
 
-object Z16 extends ZRange with LogikaNumberCompanion {
+object Z16 extends ZT with LogikaNumberCompanion {
   final override def bitWidth = 16
 
   final override def random: Z16.Value = Z16.ValueImpl(new Random().nextInt.toShort)
 }
 
-object Z32 extends ZRange with LogikaNumberCompanion {
+object Z32 extends ZT with LogikaNumberCompanion {
   final override def bitWidth = 32
 
   final override def random: Z32.Value = Z32.ValueImpl(new Random().nextInt)
 }
 
-object Z64 extends ZRange with LogikaNumberCompanion {
+object Z64 extends ZT with LogikaNumberCompanion {
   final override def bitWidth = 64
 
   final override def random: Z64.Value = Z64.ValueImpl(new Random().nextLong)

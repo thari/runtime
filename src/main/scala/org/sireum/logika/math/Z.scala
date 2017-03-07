@@ -195,7 +195,7 @@ private[logika] final case class ZLong(value: Long) extends Z {
 
   override def equals(other: Any): Boolean = other match {
     case ZLong(n) => value == n
-    case other: ZRange#Value => value == other.toLong
+    case other: ZT#Value => value == other.toLong
     case other: LogikaIntegralNumber => upgrade == other.toZ
     case other: Byte => value == other.toLong
     case other: Char => value == other.toLong

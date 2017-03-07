@@ -30,11 +30,11 @@ import org.sireum.logika._
 import scala.math.ScalaNumericConversions
 import scala.util.Random
 
-sealed trait F {
+sealed trait FT {
   def bitWidth: Int
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
-    final def bitWidth: Int = F.this.bitWidth
+    final def bitWidth: Int = FT.this.bitWidth
 
     def +(other: Value): Value
 
@@ -67,7 +67,7 @@ sealed trait F {
 
 }
 
-object F32 extends F with LogikaNumberCompanion {
+object F32 extends FT with LogikaNumberCompanion {
 
   @inline
   final def apply(value: Float): F32.Value = ValueImpl(value)
@@ -154,7 +154,7 @@ object F32 extends F with LogikaNumberCompanion {
 }
 
 
-object F64 extends F with LogikaNumberCompanion {
+object F64 extends FT with LogikaNumberCompanion {
   @inline
   final def apply(value: Double): F64.Value = ValueImpl(value)
 

@@ -31,11 +31,11 @@ import org.sireum.logika._
 import scala.math.ScalaNumericConversions
 import scala.util.Random
 
-sealed trait S {
+sealed trait ST {
   def bitWidth: Int
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaModuloIntegralNumber[Value] {
-    final def bitWidth: Int = S.this.bitWidth
+    final def bitWidth: Int = ST.this.bitWidth
 
     def +(other: Value): Value
 
@@ -85,7 +85,7 @@ sealed trait S {
 
 }
 
-object S8 extends S with LogikaNumberCompanion {
+object S8 extends ST with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(Byte.MinValue)
   final val Max: Value = ValueImpl(Byte.MaxValue)
 
@@ -156,7 +156,7 @@ object S8 extends S with LogikaNumberCompanion {
 
 }
 
-object S16 extends S with LogikaNumberCompanion {
+object S16 extends ST with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(Short.MinValue)
   final val Max: Value = ValueImpl(Short.MaxValue)
 
@@ -227,7 +227,7 @@ object S16 extends S with LogikaNumberCompanion {
 
 }
 
-object S32 extends S with LogikaNumberCompanion {
+object S32 extends ST with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(Int.MinValue)
   final val Max: Value = ValueImpl(Int.MaxValue)
 
@@ -298,7 +298,7 @@ object S32 extends S with LogikaNumberCompanion {
 
 }
 
-object S64 extends S with LogikaNumberCompanion {
+object S64 extends ST with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(Long.MinValue)
   final val Max: Value = ValueImpl(Long.MaxValue)
 

@@ -32,11 +32,11 @@ import spire.math.{ULong, UInt, UShort, UByte}
 import scala.math.ScalaNumericConversions
 import scala.util.Random
 
-sealed trait U {
+sealed trait UT {
   def bitWidth: Int
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaModuloIntegralNumber[Value] {
-    final def bitWidth: Int = U.this.bitWidth
+    final def bitWidth: Int = UT.this.bitWidth
 
     def +(other: Value): Value
 
@@ -82,7 +82,7 @@ sealed trait U {
 
 }
 
-object U8 extends U with LogikaNumberCompanion {
+object U8 extends UT with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(UByte.MinValue)
   final val Max: Value = ValueImpl(UByte.MaxValue)
 
@@ -149,7 +149,7 @@ object U8 extends U with LogikaNumberCompanion {
 
 }
 
-object U16 extends U with LogikaNumberCompanion {
+object U16 extends UT with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(UShort.MinValue)
   final val Max: Value = ValueImpl(UShort.MaxValue)
 
@@ -216,7 +216,7 @@ object U16 extends U with LogikaNumberCompanion {
 
 }
 
-object U32 extends U with LogikaNumberCompanion {
+object U32 extends UT with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(UInt.MinValue)
   final val Max: Value = ValueImpl(UInt.MaxValue)
 
@@ -283,7 +283,7 @@ object U32 extends U with LogikaNumberCompanion {
 
 }
 
-object U64 extends U with LogikaNumberCompanion {
+object U64 extends UT with LogikaNumberCompanion {
   final val Min: Value = ValueImpl(ULong.MinValue)
   final val Max: Value = ValueImpl(ULong.MaxValue)
 
