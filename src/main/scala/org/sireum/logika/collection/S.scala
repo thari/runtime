@@ -31,6 +31,26 @@ import org.sireum.logika.math._
 import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
+sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
+  private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
+
+  def property[T](key: Any): T = properties(key).asInstanceOf[T]
+
+  def elements: scala.collection.Seq[V]
+
+  def apply(index: I): V
+
+  def size: I
+
+  def :+(value: V): S[I, V]
+
+  def +:(value: V): S[I, V]
+
+  def ++(values: S[I, V]): S[I, V]
+
+  def apply(entries: (I, V)*): S[I, V]
+}
+
 object IS {
   val zType: Type = typeOf[Z]
   val z8Type: Type = typeOf[Z8.Value]
@@ -84,24 +104,6 @@ object IS {
     require(sz >= 0 && sz <= Int.MaxValue)
     new ISImpl[I, V](size, Array.fill[V](sz.toInt)(default))
   }
-}
-
-sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
-  private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
-
-  def elements: scala.collection.Seq[V]
-
-  def apply(index: I): V
-
-  def size: I
-
-  def :+(value: V): S[I, V]
-
-  def +:(value: V): S[I, V]
-
-  def ++(values: S[I, V]): S[I, V]
-
-  def apply(entries: (I, V)*): S[I, V]
 }
 
 sealed trait IS[I <: LogikaIntegralNumber, V] extends S[I, V] {
