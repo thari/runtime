@@ -83,6 +83,135 @@ package object logika {
     def create(size: Z, default: Z): ZS = MS.create[Z, Z](size, default)
   }
 
+  /* deprecated: begin */
+  type BS = collection.MS[Z, B]
+  type Z8S = collection.MS[Z, Z8]
+  type Z16S = collection.MS[Z, Z16]
+  type Z32S = collection.MS[Z, Z32]
+  type Z64S = collection.MS[Z, Z64]
+  type NS = collection.MS[Z, N]
+  type N8S = collection.MS[Z, N8]
+  type N16S = collection.MS[Z, N16]
+  type N32S = collection.MS[Z, N32]
+  type N64S = collection.MS[Z, N64]
+  type S8S = collection.MS[Z, S8]
+  type S16S = collection.MS[Z, S16]
+  type S32S = collection.MS[Z, S32]
+  type S64S = collection.MS[Z, S64]
+  type U8S = collection.MS[Z, U8]
+  type U16S = collection.MS[Z, U16]
+  type U32S = collection.MS[Z, U32]
+  type U64S = collection.MS[Z, U64]
+  type F32S = collection.MS[Z, F32]
+  type F64S = collection.MS[Z, F64]
+  type RS = collection.MS[Z, R]
+
+  object BS {
+    def apply(values: B*): BS = MS.apply[Z, B](values: _*)
+    def create(size: Z, default: B): BS = MS.create[Z, B](size, default)
+  }
+
+  object Z8S {
+    def apply(values: Z8*): Z8S = MS.apply[Z, Z8](values: _*)
+    def create(size: Z, default: Z8): Z8S = MS.create[Z, Z8](size, default)
+  }
+
+  object Z16S {
+    def apply(values: Z16*): Z16S = MS.apply[Z, Z16](values: _*)
+    def create(size: Z, default: Z16): Z16S = MS.create[Z, Z16](size, default)
+  }
+
+  object Z32S {
+    def apply(values: Z32*): Z32S = MS.apply[Z, Z32](values: _*)
+    def create(size: Z, default: Z32): Z32S = MS.create[Z, Z32](size, default)
+  }
+
+  object Z64S {
+    def apply(values: Z64*): Z64S = MS.apply[Z, Z64](values: _*)
+    def create(size: Z, default: Z64): Z64S = MS.create[Z, Z64](size, default)
+  }
+
+  object NS {
+    def apply(values: N*): NS = MS.apply[Z, N](values: _*)
+    def create(size: Z, default: N): NS = MS.create[Z, N](size, default)
+  }
+
+  object N8S {
+    def apply(values: N8*): N8S = MS.apply[Z, N8](values: _*)
+    def create(size: Z, default: N8): N8S = MS.create[Z, N8](size, default)
+  }
+
+  object N16S {
+    def apply(values: N16*): N16S = MS.apply[Z, N16](values: _*)
+    def create(size: Z, default: N16): N16S = MS.create[Z, N16](size, default)
+  }
+
+  object N32S {
+    def apply(values: N32*): N32S = MS.apply[Z, N32](values: _*)
+    def create(size: Z, default: N32): N32S = MS.create[Z, N32](size, default)
+  }
+
+  object N64S {
+    def apply(values: N64*): N64S = MS.apply[Z, N64](values: _*)
+    def create(size: Z, default: N64): N64S = MS.create[Z, N64](size, default)
+  }
+
+  object S8S {
+    def apply(values: S8*): S8S = MS.apply[Z, S8](values: _*)
+    def create(size: Z, default: S8): S8S = MS.create[Z, S8](size, default)
+  }
+
+  object S16S {
+    def apply(values: S16*): S16S = MS.apply[Z, S16](values: _*)
+    def create(size: Z, default: S16): S16S = MS.create[Z, S16](size, default)
+  }
+
+  object S32S {
+    def apply(values: S32*): S32S = MS.apply[Z, S32](values: _*)
+    def create(size: Z, default: S32): S32S = MS.create[Z, S32](size, default)
+  }
+
+  object S64S {
+    def apply(values: S64*): S64S = MS.apply[Z, S64](values: _*)
+    def create(size: Z, default: S64): S64S = MS.create[Z, S64](size, default)
+  }
+
+  object U8S {
+    def apply(values: U8*): U8S = MS.apply[Z, U8](values: _*)
+    def create(size: Z, default: U8): U8S = MS.create[Z, U8](size, default)
+  }
+
+  object U16S {
+    def apply(values: U16*): U16S = MS.apply[Z, U16](values: _*)
+    def create(size: Z, default: U16): U16S = MS.create[Z, U16](size, default)
+  }
+
+  object U32S {
+    def apply(values: U32*): U32S = MS.apply[Z, U32](values: _*)
+    def create(size: Z, default: U32): U32S = MS.create[Z, U32](size, default)
+  }
+
+  object U64S {
+    def apply(values: U64*): U64S = MS.apply[Z, U64](values: _*)
+    def create(size: Z, default: U64): U64S = MS.create[Z, U64](size, default)
+  }
+
+  object F32S {
+    def apply(values: F32*): F32S = MS.apply[Z, F32](values: _*)
+    def create(size: Z, default: F32): F32S = MS.create[Z, F32](size, default)
+  }
+
+  object F64S {
+    def apply(values: F64*): F64S = MS.apply[Z, F64](values: _*)
+    def create(size: Z, default: F64): F64S = MS.create[Z, F64](size, default)
+  }
+
+  object RS {
+    def apply(values: R*): RS = MS.apply[Z, R](values: _*)
+    def create(size: Z, default: R): RS = MS.create[Z, R](size, default)
+  }
+  /* deprecated: end */
+
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
       Console.out.print(msg)
