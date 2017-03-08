@@ -87,6 +87,8 @@ object IS {
 }
 
 sealed trait S[I <: LogikaIntegralNumber, V] extends Clonable {
+  private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
+
   def elements: scala.collection.Seq[V]
 
   def apply(index: I): V
