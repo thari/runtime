@@ -238,11 +238,13 @@ package object logika {
 
   final def randomInt(): Z = Z.random
 
-  final class helper extends scala.annotation.Annotation
+  final class helper extends scala.annotation.StaticAnnotation
 
-  final class pure extends scala.annotation.Annotation
+  final class pure extends scala.annotation.StaticAnnotation
 
-  final class native extends scala.annotation.Annotation
+  final class native extends scala.annotation.StaticAnnotation
+
+  final class part extends scala.annotation.StaticAnnotation
 
   import scala.language.implicitConversions
   final implicit def _Z(n: Int): Z = Z(n)
