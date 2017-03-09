@@ -43,6 +43,7 @@ object _macro {
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika record")
 
     val result: c.Tree = annottees.map(_.tree).toList match {
+      case ((r@q"sealed trait $tpname") :: _) => r
       case (q"case class $tpname[..$tparams](..$params) extends {} with ..$parents") :: _ =>
         var args: Vector[c.Tree] = Vector()
         var params2: Vector[c.Tree] = Vector()
@@ -94,6 +95,7 @@ object _macro {
     }
 
     val result: c.Tree = annottees.map(_.tree).toList match {
+      case ((r@q"sealed trait $tpname") :: _) => r
       case (q"case class $tpname[..$tparams](..$params) extends {} with ..$parents") :: _ =>
         var args: Vector[c.Tree] = Vector()
         var params2: Vector[c.Tree] = Vector()
@@ -134,7 +136,7 @@ object _macro {
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika enum")
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case  (q"object $tname extends { ..$earlydefns } with ..$parents { $self => ..$body }") :: _ =>
+      case (q"object $tname extends { ..$earlydefns } with ..$parents { $self => ..$body }") :: _ =>
         q"""
             object $tname extends {
               type Type = Value
