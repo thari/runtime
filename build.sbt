@@ -4,7 +4,7 @@ val paradiseVersion = "2.1.0"
 
 lazy val logikaRuntime = Project(
   id = "logika-runtime",
-  base = file("."),
+  base = file("jvm"),
   settings = Seq(
     organization := "org.sireum",
     name := "logika-runtime",

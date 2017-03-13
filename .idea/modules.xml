@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime-build.iml" />
     </modules>
   </component>
 </project>

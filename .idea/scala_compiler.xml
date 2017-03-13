@@ -8,5 +8,6 @@
         <plugin path="$PROJECT_DIR$/lib_managed/jars/org.scalamacros/paradise_2.12.1/paradise_2.12.1-2.1.0.jar" />
       </plugins>
     </profile>
+    <profile name="SBT 2" modules="sireum-v3-logika-runtime" />
   </component>
 </project>
