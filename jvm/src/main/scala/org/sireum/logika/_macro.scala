@@ -147,4 +147,39 @@ object _macro {
     }
     c.Expr[Any](result)
   }
+
+  def nativeImpl(c: scala.reflect.macros.whitebox.Context)(
+    annottees: c.Expr[Any]*): c.Expr[Any] = {
+    import c.universe._
+    val prefix = c.internal.enclosingOwner.fullName + "_Native."
+
+    def termName(name: Any): String = name.asInstanceOf[c.TermName].encodedName.toString
+
+    def typeName(name: Any): String = name.asInstanceOf[c.TypeName].encodedName.toString
+
+    def symbolName(name: Any): c.Tree =
+      c.typecheck(c.parse(prefix + termName(name)))
+
+    def abort() =
+      c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika native entities")
+
+    val result: c.Tree = annottees.map(_.tree).toList match {
+      case (q"$mods val $name: $tpt = ???") :: _ =>
+        q"$mods val $name: $tpt = ${symbolName(name)}"
+      case (q"$mods var $name: $tpt = ???") :: _ =>
+        q"$mods val $name: $tpt = ${symbolName(name)}"
+      case (q"$mods def $name[..$tparams](..$params): $tpt = ???") :: _ =>
+        val fqn = prefix + termName(name)
+        val targs = tparams.map({ case TypeDef(_, n, _, _) => typeName(n) })
+        val args = params.map({ case q"$_ val $param: $tpt = $_" => termName(param) })
+        val exp = c.parse(s"$fqn[${targs.mkString(", ")}](${args.mkString(", ")})")
+        q"$mods def $name[..$tparams](..$params): $tpt = $exp"
+      case (q"$mods trait $tpname") :: _ =>
+        if (!c.internal.enclosingOwner.isPackage)
+          c.parse(s"type ${typeName(tpname)} = $prefix${typeName(tpname)}")
+        else q"$mods trait $tpname"
+      case _ => abort()
+    }
+    c.Expr[Any](result)
+  }
 }

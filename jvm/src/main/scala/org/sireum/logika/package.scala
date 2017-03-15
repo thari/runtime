@@ -242,8 +242,6 @@ package object logika {
 
   final class pure extends scala.annotation.StaticAnnotation
 
-  final class native extends scala.annotation.StaticAnnotation
-
   final class part extends scala.annotation.StaticAnnotation
 
   import scala.language.implicitConversions
@@ -320,5 +318,10 @@ package object logika {
   @scala.annotation.compileTimeOnly("Enum")
   final class enum extends scala.annotation.StaticAnnotation {
     def macroTransform(annottees: Any*): Any = macro _macro.enumImpl
+  }
+
+  @scala.annotation.compileTimeOnly("Enum")
+  final class native extends scala.annotation.StaticAnnotation {
+    def macroTransform(annottees: Any*): Any = macro _macro.nativeImpl
   }
 }
