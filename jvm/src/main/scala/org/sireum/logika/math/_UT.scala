@@ -36,6 +36,8 @@ sealed trait _UT {
   def bitWidth: Int
 
   sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+    final def bitWidth: Int = _UT.this.bitWidth
+
     final override def compareTo(other: _Value): Int = toZ.compareTo(other.toZ)
   }
 }
@@ -51,8 +53,6 @@ object _U8 extends _UT with LogikaNumberCompanion {
     ValueImpl(UByte(new Random().nextInt))
 
   sealed trait Value extends _Value {
-    final def bitWidth: Int = _U8.this.bitWidth
-
     def +(other: U8): U8
 
     def -(other: U8): U8
@@ -174,8 +174,6 @@ object _U16 extends _UT with LogikaNumberCompanion {
     ValueImpl(UShort(new Random().nextInt))
 
   sealed trait Value extends _Value {
-    final def bitWidth: Int = _U16.this.bitWidth
-
     def +(other: U16): U16
 
     def -(other: U16): U16
@@ -297,8 +295,6 @@ object _U32 extends _UT with LogikaNumberCompanion {
     ValueImpl(UInt(new Random().nextInt))
 
   sealed trait Value extends _Value {
-    final def bitWidth: Int = _U32.this.bitWidth
-
     def +(other: U32): U32
 
     def -(other: U32): U32
@@ -420,8 +416,6 @@ object _U64 extends _UT with LogikaNumberCompanion {
     ValueImpl(ULong(new Random().nextLong))
 
   sealed trait Value extends _Value {
-    final def bitWidth: Int = _U64.this.bitWidth
-
     def +(other: U64): U64
 
     def -(other: U64): U64

@@ -32,12 +32,15 @@ import scala.util.Random
 
 sealed trait _FT {
   def bitWidth: Int
+
+  sealed trait _Value extends ScalaNumericConversions with LogikaNumber {
+    final def bitWidth: Int = _FT.this.bitWidth
+  }
 }
 
 object _F32 extends _FT with LogikaNumberCompanion {
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
-    final def bitWidth: Int = _F32.this.bitWidth
+  sealed trait Value extends _Value with Comparable[Value] {
 
     def +(other: F32): F32
 
@@ -133,9 +136,7 @@ object _F32 extends _FT with LogikaNumberCompanion {
 
 object _F64 extends _FT with LogikaNumberCompanion {
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
-    final def bitWidth: Int = _F64.this.bitWidth
-
+  sealed trait Value extends _Value with Comparable[Value] {
     def +(other: F64): F64
 
     def -(other: F64): F64
