@@ -27,7 +27,7 @@ package org.sireum.logika
 import org.sireum.logika.test.LogikaSpec
 
 class ZSTest extends LogikaSpec {
-  final val size = math.Z(1024)
+  final val size = math._Z(1024)
   final val zs123 = ZS(1, 2, 3)
   final val zs12 = ZS(1, 2)
   final val zs23 = ZS(2, 3)
@@ -45,7 +45,7 @@ class ZSTest extends LogikaSpec {
   "impl" - {
 
     "zsArray" in {
-      var i = math.Z.zero
+      var i = math._Z.zero
       var append: ZS = ZS()
       var prepend: ZS = ZS()
       while (i < size) {

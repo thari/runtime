@@ -95,7 +95,7 @@ class ZTest extends LogikaSpec {
         lazy val z1 = randomInt()
         lazy val z2 = {
           var r = randomInt()
-          while (r == math.Z.zero) {
+          while (r == math._Z.zero) {
             r = randomInt()
           }
           r

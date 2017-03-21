@@ -25,36 +25,39 @@
 
 package org.sireum.logika.math
 
-import org.sireum.logika._
+import org.sireum.logika.{B, F32, F64}
 
 import scala.math.ScalaNumericConversions
 import scala.util.Random
 
-sealed trait FT {
+sealed trait _FT {
   def bitWidth: Int
+}
+
+object _F32 extends _FT with LogikaNumberCompanion {
 
   sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
-    final def bitWidth: Int = FT.this.bitWidth
+    final def bitWidth: Int = _F32.this.bitWidth
 
-    def +(other: Value): Value
+    def +(other: F32): F32
 
-    def -(other: Value): Value
+    def -(other: F32): F32
 
-    def *(other: Value): Value
+    def *(other: F32): F32
 
-    def /(other: Value): Value
+    def /(other: F32): F32
 
-    def %(other: Value): Value
+    def %(other: F32): F32
 
-    def >(other: Value): B
+    final def >(other: F32): B = B(value > other.value)
 
-    def >=(other: Value): B
+    final def >=(other: F32): B = B(value >= other.value)
 
-    def <(other: Value): B
+    final def <(other: F32): B = B(value < other.value)
 
-    def <=(other: Value): B
+    final def <=(other: F32): B = B(value <= other.value)
 
-    def unary_-(): Value
+    def unary_-(): F32
 
     def isNaN: B
 
@@ -63,59 +66,33 @@ sealed trait FT {
     def isNegInfinity: B
 
     final override def isWhole: Boolean = false
+
+    override def underlying: java.lang.Float
+
+    def value: Float
   }
 
-}
-
-object F32 extends FT with LogikaNumberCompanion {
+  @inline
+  final def apply(value: Float): F32 = ValueImpl(value)
 
   @inline
-  final def apply(value: Float): F32.Value = ValueImpl(value)
-
-  @inline
-  final def apply(s: String): F32.Value = ValueImpl(s.toFloat)
+  final def apply(s: String): F32 = ValueImpl(s.toFloat)
 
   final override def bitWidth = 32
 
-  final override def random: F32.Value =
-    F32.ValueImpl(new Random().nextFloat)
+  final override def random: F32 =
+    _F32.ValueImpl(new Random().nextFloat)
 
   private[math] final case class ValueImpl(value: Float) extends Value {
-    override def +(other: Value): Value = other match {
-      case other: ValueImpl => ValueImpl(value + other.value)
-    }
+    override def +(other: F32): F32 = ValueImpl(value + other.value)
 
-    override def -(other: Value): Value = other match {
-      case other: ValueImpl => ValueImpl(value - other.value)
-    }
+    override def -(other: F32): F32 = ValueImpl(value - other.value)
 
-    override def *(other: Value): Value = other match {
-      case other: ValueImpl => ValueImpl(value * other.value)
-    }
+    override def *(other: F32): F32 = ValueImpl(value * other.value)
 
-    override def /(other: Value): Value = other match {
-      case other: ValueImpl => ValueImpl(value / other.value)
-    }
+    override def /(other: F32): F32 = ValueImpl(value / other.value)
 
-    override def %(other: Value): Value = other match {
-      case other: ValueImpl => ValueImpl(value % other.value)
-    }
-
-    override def >(other: Value): B = other match {
-      case other: ValueImpl => value > other.value
-    }
-
-    override def >=(other: Value): B = other match {
-      case other: ValueImpl => value >= other.value
-    }
-
-    override def <(other: Value): B = other match {
-      case other: ValueImpl => value < other.value
-    }
-
-    override def <=(other: Value): B = other match {
-      case other: ValueImpl => value <= other.value
-    }
+    override def %(other: F32): F32 = ValueImpl(value % other.value)
 
     override def unary_-(): Value = ValueImpl(-value)
 
@@ -134,7 +111,7 @@ object F32 extends FT with LogikaNumberCompanion {
       case _ => false
     }
 
-    override def compareTo(other: Value): Int = other match {
+    override def compareTo(other: F32): Int = other match {
       case other: ValueImpl => value.compareTo(other.value)
     }
 
@@ -146,7 +123,7 @@ object F32 extends FT with LogikaNumberCompanion {
 
     override def doubleValue: Double = value.toDouble
 
-    override def underlying: Object = new java.lang.Float(value)
+    override def underlying: java.lang.Float = new java.lang.Float(value)
 
     override def toString: String = value.toString
   }
@@ -154,53 +131,74 @@ object F32 extends FT with LogikaNumberCompanion {
 }
 
 
-object F64 extends FT with LogikaNumberCompanion {
-  @inline
-  final def apply(value: Double): F64.Value = ValueImpl(value)
+object _F64 extends _FT with LogikaNumberCompanion {
+
+  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaNumber {
+    final def bitWidth: Int = _F64.this.bitWidth
+
+    def +(other: F64): F64
+
+    def -(other: F64): F64
+
+    def *(other: F64): F64
+
+    def /(other: F64): F64
+
+    def %(other: F64): F64
+
+    final def >(other: F64): B = B(value > other.value)
+
+    final def >=(other: F64): B = B(value >= other.value)
+
+    final def <(other: F64): B = B(value < other.value)
+
+    final def <=(other: F64): B = B(value <= other.value)
+
+    def unary_-(): F64
+
+    def isNaN: B
+
+    def isPosInfinity: B
+
+    def isNegInfinity: B
+
+    final override def isWhole: Boolean = false
+
+    override def underlying: java.lang.Double
+
+    def value: Double
+  }
 
   @inline
-  final def apply(s: String): F64.Value = ValueImpl(s.toDouble)
+  final def apply(value: Double): F64 = ValueImpl(value)
+
+  @inline
+  final def apply(s: String): F64 = ValueImpl(s.toDouble)
 
   final override def bitWidth = 64
 
-  final override def random: F64.Value =
-    F64.ValueImpl(new Random().nextDouble)
+  final override def random: F64 =
+    _F64.ValueImpl(new Random().nextDouble)
 
   private[math] final case class ValueImpl(value: Double) extends Value {
-    override def +(other: Value): Value = other match {
+    override def +(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value + other.value)
     }
 
-    override def -(other: Value): Value = other match {
+    override def -(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value - other.value)
     }
 
-    override def *(other: Value): Value = other match {
+    override def *(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value * other.value)
     }
 
-    override def /(other: Value): Value = other match {
+    override def /(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value / other.value)
     }
 
-    override def %(other: Value): Value = other match {
+    override def %(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value % other.value)
-    }
-
-    override def >(other: Value): B = other match {
-      case other: ValueImpl => value > other.value
-    }
-
-    override def >=(other: Value): B = other match {
-      case other: ValueImpl => value >= other.value
-    }
-
-    override def <(other: Value): B = other match {
-      case other: ValueImpl => value < other.value
-    }
-
-    override def <=(other: Value): B = other match {
-      case other: ValueImpl => value <= other.value
     }
 
     override def unary_-(): Value = ValueImpl(-value)
@@ -220,7 +218,7 @@ object F64 extends FT with LogikaNumberCompanion {
       case _ => false
     }
 
-    override def compareTo(other: Value): Int = other match {
+    override def compareTo(other: F64): Int = other match {
       case other: ValueImpl => value.compareTo(other.value)
     }
 
@@ -232,7 +230,7 @@ object F64 extends FT with LogikaNumberCompanion {
 
     override def doubleValue: Double = value
 
-    override def underlying: Object = new java.lang.Double(value)
+    override def underlying: java.lang.Double = new java.lang.Double(value)
 
     override def toString: String = value.toString
   }

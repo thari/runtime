@@ -31,39 +31,39 @@ import scala.math.ScalaNumericConversions
 
 import org.sireum.logika._
 
-object R extends LogikaNumberCompanion {
+object _R extends LogikaNumberCompanion {
 
   @inline
-  final def apply(r: String): R = apply(Real(r.replaceAll(" ", "")))
+  final def apply(r: String): _R = apply(Real(r.replaceAll(" ", "")))
 
   @inline
-  final def apply(r: Real): R = RImpl(r)
+  final def apply(r: Real): _R = RImpl(r)
 
-  final override def random: R = R(Z.random.toString + "." + N.random.toString)
+  final override def random: _R = _R(_Z.random.toString + "." + _N.random.toString)
 }
 
-sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNumber {
-  final def +(other: R): R = R(toReal + other.toReal)
+sealed trait _R extends ScalaNumericConversions with Comparable[_R] with LogikaNumber {
+  final def +(other: _R): _R = _R(toReal + other.toReal)
 
-  final def -(other: R): R = R(toReal - other.toReal)
+  final def -(other: _R): _R = _R(toReal - other.toReal)
 
-  final def *(other: R): R = R(toReal * other.toReal)
+  final def *(other: _R): _R = _R(toReal * other.toReal)
 
-  final def /(other: R): R = R(toReal / other.toReal)
+  final def /(other: _R): _R = _R(toReal / other.toReal)
 
-  final def %(other: R): R = R(toReal % other.toReal)
+  final def %(other: _R): _R = _R(toReal % other.toReal)
 
-  final def >(other: R): B = toReal.compare(other.toReal) > 0
+  final def >(other: _R): B = toReal.compare(other.toReal) > 0
 
-  final def >=(other: R): B = toReal.compare(other.toReal) >= 0
+  final def >=(other: _R): B = toReal.compare(other.toReal) >= 0
 
-  final def <(other: R): B = toReal.compare(other.toReal) < 0
+  final def <(other: _R): B = toReal.compare(other.toReal) < 0
 
-  final def <=(other: R): B = toReal.compare(other.toReal) <= 0
+  final def <=(other: _R): B = toReal.compare(other.toReal) <= 0
 
-  final def unary_-(): R = R(-toReal)
+  final def unary_-(): _R = _R(-toReal)
 
-  final override def compareTo(other: R): Int = toReal.compare(other.toReal)
+  final override def compareTo(other: _R): Int = toReal.compare(other.toReal)
 
   final override def doubleValue: Double = toReal.doubleValue
 
@@ -80,7 +80,7 @@ sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNum
   final override lazy val hashCode: Int = toReal.hashCode
 
   final override def equals(other: Any): Boolean = other match {
-    case other: R => (this eq other) || toReal.equals(other.toReal)
+    case other: _R => (this eq other) || toReal.equals(other.toReal)
     case _ => false
   }
 
@@ -89,6 +89,6 @@ sealed trait R extends ScalaNumericConversions with Comparable[R] with LogikaNum
   def toReal: Real
 }
 
-final private case class RImpl(value: Real) extends R {
+final private case class RImpl(value: Real) extends _R {
   override def toReal: Real = value
 }

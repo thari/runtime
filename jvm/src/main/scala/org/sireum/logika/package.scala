@@ -26,57 +26,57 @@
 package org.sireum
 
 package object logika {
-  type Z = math.Z
-  type Z8 = math.Z8.Value
-  type Z16 = math.Z16.Value
-  type Z32 = math.Z32.Value
-  type Z64 = math.Z64.Value
-  type S8 = math.S8.Value
-  type S16 = math.S16.Value
-  type S32 = math.S32.Value
-  type S64 = math.S64.Value
-  type N = math.N
-  type N8 = math.N8.Value
-  type N16 = math.N16.Value
-  type N32 = math.N32.Value
-  type N64 = math.N64.Value
-  type U8 = math.U8.Value
-  type U16 = math.U16.Value
-  type U32 = math.U32.Value
-  type U64 = math.U64.Value
-  type R = math.R
-  type F32 = math.F32.Value
-  type F64 = math.F64.Value
+  type Z = math._Z
+  type Z8 = math._Z8.Value
+  type Z16 = math._Z16.Value
+  type Z32 = math._Z32.Value
+  type Z64 = math._Z64.Value
+  type S8 = math._S8.Value
+  type S16 = math._S16.Value
+  type S32 = math._S32.Value
+  type S64 = math._S64.Value
+  type N = math._N
+  type N8 = math._N8.Value
+  type N16 = math._N16.Value
+  type N32 = math._N32.Value
+  type N64 = math._N64.Value
+  type U8 = math._U8.Value
+  type U16 = math._U16.Value
+  type U32 = math._U32.Value
+  type U64 = math._U64.Value
+  type R = math._R
+  type F32 = math._F32.Value
+  type F64 = math._F64.Value
 
-  type MS[I <: math.LogikaIntegralNumber, V] = collection.MS[I, V]
-  type IS[I <: math.LogikaIntegralNumber, V] = collection.IS[I, V]
+  type MS[I <: math.LogikaIntegralNumber, V] = collection._MS[I, V]
+  type IS[I <: math.LogikaIntegralNumber, V] = collection._IS[I, V]
 
-  type ZS = collection.MS[Z, Z]
+  type ZS = collection._MS[Z, Z]
 
-  final val Z = math.Z
-  final val Z8 = math.Z8
-  final val Z16 = math.Z16
-  final val Z32 = math.Z32
-  final val Z64 = math.Z64
-  final val S8 = math.S8
-  final val S16 = math.S16
-  final val S32 = math.S32
-  final val S64 = math.S64
-  final val N = math.N
-  final val N8 = math.N8
-  final val N16 = math.N16
-  final val N32 = math.N32
-  final val N64 = math.N64
-  final val U8 = math.U8
-  final val U16 = math.U16
-  final val U32 = math.U32
-  final val U64 = math.U64
-  final val R = math.R
-  final val F32 = math.F32
-  final val F64 = math.F64
+  final val Z: math._Z.type = math._Z
+  final val Z8: math._Z8.type = math._Z8
+  final val Z16: math._Z16.type = math._Z16
+  final val Z32: math._Z32.type = math._Z32
+  final val Z64: math._Z64.type = math._Z64
+  final val S8: math._S8.type = math._S8
+  final val S16: math._S16.type = math._S16
+  final val S32: math._S32.type = math._S32
+  final val S64: math._S64.type = math._S64
+  final val N: math._N.type = math._N
+  final val N8: math._N8.type = math._N8
+  final val N16: math._N16.type = math._N16
+  final val N32: math._N32.type = math._N32
+  final val N64: math._N64.type = math._N64
+  final val U8: math._U8.type = math._U8
+  final val U16: math._U16.type = math._U16
+  final val U32: math._U32.type = math._U32
+  final val U64: math._U64.type = math._U64
+  final val R: math._R.type = math._R
+  final val F32: math._F32.type = math._F32
+  final val F64: math._F64.type = math._F64
 
-  final val MS = collection.MS
-  final val IS = collection.IS
+  final val MS: collection._MS.type = collection._MS
+  final val IS: collection._IS.type = collection._IS
 
   object ZS {
     def apply(values: Z*): ZS = MS.apply[Z, Z](values: _*)
@@ -84,27 +84,27 @@ package object logika {
   }
 
   /* deprecated: begin */
-  type BS = collection.MS[Z, B]
-  type Z8S = collection.MS[Z, Z8]
-  type Z16S = collection.MS[Z, Z16]
-  type Z32S = collection.MS[Z, Z32]
-  type Z64S = collection.MS[Z, Z64]
-  type NS = collection.MS[Z, N]
-  type N8S = collection.MS[Z, N8]
-  type N16S = collection.MS[Z, N16]
-  type N32S = collection.MS[Z, N32]
-  type N64S = collection.MS[Z, N64]
-  type S8S = collection.MS[Z, S8]
-  type S16S = collection.MS[Z, S16]
-  type S32S = collection.MS[Z, S32]
-  type S64S = collection.MS[Z, S64]
-  type U8S = collection.MS[Z, U8]
-  type U16S = collection.MS[Z, U16]
-  type U32S = collection.MS[Z, U32]
-  type U64S = collection.MS[Z, U64]
-  type F32S = collection.MS[Z, F32]
-  type F64S = collection.MS[Z, F64]
-  type RS = collection.MS[Z, R]
+  type BS = MS[Z, B]
+  type Z8S = MS[Z, Z8]
+  type Z16S = MS[Z, Z16]
+  type Z32S = MS[Z, Z32]
+  type Z64S = MS[Z, Z64]
+  type NS = MS[Z, N]
+  type N8S = MS[Z, N8]
+  type N16S = MS[Z, N16]
+  type N32S = MS[Z, N32]
+  type N64S = MS[Z, N64]
+  type S8S = MS[Z, S8]
+  type S16S = MS[Z, S16]
+  type S32S = MS[Z, S32]
+  type S64S = MS[Z, S64]
+  type U8S = MS[Z, U8]
+  type U16S = MS[Z, U16]
+  type U32S = MS[Z, U32]
+  type U64S = MS[Z, U64]
+  type F32S = MS[Z, F32]
+  type F64S = MS[Z, F64]
+  type RS = MS[Z, R]
 
   object BS {
     def apply(values: B*): BS = MS.apply[Z, B](values: _*)
@@ -262,7 +262,7 @@ package object logika {
 
   final implicit class _Logika(val sc: StringContext) extends AnyVal {
 
-    def z(args: Any*): Z = math.Z(sc.parts.mkString(""))
+    def z(args: Any*): Z = math._Z(sc.parts.mkString(""))
 
     def z8(args: Any*): Z8 = z(args: _*).toZ8
 
@@ -298,7 +298,7 @@ package object logika {
 
     def u64(args: Any*): U64 = z(args: _*).toU64
 
-    def r(args: Any*): R = math.R(sc.raw(args))
+    def r(args: Any*): R = math._R(sc.raw(args))
 
     def l(args: Any*): Unit = macro _macro.lImpl
 

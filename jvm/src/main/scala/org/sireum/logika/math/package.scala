@@ -51,6 +51,8 @@ package object math {
   trait LogikaNumber extends Clonable
 
   trait LogikaIntegralNumber extends LogikaNumber {
+    import org.sireum.logika.{B, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64}
+
     def toBigInteger: java.math.BigInteger
 
     def toBigInt: BigInt
@@ -59,53 +61,38 @@ package object math {
 
     def toZ: Z
 
-    final def toZ8: math.Z8.Value = math.Z8.checkRange(toZ)
+    final def toZ8: Z8 = math._Z8.checkRange(toZ)
 
-    final def toZ16: math.Z16.Value = math.Z16.checkRange(toZ)
+    final def toZ16: Z16 = math._Z16.checkRange(toZ)
 
-    final def toZ32: math.Z32.Value = math.Z32.checkRange(toZ)
+    final def toZ32: Z32 = math._Z32.checkRange(toZ)
 
-    final def toZ64: math.Z64.Value = math.Z64.checkRange(toZ)
+    final def toZ64: Z64 = math._Z64.checkRange(toZ)
 
-    final def toS8: math.S8.Value = math.S8.ValueImpl(toZ.toByte)
+    final def toS8: S8 = math._S8.ValueImpl(toZ.toByte)
 
-    final def toS16: math.S16.Value = math.S16.ValueImpl(toZ.toShort)
+    final def toS16: S16 = math._S16.ValueImpl(toZ.toShort)
 
-    final def toS32: math.S32.Value = math.S32.ValueImpl(toZ.toInt)
+    final def toS32: S32 = math._S32.ValueImpl(toZ.toInt)
 
-    final def toS64: math.S64.Value = math.S64.ValueImpl(toZ.toLong)
+    final def toS64: S64 = math._S64.ValueImpl(toZ.toLong)
 
-    final def toN: N = math.N(toZ)
+    final def toN: N = math._N(toZ)
 
-    final def toN8: math.N8.Value = math.N8.checkRange(toZ)
+    final def toN8: N8 = math._N8.checkRange(toZ)
 
-    final def toN16: math.N16.Value = math.N16.checkRange(toZ)
+    final def toN16: N16 = math._N16.checkRange(toZ)
 
-    final def toN32: math.N32.Value = math.N32.checkRange(toZ)
+    final def toN32: N32 = math._N32.checkRange(toZ)
 
-    final def toN64: math.N64.Value = math.N64.checkRange(toZ)
+    final def toN64: N64 = math._N64.checkRange(toZ)
 
-    final def toU8: math.U8.Value = math.U8.ValueImpl(UByte(toZ.toByte))
+    final def toU8: U8 = math._U8.ValueImpl(UByte(toZ.toByte))
 
-    final def toU16: math.U16.Value = math.U16.ValueImpl(UShort(toZ.toShort))
+    final def toU16: U16 = math._U16.ValueImpl(UShort(toZ.toShort))
 
-    final def toU32: math.U32.Value = math.U32.ValueImpl(UInt(toZ.toInt))
+    final def toU32: U32 = math._U32.ValueImpl(UInt(toZ.toInt))
 
-    final def toU64: math.U64.Value = math.U64.ValueImpl(ULong(toZ.toLong))
+    final def toU64: U64 = math._U64.ValueImpl(ULong(toZ.toLong))
   }
-
-  trait LogikaModuloIntegralNumber[V] extends LogikaIntegralNumber {
-    def unary_~(): V
-
-    def &(other: V): V
-
-    def |(other: V): V
-
-    def ^|(other: V): V
-
-    def <<(distance: V): V
-
-    def >>>(distance: V): V
-  }
-
 }

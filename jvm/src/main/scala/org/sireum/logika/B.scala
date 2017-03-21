@@ -55,4 +55,3 @@ object B {
   def apply(b: Boolean): B = if (b) T else F
   def random: B = new java.util.Random().nextBoolean
 }
-

@@ -98,7 +98,7 @@ class NTest extends LogikaSpec {
         lazy val n2 = {
           var r = N(randomInt().toBigInt.abs)
 
-          while (r == math.N.zero) {
+          while (r == math._N.zero) {
             r = N(randomInt().toBigInt.abs)
           }
           r

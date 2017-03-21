@@ -29,50 +29,50 @@ import org.apfloat.Apint
 
 import scala.math.ScalaNumericConversions
 
-import org.sireum.logika._
+import org.sireum.logika.{B, N}
 
-object N extends LogikaNumberCompanion {
+object _N extends LogikaNumberCompanion {
 
-  final val zero: N = NImpl(Z.zero)
-  final val one: N = NImpl(Z.one)
-
-  @inline
-  final def apply(n: Int): N = apply(Z(n))
+  final val zero: N = NImpl(_Z.zero)
+  final val one: N = NImpl(_Z.one)
 
   @inline
-  final def apply(n: Long): N = apply(Z(n))
+  final def apply(n: Int): N = apply(_Z(n))
 
   @inline
-  final def apply(n: String): N = apply(Z(n))
+  final def apply(n: Long): N = apply(_Z(n))
 
   @inline
-  final def apply(n: BigInt): N = apply(Z(n))
+  final def apply(n: String): N = apply(_Z(n))
 
   @inline
-  final def apply(n: java.math.BigInteger): N = apply(Z(n))
+  final def apply(n: BigInt): N = apply(_Z(n))
 
   @inline
-  final def apply(n: Apint): N = apply(Z(n))
+  final def apply(n: java.math.BigInteger): N = apply(_Z(n))
 
   @inline
-  final def apply(z: Z): N = if (z <= 0) zero else NImpl(z)
+  final def apply(n: Apint): N = apply(_Z(n))
+
+  @inline
+  final def apply(z: _Z): N = if (z <= 0) zero else NImpl(z)
 
   final override def random: N = {
-    val z = Z.random
-    if (z < Z.zero) N(-z) else N(z)
+    val z = _Z.random
+    if (z < _Z.zero) _N(-z) else _N(z)
   }
 }
 
-sealed trait N extends ScalaNumericConversions with Comparable[N] with LogikaIntegralNumber {
-  final def +(other: N): N = N(toZ + other.toZ)
+sealed trait _N extends ScalaNumericConversions with Comparable[_N] with LogikaIntegralNumber {
+  final def +(other: N): N = _N(toZ + other.toZ)
 
-  final def -(other: N): N = N(toZ - other.toZ)
+  final def -(other: N): N = _N(toZ - other.toZ)
 
-  final def *(other: N): N = N(toZ * other.toZ)
+  final def *(other: N): N = _N(toZ * other.toZ)
 
-  final def /(other: N): N = N(toZ / other.toZ)
+  final def /(other: N): N = _N(toZ / other.toZ)
 
-  final def %(other: N): N = N(toZ % other.toZ)
+  final def %(other: N): N = _N(toZ % other.toZ)
 
   final def >(other: N): B = toZ > other.toZ
 
@@ -103,24 +103,24 @@ sealed trait N extends ScalaNumericConversions with Comparable[N] with LogikaInt
   final override def toString: String = toZ.toString
 }
 
-final private case class NImpl(value: Z) extends N {
-  override def toZ: Z = value
+final private case class NImpl(value: _Z) extends _N {
+  override def toZ: _Z = value
 
   override lazy val hashCode: Int = value.hashCode
 
   override def equals(other: Any): Boolean = other match {
     case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
-    case other: Byte => value == Z(other)
-    case other: Char => value == Z(other)
-    case other: Short => value == Z(other)
-    case other: Int => value == Z(other)
-    case other: Long => value == Z(other)
-    case other: java.math.BigInteger => value == Z(other)
-    case other: BigInt => value == Z(other)
+    case other: Byte => value == _Z(other)
+    case other: Char => value == _Z(other)
+    case other: Short => value == _Z(other)
+    case other: Int => value == _Z(other)
+    case other: Long => value == _Z(other)
+    case other: java.math.BigInteger => value == _Z(other)
+    case other: BigInt => value == _Z(other)
     case _ => false
   }
 
-  override def compareTo(other: N): Int = other match {
+  override def compareTo(other: _N): Int = other match {
     case other: NImpl => value.compareTo(other.value)
   }
 }

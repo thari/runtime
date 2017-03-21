@@ -26,18 +26,18 @@
 package org.sireum.logika.math
 
 import org.apfloat._
-import org.sireum.logika._
+import org.sireum.logika.{B, Z}
 
 import scala.math.ScalaNumericConversions
 
-object Z extends LogikaNumberCompanion {
+object _Z extends LogikaNumberCompanion {
   final private[logika] val intMin = new Apint(Int.MinValue)
   final private[logika] val intMax = new Apint(Int.MaxValue)
   final private[logika] val longMin = new Apint(Long.MinValue)
   final private[logika] val longMax = new Apint(Long.MaxValue)
 
-  final val zero = Z(0)
-  final val one = Z(1)
+  final val zero: Z = _Z(0)
+  final val one: Z = _Z(1)
 
   lazy val Min: Z =
     if (defaultBitWidth == 0) sys.error("Unbounded integer does not have a minimum value.")
@@ -67,14 +67,14 @@ object Z extends LogikaNumberCompanion {
   final def apply(z: java.math.BigInteger): Z = apply(new Apint(z))
 
   @inline
-  final def apply(z: Apint): Z = ZApint(z).pack
+  final def apply(z: Apint): Z = _ZApint(z).pack
 
-  final override def random: Z = Z(BigInt(
+  final override def random: Z = _Z(BigInt(
     numbits = new scala.util.Random().nextInt(1024),
     rnd = new scala.util.Random()))
 }
 
-sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaIntegralNumber {
+sealed trait _Z extends ScalaNumericConversions with Comparable[_Z] with LogikaIntegralNumber {
   def unary_- : Z
 
   def +(other: Z): Z
@@ -95,41 +95,41 @@ sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaInt
 
   def <=(other: Z): B
 
-  final def +(other: Int): Z = this + Z(other)
+  final def +(other: Int): Z = this + _Z(other)
 
-  final def -(other: Int): Z = this - Z(other)
+  final def -(other: Int): Z = this - _Z(other)
 
-  final def *(other: Int): Z = this * Z(other)
+  final def *(other: Int): Z = this * _Z(other)
 
-  final def /(other: Int): Z = this / Z(other)
+  final def /(other: Int): Z = this / _Z(other)
 
-  final def %(other: Int): Z = this % Z(other)
+  final def %(other: Int): Z = this % _Z(other)
 
-  final def <(other: Int): B = this < Z(other)
+  final def <(other: Int): B = this < _Z(other)
 
-  final def <=(other: Int): B = this <= Z(other)
+  final def <=(other: Int): B = this <= _Z(other)
 
-  final def >(other: Int): B = this > Z(other)
+  final def >(other: Int): B = this > _Z(other)
 
-  final def >=(other: Int): B = this >= Z(other)
+  final def >=(other: Int): B = this >= _Z(other)
 
-  final def +(other: Long): Z = this + Z(other)
+  final def +(other: Long): Z = this + _Z(other)
 
-  final def -(other: Long): Z = this - Z(other)
+  final def -(other: Long): Z = this - _Z(other)
 
-  final def *(other: Long): Z = this * Z(other)
+  final def *(other: Long): Z = this * _Z(other)
 
-  final def /(other: Long): Z = this / Z(other)
+  final def /(other: Long): Z = this / _Z(other)
 
-  final def %(other: Long): Z = this % Z(other)
+  final def %(other: Long): Z = this % _Z(other)
 
-  final def <(other: Long): B = this < Z(other)
+  final def <(other: Long): B = this < _Z(other)
 
-  final def <=(other: Long): B = this <= Z(other)
+  final def <=(other: Long): B = this <= _Z(other)
 
-  final def >(other: Long): B = this > Z(other)
+  final def >(other: Long): B = this > _Z(other)
 
-  final def >=(other: Long): B = this >= Z(other)
+  final def >=(other: Long): B = this >= _Z(other)
 
   final override def toZ: Z = this
 
@@ -146,30 +146,30 @@ sealed trait Z extends ScalaNumericConversions with Comparable[Z] with LogikaInt
   final override def isWhole = true
 }
 
-private[logika] final case class ZLong(value: Long) extends Z {
+private[logika] final case class _ZLong(value: Long) extends _Z {
   override def unary_- : Z =
-    if (value == Long.MinValue) -upgrade else Z(-value)
+    if (value == Long.MinValue) -upgrade else _Z(-value)
 
   override def +(other: Z): Z = other match {
-    case ZLong(n) =>
+    case _ZLong(n) =>
       val r = value + n
       if (((value ^ r) & (n ^ r)) < 0L) upgrade + other
-      else ZLong(r)
+      else _ZLong(r)
     case _ => upgrade + other
   }
 
   override def -(other: Z): Z = other match {
-    case ZLong(n) =>
+    case _ZLong(n) =>
       val r = value - n
       if (((value ^ r) & (n ^ r)) < 0L) upgrade - other
-      else ZLong(r)
+      else _ZLong(r)
     case _ => upgrade - other
   }
 
   override def *(other: Z): Z = other match {
-    case ZLong(n) =>
+    case _ZLong(n) =>
       val r = value * n
-      if (r == 0) return Z.zero
+      if (r == 0) return _Z.zero
       if (n > value) {
         if (((n == -1) && (value == Long.MinValue)) || (r / n != value))
           return upgrade * other
@@ -177,15 +177,15 @@ private[logika] final case class ZLong(value: Long) extends Z {
         if (((value == -1) && (n == Long.MinValue)) || (r / value != n))
           return upgrade * other
       }
-      ZLong(r)
+      _ZLong(r)
     case _ => upgrade * other
   }
 
   override def /(other: Z): Z = other match {
-    case ZLong(n) =>
+    case _ZLong(n) =>
       val r = value / n
       if ((value == Long.MinValue) && (n == -1)) upgrade / other
-      else ZLong(r)
+      else _ZLong(r)
     case _ => upgrade / other
   }
 
@@ -194,41 +194,41 @@ private[logika] final case class ZLong(value: Long) extends Z {
   override def hashCode: Int = value.hashCode
 
   override def equals(other: Any): Boolean = other match {
-    case ZLong(n) => value == n
-    case other: ZT#Value => value == other.toLong
+    case _ZLong(n) => value == n
+    case other: _ZT#_Value => value == other.toLong
     case other: LogikaIntegralNumber => upgrade == other.toZ
     case other: Byte => value == other.toLong
     case other: Char => value == other.toLong
     case other: Short => value == other.toLong
     case other: Int => value == other.toLong
     case other: Long => value == other
-    case other: java.math.BigInteger => upgrade == Z(other)
-    case other: BigInt => upgrade == Z(other)
+    case other: java.math.BigInteger => upgrade == _Z(other)
+    case other: BigInt => upgrade == _Z(other)
     case _ => false
   }
 
   override def compareTo(other: Z): Int = other match {
-    case ZLong(n) => value.compareTo(n)
+    case _ZLong(n) => value.compareTo(n)
     case _ => upgrade.compareTo(other)
   }
 
   override def >(other: Z): B = other match {
-    case ZLong(n) => value > n
+    case _ZLong(n) => value > n
     case _ => upgrade > other
   }
 
   override def >=(other: Z): B = other match {
-    case ZLong(n) => value >= n
+    case _ZLong(n) => value >= n
     case _ => upgrade >= other
   }
 
   override def <(other: Z): B = other match {
-    case ZLong(n) => value < n
+    case _ZLong(n) => value < n
     case _ => upgrade < other
   }
 
   override def <=(other: Z): B = other match {
-    case ZLong(n) => value <= n
+    case _ZLong(n) => value <= n
     case _ => upgrade <= other
   }
 
@@ -241,21 +241,21 @@ private[logika] final case class ZLong(value: Long) extends Z {
 
   override def toString: String = value.toString
 
-  private def upgrade: ZApint = ZApint(new Apint(value))
+  private def upgrade: _ZApint = _ZApint(new Apint(value))
 }
 
-private[logika] final case class ZApint(value: Apint) extends Z {
-  def unary_- : Z = ZApint(value.negate)
+private[logika] final case class _ZApint(value: Apint) extends _Z {
+  def unary_- : Z = _ZApint(value.negate)
 
-  def +(other: Z): Z = ZApint(value.add(other.toApint))
+  def +(other: Z): Z = _ZApint(value.add(other.toApint))
 
-  def -(other: Z): Z = ZApint(value.subtract(other.toApint)).pack
+  def -(other: Z): Z = _ZApint(value.subtract(other.toApint)).pack
 
-  def *(other: Z): Z = ZApint(value.multiply(other.toApint))
+  def *(other: Z): Z = _ZApint(value.multiply(other.toApint))
 
-  def /(other: Z): Z = ZApint(value.divide(other.toApint)).pack
+  def /(other: Z): Z = _ZApint(value.divide(other.toApint)).pack
 
-  def %(other: Z): Z = ZApint(value.mod(other.toApint)).pack
+  def %(other: Z): Z = _ZApint(value.mod(other.toApint)).pack
 
   override lazy val hashCode: Int = toBigInt.hashCode
 
@@ -272,8 +272,8 @@ private[logika] final case class ZApint(value: Apint) extends Z {
   }
 
   override def compareTo(other: Z): Int = other match {
-    case ZLong(n) => value.compareTo(new Apint(n))
-    case other: ZApint => value.compareTo(other.value)
+    case _ZLong(n) => value.compareTo(new Apint(n))
+    case other: _ZApint => value.compareTo(other.value)
   }
 
   def <(other: Z): B = value.compareTo(other.toApint) < 0
@@ -293,7 +293,7 @@ private[logika] final case class ZApint(value: Apint) extends Z {
   override def toString: String = value.toString
 
   private[math] def pack: Z =
-    if ((value.compareTo(Z.longMin) >= 0) && (value.compareTo(Z.longMax) <= 0))
-      ZLong(value.longValue)
+    if ((value.compareTo(_Z.longMin) >= 0) && (value.compareTo(_Z.longMax) <= 0))
+      _ZLong(value.longValue)
     else this
 }
