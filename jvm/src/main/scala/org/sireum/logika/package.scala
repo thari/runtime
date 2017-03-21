@@ -26,8 +26,6 @@
 package org.sireum
 
 package object logika {
-  type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
-
   type Z = math._Z
   type Z8 = math._Z8.Value
   type Z16 = math._Z16.Value
@@ -281,9 +279,9 @@ package object logika {
 
     def r(args: Any*): R = math._R(sc.raw(args))
 
-    def l[T : TT](args: Any*): T = $
+    def l[T](args: Any*): Unit = macro _macro.lImpl
 
-    def c[T](args: Any*): Any => T = macro _macro.cImpl[T]
+    def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
 
   @scala.annotation.compileTimeOnly("Immutable Record")
@@ -306,11 +304,5 @@ package object logika {
     def macroTransform(annottees: Any*): Any = macro _macro.nativeImpl
   }
 
-  import scala.reflect.runtime.universe._
-
-  val _unitType: Type = typeOf[Unit]
-
-  def $[T: TT]: T =
-    if (typeOf[T] =:= _unitType) ().asInstanceOf[T]
-    else throw new NotImplementedError
+  def $[T]: T = throw new NotImplementedError
 }

@@ -26,6 +26,12 @@
 package org.sireum.logika
 
 object _macro {
+  def lImpl(c: scala.reflect.macros.blackbox.Context)(
+    args: c.Expr[Any]*): c.Expr[Unit] = {
+    import c.universe._
+    c.Expr[Unit](q"{}")
+  }
+
   def cImpl[T](c: scala.reflect.macros.blackbox.Context)(
     args: c.Expr[Any]*): c.Expr[T] = {
     import c.universe._
