@@ -83,7 +83,7 @@ object _F32 extends _FT with LogikaNumberCompanion {
   final override def random: F32 =
     _F32.ValueImpl(new Random().nextFloat)
 
-  private[math] final case class ValueImpl(value: Float) extends Value {
+  private[logika] final case class ValueImpl(value: Float) extends Value {
     override def +(other: F32): F32 = ValueImpl(value + other.value)
 
     override def -(other: F32): F32 = ValueImpl(value - other.value)
@@ -180,7 +180,7 @@ object _F64 extends _FT with LogikaNumberCompanion {
   final override def random: F64 =
     _F64.ValueImpl(new Random().nextDouble)
 
-  private[math] final case class ValueImpl(value: Double) extends Value {
+  private[logika] final case class ValueImpl(value: Double) extends Value {
     override def +(other: F64): F64 = other match {
       case other: ValueImpl => ValueImpl(value + other.value)
     }

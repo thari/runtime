@@ -26,6 +26,8 @@
 package org.sireum
 
 package object logika {
+  type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
+
   type Z = math._Z
   type Z8 = math._Z8.Value
   type Z16 = math._Z16.Value
@@ -48,8 +50,8 @@ package object logika {
   type F32 = math._F32.Value
   type F64 = math._F64.Value
 
-  type MS[I <: math.LogikaIntegralNumber, V] = collection._MS[I, V]
-  type IS[I <: math.LogikaIntegralNumber, V] = collection._IS[I, V]
+  type MS[I, V] = collection._MS[I, V]
+  type IS[I, V] = collection._IS[I, V]
 
   type ZS = collection._MS[Z, Z]
 
@@ -298,11 +300,15 @@ package object logika {
 
     def u64(args: Any*): U64 = z(args: _*).toU64
 
+    def f32(args: Any*): F32 = F32(sc.parts.mkString("").toFloat)
+
+    def f64(args: Any*): F64 = F64((sc.parts.mkString("") + "d").toDouble)
+
     def r(args: Any*): R = math._R(sc.raw(args))
 
-    def l(args: Any*): Unit = macro _macro.lImpl
+    def l[T : TT](args: Any*): T = $
 
-    def c[T](args: Any*): T = macro _macro.cImpl[T]
+    def c[T](args: Any*): Any => T = macro _macro.cImpl[T]
   }
 
   @scala.annotation.compileTimeOnly("Immutable Record")
@@ -324,4 +330,12 @@ package object logika {
   final class native extends scala.annotation.StaticAnnotation {
     def macroTransform(annottees: Any*): Any = macro _macro.nativeImpl
   }
+
+  import scala.reflect.runtime.universe._
+
+  val _unitType: Type = typeOf[Unit]
+
+  def $[T: TT]: T =
+    if (typeOf[T] =:= _unitType) ().asInstanceOf[T]
+    else throw new NotImplementedError
 }

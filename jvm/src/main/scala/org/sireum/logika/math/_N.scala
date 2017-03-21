@@ -26,7 +26,7 @@
 package org.sireum.logika.math
 
 import org.apfloat.Apint
-
+import org.sireum.logika.Z
 import scala.math.ScalaNumericConversions
 
 import org.sireum.logika.{B, N}
@@ -35,6 +35,11 @@ object _N extends LogikaNumberCompanion {
 
   final val zero: N = NImpl(_Z.zero)
   final val one: N = NImpl(_Z.one)
+
+  private[logika] def checkRange(n: Z): N = {
+    require(n >= 0)
+    apply(n)
+  }
 
   @inline
   final def apply(n: Int): N = apply(_Z(n))

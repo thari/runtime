@@ -26,7 +26,7 @@
 package org.sireum.logika.math
 
 import org.apfloat.Apint
-import org.sireum.logika.{B, Z, S8, S16, S32, S64}
+import org.sireum.logika.{B, S16, S32, S64, S8, Z}
 
 import scala.math.ScalaNumericConversions
 import scala.util.Random
@@ -101,7 +101,7 @@ object _S8 extends _ST with LogikaNumberCompanion {
     def value: Byte
   }
 
-  private[math] final case class ValueImpl(value: Byte) extends Value {
+  private[logika] final case class ValueImpl(value: Byte) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -221,7 +221,7 @@ object _S16 extends _ST with LogikaNumberCompanion {
     def value: Short
   }
 
-  private[math] final case class ValueImpl(value: Short) extends Value {
+  private[logika] final case class ValueImpl(value: Short) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -342,7 +342,7 @@ object _S32 extends _ST with LogikaNumberCompanion {
     def value: Int
   }
 
-  private[math] final case class ValueImpl(value: Int) extends Value {
+  private[logika] final case class ValueImpl(value: Int) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -463,7 +463,7 @@ object _S64 extends _ST with LogikaNumberCompanion {
     def value: Long
   }
 
-  private[math] final case class ValueImpl(value: Long) extends Value {
+  private[logika] final case class ValueImpl(value: Long) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat

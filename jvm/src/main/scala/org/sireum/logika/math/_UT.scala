@@ -97,7 +97,7 @@ object _U8 extends _UT with LogikaNumberCompanion {
     def value: UByte
   }
 
-  private[math] final case class ValueImpl(value: UByte) extends Value {
+  private[logika] final case class ValueImpl(value: UByte) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -223,7 +223,7 @@ object _U16 extends _UT with LogikaNumberCompanion {
     def value: UShort
   }
 
-  private[math] final case class ValueImpl(value: UShort) extends Value {
+  private[logika] final case class ValueImpl(value: UShort) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -349,7 +349,7 @@ object _U32 extends _UT with LogikaNumberCompanion {
     def value: UInt
   }
 
-  private[math] final case class ValueImpl(value: UInt) extends Value {
+  private[logika] final case class ValueImpl(value: UInt) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat
@@ -475,7 +475,7 @@ object _U64 extends _UT with LogikaNumberCompanion {
     def value: ULong
   }
 
-  private[math] final case class ValueImpl(value: ULong) extends Value {
+  private[logika] final case class ValueImpl(value: ULong) extends Value {
     override def doubleValue: Double = value.toDouble
 
     override def floatValue: Float = value.toFloat

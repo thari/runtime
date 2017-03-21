@@ -43,52 +43,50 @@ object _R extends LogikaNumberCompanion {
 }
 
 sealed trait _R extends ScalaNumericConversions with Comparable[_R] with LogikaNumber {
-  final def +(other: _R): _R = _R(toReal + other.toReal)
+  final def +(other: _R): _R = _R(value + other.value)
 
-  final def -(other: _R): _R = _R(toReal - other.toReal)
+  final def -(other: _R): _R = _R(value - other.value)
 
-  final def *(other: _R): _R = _R(toReal * other.toReal)
+  final def *(other: _R): _R = _R(value * other.value)
 
-  final def /(other: _R): _R = _R(toReal / other.toReal)
+  final def /(other: _R): _R = _R(value / other.value)
 
-  final def %(other: _R): _R = _R(toReal % other.toReal)
+  final def %(other: _R): _R = _R(value % other.value)
 
-  final def >(other: _R): B = toReal.compare(other.toReal) > 0
+  final def >(other: _R): B = value.compare(other.value) > 0
 
-  final def >=(other: _R): B = toReal.compare(other.toReal) >= 0
+  final def >=(other: _R): B = value.compare(other.value) >= 0
 
-  final def <(other: _R): B = toReal.compare(other.toReal) < 0
+  final def <(other: _R): B = value.compare(other.value) < 0
 
-  final def <=(other: _R): B = toReal.compare(other.toReal) <= 0
+  final def <=(other: _R): B = value.compare(other.value) <= 0
 
-  final def unary_-(): _R = _R(-toReal)
+  final def unary_-(): _R = _R(-value)
 
-  final override def compareTo(other: _R): Int = toReal.compare(other.toReal)
+  final override def compareTo(other: _R): Int = value.compare(other.value)
 
-  final override def doubleValue: Double = toReal.doubleValue
+  final override def doubleValue: Double = value.doubleValue
 
-  final override def floatValue: Float = toReal.floatValue
+  final override def floatValue: Float = value.floatValue
 
-  final override def intValue: Int = toReal.intValue
+  final override def intValue: Int = value.intValue
 
-  final override def longValue: Long = toReal.longValue
+  final override def longValue: Long = value.longValue
 
-  final override def underlying: Real = toReal
+  final override def underlying: Real = value
 
   final override def isWhole = false
 
-  final override lazy val hashCode: Int = toReal.hashCode
+  final override lazy val hashCode: Int = value.hashCode
 
   final override def equals(other: Any): Boolean = other match {
-    case other: _R => (this eq other) || toReal.equals(other.toReal)
+    case other: _R => (this eq other) || value.equals(other.value)
     case _ => false
   }
 
-  final override def toString: String = toReal.toString
+  final override def toString: String = value.toString
 
-  def toReal: Real
+  def value: Real
 }
 
-final private case class RImpl(value: Real) extends _R {
-  override def toReal: Real = value
-}
+final private case class RImpl(value: Real) extends _R

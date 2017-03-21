@@ -69,15 +69,15 @@ package object math {
 
     final def toZ64: Z64 = math._Z64.checkRange(toZ)
 
-    final def toS8: S8 = math._S8.ValueImpl(toZ.toByte)
+    final def toS8: S8 = math._S8.ValueImpl(toZ8.value)
 
-    final def toS16: S16 = math._S16.ValueImpl(toZ.toShort)
+    final def toS16: S16 = math._S16.ValueImpl(toZ16.value)
 
-    final def toS32: S32 = math._S32.ValueImpl(toZ.toInt)
+    final def toS32: S32 = math._S32.ValueImpl(toZ32.value)
 
-    final def toS64: S64 = math._S64.ValueImpl(toZ.toLong)
+    final def toS64: S64 = math._S64.ValueImpl(toZ64.value)
 
-    final def toN: N = math._N(toZ)
+    final def toN: N = math._N.checkRange(toZ)
 
     final def toN8: N8 = math._N8.checkRange(toZ)
 
@@ -87,12 +87,12 @@ package object math {
 
     final def toN64: N64 = math._N64.checkRange(toZ)
 
-    final def toU8: U8 = math._U8.ValueImpl(UByte(toZ.toByte))
+    final def toU8: U8 = math._U8.ValueImpl(toN8.value)
 
-    final def toU16: U16 = math._U16.ValueImpl(UShort(toZ.toShort))
+    final def toU16: U16 = math._U16.ValueImpl(toN16.value)
 
-    final def toU32: U32 = math._U32.ValueImpl(UInt(toZ.toInt))
+    final def toU32: U32 = math._U32.ValueImpl(toN32.value)
 
-    final def toU64: U64 = math._U64.ValueImpl(ULong(toZ.toLong))
+    final def toU64: U64 = math._U64.ValueImpl(toN64.value)
   }
 }
