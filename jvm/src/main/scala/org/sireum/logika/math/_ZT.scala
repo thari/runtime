@@ -86,13 +86,13 @@ object _Z8 extends _ZT with LogikaNumberCompanion {
 
     final def %(other: Z8): Z8 = checkRange(toInt % other.toInt)
 
-    final def >(other: Z8): B = B(value > other.value)
+    final def >(other: Z8): B = value > other.value
 
-    final def >=(other: Z8): B = B(value >= other.value)
+    final def >=(other: Z8): B = value >= other.value
 
-    final def <(other: Z8): B = B(value < other.value)
+    final def <(other: Z8): B = value < other.value
 
-    final def <=(other: Z8): B = B(value <= other.value)
+    final def <=(other: Z8): B = value <= other.value
 
     final def unary_-(): Z8 = checkRange(-toInt)
 
@@ -154,13 +154,13 @@ object _Z16 extends _ZT with LogikaNumberCompanion {
 
     final def %(other: Z16): Z16 = checkRange(toInt % other.toInt)
 
-    final def >(other: Z16): B = B(value > other.value)
+    final def >(other: Z16): B = value > other.value
 
-    final def >=(other: Z16): B = B(value >= other.value)
+    final def >=(other: Z16): B = value >= other.value
 
-    final def <(other: Z16): B = B(value < other.value)
+    final def <(other: Z16): B = value < other.value
 
-    final def <=(other: Z16): B = B(value <= other.value)
+    final def <=(other: Z16): B = value <= other.value
 
     final def unary_-(): Z16 = checkRange(-toInt)
 
@@ -222,13 +222,13 @@ object _Z32 extends _ZT with LogikaNumberCompanion {
 
     final def %(other: Z32): Z32 = checkRange(toLong % other.toLong)
 
-    final def >(other: Z32): B = B(value > other.value)
+    final def >(other: Z32): B = value > other.value
 
-    final def >=(other: Z32): B = B(value >= other.value)
+    final def >=(other: Z32): B = value >= other.value
 
-    final def <(other: Z32): B = B(value < other.value)
+    final def <(other: Z32): B = value < other.value
 
-    final def <=(other: Z32): B = B(value <= other.value)
+    final def <=(other: Z32): B = value <= other.value
 
     final def unary_-(): Z32 = checkRange(-toLong)
 
@@ -284,13 +284,13 @@ object _Z64 extends _ZT with LogikaNumberCompanion {
 
     final def %(other: Z64): Z64 = checkRange(toZ % other.toZ)
 
-    final def >(other: Z64): B = B(value > other.value)
+    final def >(other: Z64): B = value > other.value
 
-    final def >=(other: Z64): B = B(value >= other.value)
+    final def >=(other: Z64): B = value >= other.value
 
-    final def <(other: Z64): B = B(value < other.value)
+    final def <(other: Z64): B = value < other.value
 
-    final def <=(other: Z64): B = B(value <= other.value)
+    final def <=(other: Z64): B = value <= other.value
 
     final def unary_-(): Z64 = checkRange(-toZ)
 

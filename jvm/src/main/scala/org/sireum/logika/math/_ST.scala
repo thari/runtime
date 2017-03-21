@@ -74,13 +74,13 @@ object _S8 extends _ST with LogikaNumberCompanion {
 
     def unary_-(): S8
 
-    final def >(other: S8): B = B(value > other.value)
+    final def >(other: S8): B = value > other.value
 
-    final def >=(other: S8): B = B(value >= other.value)
+    final def >=(other: S8): B = value >= other.value
 
-    final def <(other: S8): B = B(value < other.value)
+    final def <(other: S8): B = value < other.value
 
-    final def <=(other: S8): B = B(value <= other.value)
+    final def <=(other: S8): B = value <= other.value
 
     def >>(distance: S8): S8
 
@@ -194,13 +194,13 @@ object _S16 extends _ST with LogikaNumberCompanion {
 
     def unary_-(): S16
 
-    final def >(other: S16): B = B(value > other.value)
+    final def >(other: S16): B = value > other.value
 
-    final def >=(other: S16): B = B(value >= other.value)
+    final def >=(other: S16): B = value >= other.value
 
-    final def <(other: S16): B = B(value < other.value)
+    final def <(other: S16): B = value < other.value
 
-    final def <=(other: S16): B = B(value <= other.value)
+    final def <=(other: S16): B = value <= other.value
 
     def >>(distance: S16): S16
 
@@ -315,13 +315,13 @@ object _S32 extends _ST with LogikaNumberCompanion {
 
     def unary_-(): S32
 
-    final def >(other: S32): B = B(value > other.value)
+    final def >(other: S32): B = value > other.value
 
-    final def >=(other: S32): B = B(value >= other.value)
+    final def >=(other: S32): B = value >= other.value
 
-    final def <(other: S32): B = B(value < other.value)
+    final def <(other: S32): B = value < other.value
 
-    final def <=(other: S32): B = B(value <= other.value)
+    final def <=(other: S32): B = value <= other.value
 
     def >>(distance: S32): S32
 
@@ -436,13 +436,13 @@ object _S64 extends _ST with LogikaNumberCompanion {
 
     def unary_-(): S64
 
-    final def >(other: S64): B = B(value > other.value)
+    final def >(other: S64): B = value > other.value
 
-    final def >=(other: S64): B = B(value >= other.value)
+    final def >=(other: S64): B = value >= other.value
 
-    final def <(other: S64): B = B(value < other.value)
+    final def <(other: S64): B = value < other.value
 
-    final def <=(other: S64): B = B(value <= other.value)
+    final def <=(other: S64): B = value <= other.value
 
     def >>(distance: S64): S64
 

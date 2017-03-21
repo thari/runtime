@@ -87,13 +87,13 @@ object _N8 extends _NT with LogikaNumberCompanion {
 
     def %(other: N8): N8 = checkRange(toInt % other.toInt)
 
-    def >(other: N8): B = B(value > other.value)
+    def >(other: N8): B = value > other.value
 
-    def >=(other: N8): B = B(value >= other.value)
+    def >=(other: N8): B = value >= other.value
 
-    def <(other: N8): B = B(value < other.value)
+    def <(other: N8): B = value < other.value
 
-    def <=(other: N8): B = B(value <= other.value)
+    def <=(other: N8): B = value <= other.value
 
     def value: UByte
   }
@@ -151,13 +151,13 @@ object _N16 extends _NT with LogikaNumberCompanion {
 
     def %(other: N16): N16 = checkRange(toInt % other.toInt)
 
-    def >(other: N16): B = B(value > other.value)
+    def >(other: N16): B = value > other.value
 
-    def >=(other: N16): B = B(value >= other.value)
+    def >=(other: N16): B = value >= other.value
 
-    def <(other: N16): B = B(value < other.value)
+    def <(other: N16): B = value < other.value
 
-    def <=(other: N16): B = B(value <= other.value)
+    def <=(other: N16): B = value <= other.value
 
     def value: UShort
   }
@@ -215,13 +215,13 @@ object _N32 extends _NT with LogikaNumberCompanion {
 
     def %(other: N32): N32 = checkRange(toLong % other.toLong)
 
-    def >(other: N32): B = B(value > other.value)
+    def >(other: N32): B = value > other.value
 
-    def >=(other: N32): B = B(value >= other.value)
+    def >=(other: N32): B = value >= other.value
 
-    def <(other: N32): B = B(value < other.value)
+    def <(other: N32): B = value < other.value
 
-    def <=(other: N32): B = B(value <= other.value)
+    def <=(other: N32): B = value <= other.value
 
     def value: UInt
   }
@@ -273,13 +273,13 @@ object _N64 extends _NT with LogikaNumberCompanion {
 
     def %(other: N64): N64 = checkRange(toZ % other.toZ)
 
-    def >(other: N64): B = B(value > other.value)
+    def >(other: N64): B = value > other.value
 
-    def >=(other: N64): B = B(value >= other.value)
+    def >=(other: N64): B = value >= other.value
 
-    def <(other: N64): B = B(value < other.value)
+    def <(other: N64): B = value < other.value
 
-    def <=(other: N64): B = B(value <= other.value)
+    def <=(other: N64): B = value <= other.value
 
     def value: ULong
   }

@@ -28,9 +28,9 @@ package org.sireum.logika
 import org.sireum.logika.test.LogikaSpec
 
 class NTest extends LogikaSpec {
-  final val n5 = N("5")
+  final val n5 = math._N("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
-  final val nBig = N(bigVal)
+  final val nBig = math._N(bigVal)
   final val size = 1024
 
   "eqs" - {
@@ -82,8 +82,8 @@ class NTest extends LogikaSpec {
     val zero = BigInt(0)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(add, sub, mul)) {
-        lazy val n1 = N(randomInt().toBigInt.abs)
-        lazy val n2 = N(randomInt().toBigInt.abs)
+        lazy val n1 = math._N(randomInt().toBigInt.abs)
+        lazy val n2 = math._N(randomInt().toBigInt.abs)
         lazy val nr = nop(n1, n2)
         lazy val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
 
@@ -94,12 +94,12 @@ class NTest extends LogikaSpec {
     val rem = ("%", (n1: N, n2: N) => n1 % n2, (i1: I, i2: I) => i1 % i2)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(div, rem)) {
-        lazy val n1 = N(randomInt().toBigInt.abs)
+        lazy val n1 = math._N(randomInt().toBigInt.abs)
         lazy val n2 = {
-          var r = N(randomInt().toBigInt.abs)
+          var r = math._N(randomInt().toBigInt.abs)
 
           while (r == math._N.zero) {
-            r = N(randomInt().toBigInt.abs)
+            r = math._N(randomInt().toBigInt.abs)
           }
           r
         }
@@ -110,14 +110,14 @@ class NTest extends LogikaSpec {
 
     val eq = ("==", (n1: N, n2: N) => n1 == n2, (i1: I, i2: I) => i1 == i2)
     val ne = ("!=", (n1: N, n2: N) => n1 != n2, (i1: I, i2: I) => i1 != i2)
-    val gt = (">", (n1: N, n2: N) => n1 > n2, (i1: I, i2: I) => B(i1 > i2))
-    val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => B(i1 >= i2))
-    val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => B(i1 < i2))
-    val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => B(i1 <= i2))
+    val gt = (">", (n1: N, n2: N) => n1 > n2, (i1: I, i2: I) => i1 > i2)
+    val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => i1 >= i2)
+    val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => i1 < i2)
+    val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => i1 <= i2)
     for (i <- 0 until size)
       for ((op, nop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
-        lazy val n1 = N(randomInt().toBigInt.abs)
-        lazy val n2 = N(randomInt().toBigInt.abs)
+        lazy val n1 = math._N(randomInt().toBigInt.abs)
+        lazy val n2 = math._N(randomInt().toBigInt.abs)
         lazy val nr = nop(n1, n2)
         lazy val ir = iop(n1.toBigInt, n2.toBigInt)
 

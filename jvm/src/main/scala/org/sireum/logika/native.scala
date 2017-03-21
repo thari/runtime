@@ -30,7 +30,7 @@ import spire.math._
 import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, F32, F64, R, IS, MS}
 
 object B_Native {
-  def random: B = B.random
+  def random: B = new java.util.Random().nextBoolean
 
   @pure def toB(b: B): B = b
 
@@ -38,60 +38,41 @@ object B_Native {
 
   @pure def toZ8(b: B): Z8 = if (b) z8"1" else z8"0"
 
-
   @pure def toZ16(b: B): Z16 = if (b) z16"1" else z16"0"
-
 
   @pure def toZ32(b: B): Z32 = if (b) z32"1" else z32"0"
 
-
   @pure def toZ64(b: B): Z64 = if (b) z64"1" else z64"0"
-
 
   @pure def toN(b: B): N = if (b) n"1" else n"0"
 
-
   @pure def toN8(b: B): N8 = if (b) n8"1" else n8"0"
-
 
   @pure def toN16(b: B): N16 = if (b) n16"1" else n16"0"
 
-
   @pure def toN32(b: B): N32 = if (b) n32"1" else n32"0"
-
 
   @pure def toN64(b: B): N64 = if (b) n64"1" else n64"0"
 
-
   @pure def toS8(b: B): S8 = if (b) s8"1" else s8"0"
-
 
   @pure def toS16(b: B): S16 = if (b) s16"1" else s16"0"
 
-
   @pure def toS32(b: B): S32 = if (b) s32"1" else s32"0"
-
 
   @pure def toS64(b: B): S64 = if (b) s64"1" else s64"0"
 
-
   @pure def toU8(b: B): U8 = if (b) u8"1" else u8"0"
-
 
   @pure def toU16(b: B): U16 = if (b) u16"1" else u16"0"
 
-
   @pure def toU32(b: B): U32 = if (b) u32"1" else u32"0"
-
 
   @pure def toU64(b: B): U64 = if (b) u64"1" else u64"0"
 
-
   @pure def toF32(b: B): F32 = if (b) f32"1.0" else f32"0.0"
 
-
   @pure def toF64(b: B): F64 = if (b) f64"1.0" else f64"0.0"
-
 
   @pure def toR(b: B): R = if (b) r"1.0" else r"0.0"
 }
@@ -102,24 +83,17 @@ object Z_Native {
 
   @pure def isInRangeZ8(n: Z): B = -128 <= n && n <= 127
 
-
   @pure def isInRangeZ16(n: Z): B = -32768 <= n && n <= 32767
-
 
   @pure def isInRangeZ32(n: Z): B = -2147483648 <= n && n <= 2147483647
 
-
   @pure def isInRangeZ64(n: Z): B = z"-9223372036854775808" <= n && n <= z"9223372036854775807"
-
 
   @pure def isInRangeN8(n: Z): B = 0 <= n && n <= 255
 
-
   @pure def isInRangeN16(n: Z): B = 0 <= n && n <= 65535
 
-
   @pure def isInRangeN32(n: Z): B = 0 <= n && n <= z"4294967295"
-
 
   @pure def isInRangeN64(n: Z): B = 0 <= n && n <= z"18446744073709551615"
 
@@ -161,7 +135,7 @@ object Z_Native {
 
   @pure def toU64(n: Z): U64 = n.toU64
 
-  @pure def toR(n: Z): R = R(n.toString)
+  @pure def toR(n: Z): R = math._R(n.toString)
 }
 
 
@@ -206,7 +180,7 @@ object Z8_Native {
 
   @pure def toU64(n: Z8): U64 = n.toU64
 
-  @pure def toR(n: Z8): R = R(n.toString)
+  @pure def toR(n: Z8): R = math._R(n.toString)
 }
 
 
@@ -251,7 +225,7 @@ object Z16_Native {
 
   @pure def toU64(n: Z16): U64 = n.toU64
 
-  @pure def toR(n: Z16): R = R(n.toString)
+  @pure def toR(n: Z16): R = math._R(n.toString)
 }
 
 
@@ -296,12 +270,12 @@ object Z32_Native {
 
   @pure def toU64(n: Z32): U64 = n.toU64
 
-  @pure def toR(n: Z32): R = R(n.toString)
+  @pure def toR(n: Z32): R = math._R(n.toString)
 }
 
 
 object Z64_Native {
-  def random: Z64 = Z64.random
+  def random: Z64 = math._Z64.random
 
   @pure def toB(n: Z64): B = n != z64"0"
 
@@ -341,7 +315,7 @@ object Z64_Native {
 
   @pure def toU64(n: Z64): U64 = n.toU64
 
-  @pure def toR(n: Z64): R = R(n.toString)
+  @pure def toR(n: Z64): R = math._R(n.toString)
 }
 
 
@@ -386,7 +360,7 @@ object N_Native {
 
   @pure def toU64(n: N): U64 = n.toU64
 
-  @pure def toR(n: N): R = R(n.toString)
+  @pure def toR(n: N): R = math._R(n.toString)
 }
 
 
@@ -431,7 +405,7 @@ object N8_Native {
 
   @pure def toU64(n: N8): U64 = n.toU64
 
-  @pure def toR(n: N8): R = R(n.toString)
+  @pure def toR(n: N8): R = math._R(n.toString)
 }
 
 
@@ -476,7 +450,7 @@ object N16_Native {
 
   @pure def toU64(n: N16): U64 = n.toU64
 
-  @pure def toR(n: N16): R = R(n.toString)
+  @pure def toR(n: N16): R = math._R(n.toString)
 }
 
 
@@ -521,7 +495,7 @@ object N32_Native {
 
   @pure def toU64(n: N32): U64 = n.toU64
 
-  @pure def toR(n: N32): R = R(n.toString)
+  @pure def toR(n: N32): R = math._R(n.toString)
 }
 
 
@@ -566,7 +540,7 @@ object N64_Native {
 
   @pure def toU64(n: N64): U64 = n.toU64
 
-  @pure def toR(n: N64): R = R(n.toString)
+  @pure def toR(n: N64): R = math._R(n.toString)
 }
 
 

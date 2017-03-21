@@ -35,7 +35,7 @@ object NFoo_Native {
   def x: Z = 5
   def y: NA = "abc"
 
-  def foo[T](x: Z): T = Z(2).asInstanceOf[T]
+  def foo[T](x: Z): T = math._Z(2).asInstanceOf[T]
 }
 
 object NFoo {
@@ -51,6 +51,6 @@ object NFoo {
 
 class NativeTest extends LogikaSpec {
   * {
-    NFoo.x == Z(5) && NFoo.y == "abc" && NFoo.foo[Z](4) == Z(2)
+    NFoo.x == math._Z(5) && NFoo.y == "abc" && NFoo.foo[Z](4) == math._Z(2)
   }
 }

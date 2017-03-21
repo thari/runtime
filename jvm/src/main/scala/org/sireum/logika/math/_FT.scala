@@ -49,13 +49,13 @@ object _F32 extends _FT with LogikaNumberCompanion {
 
     def %(other: F32): F32
 
-    final def >(other: F32): B = B(value > other.value)
+    final def >(other: F32): B = value > other.value
 
-    final def >=(other: F32): B = B(value >= other.value)
+    final def >=(other: F32): B = value >= other.value
 
-    final def <(other: F32): B = B(value < other.value)
+    final def <(other: F32): B = value < other.value
 
-    final def <=(other: F32): B = B(value <= other.value)
+    final def <=(other: F32): B = value <= other.value
 
     def unary_-(): F32
 
@@ -146,13 +146,13 @@ object _F64 extends _FT with LogikaNumberCompanion {
 
     def %(other: F64): F64
 
-    final def >(other: F64): B = B(value > other.value)
+    final def >(other: F64): B = value > other.value
 
-    final def >=(other: F64): B = B(value >= other.value)
+    final def >=(other: F64): B = value >= other.value
 
-    final def <(other: F64): B = B(value < other.value)
+    final def <(other: F64): B = value < other.value
 
-    final def <=(other: F64): B = B(value <= other.value)
+    final def <=(other: F64): B = value <= other.value
 
     def unary_-(): F64
 

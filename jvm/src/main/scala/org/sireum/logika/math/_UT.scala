@@ -59,13 +59,13 @@ object _U8 extends _UT with LogikaNumberCompanion {
 
     def %(other: U8): U8
 
-    final def >(other: U8): B = B(value > other.value)
+    final def >(other: U8): B = value > other.value
 
-    final def >=(other: U8): B = B(value >= other.value)
+    final def >=(other: U8): B = value >= other.value
 
-    final def <(other: U8): B = B(value < other.value)
+    final def <(other: U8): B = value < other.value
 
-    final def <=(other: U8): B = B(value <= other.value)
+    final def <=(other: U8): B = value <= other.value
 
     def unary_~(): U8
 
@@ -185,13 +185,13 @@ object _U16 extends _UT with LogikaNumberCompanion {
 
     def %(other: U16): U16
 
-    final def >(other: U16): B = B(value > other.value)
+    final def >(other: U16): B = value > other.value
 
-    final def >=(other: U16): B = B(value >= other.value)
+    final def >=(other: U16): B = value >= other.value
 
-    final def <(other: U16): B = B(value < other.value)
+    final def <(other: U16): B = value < other.value
 
-    final def <=(other: U16): B = B(value <= other.value)
+    final def <=(other: U16): B = value <= other.value
 
     def unary_~(): U16
 
@@ -311,13 +311,13 @@ object _U32 extends _UT with LogikaNumberCompanion {
 
     def %(other: U32): U32
 
-    final def >(other: U32): B = B(value > other.value)
+    final def >(other: U32): B = value > other.value
 
-    final def >=(other: U32): B = B(value >= other.value)
+    final def >=(other: U32): B = value >= other.value
 
-    final def <(other: U32): B = B(value < other.value)
+    final def <(other: U32): B = value < other.value
 
-    final def <=(other: U32): B = B(value <= other.value)
+    final def <=(other: U32): B = value <= other.value
 
     def unary_~(): U32
 
@@ -437,13 +437,13 @@ object _U64 extends _UT with LogikaNumberCompanion {
 
     def %(other: U64): U64
 
-    final def >(other: U64): B = B(value > other.value)
+    final def >(other: U64): B = value > other.value
 
-    final def >=(other: U64): B = B(value >= other.value)
+    final def >=(other: U64): B = value >= other.value
 
-    final def <(other: U64): B = B(value < other.value)
+    final def <(other: U64): B = value < other.value
 
-    final def <=(other: U64): B = B(value <= other.value)
+    final def <=(other: U64): B = value <= other.value
 
     def unary_~(): U64
 

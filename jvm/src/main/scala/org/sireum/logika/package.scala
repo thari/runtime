@@ -55,34 +55,9 @@ package object logika {
 
   type ZS = collection._MS[Z, Z]
 
-  final val Z: math._Z.type = math._Z
-  final val Z8: math._Z8.type = math._Z8
-  final val Z16: math._Z16.type = math._Z16
-  final val Z32: math._Z32.type = math._Z32
-  final val Z64: math._Z64.type = math._Z64
-  final val S8: math._S8.type = math._S8
-  final val S16: math._S16.type = math._S16
-  final val S32: math._S32.type = math._S32
-  final val S64: math._S64.type = math._S64
-  final val N: math._N.type = math._N
-  final val N8: math._N8.type = math._N8
-  final val N16: math._N16.type = math._N16
-  final val N32: math._N32.type = math._N32
-  final val N64: math._N64.type = math._N64
-  final val U8: math._U8.type = math._U8
-  final val U16: math._U16.type = math._U16
-  final val U32: math._U32.type = math._U32
-  final val U64: math._U64.type = math._U64
-  final val R: math._R.type = math._R
-  final val F32: math._F32.type = math._F32
-  final val F64: math._F64.type = math._F64
-
-  final val MS: collection._MS.type = collection._MS
-  final val IS: collection._IS.type = collection._IS
-
   object ZS {
-    def apply(values: Z*): ZS = MS.apply[Z, Z](values: _*)
-    def create(size: Z, default: Z): ZS = MS.create[Z, Z](size, default)
+    def apply(values: Z*): ZS = collection._MS.apply[Z, Z](values: _*)
+    def create(size: Z, default: Z): ZS = collection._MS.create[Z, Z](size, default)
   }
 
   /* deprecated: begin */
@@ -109,108 +84,108 @@ package object logika {
   type RS = MS[Z, R]
 
   object BS {
-    def apply(values: B*): BS = MS.apply[Z, B](values: _*)
-    def create(size: Z, default: B): BS = MS.create[Z, B](size, default)
+    def apply(values: B*): BS = collection._MS.apply[Z, B](values: _*)
+    def create(size: Z, default: B): BS = collection._MS.create[Z, B](size, default)
   }
 
   object Z8S {
-    def apply(values: Z8*): Z8S = MS.apply[Z, Z8](values: _*)
-    def create(size: Z, default: Z8): Z8S = MS.create[Z, Z8](size, default)
+    def apply(values: Z8*): Z8S = collection._MS.apply[Z, Z8](values: _*)
+    def create(size: Z, default: Z8): Z8S = collection._MS.create[Z, Z8](size, default)
   }
 
   object Z16S {
-    def apply(values: Z16*): Z16S = MS.apply[Z, Z16](values: _*)
-    def create(size: Z, default: Z16): Z16S = MS.create[Z, Z16](size, default)
+    def apply(values: Z16*): Z16S = collection._MS.apply[Z, Z16](values: _*)
+    def create(size: Z, default: Z16): Z16S = collection._MS.create[Z, Z16](size, default)
   }
 
   object Z32S {
-    def apply(values: Z32*): Z32S = MS.apply[Z, Z32](values: _*)
-    def create(size: Z, default: Z32): Z32S = MS.create[Z, Z32](size, default)
+    def apply(values: Z32*): Z32S = collection._MS.apply[Z, Z32](values: _*)
+    def create(size: Z, default: Z32): Z32S = collection._MS.create[Z, Z32](size, default)
   }
 
   object Z64S {
-    def apply(values: Z64*): Z64S = MS.apply[Z, Z64](values: _*)
-    def create(size: Z, default: Z64): Z64S = MS.create[Z, Z64](size, default)
+    def apply(values: Z64*): Z64S = collection._MS.apply[Z, Z64](values: _*)
+    def create(size: Z, default: Z64): Z64S = collection._MS.create[Z, Z64](size, default)
   }
 
   object NS {
-    def apply(values: N*): NS = MS.apply[Z, N](values: _*)
-    def create(size: Z, default: N): NS = MS.create[Z, N](size, default)
+    def apply(values: N*): NS = collection._MS.apply[Z, N](values: _*)
+    def create(size: Z, default: N): NS = collection._MS.create[Z, N](size, default)
   }
 
   object N8S {
-    def apply(values: N8*): N8S = MS.apply[Z, N8](values: _*)
-    def create(size: Z, default: N8): N8S = MS.create[Z, N8](size, default)
+    def apply(values: N8*): N8S = collection._MS.apply[Z, N8](values: _*)
+    def create(size: Z, default: N8): N8S = collection._MS.create[Z, N8](size, default)
   }
 
   object N16S {
-    def apply(values: N16*): N16S = MS.apply[Z, N16](values: _*)
-    def create(size: Z, default: N16): N16S = MS.create[Z, N16](size, default)
+    def apply(values: N16*): N16S = collection._MS.apply[Z, N16](values: _*)
+    def create(size: Z, default: N16): N16S = collection._MS.create[Z, N16](size, default)
   }
 
   object N32S {
-    def apply(values: N32*): N32S = MS.apply[Z, N32](values: _*)
-    def create(size: Z, default: N32): N32S = MS.create[Z, N32](size, default)
+    def apply(values: N32*): N32S = collection._MS.apply[Z, N32](values: _*)
+    def create(size: Z, default: N32): N32S = collection._MS.create[Z, N32](size, default)
   }
 
   object N64S {
-    def apply(values: N64*): N64S = MS.apply[Z, N64](values: _*)
-    def create(size: Z, default: N64): N64S = MS.create[Z, N64](size, default)
+    def apply(values: N64*): N64S = collection._MS.apply[Z, N64](values: _*)
+    def create(size: Z, default: N64): N64S = collection._MS.create[Z, N64](size, default)
   }
 
   object S8S {
-    def apply(values: S8*): S8S = MS.apply[Z, S8](values: _*)
-    def create(size: Z, default: S8): S8S = MS.create[Z, S8](size, default)
+    def apply(values: S8*): S8S = collection._MS.apply[Z, S8](values: _*)
+    def create(size: Z, default: S8): S8S = collection._MS.create[Z, S8](size, default)
   }
 
   object S16S {
-    def apply(values: S16*): S16S = MS.apply[Z, S16](values: _*)
-    def create(size: Z, default: S16): S16S = MS.create[Z, S16](size, default)
+    def apply(values: S16*): S16S = collection._MS.apply[Z, S16](values: _*)
+    def create(size: Z, default: S16): S16S = collection._MS.create[Z, S16](size, default)
   }
 
   object S32S {
-    def apply(values: S32*): S32S = MS.apply[Z, S32](values: _*)
-    def create(size: Z, default: S32): S32S = MS.create[Z, S32](size, default)
+    def apply(values: S32*): S32S = collection._MS.apply[Z, S32](values: _*)
+    def create(size: Z, default: S32): S32S = collection._MS.create[Z, S32](size, default)
   }
 
   object S64S {
-    def apply(values: S64*): S64S = MS.apply[Z, S64](values: _*)
-    def create(size: Z, default: S64): S64S = MS.create[Z, S64](size, default)
+    def apply(values: S64*): S64S = collection._MS.apply[Z, S64](values: _*)
+    def create(size: Z, default: S64): S64S = collection._MS.create[Z, S64](size, default)
   }
 
   object U8S {
-    def apply(values: U8*): U8S = MS.apply[Z, U8](values: _*)
-    def create(size: Z, default: U8): U8S = MS.create[Z, U8](size, default)
+    def apply(values: U8*): U8S = collection._MS.apply[Z, U8](values: _*)
+    def create(size: Z, default: U8): U8S = collection._MS.create[Z, U8](size, default)
   }
 
   object U16S {
-    def apply(values: U16*): U16S = MS.apply[Z, U16](values: _*)
-    def create(size: Z, default: U16): U16S = MS.create[Z, U16](size, default)
+    def apply(values: U16*): U16S = collection._MS.apply[Z, U16](values: _*)
+    def create(size: Z, default: U16): U16S = collection._MS.create[Z, U16](size, default)
   }
 
   object U32S {
-    def apply(values: U32*): U32S = MS.apply[Z, U32](values: _*)
-    def create(size: Z, default: U32): U32S = MS.create[Z, U32](size, default)
+    def apply(values: U32*): U32S = collection._MS.apply[Z, U32](values: _*)
+    def create(size: Z, default: U32): U32S = collection._MS.create[Z, U32](size, default)
   }
 
   object U64S {
-    def apply(values: U64*): U64S = MS.apply[Z, U64](values: _*)
-    def create(size: Z, default: U64): U64S = MS.create[Z, U64](size, default)
+    def apply(values: U64*): U64S = collection._MS.apply[Z, U64](values: _*)
+    def create(size: Z, default: U64): U64S = collection._MS.create[Z, U64](size, default)
   }
 
   object F32S {
-    def apply(values: F32*): F32S = MS.apply[Z, F32](values: _*)
-    def create(size: Z, default: F32): F32S = MS.create[Z, F32](size, default)
+    def apply(values: F32*): F32S = collection._MS.apply[Z, F32](values: _*)
+    def create(size: Z, default: F32): F32S = collection._MS.create[Z, F32](size, default)
   }
 
   object F64S {
-    def apply(values: F64*): F64S = MS.apply[Z, F64](values: _*)
-    def create(size: Z, default: F64): F64S = MS.create[Z, F64](size, default)
+    def apply(values: F64*): F64S = collection._MS.apply[Z, F64](values: _*)
+    def create(size: Z, default: F64): F64S = collection._MS.create[Z, F64](size, default)
   }
 
   object RS {
-    def apply(values: R*): RS = MS.apply[Z, R](values: _*)
-    def create(size: Z, default: R): RS = MS.create[Z, R](size, default)
+    def apply(values: R*): RS = collection._MS.apply[Z, R](values: _*)
+    def create(size: Z, default: R): RS = collection._MS.create[Z, R](size, default)
   }
   /* deprecated: end */
 
@@ -220,14 +195,14 @@ package object logika {
       Console.out.flush()
       val s = Console.in.readLine()
       try {
-        return Z(s)
+        return math._Z(s)
       } catch {
         case _: Throwable =>
           Console.err.println(s"Invalid integer format: $s.")
           Console.err.flush()
       }
     }
-    Z.zero
+    math._Z.zero
   }
 
   final def println(as: Any*): Unit = {
@@ -238,7 +213,7 @@ package object logika {
   final def print(as: Any*): Unit =
     for (a <- as) scala.Predef.print(a)
 
-  final def randomInt(): Z = Z.random
+  final def randomInt(): Z = math._Z.random
 
   final class helper extends scala.annotation.StaticAnnotation
 
@@ -247,9 +222,9 @@ package object logika {
   final class part extends scala.annotation.StaticAnnotation
 
   import scala.language.implicitConversions
-  final implicit def _Z(n: Int): Z = Z(n)
+  final implicit def _Z(n: Int): Z = math._Z(n)
 
-  final implicit def _2B(b: Boolean): B = B(b)
+  final implicit def _2B(b: Boolean): B = if (b) T else F
 
   final implicit def _2Boolean(b: B): Boolean = b.value
 
@@ -300,9 +275,9 @@ package object logika {
 
     def u64(args: Any*): U64 = z(args: _*).toU64
 
-    def f32(args: Any*): F32 = F32(sc.parts.mkString("").toFloat)
+    def f32(args: Any*): F32 = math._F32(sc.parts.mkString("").toFloat)
 
-    def f64(args: Any*): F64 = F64((sc.parts.mkString("") + "d").toDouble)
+    def f64(args: Any*): F64 = math._F64((sc.parts.mkString("") + "d").toDouble)
 
     def r(args: Any*): R = math._R(sc.raw(args))
 

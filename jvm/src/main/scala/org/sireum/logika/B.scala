@@ -37,6 +37,11 @@ sealed trait B extends Clonable {
 
 object T extends B {
   val value: Boolean = true
+  override val hashCode: Int = true.hashCode
+  override def equals(o: Any): Boolean = o match {
+    case o: B => o.value
+    case o: Boolean => o
+  }
   def &(other: B): B = other
   def |(other: B): B = this
   def ^|(other: B): B = !other
@@ -45,13 +50,13 @@ object T extends B {
 
 object F extends B {
   val value: Boolean = false
+  override val hashCode: Int = false.hashCode
+  override def equals(o: Any): Boolean = o match {
+    case o: B => !o.value
+    case o: Boolean => !o
+  }
   def &(other: B): B = this
   def |(other: B): B = other
   def ^|(other: B): B = other
   def unary_!(): B = T
-}
-
-object B {
-  def apply(b: Boolean): B = if (b) T else F
-  def random: B = new java.util.Random().nextBoolean
 }
