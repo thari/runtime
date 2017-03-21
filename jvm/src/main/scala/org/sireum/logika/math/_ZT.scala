@@ -36,7 +36,7 @@ sealed trait _ZT {
   def Min: _Value
   def Max: _Value
 
-  private[math] sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
     final def bitWidth: Int = _ZT.this.bitWidth
 
     final def toZ: Z = _Z(toLong)

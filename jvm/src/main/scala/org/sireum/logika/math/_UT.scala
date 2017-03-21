@@ -34,6 +34,10 @@ import scala.util.Random
 
 sealed trait _UT {
   def bitWidth: Int
+
+  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+    final override def compareTo(other: _Value): Int = toZ.compareTo(other.toZ)
+  }
 }
 
 
@@ -46,7 +50,7 @@ object _U8 extends _UT with LogikaNumberCompanion {
   final override def random: U8 =
     ValueImpl(UByte(new Random().nextInt))
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
+  sealed trait Value extends _Value {
     final def bitWidth: Int = _U8.this.bitWidth
 
     def +(other: U8): U8
@@ -84,9 +88,6 @@ object _U8 extends _UT with LogikaNumberCompanion {
     final def toBigInt: BigInt = toZ.toBigInt
 
     final def toApint: Apint = new Apint(toBigInteger)
-
-    final override def compareTo(other: U8): Int =
-      toZ.compareTo(other.toZ)
 
     final override def isWhole: Boolean = true
 
@@ -172,7 +173,7 @@ object _U16 extends _UT with LogikaNumberCompanion {
   final override def random: U16 =
     ValueImpl(UShort(new Random().nextInt))
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
+  sealed trait Value extends _Value {
     final def bitWidth: Int = _U16.this.bitWidth
 
     def +(other: U16): U16
@@ -210,9 +211,6 @@ object _U16 extends _UT with LogikaNumberCompanion {
     final def toBigInt: BigInt = toZ.toBigInt
 
     final def toApint: Apint = new Apint(toBigInteger)
-
-    final override def compareTo(other: U16): Int =
-      toZ.compareTo(other.toZ)
 
     final override def isWhole: Boolean = true
 
@@ -298,7 +296,7 @@ object _U32 extends _UT with LogikaNumberCompanion {
   final override def random: U32 =
     ValueImpl(UInt(new Random().nextInt))
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
+  sealed trait Value extends _Value {
     final def bitWidth: Int = _U32.this.bitWidth
 
     def +(other: U32): U32
@@ -336,9 +334,6 @@ object _U32 extends _UT with LogikaNumberCompanion {
     final def toBigInt: BigInt = toZ.toBigInt
 
     final def toApint: Apint = new Apint(toBigInteger)
-
-    final override def compareTo(other: U32): Int =
-      toZ.compareTo(other.toZ)
 
     final override def isWhole: Boolean = true
 
@@ -424,7 +419,7 @@ object _U64 extends _UT with LogikaNumberCompanion {
   final override def random: U64 =
     ValueImpl(ULong(new Random().nextLong))
 
-  sealed trait Value extends ScalaNumericConversions with Comparable[Value] with LogikaIntegralNumber {
+  sealed trait Value extends _Value {
     final def bitWidth: Int = _U64.this.bitWidth
 
     def +(other: U64): U64
@@ -462,9 +457,6 @@ object _U64 extends _UT with LogikaNumberCompanion {
     final def toBigInt: BigInt = toZ.toBigInt
 
     final def toApint: Apint = new Apint(toBigInteger)
-
-    final override def compareTo(other: U64): Int =
-      toZ.compareTo(other.toZ)
 
     final override def isWhole: Boolean = true
 
