@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="SBT 1" modules="logika-runtime,logika-prelude,prelude-logika-prelude,runtime-logika-runtime">
+    <profile name="SBT 1" modules="runtime-logika-runtime,prelude-logika-prelude,stub-logika-prelude,logika-prelude,logika-runtime">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <plugins>

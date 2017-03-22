@@ -6,7 +6,7 @@ val logikaVersion = "3.0.1-1-SNAPSHOT"
 
 lazy val logikaRuntime = Project(
   id = "logika-runtime",
-  base = file("runtime/jvm"),
+  base = file("native/jvm"),
   settings = Seq(
     organization := "org.sireum",
     name := "logika-runtime",
@@ -56,7 +56,7 @@ lazy val logikaRuntime = Project(
 
 lazy val logikaPrelude = Project(
   id = "logika-prelude",
-  base = file("prelude/jvm"),
+  base = file("api/jvm"),
   settings = Seq(
     organization := "org.sireum",
     name := "logika-prelude",
