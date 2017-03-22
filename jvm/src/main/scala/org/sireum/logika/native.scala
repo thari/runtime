@@ -26,7 +26,7 @@
 package org.sireum.logika
 
 import spire.math._
-
+import scala.collection.mutable.ArrayBuffer
 import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, F32, F64, R, IS, MS}
 
 object B_Native {
@@ -946,7 +946,6 @@ object R_Native {
   @pure def toR(n: R): R = n
 }
 
-import collection._S.clona
 
 object SI_Native {
 
@@ -958,100 +957,187 @@ object SI_Native {
 
   @pure def toMS[I, E](s: IS[I, E]): MS[I, E] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
-      new collection.MSImpl(s.f, s.sz, scala.collection.mutable.ArrayBuffer(s.data.map(clona): _*))
+      new collection.MSImpl(s.sz, ArrayBuffer(s.data.map(_clona): _*))
   }
 
   @pure def chunk[I, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
-      val sizeInt = size.asInstanceOf[math.LogikaIntegralNumber].toZ.toInt
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
       require(s.sz % sizeInt == 0)
       val sz = s.sz / sizeInt
       var result = Vector[IS[I, E]]()
       for (i <- 0 until sz) {
         var chunk = Vector[E]()
         for (j <- 0 until sizeInt) {
-          chunk +:= clona(s.data(i * sizeInt + j))
+          chunk +:= _clona(s.data(i * sizeInt + j))
         }
-        result +:= new collection.ISImpl(s.f, sizeInt, chunk)
+        result +:= new collection.ISImpl(sizeInt, chunk)
       }
-      new collection.ISImpl(s.f, sz, result)
+      new collection.ISImpl(sz, result)
   }
 
-  @pure def drop[I, E](s: IS[I, E], size: I): IS[I, E] = ???
+  @pure def drop[I, E](s: IS[I, E], size: I): IS[I, E] = s match {
+    case (s: collection.ISImpl[I, E]@unchecked) =>
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
+      require(s.sz >= sizeInt)
+      var result = Vector[E]()
+      for (i <- sizeInt until s.sz) {
+        result +:= _clona(s.data(i))
+      }
+      new collection.ISImpl(s.sz - sizeInt, result)
+  }
 
-  @pure def foldLeft[I, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = ???
+  @pure def foldLeft[I, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+    case (s: collection.ISImpl[I, E]@unchecked) =>
+      var r = init
+      for (e <- s.data) {
+        r = f(r, e)
+      }
+      r
+  }
 
+  @pure def foldRight[I, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+    case (s: collection.ISImpl[I, E]@unchecked) =>
+      var r = init
+      for (e <- s.data.reverseIterator) {
+        r = f(r, e)
+      }
+      r
+  }
 
-  @pure def foldRight[I, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = ???
+  @pure def map[I, E1, E2](s: IS[I, E1], @pure f: E1 => E2): IS[I, E2] = s match {
+    case (s: collection.ISImpl[I, E1]@unchecked) =>
+      new collection.ISImpl[I, E2](s.sz, _clona(s.data.map(f)))
+  }
 
+  @pure def take[I, E](s: IS[I, E], size: I): IS[I, E] = s match {
+    case (s: collection.ISImpl[I, E]@unchecked) =>
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
+      require(s.sz >= sizeInt)
+      var result = Vector[E]()
+      for (i <- 0 until sizeInt) {
+        result +:= _clona(s.data(i))
+      }
+      new collection.ISImpl(sizeInt, result)
+  }
 
-  @pure def map[I, E1, E2](s: IS[I, E2], @pure f: E1 => E2): IS[I, E2] = ???
+  @pure def fromU8[I](n: U8): IS[I, B] = {
+    new collection.ISImpl[I, B](8, (0 until 8).toVector.map { i =>
+      val mask = u8"1" << i.toU8
+      _2B((n & mask) != mask)
+    })
+  }
 
+  @pure def fromU16[I](n: U16): IS[I, B] = ???
 
-  @pure def take[I, E](s: IS[I, E], size: I): IS[I, E] = ???
+  @pure def fromU32[I](n: U32): IS[I, B] = ???
 
+  @pure def fromU64[I](n: U64): IS[I, B] = ???
 
-  @pure def fromU8[I](n: U8, @pure toI: U8 => I): IS[I, B] = ???
+  @pure def toU8[I](s: IS[I, B]): U8 = ???
 
+  @pure def toU16[I](s: IS[I, B]): U16 = ???
 
-  @pure def fromU16[I](n: U16, @pure toI: U16 => I): IS[I, B] = ???
+  @pure def toU32[I](s: IS[I, B]): U32 = ???
 
-
-  @pure def fromU32[I](n: U32, @pure toI: U32 => I): IS[I, B] = ???
-
-
-  @pure def fromU64[I](n: U64, @pure toI: U64 => I): IS[I, B] = ???
-
-
-  @pure def toU8[I](s: IS[I, B], @pure toI: U8 => I): U8 = ???
-
-
-  @pure def toU16[I](s: IS[I, B], @pure toI: U16 => I): U16 = ???
-
-
-  @pure def toU32[I](s: IS[I, B], @pure toI: U32 => I): U32 = ???
-
-
-  @pure def toU64[I](s: IS[I, B], @pure toI: U64 => I): U64 = ???
+  @pure def toU64[I](s: IS[I, B]): U64 = ???
 }
 
 object SM_Native {
 
-  @pure def append[I, E](s: MS[I, E], e: E): MS[I, E] = ???
+  @pure def append[I, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
 
-  @pure def prepend[I, E](s: MS[I, E], e: E): MS[I, E] = ???
+  @pure def prepend[I, E](s: MS[I, E], e: E): MS[I, E] = e +: s
 
-  @pure def appends[I, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = ???
+  @pure def appends[I, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
 
-  @pure def toIS[I, E](s: MS[I, E]): IS[I, E] = ???
+  @pure def toIS[I, E](s: MS[I, E]): IS[I, E] = s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      new collection.ISImpl(s.sz, Vector(s.data.map(_clona): _*))
+  }
 
-  @pure def chunk[I, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = ???
+  @pure def chunk[I, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
+      require(s.sz % sizeInt == 0)
+      val sz = s.sz / sizeInt
+      val result = new ArrayBuffer[MS[I, E]](sz)
+      for (i <- 0 until sz) {
+        val chunk = new ArrayBuffer[E](sizeInt)
+        for (j <- 0 until sizeInt) {
+          chunk += _clona(s.data(i * sizeInt + j))
+        }
+        result += new collection.MSImpl(sizeInt, chunk)
+      }
+      new collection.MSImpl(sz, result)
+  }
 
-  @pure def drop[I, E](s: MS[I, E], size: I): MS[I, E] = ???
+  @pure def drop[I, E](s: MS[I, E], size: I): MS[I, E] = s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
+      require(s.sz >= sizeInt)
+      val rSize = s.sz - sizeInt
+      val result = new ArrayBuffer[E](rSize)
+      for (i <- sizeInt until s.sz) {
+        result += _clona(s.data(i))
+      }
+      new collection.MSImpl(rSize, result)
+  }
 
-  @pure def foldLeft[I, E, R](s: MS[I, E], @pure f: (R, E), init: R): R = ???
+  @pure def foldLeft[I, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      var r = init
+      for (e <- s.data) {
+        r = f(r, e)
+      }
+      r
+  }
 
-  @pure def foldRight[I, E, R](s: MS[I, E], @pure f: (R, E), init: R): R = ???
+  @pure def foldRight[I, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      var r = init
+      for (e <- s.data.reverseIterator) {
+        r = f(r, e)
+      }
+      r
+  }
 
-  @pure def map[I, E1, E2](s: MS[I, E2], @pure f: E1 => E2): MS[I, E2] = ???
+  @pure def map[I, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] =  s match {
+    case (s: collection.MSImpl[I, E1]@unchecked) =>
+      new collection.MSImpl[I, E2](s.sz, _clona(s.data.map(f)))
+  }
 
-  def transform[I, E1, E2](s: MS[I, E2], @pure f: E1 => E2): Unit = ???
+  def transform[I, E](s: MS[I, E], @pure f: E => E): Unit =  s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      for (i <- s.data.indices) {
+        s.data(i) = _clona(f(s.data(i)))
+      }
+  }
 
-  @pure def take[I, E](s: MS[I, E], size: I): MS[I, E] = ???
+  @pure def take[I, E](s: MS[I, E], size: I): MS[I, E] =  s match {
+    case (s: collection.MSImpl[I, E]@unchecked) =>
+      val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
+      require(s.sz >= sizeInt)
+      var result = new ArrayBuffer[E](sizeInt)
+      for (i <- 0 until sizeInt) {
+        result += _clona(s.data(i))
+      }
+      new collection.MSImpl(sizeInt, result)
+  }
 
-  @pure def fromU8[I](n: U8, @pure toI: U8 => I): MS[I, B] = ???
+  @pure def fromU8[I](n: U8): MS[I, B] = ???
 
-  @pure def fromU16[I](n: U16, @pure toI: U16 => I): MS[I, B] = ???
+  @pure def fromU16[I](n: U16): MS[I, B] = ???
 
-  @pure def fromU32[I](n: U32, @pure toI: U32 => I): MS[I, B] = ???
+  @pure def fromU32[I](n: U32): MS[I, B] = ???
 
-  @pure def fromU64[I](n: U64, @pure toI: U64 => I): MS[I, B] = ???
+  @pure def fromU64[I](n: U64): MS[I, B] = ???
 
-  @pure def toU8[I](s: MS[I, B], @pure toI: U8 => I): U8 = ???
+  @pure def toU8[I](s: MS[I, B]): U8 = ???
 
-  @pure def toU16[I](s: MS[I, B], @pure toI: U16 => I): U16 = ???
+  @pure def toU16[I](s: MS[I, B]): U16 = ???
 
-  @pure def toU32[I](s: MS[I, B], @pure toI: U32 => I): U32 = ???
+  @pure def toU32[I](s: MS[I, B]): U32 = ???
 
-  @pure def toU64[I](s: MS[I, B], @pure toI: U64 => I): U64 = ???
+  @pure def toU64[I](s: MS[I, B]): U64 = ???
 }

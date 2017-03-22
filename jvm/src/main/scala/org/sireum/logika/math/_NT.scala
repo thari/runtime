@@ -37,7 +37,7 @@ sealed trait _NT {
   def Min: _Value
   def Max: _Value
 
-  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with _LogikaIntegralNumber {
     final def bitWidth: Int = _NT.this.bitWidth
 
     final def toBigInteger: java.math.BigInteger = toBigInt.bigInteger
@@ -108,7 +108,7 @@ object _N8 extends _NT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
       case other: Byte => _Z(value.toBigInt) == _Z(other)
       case other: Char => _Z(value.toBigInt) == _Z(other)
       case other: Short => _Z(value.toBigInt) == _Z(other)
@@ -172,7 +172,7 @@ object _N16 extends _NT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
       case other: Byte => _Z(value.toBigInt) == _Z(other)
       case other: Char => _Z(value.toBigInt) == _Z(other)
       case other: Short => _Z(value.toBigInt) == _Z(other)
@@ -236,7 +236,7 @@ object _N32 extends _NT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
       case other: Byte => _Z(value.toBigInt) == _Z(other)
       case other: Char => _Z(value.toBigInt) == _Z(other)
       case other: Short => _Z(value.toBigInt) == _Z(other)
@@ -294,7 +294,7 @@ object _N64 extends _NT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || _Z(value.toBigInt).equals(other.toZ)
       case other: Byte => _Z(value.toBigInt) == _Z(other)
       case other: Char => _Z(value.toBigInt) == _Z(other)
       case other: Short => _Z(value.toBigInt) == _Z(other)

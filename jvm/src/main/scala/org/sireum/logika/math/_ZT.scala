@@ -36,7 +36,7 @@ sealed trait _ZT {
   def Min: _Value
   def Max: _Value
 
-  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with _LogikaIntegralNumber {
     final def bitWidth: Int = _ZT.this.bitWidth
 
     final def toZ: Z = _Z(toLong)
@@ -111,7 +111,7 @@ object _Z8 extends _ZT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong
       case other: Short => value == other.toLong
@@ -179,7 +179,7 @@ object _Z16 extends _ZT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong
       case other: Short => value == other.toLong
@@ -247,7 +247,7 @@ object _Z32 extends _ZT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong
       case other: Short => value == other.toLong
@@ -309,7 +309,7 @@ object _Z64 extends _ZT with LogikaNumberCompanion {
     override val hashCode: Int = value.hashCode
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value == other.toLong
       case other: Char => value == other.toLong
       case other: Short => value == other.toLong

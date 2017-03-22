@@ -32,7 +32,7 @@ class MSTest extends LogikaSpec {
     * {
       val s1 = collection._MS[Z8, B](true, true)
       val s2 = collection._MS.create[Z8, B](z8"2", true)
-      s1 == s2
+      s1(0) == s2(0) && s1(1) == s2(1)
     }
     * {
       val s1 = collection._MS[Z8, B](false, true)

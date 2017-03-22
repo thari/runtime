@@ -280,7 +280,7 @@ package object logika {
 
     def r(args: Any*): R = math._R(sc.raw(args))
 
-    def l[T](args: Any*): Unit = macro _macro.lImpl
+    def l(args: Any*): Unit = macro _macro.lImpl
 
     def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
@@ -306,4 +306,9 @@ package object logika {
   }
 
   def $[T]: T = throw new NotImplementedError
+
+  def _clona[T](o: T): T = o match {
+    case o: Clonable => o.clone.asInstanceOf[T]
+    case x => x
+  }
 }

@@ -35,7 +35,7 @@ import scala.util.Random
 sealed trait _UT {
   def bitWidth: Int
 
-  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with LogikaIntegralNumber {
+  sealed trait _Value extends ScalaNumericConversions with Comparable[_Value] with _LogikaIntegralNumber {
     final def bitWidth: Int = _UT.this.bitWidth
 
     final override def compareTo(other: _Value): Int = toZ.compareTo(other.toZ)
@@ -150,7 +150,7 @@ object _U8 extends _UT with LogikaNumberCompanion {
     override def toZ: Z = _Z(value.toBigInt)
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value.toInt == other.toInt
       case other: Char => value.toChar == other
       case other: Short => value.toShort == other
@@ -271,7 +271,7 @@ object _U16 extends _UT with LogikaNumberCompanion {
     override def toZ: Z = _Z(value.toBigInt)
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value.toInt == other.toInt
       case other: Char => value.toChar == other
       case other: Short => value.toShort == other
@@ -392,7 +392,7 @@ object _U32 extends _UT with LogikaNumberCompanion {
     override def toZ: Z = _Z(value.toBigInt)
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value.toInt == other.toInt
       case other: Char => value.toChar == other
       case other: Short => value.toShort == other
@@ -513,7 +513,7 @@ object _U64 extends _UT with LogikaNumberCompanion {
     override def toZ: Z = _Z(value.toBigInt)
 
     override def equals(other: Any): Boolean = other match {
-      case other: LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
+      case other: _LogikaIntegralNumber => (this eq other) || toZ.equals(other.toZ)
       case other: Byte => value.toInt == other.toInt
       case other: Char => value.toChar == other
       case other: Short => value.toShort == other

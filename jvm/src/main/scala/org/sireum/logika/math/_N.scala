@@ -68,7 +68,7 @@ object _N extends LogikaNumberCompanion {
   }
 }
 
-sealed trait _N extends ScalaNumericConversions with Comparable[_N] with LogikaIntegralNumber {
+sealed trait _N extends ScalaNumericConversions with Comparable[_N] with _LogikaIntegralNumber {
   final def +(other: N): N = _N(toZ + other.toZ)
 
   final def -(other: N): N = _N(toZ - other.toZ)
@@ -114,7 +114,7 @@ final private case class NImpl(value: _Z) extends _N {
   override lazy val hashCode: Int = value.hashCode
 
   override def equals(other: Any): Boolean = other match {
-    case other: LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
+    case other: _LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
     case other: Byte => value == _Z(other)
     case other: Char => value == _Z(other)
     case other: Short => value == _Z(other)

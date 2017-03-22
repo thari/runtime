@@ -33,7 +33,7 @@ import scala.util.Random
 sealed trait _FT {
   def bitWidth: Int
 
-  sealed trait _Value extends ScalaNumericConversions with LogikaNumber {
+  sealed trait _Value extends ScalaNumericConversions with _LogikaNumber {
     final def bitWidth: Int = _FT.this.bitWidth
   }
 }

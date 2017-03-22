@@ -42,7 +42,7 @@ object _R extends LogikaNumberCompanion {
   final override def random: _R = _R(_Z.random.toString + "." + _N.random.toString)
 }
 
-sealed trait _R extends ScalaNumericConversions with Comparable[_R] with LogikaNumber {
+sealed trait _R extends ScalaNumericConversions with Comparable[_R] with _LogikaNumber {
   final def +(other: _R): _R = _R(value + other.value)
 
   final def -(other: _R): _R = _R(value - other.value)
