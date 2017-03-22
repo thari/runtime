@@ -15,7 +15,8 @@ build:
         options:
     ci:
         - rm -fR `find . -path "*/target/scala-2.??"`
-        - sbt clean test:compile test
+        - sbt "project logika-runtime" clean publishLocal
+        - sbt "project logika-prelude" clean "test:compile" test
     post_ci:
     on_success:
     on_failure:

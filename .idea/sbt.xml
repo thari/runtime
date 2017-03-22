@@ -8,11 +8,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/jvm" />
-            <option value="$PROJECT_DIR$/jvm/project" />
-            <option value="$PROJECT_DIR$/prelude" />
-            <option value="$PROJECT_DIR$/prelude/project" />
+            <option value="$PROJECT_DIR$/prelude/jvm" />
+            <option value="$PROJECT_DIR$/prelude/jvm/project" />
             <option value="$PROJECT_DIR$/project" />
+            <option value="$PROJECT_DIR$/runtime/jvm" />
+            <option value="$PROJECT_DIR$/runtime/jvm/project" />
           </set>
         </option>
         <option name="sbtVersion" value="0.13.13" />

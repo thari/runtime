@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-prelude.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-prelude.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-prelude-build.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-prelude-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/logika-runtime-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jvm-logika-prelude-build.iml" filepath="$PROJECT_DIR$/.idea/modules/jvm-logika-prelude-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jvm-logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/jvm-logika-runtime-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/prelude-logika-prelude.iml" filepath="$PROJECT_DIR$/.idea/modules/prelude-logika-prelude.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/runtime-logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/runtime-logika-runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime-build.iml" filepath="$PROJECT_DIR$/.idea/modules/sireum-v3-logika-runtime-build.iml" />
     </modules>

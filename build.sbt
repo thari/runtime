@@ -6,7 +6,7 @@ val logikaVersion = "3.0.1-1-SNAPSHOT"
 
 lazy val logikaRuntime = Project(
   id = "logika-runtime",
-  base = file("jvm"),
+  base = file("runtime/jvm"),
   settings = Seq(
     organization := "org.sireum",
     name := "logika-runtime",
@@ -56,7 +56,7 @@ lazy val logikaRuntime = Project(
 
 lazy val logikaPrelude = Project(
   id = "logika-prelude",
-  base = file("prelude"),
+  base = file("prelude/jvm"),
   settings = Seq(
     organization := "org.sireum",
     name := "logika-prelude",
@@ -70,7 +70,7 @@ lazy val logikaPrelude = Project(
       "org.sireum" %% "logika-runtime" % logikaVersion,
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
-    unmanagedResourceDirectories in Compile += file("prelude") / "src/main/scala",
+    unmanagedResourceDirectories in Compile += file("prelude") / "jvm/src/main/scala",
     addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
