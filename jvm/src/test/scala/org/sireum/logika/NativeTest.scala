@@ -43,10 +43,10 @@ object NFoo {
 
   @native trait NA
 
-  @native val x: Z = ???
-  @native var y: NA = ???
+  @native val x: Z = $
+  @native var y: NA = $
 
-  @native def foo[T](x: Z): T = ???
+  @native def foo[T](x: Z): T = $
 }
 
 class NativeTest extends LogikaSpec {

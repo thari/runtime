@@ -166,15 +166,24 @@ object _macro {
       c.abort(c.enclosingPosition, "Invalid annotation target: not a Logika native entities")
 
     val result: c.Tree = annottees.map(_.tree).toList match {
-      case (q"$mods val $name: $tpt = ???") :: _ =>
+      case (q"$mods val $name: $tpt = $$") :: _ =>
         q"$mods val $name: $tpt = ${symbolName(name)}"
-      case (q"$mods var $name: $tpt = ???") :: _ =>
+      case (q"$mods var $name: $tpt = $$") :: _ =>
         q"$mods val $name: $tpt = ${symbolName(name)}"
-      case (q"$mods def $name[..$tparams](..$params): $tpt = ???") :: _ =>
+      case (q"$mods def $name[..$tparams]: $tpt = $_") :: _ =>
+        val fqn = prefix + termName(name)
+        val targs = tparams.map({ case TypeDef(_, n, _, _) => typeName(n) })
+        val exp =
+          if (targs.isEmpty) c.parse(s"$fqn")
+          else c.parse(s"$fqn[${targs.mkString(", ")}]")
+        q"$mods def $name[..$tparams]: $tpt = $exp"
+      case (q"$mods def $name[..$tparams](..$params): $tpt = $_") :: _ =>
         val fqn = prefix + termName(name)
         val targs = tparams.map({ case TypeDef(_, n, _, _) => typeName(n) })
         val args = params.map({ case q"$_ val $param: $tpt = $_" => termName(param) })
-        val exp = c.parse(s"$fqn[${targs.mkString(", ")}](${args.mkString(", ")})")
+        val exp =
+          if (targs.isEmpty) c.parse(s"$fqn(${args.mkString(", ")})")
+          else c.parse(s"$fqn[${targs.mkString(", ")}](${args.mkString(", ")})")
         q"$mods def $name[..$tparams](..$params): $tpt = $exp"
       case (q"$mods trait $tpname") :: _ =>
         if (!c.internal.enclosingOwner.isPackage)

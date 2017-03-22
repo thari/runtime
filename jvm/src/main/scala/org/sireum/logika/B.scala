@@ -25,7 +25,7 @@
 
 package org.sireum.logika
 
-sealed trait B extends Clonable {
+sealed trait _B extends Clonable {
   def value: Boolean
   def &(other: B): B
   def |(other: B): B
@@ -35,7 +35,7 @@ sealed trait B extends Clonable {
   final override def toString: String = if (value) "T" else "F"
 }
 
-object T extends B {
+object T extends _B {
   val value: Boolean = true
   override val hashCode: Int = true.hashCode
   override def equals(o: Any): Boolean = o match {
@@ -48,7 +48,7 @@ object T extends B {
   def unary_!(): B = F
 }
 
-object F extends B {
+object F extends _B {
   val value: Boolean = false
   override val hashCode: Int = false.hashCode
   override def equals(o: Any): Boolean = o match {
