@@ -10,6 +10,8 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/jvm" />
             <option value="$PROJECT_DIR$/jvm/project" />
+            <option value="$PROJECT_DIR$/prelude" />
+            <option value="$PROJECT_DIR$/prelude/project" />
             <option value="$PROJECT_DIR$/project" />
           </set>
         </option>
