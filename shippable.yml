@@ -15,8 +15,11 @@ build:
         options:
     ci:
         - rm -fR `find . -path "*/target/scala-2.??"`
-        - sbt "project logika-runtime" clean publishLocal
-        - sbt "project logika-prelude" clean "test:compile" test
+        - rm -fR `find . -path "*/target/streams"`
+        - rm -fR `find . -path "*/target/resolution-cache"`
+        - sbt clean
+        - sbt "project logika-runtime" publishLocal
+        - sbt "project logika-prelude" "test:compile" test
     post_ci:
     on_success:
     on_failure:
