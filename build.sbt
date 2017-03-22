@@ -70,7 +70,7 @@ lazy val logikaPrelude = Project(
       "org.sireum" %% "logika-runtime" % logikaVersion,
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
-    unmanagedResourceDirectories in Compile += file("prelude") / "jvm/src/main/scala",
+    unmanagedResourceDirectories in Compile += file("api/jvm/src/main/scala"),
     addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
