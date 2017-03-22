@@ -27,7 +27,7 @@ package org.sireum.logika
 
 import spire.math._
 import scala.collection.mutable.ArrayBuffer
-import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, F32, F64, R, IS, MS}
+//import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, F32, F64, R, IS, MS}
 
 object B_Native {
   def random: B = new java.util.Random().nextBoolean
@@ -1028,19 +1028,74 @@ object SI_Native {
     })
   }
 
-  @pure def fromU16[I](n: U16): IS[I, B] = ???
+  @pure def fromU16[I](n: U16): IS[I, B] = {
+    new collection.ISImpl[I, B](16, (0 until 16).toVector.map { i =>
+      val mask = u16"1" << i.toU16
+      _2B((n & mask) != mask)
+    })
+  }
 
-  @pure def fromU32[I](n: U32): IS[I, B] = ???
+  @pure def fromU32[I](n: U32): IS[I, B] = {
+    new collection.ISImpl[I, B](32, (0 until 32).toVector.map { i =>
+      val mask = u32"1" << i.toU32
+      _2B((n & mask) != mask)
+    })
+  }
 
-  @pure def fromU64[I](n: U64): IS[I, B] = ???
+  @pure def fromU64[I](n: U64): IS[I, B] = {
+    new collection.ISImpl[I, B](64, (0 until 64).toVector.map { i =>
+      val mask = u64"1" << i.toU64
+      _2B((n & mask) != mask)
+    })
+  }
 
-  @pure def toU8[I](s: IS[I, B]): U8 = ???
+  @pure def toU8[I](s: IS[I, B]): U8 = {
+    require(s.size == z"8")
+    var result = u8"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u8"1" << i.toU8
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU16[I](s: IS[I, B]): U16 = ???
+  @pure def toU16[I](s: IS[I, B]): U16 = {
+    require(s.size == z"16")
+    var result = u16"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u16"1" << i.toU16
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU32[I](s: IS[I, B]): U32 = ???
+  @pure def toU32[I](s: IS[I, B]): U32 = {
+    require(s.size == z"32")
+    var result = u32"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u32"1" << i.toU32
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU64[I](s: IS[I, B]): U64 = ???
+  @pure def toU64[I](s: IS[I, B]): U64 = {
+    require(s.size == z"64")
+    var result = u64"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u64"1" << i.toU64
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 }
 
 object SM_Native {
@@ -1102,19 +1157,19 @@ object SM_Native {
       r
   }
 
-  @pure def map[I, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] =  s match {
+  @pure def map[I, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] = s match {
     case (s: collection.MSImpl[I, E1]@unchecked) =>
       new collection.MSImpl[I, E2](s.sz, _clona(s.data.map(f)))
   }
 
-  def transform[I, E](s: MS[I, E], @pure f: E => E): Unit =  s match {
+  def transform[I, E](s: MS[I, E], @pure f: E => E): Unit = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       for (i <- s.data.indices) {
         s.data(i) = _clona(f(s.data(i)))
       }
   }
 
-  @pure def take[I, E](s: MS[I, E], size: I): MS[I, E] =  s match {
+  @pure def take[I, E](s: MS[I, E], size: I): MS[I, E] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       val sizeInt = size.asInstanceOf[math._LogikaIntegralNumber].toZ.toInt
       require(s.sz >= sizeInt)
@@ -1125,19 +1180,79 @@ object SM_Native {
       new collection.MSImpl(sizeInt, result)
   }
 
-  @pure def fromU8[I](n: U8): MS[I, B] = ???
+  @pure def fromU8[I](n: U8): MS[I, B] = {
+    new collection.MSImpl[I, B](8, ArrayBuffer((0 until 8).map { i =>
+      val mask = u8"1" << i.toU8
+      _2B((n & mask) != mask)
+    }: _*))
+  }
 
-  @pure def fromU16[I](n: U16): MS[I, B] = ???
+  @pure def fromU16[I](n: U16): MS[I, B] = {
+    new collection.MSImpl[I, B](16, ArrayBuffer((0 until 16).map { i =>
+      val mask = u16"1" << i.toU16
+      _2B((n & mask) != mask)
+    }: _*))
+  }
 
-  @pure def fromU32[I](n: U32): MS[I, B] = ???
+  @pure def fromU32[I](n: U32): MS[I, B] = {
+    new collection.MSImpl[I, B](32, ArrayBuffer((0 until 32).map { i =>
+      val mask = u32"1" << i.toU32
+      _2B((n & mask) != mask)
+    }: _*))
+  }
 
-  @pure def fromU64[I](n: U64): MS[I, B] = ???
+  @pure def fromU64[I](n: U64): MS[I, B] = {
+    new collection.MSImpl[I, B](64, ArrayBuffer((0 until 64).map { i =>
+      val mask = u64"1" << i.toU64
+      _2B((n & mask) != mask)
+    }: _*))
+  }
 
-  @pure def toU8[I](s: MS[I, B]): U8 = ???
+  @pure def toU8[I](s: MS[I, B]): U8 = {
+    require(s.size == z"8")
+    var result = u8"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u8"1" << i.toU8
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU16[I](s: MS[I, B]): U16 = ???
+  @pure def toU16[I](s: MS[I, B]): U16 = {
+    require(s.size == z"16")
+    var result = u16"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u16"1" << i.toU16
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU32[I](s: MS[I, B]): U32 = ???
+  @pure def toU32[I](s: MS[I, B]): U32 = {
+    require(s.size == z"32")
+    var result = u32"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u32"1" << i.toU32
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 
-  @pure def toU64[I](s: MS[I, B]): U64 = ???
+  @pure def toU64[I](s: MS[I, B]): U64 = {
+    require(s.size == z"64")
+    var result = u64"0"
+    for (i <- 0 until s.size.toZ32.value) {
+      val mask = u64"1" << i.toU64
+      if (s(_Z(i))) {
+        result = result | mask
+      }
+    }
+    result
+  }
 }

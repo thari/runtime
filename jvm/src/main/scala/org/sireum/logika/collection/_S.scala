@@ -30,8 +30,6 @@ import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S
 import org.sireum.logika.math._
 import scala.collection.mutable.ArrayBuffer
 
-import scala.reflect.runtime.universe._
-
 sealed trait _S[I, V] extends Clonable {
   private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
 
@@ -87,10 +85,10 @@ sealed trait _S[I, V] extends Clonable {
 }
 
 object _IS {
-  def apply[I: TypeTag, V](values: V*): _IS[I, V] =
+  def apply[I <: _LogikaIntegralNumber, V](values: V*): _IS[I, V] =
     new ISImpl[I, V](values.length, Vector[V](values: _*))
 
-  def create[I: TypeTag, V](size: I, default: V): _IS[I, V] = {
+  def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _IS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
     new ISImpl[I, V](sz.toZ32.value, Vector[V]((0 until sz.toZ32.value).map(_ => _clona(default)): _*))
   }
@@ -182,11 +180,11 @@ private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) exten
 }
 
 object _MS {
-  def apply[I, V](values: V*): _MS[I, V] = {
+  def apply[I <: _LogikaIntegralNumber, V](values: V*): _MS[I, V] = {
     new MSImpl[I, V](values.length, ArrayBuffer[V](values: _*))
   }
 
-  def create[I, V](size: I, default: V): _MS[I, V] = {
+  def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _MS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
     new MSImpl[I, V](sz.toZ32.value, ArrayBuffer((0 until sz.toZ32.value).map(_ => _clona(default)): _*))
   }
