@@ -25,8 +25,7 @@
 
 package org.sireum.logika.collection
 
-import org.sireum.logika.Clonable
-import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clona}
+import org.sireum.logika.{Clonable, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clona}
 import org.sireum.logika.math._
 import scala.collection.mutable.ArrayBuffer
 
@@ -90,7 +89,7 @@ object _IS {
 
   def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _IS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
-    new ISImpl[I, V](sz.toZ32.value, Vector[V]((0 until sz.toZ32.value).map(_ => _clona(default)): _*))
+    new ISImpl[I, V](sz.toZ32.value, Vector[V]((0 until sz.toZ32.value).map(_ => default): _*))
   }
 }
 
@@ -141,13 +140,13 @@ private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) exten
     sb.toString
   }
 
-  override def :+(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, data :+ _clona(value))
+  override def :+(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, data :+ value)
 
-  override def +:(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, _clona(value) +: data)
+  override def +:(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, value +: data)
 
   override def ++(values: _S[I, V]): _IS[I, V] = values match {
-    case (values: ISImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, (data ++ values.data).map(_clona))
-    case (values: MSImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, (data ++ values.data).map(_clona))
+    case (values: ISImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, data ++ values.data)
+    case (values: MSImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, data ++ values.data)
   }
 
   override def equals(other: Any): Boolean = other match {
@@ -161,7 +160,7 @@ private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) exten
     case _ => false
   }
 
-  override def clone: IS[I, V] = new ISImpl[I, V](sz, data.map(_clona))
+  override def clone: IS[I, V] = this
 
   override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): IS[I, V] = {
     var entryMap: Map[Int, V] = Map()
@@ -171,8 +170,8 @@ private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) exten
     val newData = ArrayBuffer[V](data: _*)
     for (i <- elements.indices) {
       entryMap.get(i) match {
-        case Some(v) => newData(i) = _clona(v)
-        case None => newData(i) = _clona(newData(i))
+        case Some(v) => newData(i) = v
+        case None => newData(i) = newData(i)
       }
     }
     new ISImpl[I, V](sz, newData.toVector)
@@ -186,7 +185,7 @@ object _MS {
 
   def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _MS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
-    new MSImpl[I, V](sz.toZ32.value, ArrayBuffer((0 until sz.toZ32.value).map(_ => _clona(default)): _*))
+    new MSImpl[I, V](sz.toZ32.value, ArrayBuffer((0 until sz.toZ32.value).map(_ => default): _*))
   }
 }
 
