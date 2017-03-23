@@ -31,32 +31,35 @@ sealed trait _B extends Clonable {
   def |(other: B): B
   def ^|(other: B): B
   def unary_!(): B
+  def unary_~(): B
   final override def clone: java.lang.Object = this
   final override def toString: String = if (value) "T" else "F"
 }
 
 object T extends _B {
-  val value: Boolean = true
-  override val hashCode: Int = true.hashCode
-  override def equals(o: Any): Boolean = o match {
+  final val value: Boolean = true
+  final override val hashCode: Int = true.hashCode
+  final override def equals(o: Any): Boolean = o match {
     case o: B => o.value
     case o: Boolean => o
   }
-  def &(other: B): B = other
-  def |(other: B): B = this
-  def ^|(other: B): B = !other
-  def unary_!(): B = F
+  final override def &(other: B): B = other
+  final override def |(other: B): B = this
+  final override def ^|(other: B): B = !other
+  final override def unary_!(): B = F
+  final override def unary_~(): B = F
 }
 
 object F extends _B {
-  val value: Boolean = false
-  override val hashCode: Int = false.hashCode
-  override def equals(o: Any): Boolean = o match {
+  final val value: Boolean = false
+  final override val hashCode: Int = false.hashCode
+  final override def equals(o: Any): Boolean = o match {
     case o: B => !o.value
     case o: Boolean => !o
   }
-  def &(other: B): B = this
-  def |(other: B): B = other
-  def ^|(other: B): B = other
-  def unary_!(): B = T
+  final def &(other: B): B = this
+  final def |(other: B): B = other
+  final def ^|(other: B): B = other
+  final def unary_!(): B = T
+  final def unary_~(): B = T
 }

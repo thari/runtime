@@ -221,11 +221,16 @@ package object logika {
   final class part extends scala.annotation.StaticAnnotation
 
   import scala.language.implicitConversions
+
   final implicit def _Z(n: Int): Z = math._Z(n)
 
   final implicit def _2B(b: Boolean): B = if (b) T else F
 
   final implicit def _2Boolean(b: B): Boolean = b.value
+
+  final implicit def _F32(n: Float): F32 = math._F32(n)
+
+  final implicit def _F64(n: Double): F64 = math._F64(n)
 
   import scala.language.experimental.macros
 
