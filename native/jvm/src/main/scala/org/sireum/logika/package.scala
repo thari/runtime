@@ -26,6 +26,8 @@
 package org.sireum
 
 package object logika {
+  trait _Immutable
+
   type B = _B
   type Z = math._Z
   type Z8 = math._Z8.Value
@@ -234,9 +236,9 @@ package object logika {
 
   import scala.language.experimental.macros
 
-  final implicit class _Clonable[T](val o: T) extends AnyVal {
+  final implicit class _2Clonable[T](val o: T) extends AnyVal {
     def clone: T = o match {
-      case o: Clonable => o.clone.asInstanceOf[T]
+      case o: _Clonable => o.clone.asInstanceOf[T]
       case _ => o
     }
   }
@@ -312,8 +314,8 @@ package object logika {
 
   def $[T]: T = throw new NotImplementedError
 
-  def _clona[T](o: T): T = o match {
-    case o: Clonable => o.clone.asInstanceOf[T]
+  def _clone[T](o: T): T = o match {
+    case o: _Clonable => o.clone.asInstanceOf[T]
     case x => x
   }
 }

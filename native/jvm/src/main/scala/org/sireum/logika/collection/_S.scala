@@ -25,11 +25,11 @@
 
 package org.sireum.logika.collection
 
-import org.sireum.logika.{Clonable, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clona}
+import org.sireum.logika.{_Clonable, _Immutable, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clone}
 import org.sireum.logika.math._
 import scala.collection.mutable.ArrayBuffer
 
-sealed trait _S[I, V] extends Clonable {
+sealed trait _S[I, V] extends _Clonable with _Immutable {
   private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
 
   def property[T](key: Any): T = properties(key).asInstanceOf[T]
@@ -273,18 +273,18 @@ private[logika] class MSImpl[I, V](val sz: Int, val data: ArrayBuffer[V]) extend
   def update(index: Z, value: V): Unit = {
     val i = index
     require(0 <= i && i < _Z(elements.length))
-    data(i.toZ32.value) = _clona(value)
+    data(i.toZ32.value) = _clone(value)
   }
 
   override def hashCode: Int = data.hashCode
 
-  override def :+(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, data :+ _clona(value))
+  override def :+(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, data :+ _clone(value))
 
-  override def +:(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, _clona(value) +: data)
+  override def +:(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, _clone(value) +: data)
 
   override def ++(values: _S[I, V]): _MS[I, V] = values match {
-    case (values: MSImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clona))
-    case (values: ISImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clona))
+    case (values: MSImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clone))
+    case (values: ISImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clone))
   }
 
   override def equals(other: Any): Boolean = other match {
@@ -298,7 +298,7 @@ private[logika] class MSImpl[I, V](val sz: Int, val data: ArrayBuffer[V]) extend
     case _ => false
   }
 
-  override def clone: _MS[I, V] = new MSImpl[I, V](sz, data.map(_clona))
+  override def clone: _MS[I, V] = new MSImpl[I, V](sz, data.map(_clone))
 
   override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): MS[I, V] = {
     var entryMap: Map[Int, V] = Map()
@@ -308,8 +308,8 @@ private[logika] class MSImpl[I, V](val sz: Int, val data: ArrayBuffer[V]) extend
     val newData: ArrayBuffer[V] = data.clone
     for (i <- elements.indices) {
       entryMap.get(i) match {
-        case Some(v) => newData(i) = _clona(v)
-        case None => newData(i) = _clona(newData(i))
+        case Some(v) => newData(i) = _clone(v)
+        case None => newData(i) = _clone(newData(i))
       }
     }
     new MSImpl[I, V](sz, newData)

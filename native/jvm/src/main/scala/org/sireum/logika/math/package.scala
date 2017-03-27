@@ -48,7 +48,7 @@ package object math {
     def random: _LogikaNumber
   }
 
-  trait _LogikaNumber extends Clonable
+  trait _LogikaNumber extends _Clonable with _Immutable
 
   trait _LogikaIntegralNumber extends _LogikaNumber {
     import org.sireum.logika.{B, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64}

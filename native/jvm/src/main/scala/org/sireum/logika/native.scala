@@ -957,7 +957,7 @@ object SI_Native {
 
   @pure def toMS[I, E](s: IS[I, E]): MS[I, E] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
-      new collection.MSImpl(s.sz, ArrayBuffer(s.data.map(_clona): _*))
+      new collection.MSImpl(s.sz, ArrayBuffer(s.data.map(_clone): _*))
   }
 
   @pure def chunk[I, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = s match {
@@ -969,7 +969,7 @@ object SI_Native {
       for (i <- 0 until sz) {
         var chunk = Vector[E]()
         for (j <- 0 until sizeInt) {
-          chunk +:= _clona(s.data(i * sizeInt + j))
+          chunk +:= _clone(s.data(i * sizeInt + j))
         }
         result +:= new collection.ISImpl(sizeInt, chunk)
       }
@@ -982,7 +982,7 @@ object SI_Native {
       require(s.sz >= sizeInt)
       var result = Vector[E]()
       for (i <- sizeInt until s.sz) {
-        result +:= _clona(s.data(i))
+        result +:= _clone(s.data(i))
       }
       new collection.ISImpl(s.sz - sizeInt, result)
   }
@@ -1007,7 +1007,7 @@ object SI_Native {
 
   @pure def map[I, E1, E2](s: IS[I, E1], @pure f: E1 => E2): IS[I, E2] = s match {
     case (s: collection.ISImpl[I, E1]@unchecked) =>
-      new collection.ISImpl[I, E2](s.sz, _clona(s.data.map(f)))
+      new collection.ISImpl[I, E2](s.sz, _clone(s.data.map(f)))
   }
 
   @pure def take[I, E](s: IS[I, E], size: I): IS[I, E] = s match {
@@ -1016,7 +1016,7 @@ object SI_Native {
       require(s.sz >= sizeInt)
       var result = Vector[E]()
       for (i <- 0 until sizeInt) {
-        result +:= _clona(s.data(i))
+        result +:= _clone(s.data(i))
       }
       new collection.ISImpl(sizeInt, result)
   }
@@ -1108,7 +1108,7 @@ object SM_Native {
 
   @pure def toIS[I, E](s: MS[I, E]): IS[I, E] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
-      new collection.ISImpl(s.sz, Vector(s.data.map(_clona): _*))
+      new collection.ISImpl(s.sz, Vector(s.data.map(_clone): _*))
   }
 
   @pure def chunk[I, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = s match {
@@ -1120,7 +1120,7 @@ object SM_Native {
       for (i <- 0 until sz) {
         val chunk = new ArrayBuffer[E](sizeInt)
         for (j <- 0 until sizeInt) {
-          chunk += _clona(s.data(i * sizeInt + j))
+          chunk += _clone(s.data(i * sizeInt + j))
         }
         result += new collection.MSImpl(sizeInt, chunk)
       }
@@ -1134,7 +1134,7 @@ object SM_Native {
       val rSize = s.sz - sizeInt
       val result = new ArrayBuffer[E](rSize)
       for (i <- sizeInt until s.sz) {
-        result += _clona(s.data(i))
+        result += _clone(s.data(i))
       }
       new collection.MSImpl(rSize, result)
   }
@@ -1159,13 +1159,13 @@ object SM_Native {
 
   @pure def map[I, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] = s match {
     case (s: collection.MSImpl[I, E1]@unchecked) =>
-      new collection.MSImpl[I, E2](s.sz, _clona(s.data.map(f)))
+      new collection.MSImpl[I, E2](s.sz, _clone(s.data.map(f)))
   }
 
   def transform[I, E](s: MS[I, E], @pure f: E => E): Unit = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       for (i <- s.data.indices) {
-        s.data(i) = _clona(f(s.data(i)))
+        s.data(i) = _clone(f(s.data(i)))
       }
   }
 
@@ -1175,7 +1175,7 @@ object SM_Native {
       require(s.sz >= sizeInt)
       var result = new ArrayBuffer[E](sizeInt)
       for (i <- 0 until sizeInt) {
-        result += _clona(s.data(i))
+        result += _clone(s.data(i))
       }
       new collection.MSImpl(sizeInt, result)
   }

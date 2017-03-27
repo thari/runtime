@@ -25,7 +25,7 @@
 
 package org.sireum.logika
 
-sealed trait _B extends Clonable {
+sealed trait _B extends _Clonable {
   def value: Boolean
   def &(other: B): B
   def |(other: B): B
