@@ -26,8 +26,6 @@
 package org.sireum
 
 package object logika {
-  trait _Immutable
-
   type B = _B
   type Z = math._Z
   type Z8 = math._Z8.Value

@@ -67,14 +67,14 @@ object _macro {
         val apply = q"def apply(..$params2): $typeName = $termName(..$args2)"
         if (params.nonEmpty)
           q"""
-              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika._Clonable with ..$parents {
                 $clone
                 $apply
               }
           """
         else
           q"""
-              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika._Clonable with ..$parents {
                 $clone
               }
           """
@@ -115,14 +115,14 @@ object _macro {
         val apply = q"def apply(..$params2): $typeName = $termName(..$args2)"
         if (params.nonEmpty)
           q"""
-              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika._Clonable with org.sireum.logika._Immutable with ..$parents {
                 $clone
                 $apply
               }
           """
         else
           q"""
-              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika.Clonable with ..$parents {
+              case class $tpname[..$tparams](..$params) extends {} with org.sireum.logika._Clonable with org.sireum.logika._Immutable with ..$parents {
                 $clone
               }
           """
