@@ -242,7 +242,7 @@ package object logika {
 
   final class spec extends scala.annotation.StaticAnnotation
 
-  final class nopat extends scala.annotation.StaticAnnotation
+  final class hidden extends scala.annotation.StaticAnnotation
 
   final class part extends scala.annotation.StaticAnnotation
 
@@ -316,27 +316,7 @@ package object logika {
     def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
 
-  @scala.annotation.compileTimeOnly("Immutable Record")
-  final class irecord extends scala.annotation.StaticAnnotation {
-    def macroTransform(annottees: Any*): Any = macro _macro.irecordImpl
-  }
-
-  @scala.annotation.compileTimeOnly("Record")
-  final class record extends scala.annotation.StaticAnnotation {
-    def macroTransform(annottees: Any*): Any = macro _macro.recordImpl
-  }
-
-  @scala.annotation.compileTimeOnly("Enum")
-  final class enum extends scala.annotation.StaticAnnotation {
-    def macroTransform(annottees: Any*): Any = macro _macro.enumImpl
-  }
-
-  @scala.annotation.compileTimeOnly("Native")
-  final class native extends scala.annotation.StaticAnnotation {
-    def macroTransform(annottees: Any*): Any = macro _macro.nativeImpl
-  }
-
-  def $[T]: T = throw new NotImplementedError
+  def $[T]: T = macro _macro.$Impl[T]
 
   def _clone[T](o: T): T = o match {
     case o: _Clonable => o.clone.asInstanceOf[T]

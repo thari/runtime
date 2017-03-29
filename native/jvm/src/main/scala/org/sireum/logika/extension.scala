@@ -27,9 +27,8 @@ package org.sireum.logika
 
 import spire.math._
 import scala.collection.mutable.ArrayBuffer
-//import org.sireum.logika.{Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, F32, F64, R, IS, MS}
 
-object B_Native {
+object B_Ext {
   def random: B = new java.util.Random().nextBoolean
 
   @pure def toB(b: B): B = b
@@ -78,7 +77,7 @@ object B_Native {
 }
 
 
-object Z_Native {
+object Z_Ext {
   def random: Z = math._Z.random
 
   @pure def isInRangeZ8(n: Z): B = -128 <= n && n <= 127
@@ -139,7 +138,7 @@ object Z_Native {
 }
 
 
-object Z8_Native {
+object Z8_Ext {
   def random: Z8 = math._Z8.random
 
   @pure def toB(n: Z8): B = n != z8"0"
@@ -184,7 +183,7 @@ object Z8_Native {
 }
 
 
-object Z16_Native {
+object Z16_Ext {
   def random: Z16 = math._Z16.random
 
   @pure def toB(n: Z16): B = n != z16"0"
@@ -229,7 +228,7 @@ object Z16_Native {
 }
 
 
-object Z32_Native {
+object Z32_Ext {
   def random: Z32 = math._Z32.random
 
   @pure def toB(n: Z32): B = n != z32"0"
@@ -274,7 +273,7 @@ object Z32_Native {
 }
 
 
-object Z64_Native {
+object Z64_Ext {
   def random: Z64 = math._Z64.random
 
   @pure def toB(n: Z64): B = n != z64"0"
@@ -319,7 +318,7 @@ object Z64_Native {
 }
 
 
-object N_Native {
+object N_Ext {
   def random: N = math._N.random
 
   @pure def toB(n: N): B = n != n"0"
@@ -364,7 +363,7 @@ object N_Native {
 }
 
 
-object N8_Native {
+object N8_Ext {
   def random: N8 = math._N8.random
 
   @pure def toB(n: N8): B = n != n8"0"
@@ -409,7 +408,7 @@ object N8_Native {
 }
 
 
-object N16_Native {
+object N16_Ext {
   def random: N16 = math._N16.random
 
   @pure def toB(n: N16): B = n != n16"0"
@@ -454,7 +453,7 @@ object N16_Native {
 }
 
 
-object N32_Native {
+object N32_Ext {
   def random: N32 = math._N32.random
 
   @pure def toB(n: N32): B = n != n32"0"
@@ -499,7 +498,7 @@ object N32_Native {
 }
 
 
-object N64_Native {
+object N64_Ext {
   def random: N64 = math._N64.random
 
   @pure def toB(n: N64): B = n != n64"0"
@@ -544,7 +543,7 @@ object N64_Native {
 }
 
 
-object S8_Native {
+object S8_Ext {
   def random: S8 = math._S8.random
 
   @pure def toB(n: S8): B = n != s8"0"
@@ -589,7 +588,7 @@ object S8_Native {
 }
 
 
-object S16_Native {
+object S16_Ext {
 
   def random: S16 = math._S16.random
 
@@ -635,7 +634,7 @@ object S16_Native {
 }
 
 
-object S32_Native {
+object S32_Ext {
   def random: S32 = math._S32.random
 
   @pure def toB(n: S32): B = n != s32"0"
@@ -680,7 +679,7 @@ object S32_Native {
 }
 
 
-object S64_Native {
+object S64_Ext {
   def random: S64 = math._S64.random
 
   @pure def toB(n: S64): B = n != s64"0"
@@ -725,7 +724,7 @@ object S64_Native {
 }
 
 
-object U8_Native {
+object U8_Ext {
   def random: U8 = math._U8.random
 
   @pure def toB(n: U8): B = n != u8"0"
@@ -770,7 +769,7 @@ object U8_Native {
 }
 
 
-object U16_Native {
+object U16_Ext {
   def random: U16 = math._U16.random
 
   @pure def toB(n: U16): B = n != u16"0"
@@ -815,7 +814,7 @@ object U16_Native {
 }
 
 
-object U32_Native {
+object U32_Ext {
   def random: U32 = math._U32.random
 
   @pure def toB(n: U32): B = n != u32"0"
@@ -862,7 +861,7 @@ object U32_Native {
 }
 
 
-object U64_Native {
+object U64_Ext {
   def random: U64 = math._U64.random
 
   @pure def toB(n: U64): B = n != u64"0"
@@ -909,7 +908,7 @@ object U64_Native {
 }
 
 
-object F32_Native {
+object F32_Ext {
   def random: F32 = math._F32.random
 
   @pure def toB(n: F32): B = n != f32"0.0"
@@ -920,7 +919,7 @@ object F32_Native {
 }
 
 
-object F64_Native {
+object F64_Ext {
   def random: F64 = math._F64.random
 
   @pure def toB(n: F64): B = n != f64"0.0"
@@ -931,7 +930,7 @@ object F64_Native {
 }
 
 
-object R_Native {
+object R_Ext {
   def random: R = math._R.random
 
   @pure def toB(n: R): B = n != r"0.0"
@@ -947,7 +946,7 @@ object R_Native {
 }
 
 
-object SI_Native {
+object SI_Ext {
 
   @pure def append[I, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
 
@@ -1098,7 +1097,7 @@ object SI_Native {
   }
 }
 
-object SM_Native {
+object SM_Ext {
 
   @pure def append[I, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
 

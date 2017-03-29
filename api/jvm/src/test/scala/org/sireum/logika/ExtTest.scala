@@ -27,9 +27,7 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
-@native trait NB
-
-object NFoo_Native {
+object NFoo_Ext {
   type NA = String
 
   def x: Z = 5
@@ -38,18 +36,18 @@ object NFoo_Native {
   def foo[T](x: Z): T = math._Z(2).asInstanceOf[T]
 }
 
-object NFoo {
+@ext object NFoo {
   //type NA = NFoo_Native.NA
 
-  @native trait NA
+  trait NA
 
-  @native val x: Z = $
-  @native var y: NA = $
+  val x: Z = $
+  var y: NA = $
 
-  @native def foo[T](x: Z): T = $
+  def foo[T](x: Z): T = $
 }
 
-class NativeTest extends LogikaSpec {
+class ExtTest extends LogikaSpec {
   * {
     NFoo.x == math._Z(5) && NFoo.y == "abc" && NFoo.foo[Z](4) == math._Z(2)
   }

@@ -28,18 +28,18 @@ package org.sireum.logika
 import scala.meta._
 import scala.meta.dialects.Scala212
 
-class datatype extends scala.annotation.StaticAnnotation {
+class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
       case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$_ }" =>
         if (mods.size != 1 || !mods.head.isInstanceOf[Mod.Sealed] ||
           estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort(s"Invalid Logika @datatype form on a trait; it has to be of the form 'sealed trait ${tname.value} { ... }'.")
+          abort(s"Invalid Logika @record form on a trait; it has to be of the form 'sealed trait ${tname.value} { ... }'.")
         r
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
-          abort(s"Invalid Logika @datatype form on a class; it has to be of the form 'class ${tname.value}(...) { ... }'.")
+          abort(s"Invalid Logika @record form on a class; it has to be of the form 'class ${tname.value}(...) { ... }'.")
         val tVars = tparams.map { tp =>
           val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
           Type.Name(tparamname.value)
@@ -47,39 +47,41 @@ class datatype extends scala.annotation.StaticAnnotation {
         val tpe = {
           if (tVars.isEmpty) tname else t"$tname[..$tVars]"
         }
-        val clone = q"override def clone: $tpe = this"
+        val ctorName = Ctor.Name(tname.value)
         if (paramss.nonEmpty) {
           var cparams: Vector[Term.Param] = Vector()
           var applyParams: Vector[Term.Param] = Vector()
           var oApplyParams: Vector[Term.Param] = Vector()
           var applyArgs: Vector[Term.Name] = Vector()
-          var unapplyTypes: Vector[Type] = Vector()
-          var unapplyArgs: Vector[Term.Name] = Vector()
+          var hiddenArgs: Vector[Term.Name] = Vector()
           for (param <- paramss.head) param match {
             case param"..$mods $paramname: $atpeopt = $expropt" if (atpeopt match {
               case Some(targ"${tpe: Type}") => true
               case _ => false
             }) =>
               val varName = Term.Name(paramname.value)
-              val hidden = mods.exists({
-                case mod"@hidden" => true
+              var hidden = false
+              var isVar = false
+              mods.foreach {
+                case mod"@hidden" => hidden = true
+                case mod"varparam" => isVar = true
                 case _ => false
-              })
-              cparams :+= param"val $paramname: $atpeopt"
+              }
+              cparams :+= (if (isVar) param"var $paramname: $atpeopt" else param"val $paramname: $atpeopt")
               applyParams :+= param"$paramname: $atpeopt = this.$varName"
               oApplyParams :+= param"$paramname: $atpeopt"
               applyArgs :+= varName
               if (!hidden) {
                 val Some(targ"${tpe: Type}") = atpeopt
-                unapplyTypes :+= tpe
-                unapplyArgs :+= varName
+                hiddenArgs :+= varName
               }
             case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
           }
           val cls = {
-            val hashCode = q"override val hashCode: Int = { (classOf[$tname], ..$unapplyArgs).hashCode }"
+            val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum.logika._clone($arg)")})"
+            val hashCode = q"override val hashCode: Int = { (classOf[$tname], ..$hiddenArgs).hashCode }"
             val equals = {
-              val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
+              val eCaseEqs = hiddenArgs.map(arg => q"$arg == o.$arg")
               val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
               val eCases =
                 Vector(if (tparams.isEmpty) p"case o: $tname => $eCaseExp"
@@ -87,7 +89,7 @@ class datatype extends scala.annotation.StaticAnnotation {
                   p"case _ => false")
               q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
             }
-            val apply = q"def apply(..$applyParams): $tpe = new ${Ctor.Name(tname.value)}(..$applyArgs)"
+            val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
             val toString = {
               var appends = applyArgs.map(arg => q"org.sireum.logika._append(sb, $arg)")
               appends =
@@ -107,20 +109,15 @@ class datatype extends scala.annotation.StaticAnnotation {
           val companion = {
             val apply =
               if (tparams.isEmpty)
-                q"def apply(..$oApplyParams): $tpe = new ${Ctor.Name(tname.value)}(..$applyArgs)"
+                q"def apply(..$oApplyParams): $tpe = new $ctorName(..$applyArgs)"
               else
-                q"def apply[..$tparams](..$oApplyParams): $tpe = new ${Ctor.Name(tname.value)}(..$applyArgs)"
-            val unapply =
-              unapplyTypes.size match {
-                case 0 => q"def unapply(o: $tpe): Option[Unit] = Some(())"
-                case 1 => q"def unapply(o: $tpe): Option[${unapplyTypes.head}] = Some(o.${unapplyArgs.head})"
-                case _ => q"def unapply(o: $tpe): Option[(..$unapplyTypes)] = Some((..${unapplyArgs.map(arg => q"o.$arg")}))"
-              }
-            q"object ${Term.Name(tname.value)} { ..${Vector(apply, unapply)} }"
+                q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)"
+            q"object ${Term.Name(tname.value)} { $apply }"
           }
           Term.Block(Vector(cls, companion))
         } else {
           val cls = {
+            val clone = q"override def clone: $tpe = new $ctorName()"
             val hashCode = q"override val hashCode: Int = classOf[$tname].hashCode"
             val equals = {
               val eCases =
@@ -138,18 +135,17 @@ class datatype extends scala.annotation.StaticAnnotation {
           val companion = {
             val apply =
               if (tparams.isEmpty)
-                q"def apply(): $tpe = new ${Ctor.Name(tname.value)}()"
+                q"def apply(): $tpe = new $ctorName()"
               else
-                q"def apply[..$tparams](): $tpe = new ${Ctor.Name(tname.value)}()"
-            val unapply = q"def unapply(o: $tpe): Option[Unit] = Some(())"
-            q"object ${Term.Name(tname.value)} { ..${Vector(apply, unapply)} }"
+                q"def apply[..$tparams](): $tpe = new $ctorName()"
+            q"object ${Term.Name(tname.value)} { $apply }"
           }
           Term.Block(Vector(cls, companion))
         }
       case Term.Block(Seq(cls, _: Defn.Object)) =>
-        abort(s"Cannot use Logika @datatype on a class with an existing companion object.")
+        abort(s"Cannot use Logika @record on a class with an existing companion object.")
       case _ =>
-        abort(s"Invalid Logika @datatype on: ${tree.syntax}.")
+        abort(s"Invalid Logika @record on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result
