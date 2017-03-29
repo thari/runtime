@@ -1,6 +1,8 @@
 val scalaVer = "2.12.1"
 
-val paradiseVersion = "2.1.0"
+val metaVersion = "1.6.0"
+
+val paradiseVersion = "3.0.0-M7"
 
 val logikaVersion = "3.0.1-1-SNAPSHOT"
 
@@ -17,11 +19,12 @@ lazy val logikaRuntime = Project(
     scalacOptions := Seq("-deprecation", "-unchecked"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
+      "org.scalameta" %% "scalameta" % metaVersion,
       "org.apfloat" % "apfloat" % "1.8.2",
       "org.scala-lang" % "scala-reflect" % scalaVer,
       "org.spire-math" %% "spire" % "0.13.0"
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
+    addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
@@ -67,11 +70,12 @@ lazy val logikaPrelude = Project(
     scalacOptions := Seq("-deprecation", "-unchecked"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
+      "org.scalameta" %% "scalameta" % metaVersion,
       "org.sireum" %% "logika-runtime" % logikaVersion,
       "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     ),
     unmanagedResourceDirectories in Compile += file("api/jvm/src/main/scala"),
-    addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full),
+    addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
