@@ -50,9 +50,31 @@ package object logika {
   type F64 = math._F64.Value
 
   type MS[I, V] = collection._MS[I, V]
+  type MSZ[V] = collection._MS[Z, V]
   type IS[I, V] = collection._IS[I, V]
+  type ISZ[V] = collection._IS[Z, V]
 
   type ZS = collection._MS[Z, Z]
+
+  object MS {
+    def apply[I <: math._LogikaIntegralNumber, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
+    def create[I <: math._LogikaIntegralNumber, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
+  }
+
+  object IS {
+    def apply[I <: math._LogikaIntegralNumber, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
+    def create[I <: math._LogikaIntegralNumber, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
+  }
+
+  object MSZ {
+    def apply[V](values: V*): MSZ[V] = collection._MS.apply[Z, V](values: _*)
+    def create[V](size: Z, default: V): MSZ[V] = collection._MS.create[Z, V](size, default)
+  }
+
+  object ISZ {
+    def apply[V](values: V*): ISZ[V] = collection._IS.apply[Z, V](values: _*)
+    def create[V](size: Z, default: V): ISZ[V] = collection._IS.create[Z, V](size, default)
+  }
 
   object ZS {
     def apply(values: Z*): ZS = collection._MS.apply[Z, Z](values: _*)
