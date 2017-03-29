@@ -83,6 +83,7 @@ object _macro {
     c.Expr[Any](result)
   }
 
+
   def irecordImpl(c: scala.reflect.macros.whitebox.Context)(
     annottees: c.Expr[Any]*): c.Expr[Any] = {
     import c.universe._

@@ -218,6 +218,10 @@ package object logika {
 
   final class pure extends scala.annotation.StaticAnnotation
 
+  final class spec extends scala.annotation.StaticAnnotation
+
+  final class nopat extends scala.annotation.StaticAnnotation
+
   final class part extends scala.annotation.StaticAnnotation
 
   import scala.language.implicitConversions
@@ -305,7 +309,7 @@ package object logika {
     def macroTransform(annottees: Any*): Any = macro _macro.enumImpl
   }
 
-  @scala.annotation.compileTimeOnly("Enum")
+  @scala.annotation.compileTimeOnly("Native")
   final class native extends scala.annotation.StaticAnnotation {
     def macroTransform(annottees: Any*): Any = macro _macro.nativeImpl
   }
@@ -315,5 +319,27 @@ package object logika {
   def _clone[T](o: T): T = o match {
     case o: _Clonable => o.clone.asInstanceOf[T]
     case x => x
+  }
+
+  def _quote(s: String): String = {
+    def escape(s: String): String = s.flatMap(escapedChar)
+    def escapedChar(ch: Char): String = ch match {
+      case '\b' => "\\b"
+      case '\t' => "\\t"
+      case '\n' => "\\n"
+      case '\f' => "\\f"
+      case '\r' => "\\r"
+      case '"'  => "\\\""
+      case '\'' => "\\\'"
+      case '\\' => "\\\\"
+      case _    => if (ch.isControl) "\\0" + Integer.toOctalString(ch.toInt)
+      else              String.valueOf(ch)
+    }
+    "\"" + escape(s) + "\""
+  }
+
+  def _append(sb: StringBuilder, x: Any): Unit = x match {
+    case x: String => sb.append(_quote(x))
+    case _ => sb.append(x)
   }
 }
