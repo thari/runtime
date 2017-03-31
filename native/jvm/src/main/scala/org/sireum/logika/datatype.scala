@@ -102,7 +102,7 @@ class datatype extends scala.annotation.StaticAnnotation {
                     sb.toString
                   }"""
             }
-            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) + stats} }"
+            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
           }
           val companion = {
             val apply =

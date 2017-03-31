@@ -156,7 +156,7 @@ class record extends scala.annotation.StaticAnnotation {
       case _ =>
         abort(s"Invalid Logika @record on: ${tree.syntax}.")
     }
-    println(result.syntax)
+    //println(result.syntax)
     result
   }
 }
