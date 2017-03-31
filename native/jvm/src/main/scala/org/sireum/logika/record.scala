@@ -49,17 +49,20 @@ class record extends scala.annotation.StaticAnnotation {
         }
         val ctorName = Ctor.Name(tname.value)
         if (paramss.nonEmpty) {
+          var varNames: Vector[Term.Name] = Vector()
           var cparams: Vector[Term.Param] = Vector()
           var applyParams: Vector[Term.Param] = Vector()
           var oApplyParams: Vector[Term.Param] = Vector()
           var applyArgs: Vector[Term.Name] = Vector()
-          var hiddenArgs: Vector[Term.Name] = Vector()
+          var visibleArgs: Vector[Term.Name] = Vector()
+          var vars: Vector[Stat] = Vector()
           for (param <- paramss.head) param match {
             case param"..$mods $paramname: $atpeopt = $expropt" if (atpeopt match {
               case Some(targ"${tpe: Type}") => true
               case _ => false
             }) =>
-              val varName = Term.Name(paramname.value)
+              val varName = Term.Name("_" + paramname.value)
+              val paramName = Term.Name(paramname.value)
               var hidden = false
               var isVar = false
               mods.foreach {
@@ -67,21 +70,27 @@ class record extends scala.annotation.StaticAnnotation {
                 case mod"varparam" => isVar = true
                 case _ => false
               }
-              cparams :+= (if (isVar) param"var $paramname: $atpeopt" else param"val $paramname: $atpeopt")
+              varNames :+= varName
+              cparams :+= param"private var $varName: $atpeopt"
+              vars :+= q"def $paramName = $varName"
+              vars :+= q"def ${Term.Name(paramname.value + "_=")}($paramname: $atpeopt): this.type = { dirty = true; $varName = $paramName; this }"
               applyParams :+= param"$paramname: $atpeopt = this.$varName"
               oApplyParams :+= param"$paramname: $atpeopt"
-              applyArgs :+= varName
+              applyArgs :+= paramName
               if (!hidden) {
                 val Some(targ"${tpe: Type}") = atpeopt
-                hiddenArgs :+= varName
+                visibleArgs :+= varName
               }
             case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
           }
           val cls = {
             val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum.logika._clone($arg)")})"
-            val hashCode = q"override val hashCode: Int = { (classOf[$tname], ..$hiddenArgs).hashCode }"
+            val hashCodeDirty = q"private var dirty: Boolean = true"
+            val hashCodeVar = q"private var _hashCode: Int = _"
+            val hashCodeDef = q"private def computeHashCode: Int = (classOf[$tname], ..$visibleArgs).hashCode"
+            val hashCode = q"override def hashCode: Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
             val equals = {
-              val eCaseEqs = hiddenArgs.map(arg => q"$arg == o.$arg")
+              val eCaseEqs = visibleArgs.map(arg => q"$arg == o.$arg")
               val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
               val eCases =
                 Vector(if (tparams.isEmpty) p"case o: $tname => $eCaseExp"
@@ -104,7 +113,7 @@ class record extends scala.annotation.StaticAnnotation {
                     sb.toString
                   }"""
             }
-            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${stats ++ Vector(hashCode, equals, clone, apply, toString)} }"
+            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${(hashCodeDirty +: vars) ++ Vector(hashCodeVar, hashCodeDef, hashCode, equals, clone, apply, toString) ++ stats} }"
           }
           val companion = {
             val apply =
@@ -130,7 +139,7 @@ class record extends scala.annotation.StaticAnnotation {
               val r = tname.value + "()"
               q"""override def toString(): java.lang.String = $r"""
             }
-            q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${stats ++ Vector(hashCode, equals, clone, toString)} }"
+            q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
           val companion = {
             val apply =
@@ -147,7 +156,7 @@ class record extends scala.annotation.StaticAnnotation {
       case _ =>
         abort(s"Invalid Logika @record on: ${tree.syntax}.")
     }
-    //println(result.syntax)
+    println(result.syntax)
     result
   }
 }

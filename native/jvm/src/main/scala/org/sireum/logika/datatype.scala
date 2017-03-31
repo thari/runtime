@@ -82,7 +82,7 @@ class datatype extends scala.annotation.StaticAnnotation {
               val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
               val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
               val eCases =
-                Vector(if (tparams.isEmpty) p"case o: $tname => $eCaseExp"
+                Vector(if (tparams.isEmpty) p"case o: $tname => if (this.hashCode != o.hashCode) false else $eCaseExp"
                 else p"case (o: $tname[..$tVars] @unchecked) => $eCaseExp",
                   p"case _ => false")
               q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
@@ -102,7 +102,7 @@ class datatype extends scala.annotation.StaticAnnotation {
                     sb.toString
                   }"""
             }
-            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${stats ++ Vector(hashCode, equals, clone, apply, toString)} }"
+            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) + stats} }"
           }
           val companion = {
             val apply =
@@ -133,7 +133,7 @@ class datatype extends scala.annotation.StaticAnnotation {
               val r = tname.value + "()"
               q"""override def toString(): java.lang.String = $r"""
             }
-            q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${stats ++ Vector(hashCode, equals, clone, toString)} }"
+            q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
           val companion = {
             val apply =
