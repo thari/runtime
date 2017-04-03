@@ -27,7 +27,7 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
-@record sealed trait F
+@record trait F
 @record class Foo(x: Z, var bar: Bar) extends F
 @record class Bar(x: Z, var y: Z) extends F
 @datatype class Baz(x: Z, y: Z)

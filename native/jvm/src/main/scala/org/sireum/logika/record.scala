@@ -28,13 +28,14 @@ package org.sireum.logika
 import scala.meta._
 import scala.meta.dialects.Scala212
 
+// TODO: remove asInstanceOf (IntelliJ's macro annotation inference workaround)
 class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
-      case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$_ }" =>
-        if (mods.size != 1 || !mods.head.isInstanceOf[Mod.Sealed] ||
-          estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort(s"Invalid Logika @record form on a trait; it has to be of the form 'sealed trait ${tname.value} { ... }'.")
+      case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
+        if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty
+          || !param.name.isInstanceOf[Name.Anonymous] || stats.nonEmpty)
+          abort(s"Invalid Logika @record form on a trait; it has to be of the form 'trait ${tname.value}'.")
         r
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
@@ -57,7 +58,7 @@ class record extends scala.annotation.StaticAnnotation {
           var visibleArgs: Vector[Term.Name] = Vector()
           var vars: Vector[Stat] = Vector()
           for (param <- paramss.head) param match {
-            case param"..$mods $paramname: $atpeopt = $expropt" if (atpeopt match {
+            case param"..$mods $paramname: $atpeopt = $expropt" if (atpeopt.asInstanceOf[Option[Type.Arg]] match {
               case Some(targ"${tpe: Type}") => true
               case _ => false
             }) =>
@@ -78,7 +79,7 @@ class record extends scala.annotation.StaticAnnotation {
               oApplyParams :+= param"$paramname: $atpeopt"
               applyArgs :+= paramName
               if (!hidden) {
-                val Some(targ"${tpe: Type}") = atpeopt
+                val Some(targ"${tpe: Type}") = atpeopt.asInstanceOf[Option[Type.Arg]]
                 visibleArgs :+= varName
               }
             case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
@@ -106,7 +107,7 @@ class record extends scala.annotation.StaticAnnotation {
                 else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
               q"""override def toString(): java.lang.String = {
                     val sb = new StringBuilder
-                    sb.append(${tname.value})
+                    sb.append(${Lit(tname.value)})
                     sb.append('(')
                     ..$appends
                     sb.append(')')
@@ -137,7 +138,7 @@ class record extends scala.annotation.StaticAnnotation {
             }
             val toString = {
               val r = tname.value + "()"
-              q"""override def toString(): java.lang.String = $r"""
+              q"""override def toString(): java.lang.String = ${Lit(r)}"""
             }
             q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
