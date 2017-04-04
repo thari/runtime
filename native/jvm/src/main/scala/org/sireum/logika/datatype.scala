@@ -78,7 +78,7 @@ class datatype extends scala.annotation.StaticAnnotation {
             case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
           }
           val cls = {
-            val hashCode = q"override val hashCode: Int = { (classOf[$tname], ..$unapplyArgs).hashCode }"
+            val hashCode = q"override lazy val hashCode: Int = { (classOf[$tname], ..$unapplyArgs).hashCode }"
             val equals = {
               val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
               val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
