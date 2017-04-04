@@ -28,7 +28,7 @@ package org.sireum.logika
 import scala.meta._
 import scala.meta.dialects.Scala212
 
-// TODO: remove asInstanceOf (IntelliJ's macro annotation inference workaround)
+// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
 class datatype extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
@@ -57,7 +57,7 @@ class datatype extends scala.annotation.StaticAnnotation {
           var unapplyTypes: Vector[Type] = Vector()
           var unapplyArgs: Vector[Term.Name] = Vector()
           for (param <- paramss.head) param match {
-            case param"..$mods $paramname: $atpeopt = $expropt" if (atpeopt.asInstanceOf[Option[Type.Arg]] match {
+            case param"..$mods $paramname: ${atpeopt: Option[Type.Arg]} = $expropt" if (atpeopt match {
               case Some(targ"${tpe: Type}") => true
               case _ => false
             }) =>
@@ -71,7 +71,7 @@ class datatype extends scala.annotation.StaticAnnotation {
               oApplyParams :+= param"$paramname: $atpeopt"
               applyArgs :+= varName
               if (!hidden) {
-                val Some(targ"${tpe: Type}") = atpeopt.asInstanceOf[Option[Type.Arg]]
+                val Some(targ"${tpe: Type}") = atpeopt
                 unapplyTypes :+= tpe
                 unapplyArgs :+= varName
               }
