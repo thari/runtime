@@ -36,18 +36,18 @@ class ext extends scala.annotation.StaticAnnotation {
           abort(s"Invalid @ext form on an object; it has to be of the form '@ext object ${name.value} { ... }'.")
         val extName = Term.Name(name.value + "_Ext")
         val newStats = for (stat <- stats) yield stat match {
-          case q"..$mods val ..$patsnel: $tpeopt = $$" =>
-            if (mods.nonEmpty || patsnel.size != 1 || tpeopt.isEmpty)
+          case q"..$mods val ..$patsnel: ${tpeopt: Option[Type]} = $$" =>
+            if (mods.nonEmpty || patsnel.size != 1 || !patsnel.head.isInstanceOf[Pat.Var.Term] || tpeopt.isEmpty)
               abort(stat.pos, s"Invalid Logika @ext on a val; it has to be of the form: '@ext val <id>: <type> = $$'")
-            val varName = Term.Name(patsnel.head.syntax)
+            val varName = Term.Name(patsnel.head.asInstanceOf[Pat.Var.Term].name.value)
             q"..$mods val ${Pat.Var.Term(varName)}: $tpeopt = $extName.$varName"
-          case q"..$mods var ..$patsnel: $tpeopt = $$" =>
-            if (mods.nonEmpty || patsnel.size != 1 || tpeopt.isEmpty)
+          case q"..$mods var ..$patsnel: ${tpeopt: Option[Type]} = $$" =>
+            if (mods.nonEmpty || patsnel.size != 1 || !patsnel.head.isInstanceOf[Pat.Var.Term] || tpeopt.isEmpty)
               abort(stat.pos, s"Invalid Logika @ext on a var; it has to be of the form: '@ext var <id>: <type> = $$'")
-            val varName = Term.Name(patsnel.head.syntax)
+            val varName = Term.Name(patsnel.head.asInstanceOf[Pat.Var.Term].name.value)
             q"..$mods var ${Pat.Var.Term(varName)}: $tpeopt = $extName.$varName"
           case q"..$mods def $_[..$_](...$_): $_ = $_" if mods.exists { case mod"@spec" => true; case _ => false } => stat
-          case q"..$mods def $name[..$tparams](...$paramss): $tpeopt = $expr" =>
+          case q"..$mods def $name[..$tparams](...$paramss): ${tpeopt: Option[Type]} = $expr" =>
 
             if (paramss.size > 1)
               abort(stat.pos, s"Logika @ext object methods should only have a list of parameters (instead of several lists of parameters).")
@@ -58,7 +58,7 @@ class ext extends scala.annotation.StaticAnnotation {
               Type.Name(tparamname.value)
             }
             val params = if (paramss.isEmpty) List() else paramss.head.map {
-              case param"..$_ $paramname: $atpeopt = $_" => atpeopt match {
+              case param"..$_ $paramname: ${atpeopt: Option[Type.Arg]} = $_" => atpeopt match {
                 case Some(targ"${tpe: Type}") => arg"${Term.Name(paramname.value)}"
                 case _ => abort(paramname.pos, "Unsupported Logika @ext object method parameter form.")
               }
