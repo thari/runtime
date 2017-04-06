@@ -35,12 +35,12 @@ class record extends scala.annotation.StaticAnnotation {
       case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty
           || !param.name.isInstanceOf[Name.Anonymous] || stats.nonEmpty)
-          abort(s"Invalid Logika @record form on a trait; it has to be of the form 'trait ${tname.value}'.")
+          abort("Logika @record traits have to be of the form '@record trait <id> { ... }'.")
         r
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
-          abort(s"Invalid Logika @record form on a class; it has to be of the form 'class ${tname.value}(...) { ... }'.")
+          abort("Logika @record classes have to be of the form '@record class <id>(...) { ... }'.")
         val tVars = tparams.map { tp =>
           val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
           Type.Name(tparamname.value)
@@ -49,13 +49,14 @@ class record extends scala.annotation.StaticAnnotation {
           if (tVars.isEmpty) tname else t"$tname[..$tVars]"
         }
         val ctorName = Ctor.Name(tname.value)
-        if (paramss.nonEmpty) {
+        if (paramss.nonEmpty && paramss.head.nonEmpty) {
           var varNames: Vector[Term.Name] = Vector()
           var cparams: Vector[Term.Param] = Vector()
           var applyParams: Vector[Term.Param] = Vector()
           var oApplyParams: Vector[Term.Param] = Vector()
           var applyArgs: Vector[Term.Name] = Vector()
-          var visibleArgs: Vector[Term.Name] = Vector()
+          var unapplyTypes: Vector[Type] = Vector()
+          var unapplyArgs: Vector[Term.Name] = Vector()
           var vars: Vector[Stat] = Vector()
           for (param <- paramss.head) param match {
             case param"..$mods $paramname: ${atpeopt: Option[Type.Arg]} = $expropt" if (atpeopt match {
@@ -80,18 +81,19 @@ class record extends scala.annotation.StaticAnnotation {
               applyArgs :+= paramName
               if (!hidden) {
                 val Some(targ"${tpe: Type}") = atpeopt
-                visibleArgs :+= varName
+                unapplyTypes :+= tpe
+                unapplyArgs :+= varName
               }
-            case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
+            case _ => abort(param.pos, "Unsupported Logika @record parameter form.")
           }
           val cls = {
             val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum.logika._clone($arg)")})"
             val hashCodeDirty = q"private var dirty: Boolean = true"
             val hashCodeVar = q"private var _hashCode: Int = _"
-            val hashCodeDef = q"private def computeHashCode: Int = (classOf[$tname], ..$visibleArgs).hashCode"
+            val hashCodeDef = q"private def computeHashCode: Int = (this.getClass, ..$unapplyArgs).hashCode"
             val hashCode = q"override def hashCode: Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
             val equals = {
-              val eCaseEqs = visibleArgs.map(arg => q"$arg == o.$arg")
+              val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
               val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
               val eCases =
                 Vector(if (tparams.isEmpty) p"case o: $tname => $eCaseExp"
@@ -117,18 +119,28 @@ class record extends scala.annotation.StaticAnnotation {
             q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${(hashCodeDirty +: vars) ++ Vector(hashCodeVar, hashCodeDef, hashCode, equals, clone, apply, toString) ++ stats} }"
           }
           val companion = {
-            val apply =
+            val (apply, unapply) =
               if (tparams.isEmpty)
-                q"def apply(..$oApplyParams): $tpe = new $ctorName(..$applyArgs)"
+                (q"def apply(..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
+                  unapplyTypes.size match {
+                    case 0 => q"def unapply(o: $tpe): Option[Unit] = scala.Some(())"
+                    case 1 => q"def unapply(o: $tpe): Option[${unapplyTypes.head}] = scala.Some(org.sireum.logika._clone(o.${unapplyArgs.head}))"
+                    case _ => q"def unapply(o: $tpe): Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum.logika._clone(o.$arg)")}))"
+                  })
               else
-                q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)"
-            q"object ${Term.Name(tname.value)} { $apply }"
+                (q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
+                  unapplyTypes.size match {
+                    case 0 => q"def unapply[..$tparams](o: $tpe): Option[Unit] = scala.Some(())"
+                    case 1 => q"def unapply[..$tparams](o: $tpe): Option[${unapplyTypes.head}] = scala.Some(org.sireum.logika._clone(o.${unapplyArgs.head}))"
+                    case _ => q"def unapply[..$tparams](o: $tpe): Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum.logika._clone(o.$arg)")}))"
+                  })
+            q"object ${Term.Name(tname.value)} { ..${Vector(apply, unapply)} }"
           }
           Term.Block(Vector(cls, companion))
         } else {
           val cls = {
             val clone = q"override def clone: $tpe = new $ctorName()"
-            val hashCode = q"override val hashCode: Int = classOf[$tname].hashCode"
+            val hashCode = q"override val hashCode: Int = this.getClass.hashCode"
             val equals = {
               val eCases =
                 Vector(if (tparams.isEmpty) p"case o: $tname => true"
@@ -143,12 +155,17 @@ class record extends scala.annotation.StaticAnnotation {
             q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
           val companion = {
-            val apply =
+            val (v, apply, unapply) =
               if (tparams.isEmpty)
-                q"def apply(): $tpe = new $ctorName()"
+                (q"private[this] val v: AnyRef = new $ctorName()",
+                  q"def apply(): $tpe = v.asInstanceOf[$tpe]",
+                  q"def unapply(o: $tpe): Option[Unit] = unv")
               else
-                q"def apply[..$tparams](): $tpe = new $ctorName()"
-            q"object ${Term.Name(tname.value)} { $apply }"
+                (q"private[this] val v: AnyRef = new $ctorName[..${tparams.map(_ => t"Nothing")}]()",
+                  q"def apply[..$tparams](): $tpe = v.asInstanceOf[$tpe]",
+                  q"def unapply[..$tparams](o: $tpe): Option[Unit] = unv")
+            val unv = q"private[this] lazy val unv: Option[Unit] = scala.Some(())"
+            q"object ${Term.Name(tname.value)} { ..${Vector(v, unv, apply, unapply)} }"
           }
           Term.Block(Vector(cls, companion))
         }

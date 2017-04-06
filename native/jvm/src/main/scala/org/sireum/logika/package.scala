@@ -27,6 +27,7 @@ package org.sireum
 
 package object logika {
   type B = _B
+  type INT = math._LogikaIntegralNumber
   type Z = math._Z
   type Z8 = math._Z8.Value
   type Z16 = math._Z16.Value
@@ -239,8 +240,6 @@ package object logika {
   final class helper extends scala.annotation.StaticAnnotation
 
   final class pure extends scala.annotation.StaticAnnotation
-
-  final class spec extends scala.annotation.StaticAnnotation
 
   final class hidden extends scala.annotation.StaticAnnotation
 
