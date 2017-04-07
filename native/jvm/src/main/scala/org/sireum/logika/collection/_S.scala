@@ -29,6 +29,28 @@ import org.sireum.logika.{_Clonable, _Immutable, Z, Z8, Z16, Z32, Z64, N, N8, N1
 import org.sireum.logika.math._
 import scala.collection.mutable.ArrayBuffer
 
+object _S {
+  import scala.reflect.runtime.universe._
+  private[collection] val zType = typeOf[Z]
+  private[collection] val z8Type = typeOf[Z8]
+  private[collection] val z16Type = typeOf[Z16]
+  private[collection] val z32Type = typeOf[Z32]
+  private[collection] val z64Type = typeOf[Z64]
+  private[collection] val nType = typeOf[N]
+  private[collection] val n8Type = typeOf[N8]
+  private[collection] val n16Type = typeOf[N16]
+  private[collection] val n32Type = typeOf[N32]
+  private[collection] val n64Type = typeOf[N64]
+  private[collection] val s8Type = typeOf[S8]
+  private[collection] val s16Type = typeOf[S16]
+  private[collection] val s32Type = typeOf[S32]
+  private[collection] val s64Type = typeOf[S64]
+  private[collection] val u8Type = typeOf[U8]
+  private[collection] val u16Type = typeOf[U16]
+  private[collection] val u32Type = typeOf[U32]
+  private[collection] val u64Type = typeOf[U64]
+}
+
 sealed trait _S[I, V] extends _Clonable with _Immutable {
   private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
 
@@ -81,13 +103,20 @@ sealed trait _S[I, V] extends _Clonable with _Immutable {
   def ++(values: _S[I, V]): _S[I, V]
 
   def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): _S[I, V]
+
+  def foreach(f: V => Unit): Unit
+
+  def indices: scala.collection.Traversable[I]
 }
 
 object _IS {
-  def apply[I <: _LogikaIntegralNumber, V](values: V*): _IS[I, V] =
-    new ISImpl[I, V](values.length, Vector[V](values: _*))
+  val v = new ISImpl[Nothing, Nothing](0, Vector[Nothing]())
 
-  def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _IS[I, V] = {
+  def apply[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](values: V*): _IS[I, V] =
+    if(values.isEmpty) v.asInstanceOf[IS[I, V]]
+    else new ISImpl[I, V](values.length, Vector[V](values: _*))
+
+  def create[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](size: I, default: V): _IS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
     new ISImpl[I, V](sz.toZ32.value, Vector[V]((0 until sz.toZ32.value).map(_ => default): _*))
   }
@@ -101,9 +130,12 @@ sealed trait _IS[I, V] extends _S[I, V] {
   override def ++(values: _S[I, V]): IS[I, V]
 
   override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): IS[I, V]
+
+  final override def foreach(f: V => Unit): Unit =
+    for (e <- elements) f(e)
 }
 
-private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) extends _IS[I, V] {
+private[logika] final class ISImpl[I : org.sireum.logika.TT, V](val sz: Int, val data: Vector[V]) extends _IS[I, V] {
   override val hashCode: Int = data.hashCode
 
   override val size: Z = _Z(sz)
@@ -176,14 +208,39 @@ private[logika] final class ISImpl[I, V](val sz: Int, val data: Vector[V]) exten
     }
     new ISImpl[I, V](sz, newData.toVector)
   }
+
+  override def indices: Traversable[I] = {
+    import scala.reflect.runtime.universe._
+    import _S._
+    (typeOf[I] match {
+      case `zType` => (0 until sz).map(i => _Z(i))
+      case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
+      case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
+      case `z32Type` => (0 until sz).map(i => _Z(i).toZ32)
+      case `z64Type` => (0 until sz).map(i => _Z(i).toZ64)
+      case `nType` => (0 until sz).map(i => _N(i))
+      case `n8Type` => (0 until sz).map(i => _Z(i).toN8)
+      case `n16Type` => (0 until sz).map(i => _Z(i).toN16)
+      case `n32Type` => (0 until sz).map(i => _Z(i).toN32)
+      case `n64Type` => (0 until sz).map(i => _Z(i).toN64)
+      case `s8Type` => (0 until sz).map(i => _Z(i).toS8)
+      case `s16Type` => (0 until sz).map(i => _Z(i).toS16)
+      case `s32Type` => (0 until sz).map(i => _Z(i).toS32)
+      case `s64Type` => (0 until sz).map(i => _Z(i).toS64)
+      case `u8Type` => (0 until sz).map(i => _Z(i).toU8)
+      case `u16Type` => (0 until sz).map(i => _Z(i).toU16)
+      case `u32Type` => (0 until sz).map(i => _Z(i).toU32)
+      case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
+    }).asInstanceOf[Traversable[I]]
+  }
 }
 
 object _MS {
-  def apply[I <: _LogikaIntegralNumber, V](values: V*): _MS[I, V] = {
+  def apply[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](values: V*): _MS[I, V] = {
     new MSImpl[I, V](values.length, ArrayBuffer[V](values: _*))
   }
 
-  def create[I <: _LogikaIntegralNumber, V](size: I, default: V): _MS[I, V] = {
+  def create[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](size: I, default: V): _MS[I, V] = {
     val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
     new MSImpl[I, V](sz.toZ32.value, ArrayBuffer((0 until sz.toZ32.value).map(_ => default): _*))
   }
@@ -234,6 +291,9 @@ sealed trait _MS[I, V] extends _S[I, V] {
 
   final def update(index: U64, value: V): Unit = update(index.toZ, value)
 
+  final override def foreach(f: V => Unit): Unit =
+    for (e <- elements) f(org.sireum.logika._clone(e))
+
   final override def toString: String = {
     def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
 
@@ -259,7 +319,7 @@ sealed trait _MS[I, V] extends _S[I, V] {
   }
 }
 
-private[logika] class MSImpl[I, V](val sz: Int, val data: ArrayBuffer[V]) extends _MS[I, V] {
+private[logika] class MSImpl[I : org.sireum.logika.TT, V](val sz: Int, val data: ArrayBuffer[V]) extends _MS[I, V] {
   def size: Z = _Z(sz)
 
   def elements: scala.collection.Seq[V] = data
@@ -313,5 +373,30 @@ private[logika] class MSImpl[I, V](val sz: Int, val data: ArrayBuffer[V]) extend
       }
     }
     new MSImpl[I, V](sz, newData)
+  }
+
+  override def indices: Traversable[I] = {
+    import scala.reflect.runtime.universe._
+    import _S._
+    (typeOf[I] match {
+      case `zType` => (0 until sz).map(i => _Z(i))
+      case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
+      case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
+      case `z32Type` => (0 until sz).map(i => _Z(i).toZ32)
+      case `z64Type` => (0 until sz).map(i => _Z(i).toZ64)
+      case `nType` => (0 until sz).map(i => _N(i))
+      case `n8Type` => (0 until sz).map(i => _Z(i).toN8)
+      case `n16Type` => (0 until sz).map(i => _Z(i).toN16)
+      case `n32Type` => (0 until sz).map(i => _Z(i).toN32)
+      case `n64Type` => (0 until sz).map(i => _Z(i).toN64)
+      case `s8Type` => (0 until sz).map(i => _Z(i).toS8)
+      case `s16Type` => (0 until sz).map(i => _Z(i).toS16)
+      case `s32Type` => (0 until sz).map(i => _Z(i).toS32)
+      case `s64Type` => (0 until sz).map(i => _Z(i).toS64)
+      case `u8Type` => (0 until sz).map(i => _Z(i).toU8)
+      case `u16Type` => (0 until sz).map(i => _Z(i).toU16)
+      case `u32Type` => (0 until sz).map(i => _Z(i).toU32)
+      case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
+    }).asInstanceOf[Traversable[I]]
   }
 }

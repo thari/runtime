@@ -26,6 +26,8 @@
 package org.sireum
 
 package object logika {
+  type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
+
   type B = _B
   type INT = math._LogikaIntegralNumber
   type Z = math._Z
@@ -58,13 +60,13 @@ package object logika {
   type ZS = collection._MS[Z, Z]
 
   object MS {
-    def apply[I <: math._LogikaIntegralNumber, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
-    def create[I <: math._LogikaIntegralNumber, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
+    def apply[I <: INT: TT, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
+    def create[I <: INT: TT, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
   }
 
   object IS {
-    def apply[I <: math._LogikaIntegralNumber, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
-    def create[I <: math._LogikaIntegralNumber, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
+    def apply[I <: INT: TT, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
+    def create[I <: INT: TT, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
   }
 
   object MSZ {

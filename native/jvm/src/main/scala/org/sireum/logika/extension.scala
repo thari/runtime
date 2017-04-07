@@ -948,18 +948,18 @@ object R_Ext {
 
 object SI_Ext {
 
-  @pure def append[I <: INT, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
+  @pure def append[I <: INT : TT, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
 
-  @pure def prepend[I <: INT, E](s: IS[I, E], e: E): IS[I, E] = e +: s
+  @pure def prepend[I <: INT : TT, E](s: IS[I, E], e: E): IS[I, E] = e +: s
 
-  @pure def appends[I <: INT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
+  @pure def appends[I <: INT : TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
 
-  @pure def toMS[I <: INT, E](s: IS[I, E]): MS[I, E] = s match {
+  @pure def toMS[I <: INT : TT, E](s: IS[I, E]): MS[I, E] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
-      new collection.MSImpl(s.sz, ArrayBuffer(s.data.map(_clone): _*))
+      new collection.MSImpl[I, E](s.sz, ArrayBuffer(s.data.map(_clone): _*))
   }
 
-  @pure def chunk[I <: INT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = s match {
+  @pure def chunk[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz % sizeInt == 0)
@@ -975,7 +975,7 @@ object SI_Ext {
       new collection.ISImpl(sz, result)
   }
 
-  @pure def drop[I <: INT, E](s: IS[I, E], size: I): IS[I, E] = s match {
+  @pure def drop[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, E] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz >= sizeInt)
@@ -986,7 +986,7 @@ object SI_Ext {
       new collection.ISImpl(s.sz - sizeInt, result)
   }
 
-  @pure def foldLeft[I <: INT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+  @pure def foldLeft[I <: INT : TT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
       var r = init
       for (e <- s.data) {
@@ -995,7 +995,7 @@ object SI_Ext {
       r
   }
 
-  @pure def foldRight[I <: INT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+  @pure def foldRight[I <: INT : TT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
       var r = init
       for (e <- s.data.reverseIterator) {
@@ -1004,12 +1004,12 @@ object SI_Ext {
       r
   }
 
-  @pure def map[I <: INT, E1, E2](s: IS[I, E1], @pure f: E1 => E2): IS[I, E2] = s match {
+  @pure def map[I <: INT : TT, E1, E2](s: IS[I, E1], @pure f: E1 => E2): IS[I, E2] = s match {
     case (s: collection.ISImpl[I, E1]@unchecked) =>
       new collection.ISImpl[I, E2](s.sz, _clone(s.data.map(f)))
   }
 
-  @pure def take[I <: INT, E](s: IS[I, E], size: I): IS[I, E] = s match {
+  @pure def take[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, E] = s match {
     case (s: collection.ISImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz >= sizeInt)
@@ -1020,35 +1020,35 @@ object SI_Ext {
       new collection.ISImpl(sizeInt, result)
   }
 
-  @pure def fromU8[I <: INT](n: U8): IS[I, B] = {
+  @pure def fromU8[I <: INT : TT](n: U8): IS[I, B] = {
     new collection.ISImpl[I, B](8, (0 until 8).toVector.map { i =>
       val mask = u8"1" << i.toU8
       _2B((n & mask) != mask)
     })
   }
 
-  @pure def fromU16[I <: INT](n: U16): IS[I, B] = {
+  @pure def fromU16[I <: INT : TT](n: U16): IS[I, B] = {
     new collection.ISImpl[I, B](16, (0 until 16).toVector.map { i =>
       val mask = u16"1" << i.toU16
       _2B((n & mask) != mask)
     })
   }
 
-  @pure def fromU32[I <: INT](n: U32): IS[I, B] = {
+  @pure def fromU32[I <: INT : TT](n: U32): IS[I, B] = {
     new collection.ISImpl[I, B](32, (0 until 32).toVector.map { i =>
       val mask = u32"1" << i.toU32
       _2B((n & mask) != mask)
     })
   }
 
-  @pure def fromU64[I <: INT](n: U64): IS[I, B] = {
+  @pure def fromU64[I <: INT : TT](n: U64): IS[I, B] = {
     new collection.ISImpl[I, B](64, (0 until 64).toVector.map { i =>
       val mask = u64"1" << i.toU64
       _2B((n & mask) != mask)
     })
   }
 
-  @pure def toU8[I <: INT](s: IS[I, B]): U8 = {
+  @pure def toU8[I <: INT : TT](s: IS[I, B]): U8 = {
     require(s.size == z"8")
     var result = u8"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1060,7 +1060,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU16[I <: INT](s: IS[I, B]): U16 = {
+  @pure def toU16[I <: INT : TT](s: IS[I, B]): U16 = {
     require(s.size == z"16")
     var result = u16"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1072,7 +1072,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU32[I <: INT](s: IS[I, B]): U32 = {
+  @pure def toU32[I <: INT : TT](s: IS[I, B]): U32 = {
     require(s.size == z"32")
     var result = u32"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1084,7 +1084,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU64[I <: INT](s: IS[I, B]): U64 = {
+  @pure def toU64[I <: INT : TT](s: IS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1099,18 +1099,18 @@ object SI_Ext {
 
 object SM_Ext {
 
-  @pure def append[I <: INT, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
+  @pure def append[I <: INT : TT, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
 
-  @pure def prepend[I <: INT, E](s: MS[I, E], e: E): MS[I, E] = e +: s
+  @pure def prepend[I <: INT : TT, E](s: MS[I, E], e: E): MS[I, E] = e +: s
 
-  @pure def appends[I <: INT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
+  @pure def appends[I <: INT : TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
 
-  @pure def toIS[I <: INT, E](s: MS[I, E]): IS[I, E] = s match {
+  @pure def toIS[I <: INT : TT, E](s: MS[I, E]): IS[I, E] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       new collection.ISImpl(s.sz, Vector(s.data.map(_clone): _*))
   }
 
-  @pure def chunk[I <: INT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = s match {
+  @pure def chunk[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz % sizeInt == 0)
@@ -1126,7 +1126,7 @@ object SM_Ext {
       new collection.MSImpl(sz, result)
   }
 
-  @pure def drop[I <: INT, E](s: MS[I, E], size: I): MS[I, E] = s match {
+  @pure def drop[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, E] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz >= sizeInt)
@@ -1138,7 +1138,7 @@ object SM_Ext {
       new collection.MSImpl(rSize, result)
   }
 
-  @pure def foldLeft[I <: INT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+  @pure def foldLeft[I <: INT : TT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       var r = init
       for (e <- s.data) {
@@ -1147,7 +1147,7 @@ object SM_Ext {
       r
   }
 
-  @pure def foldRight[I <: INT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
+  @pure def foldRight[I <: INT : TT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       var r = init
       for (e <- s.data.reverseIterator) {
@@ -1156,19 +1156,19 @@ object SM_Ext {
       r
   }
 
-  @pure def map[I <: INT, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] = s match {
+  @pure def map[I <: INT : TT, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] = s match {
     case (s: collection.MSImpl[I, E1]@unchecked) =>
       new collection.MSImpl[I, E2](s.sz, _clone(s.data.map(f)))
   }
 
-  def transform[I <: INT, E](s: MS[I, E], @pure f: E => E): Unit = s match {
+  def transform[I <: INT : TT, E](s: MS[I, E], @pure f: E => E): Unit = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       for (i <- s.data.indices) {
         s.data(i) = _clone(f(s.data(i)))
       }
   }
 
-  @pure def take[I <: INT, E](s: MS[I, E], size: I): MS[I, E] = s match {
+  @pure def take[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, E] = s match {
     case (s: collection.MSImpl[I, E]@unchecked) =>
       val sizeInt = size.toZ.toInt
       require(s.sz >= sizeInt)
@@ -1179,35 +1179,35 @@ object SM_Ext {
       new collection.MSImpl(sizeInt, result)
   }
 
-  @pure def fromU8[I <: INT](n: U8): MS[I, B] = {
+  @pure def fromU8[I <: INT : TT](n: U8): MS[I, B] = {
     new collection.MSImpl[I, B](8, ArrayBuffer((0 until 8).map { i =>
       val mask = u8"1" << i.toU8
       _2B((n & mask) != mask)
     }: _*))
   }
 
-  @pure def fromU16[I <: INT](n: U16): MS[I, B] = {
+  @pure def fromU16[I <: INT : TT](n: U16): MS[I, B] = {
     new collection.MSImpl[I, B](16, ArrayBuffer((0 until 16).map { i =>
       val mask = u16"1" << i.toU16
       _2B((n & mask) != mask)
     }: _*))
   }
 
-  @pure def fromU32[I <: INT](n: U32): MS[I, B] = {
+  @pure def fromU32[I <: INT : TT](n: U32): MS[I, B] = {
     new collection.MSImpl[I, B](32, ArrayBuffer((0 until 32).map { i =>
       val mask = u32"1" << i.toU32
       _2B((n & mask) != mask)
     }: _*))
   }
 
-  @pure def fromU64[I <: INT](n: U64): MS[I, B] = {
+  @pure def fromU64[I <: INT : TT](n: U64): MS[I, B] = {
     new collection.MSImpl[I, B](64, ArrayBuffer((0 until 64).map { i =>
       val mask = u64"1" << i.toU64
       _2B((n & mask) != mask)
     }: _*))
   }
 
-  @pure def toU8[I <: INT](s: MS[I, B]): U8 = {
+  @pure def toU8[I <: INT : TT](s: MS[I, B]): U8 = {
     require(s.size == z"8")
     var result = u8"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1219,7 +1219,7 @@ object SM_Ext {
     result
   }
 
-  @pure def toU16[I <: INT](s: MS[I, B]): U16 = {
+  @pure def toU16[I <: INT : TT](s: MS[I, B]): U16 = {
     require(s.size == z"16")
     var result = u16"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1231,7 +1231,7 @@ object SM_Ext {
     result
   }
 
-  @pure def toU32[I <: INT](s: MS[I, B]): U32 = {
+  @pure def toU32[I <: INT : TT](s: MS[I, B]): U32 = {
     require(s.size == z"32")
     var result = u32"0"
     for (i <- 0 until s.size.toZ32.value) {
@@ -1243,7 +1243,7 @@ object SM_Ext {
     result
   }
 
-  @pure def toU64[I <: INT](s: MS[I, B]): U64 = {
+  @pure def toU64[I <: INT : TT](s: MS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
     for (i <- 0 until s.size.toZ32.value) {
