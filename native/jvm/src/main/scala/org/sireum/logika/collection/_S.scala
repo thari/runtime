@@ -25,194 +25,169 @@
 
 package org.sireum.logika.collection
 
-import org.sireum.logika.{_Clonable, _Immutable, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clone}
+import org.sireum.logika.{_Clonable, _Immutable, TT, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clone}
 import org.sireum.logika.math._
 import scala.collection.mutable.ArrayBuffer
 
 object _S {
+
   import scala.reflect.runtime.universe._
-  private[collection] val zType = typeOf[Z]
-  private[collection] val z8Type = typeOf[Z8]
-  private[collection] val z16Type = typeOf[Z16]
-  private[collection] val z32Type = typeOf[Z32]
-  private[collection] val z64Type = typeOf[Z64]
-  private[collection] val nType = typeOf[N]
-  private[collection] val n8Type = typeOf[N8]
-  private[collection] val n16Type = typeOf[N16]
-  private[collection] val n32Type = typeOf[N32]
-  private[collection] val n64Type = typeOf[N64]
-  private[collection] val s8Type = typeOf[S8]
-  private[collection] val s16Type = typeOf[S16]
-  private[collection] val s32Type = typeOf[S32]
-  private[collection] val s64Type = typeOf[S64]
-  private[collection] val u8Type = typeOf[U8]
-  private[collection] val u16Type = typeOf[U16]
-  private[collection] val u32Type = typeOf[U32]
-  private[collection] val u64Type = typeOf[U64]
-}
 
-sealed trait _S[I, V] extends _Clonable with _Immutable {
-  private[logika] val properties = scala.collection.mutable.HashMap[Any, Any]()
+  private[sireum] val zType = typeOf[Z].dealias.toString
+  private[sireum] val z8Type = typeOf[Z8].dealias.toString
+  private[sireum] val z16Type = typeOf[Z16].dealias.toString
+  private[sireum] val z32Type = typeOf[Z32].dealias.toString
+  private[sireum] val z64Type = typeOf[Z64].dealias.toString
+  private[sireum] val nType = typeOf[N].dealias.toString
+  private[sireum] val n8Type = typeOf[N8].dealias.toString
+  private[sireum] val n16Type = typeOf[N16].dealias.toString
+  private[sireum] val n32Type = typeOf[N32].dealias.toString
+  private[sireum] val n64Type = typeOf[N64].dealias.toString
+  private[sireum] val s8Type = typeOf[S8].dealias.toString
+  private[sireum] val s16Type = typeOf[S16].dealias.toString
+  private[sireum] val s32Type = typeOf[S32].dealias.toString
+  private[sireum] val s64Type = typeOf[S64].dealias.toString
+  private[sireum] val u8Type = typeOf[U8].dealias.toString
+  private[sireum] val u16Type = typeOf[U16].dealias.toString
+  private[sireum] val u32Type = typeOf[U32].dealias.toString
+  private[sireum] val u64Type = typeOf[U64].dealias.toString
 
-  def property[T](key: Any): T = properties(key).asInstanceOf[T]
+  private[sireum] def isLogikaNumber[T: TT]: Boolean = {
+    scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
+      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
+      case x =>
+        false
+    }
+  }
 
-  def elements: scala.collection.Seq[V]
+  private[sireum] def ln2int(value: Z): Int = value.toZ32.toInt
 
-  def apply(index: Z): V
-
-  final def apply(index: Z8): V = apply(index.toZ)
-
-  final def apply(index: Z16): V = apply(index.toZ)
-
-  final def apply(index: Z32): V = apply(index.toZ)
-
-  final def apply(index: Z64): V = apply(index.toZ)
-
-  final def apply(index: N): V = apply(index.toZ)
-
-  final def apply(index: N8): V = apply(index.toZ)
-
-  final def apply(index: N16): V = apply(index.toZ)
-
-  final def apply(index: N32): V = apply(index.toZ)
-
-  final def apply(index: N64): V = apply(index.toZ)
-
-  final def apply(index: S8): V = apply(index.toZ)
-
-  final def apply(index: S16): V = apply(index.toZ)
-
-  final def apply(index: S32): V = apply(index.toZ)
-
-  final def apply(index: S64): V = apply(index.toZ)
-
-  final def apply(index: U8): V = apply(index.toZ)
-
-  final def apply(index: U16): V = apply(index.toZ)
-
-  final def apply(index: U32): V = apply(index.toZ)
-
-  final def apply(index: U64): V = apply(index.toZ)
-
-  def size: Z
-
-  def :+(value: V): _S[I, V]
-
-  def +:(value: V): _S[I, V]
-
-  def ++(values: _S[I, V]): _S[I, V]
-
-  def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): _S[I, V]
-
-  def foreach(f: V => Unit): Unit
-
-  def indices: scala.collection.Traversable[I]
+  private[sireum] def ln2int[T: TT](value: T): Int = {
+    scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
+      case `zType` => value.asInstanceOf[Z].toZ32.toInt
+      case `z8Type` => value.asInstanceOf[Z8].toZ32.toInt
+      case `z16Type` => value.asInstanceOf[Z16].toZ32.toInt
+      case `z32Type` => value.asInstanceOf[Z32].toInt
+      case `z64Type` => value.asInstanceOf[Z64].toZ32.toInt
+      case `nType` => value.asInstanceOf[N].toZ32.toInt
+      case `n8Type` => value.asInstanceOf[N8].toZ32.toInt
+      case `n16Type` => value.asInstanceOf[N16].toZ32.toInt
+      case `n32Type` => value.asInstanceOf[N32].toZ32.toInt
+      case `n64Type` => value.asInstanceOf[N64].toZ32.toInt
+      case `s8Type` => value.asInstanceOf[S8].toZ32.toInt
+      case `s16Type` => value.asInstanceOf[S16].toZ32.toInt
+      case `s32Type` => value.asInstanceOf[S32].toZ32.toInt
+      case `s64Type` => value.asInstanceOf[S64].toZ32.toInt
+      case `u8Type` => value.asInstanceOf[U8].toZ32.toInt
+      case `u16Type` => value.asInstanceOf[U16].toZ32.toInt
+      case `u32Type` => value.asInstanceOf[U32].toZ32.toInt
+      case `u64Type` => value.asInstanceOf[U64].toZ32.toInt
+    }
+  }
 }
 
 object _IS {
-  val v = new ISImpl[Nothing, Nothing](0, Vector[Nothing]())
 
-  def apply[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](values: V*): _IS[I, V] =
-    if(values.isEmpty) v.asInstanceOf[IS[I, V]]
-    else new ISImpl[I, V](values.length, Vector[V](values: _*))
+  import _S._
 
-  def create[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](size: I, default: V): _IS[I, V] = {
-    val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
-    new ISImpl[I, V](sz.toZ32.value, Vector[V]((0 until sz.toZ32.value).map(_ => default): _*))
+  def apply[I: TT, V](elements: V*): IS[I, V] = {
+    require(isLogikaNumber[I])
+    new _IS[I, V](Vector(implicitly[TT[I]], null) ++ elements)
+  }
+
+  def create[I: TT, V](size: I, default: V): IS[I, V] = {
+    require(isLogikaNumber[I])
+    val sz = ln2int(size)
+    new _IS[I, V](Vector(implicitly[TT[I]], null) ++ (0 until sz).map(_ => default))
   }
 }
 
-sealed trait _IS[I, V] extends _S[I, V] {
-  override def :+(value: V): IS[I, V]
+final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
+  private[sireum] def data_=(o: Any): IS[I, V] = {
+    new _IS(value.updated(1, o))
+    this
+  }
 
-  override def +:(value: V): IS[I, V]
+  private[sireum] def data[T]: T = value(1).asInstanceOf[T]
 
-  override def ++(values: _S[I, V]): IS[I, V]
+  def size: Z = value.size - 2
 
-  override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): IS[I, V]
+  def elements: scala.collection.Seq[V] = value.drop(2).asInstanceOf[scala.collection.Seq[V]]
 
-  final override def foreach(f: V => Unit): Unit =
-    for (e <- elements) f(e)
-}
-
-private[logika] final class ISImpl[I : org.sireum.logika.TT, V](val sz: Int, val data: Vector[V]) extends _IS[I, V] {
-  override val hashCode: Int = data.hashCode
-
-  override val size: Z = _Z(sz)
-
-  def elements: scala.collection.Seq[V] = data
+  def apply(index: Int): V = {
+    require(0 <= index && index < size)
+    value(index + 2).asInstanceOf[V]
+  }
 
   def apply(index: Z): V = {
-    val i = index
-    require(0 <= i && i < _Z(elements.length))
-    data(i.toZ32.value)
+    require(0 <= index && index < size)
+    value(index.toInt + 2).asInstanceOf[V]
   }
 
-  override def toString: String = {
-    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
+  def apply(index: Z8): V = apply(index.toZ)
 
-    val sb = new StringBuilder
-    sb.append('[')
-    if (elements.nonEmpty) {
-      val isBoolean = elements.head.isInstanceOf[Boolean]
-      if (isBoolean) {
-        sb.append(toBit(0))
-        for (i <- 1 until elements.length) {
-          sb.append(toBit(i))
-        }
-      } else {
-        sb.append(elements.head.toString)
-        for (i <- 1 until elements.length) {
-          sb.append(", ")
-          sb.append(elements(i).toString)
-        }
-      }
-    }
-    sb.append(']')
-    sb.toString
-  }
+  def apply(index: Z16): V = apply(index.toZ)
 
-  override def :+(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, data :+ value)
+  def apply(index: Z32): V = apply(index.toZ)
 
-  override def +:(value: V): _IS[I, V] = new ISImpl[I, V](sz + 1, value +: data)
+  def apply(index: Z64): V = apply(index.toZ)
 
-  override def ++(values: _S[I, V]): _IS[I, V] = values match {
-    case (values: ISImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, data ++ values.data)
-    case (values: MSImpl[I, V]@unchecked) => new ISImpl[I, V](sz + values.sz, data ++ values.data)
-  }
+  def apply(index: N): V = apply(index.toZ)
 
-  override def equals(other: Any): Boolean = other match {
-    case other: ISImpl[_, _] =>
-      if (other.size != size) return false
-      if (other.data eq data) return true
-      for (i <- data.indices) {
-        if (other.data(i) != data(i)) return false
-      }
-      true
-    case _ => false
-  }
+  def apply(index: N8): V = apply(index.toZ)
 
-  override def clone: IS[I, V] = this
+  def apply(index: N16): V = apply(index.toZ)
 
-  override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): IS[I, V] = {
-    var entryMap: Map[Int, V] = Map()
+  def apply(index: N32): V = apply(index.toZ)
+
+  def apply(index: N64): V = apply(index.toZ)
+
+  def apply(index: S8): V = apply(index.toZ)
+
+  def apply(index: S16): V = apply(index.toZ)
+
+  def apply(index: S32): V = apply(index.toZ)
+
+  def apply(index: S64): V = apply(index.toZ)
+
+  def apply(index: U8): V = apply(index.toZ)
+
+  def apply(index: U16): V = apply(index.toZ)
+
+  def apply(index: U32): V = apply(index.toZ)
+
+  def apply(index: U64): V = apply(index.toZ)
+
+  def :+(value: V): IS[I, V] = new _IS[I, V](this.value :+ value)
+
+  def +:(value: V): IS[I, V] = new _IS[I, V]((this.value.take(2) :+ value) ++ this.value.drop(2))
+
+  def ++(other: IS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
+
+  def ++(other: MS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
+
+  def apply[T](entries: (T, V)*): IS[I, V] = {
+    var newValue = value
+    val sz = value.size - 1
     for ((i, v) <- entries) {
-      entryMap += i.toZ32.value -> v
+      val index = i.asInstanceOf[_LogikaIntegralNumber].toZ32.value
+      require(0 <= index && index < sz)
+      newValue = newValue.updated(index + 2, v)
     }
-    val newData = ArrayBuffer[V](data: _*)
-    for (i <- elements.indices) {
-      entryMap.get(i) match {
-        case Some(v) => newData(i) = v
-        case None => newData(i) = newData(i)
-      }
-    }
-    new ISImpl[I, V](sz, newData.toVector)
+    new _IS[I, V](newValue)
   }
 
-  override def indices: Traversable[I] = {
+  def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
+
+  def indices: Traversable[I] = {
     import scala.reflect.runtime.universe._
     import _S._
-    (typeOf[I] match {
+    val sz = value.size
+    implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
+    (typeOf[I].dealias.toString match {
       case `zType` => (0 until sz).map(i => _Z(i))
       case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
       case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
@@ -233,68 +208,12 @@ private[logika] final class ISImpl[I : org.sireum.logika.TT, V](val sz: Int, val
       case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
     }).asInstanceOf[Traversable[I]]
   }
-}
 
-object _MS {
-  def apply[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](values: V*): _MS[I, V] = {
-    new MSImpl[I, V](values.length, ArrayBuffer[V](values: _*))
-  }
+  def clone: IS[I, V] = this
 
-  def create[I <: _LogikaIntegralNumber : org.sireum.logika.TT, V](size: I, default: V): _MS[I, V] = {
-    val sz = size.asInstanceOf[_LogikaIntegralNumber].toZ
-    new MSImpl[I, V](sz.toZ32.value, ArrayBuffer((0 until sz.toZ32.value).map(_ => default): _*))
-  }
-}
+  override def toString: String = {
+    val elements = this.elements
 
-sealed trait _MS[I, V] extends _S[I, V] {
-  override def :+(value: V): MS[I, V]
-
-  override def +:(value: V): MS[I, V]
-
-  override def ++(values: _S[I, V]): MS[I, V]
-
-  override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): MS[I, V]
-
-  def update(index: Z, value: V): Unit
-
-  final def update(index: Z8, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: Z16, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: Z32, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: Z64, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: N, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: N8, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: N16, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: N32, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: N64, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: S8, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: S16, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: S32, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: S64, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: U8, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: U16, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: U32, value: V): Unit = update(index.toZ, value)
-
-  final def update(index: U64, value: V): Unit = update(index.toZ, value)
-
-  final override def foreach(f: V => Unit): Unit =
-    for (e <- elements) f(org.sireum.logika._clone(e))
-
-  final override def toString: String = {
     def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
 
     val sb = new StringBuilder
@@ -319,66 +238,150 @@ sealed trait _MS[I, V] extends _S[I, V] {
   }
 }
 
-private[logika] class MSImpl[I : org.sireum.logika.TT, V](val sz: Int, val data: ArrayBuffer[V]) extends _MS[I, V] {
-  def size: Z = _Z(sz)
 
-  def elements: scala.collection.Seq[V] = data
+object _MS {
+
+  import _S._
+
+  def apply[I: TT, V](elements: V*): MS[I, V] = {
+    require(isLogikaNumber[I])
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]], null) ++ elements.map(_clone))
+  }
+
+  def create[I: TT, V](size: I, default: V): MS[I, V] = {
+    require(isLogikaNumber[I])
+    val sz = ln2int(size)
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]], null) ++ (0 until sz).map(_ => _clone(default)))
+  }
+}
+
+final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
+  private[sireum] def data_=(o: Any): MS[I, V] = {
+    value(1) = o
+    this
+  }
+
+  private[sireum] def data[T]: T = value(1).asInstanceOf[T]
+
+  def size: Z = value.size - 2
+
+  def elements: scala.collection.Seq[V] = value.drop(2).asInstanceOf[scala.collection.Seq[V]]
+
+  def apply(index: Int): V = {
+    require(0 <= index && index < size)
+    value(index + 2).asInstanceOf[V]
+  }
 
   def apply(index: Z): V = {
-    val i = index
-    require(0 <= i && i < _Z(elements.length))
-    data(i.toZ32.value)
+    require(0 <= index && index < size)
+    value(index.toInt + 2).asInstanceOf[V]
+  }
+
+  def update(index: Int, value: V): Unit = {
+    require(0 <= index && index < size)
+    this.value(index + 2) = value
   }
 
   def update(index: Z, value: V): Unit = {
-    val i = index
-    require(0 <= i && i < _Z(elements.length))
-    data(i.toZ32.value) = _clone(value)
+    require(0 <= index && index < size)
+    this.value(index.toInt + 2) = value
   }
 
-  override def hashCode: Int = data.hashCode
+  def update(index: Z8, value: V): Unit = update(index.toZ, value)
 
-  override def :+(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, data :+ _clone(value))
+  def update(index: Z16, value: V): Unit = update(index.toZ, value)
 
-  override def +:(value: V): _MS[I, V] = new MSImpl[I, V](sz + 1, _clone(value) +: data)
+  def update(index: Z32, value: V): Unit = update(index.toZ, value)
 
-  override def ++(values: _S[I, V]): _MS[I, V] = values match {
-    case (values: MSImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clone))
-    case (values: ISImpl[I, V]@unchecked) => new MSImpl[I, V](sz + values.sz, (data ++ values.data).map(_clone))
-  }
+  def update(index: Z64, value: V): Unit = update(index.toZ, value)
 
-  override def equals(other: Any): Boolean = other match {
-    case other: MSImpl[_, _] =>
-      if (other.size != size) return false
-      if (other.data eq data) return true
-      for (i <- data.indices) {
-        if (other.data(i) != data(i)) return false
-      }
-      true
-    case _ => false
-  }
+  def update(index: N, value: V): Unit = update(index.toZ, value)
 
-  override def clone: _MS[I, V] = new MSImpl[I, V](sz, data.map(_clone))
+  def update(index: N8, value: V): Unit = update(index.toZ, value)
 
-  override def apply[T <: _LogikaIntegralNumber](entries: (T, V)*): MS[I, V] = {
-    var entryMap: Map[Int, V] = Map()
+  def update(index: N16, value: V): Unit = update(index.toZ, value)
+
+  def update(index: N32, value: V): Unit = update(index.toZ, value)
+
+  def update(index: N64, value: V): Unit = update(index.toZ, value)
+
+  def update(index: S8, value: V): Unit = update(index.toZ, value)
+
+  def update(index: S16, value: V): Unit = update(index.toZ, value)
+
+  def update(index: S32, value: V): Unit = update(index.toZ, value)
+
+  def update(index: S64, value: V): Unit = update(index.toZ, value)
+
+  def update(index: U8, value: V): Unit = update(index.toZ, value)
+
+  def update(index: U16, value: V): Unit = update(index.toZ, value)
+
+  def update(index: U32, value: V): Unit = update(index.toZ, value)
+
+  def update(index: U64, value: V): Unit = update(index.toZ, value)
+
+  def apply(index: Z8): V = apply(index.toZ)
+
+  def apply(index: Z16): V = apply(index.toZ)
+
+  def apply(index: Z32): V = apply(index.toZ)
+
+  def apply(index: Z64): V = apply(index.toZ)
+
+  def apply(index: N): V = apply(index.toZ)
+
+  def apply(index: N8): V = apply(index.toZ)
+
+  def apply(index: N16): V = apply(index.toZ)
+
+  def apply(index: N32): V = apply(index.toZ)
+
+  def apply(index: N64): V = apply(index.toZ)
+
+  def apply(index: S8): V = apply(index.toZ)
+
+  def apply(index: S16): V = apply(index.toZ)
+
+  def apply(index: S32): V = apply(index.toZ)
+
+  def apply(index: S64): V = apply(index.toZ)
+
+  def apply(index: U8): V = apply(index.toZ)
+
+  def apply(index: U16): V = apply(index.toZ)
+
+  def apply(index: U32): V = apply(index.toZ)
+
+  def apply(index: U64): V = apply(index.toZ)
+
+  def :+(value: V): MS[I, V] = new _MS[I, V](this.value :+ value)
+
+  def +:(value: V): MS[I, V] = new _MS[I, V]((this.value.take(2) :+ value) ++ this.value.drop(2))
+
+  def ++(other: MS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
+
+  def ++(other: IS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
+
+  def apply[T](entries: (T, V)*): MS[I, V] = {
+    var newValue = value
+    val sz = value.size - 1
     for ((i, v) <- entries) {
-      entryMap += i.toZ32.value -> v
+      val index = i.asInstanceOf[_LogikaIntegralNumber].toZ32.value
+      require(0 <= index && index < sz)
+      newValue = newValue.updated(index + 2, v)
     }
-    val newData: ArrayBuffer[V] = data.clone
-    for (i <- elements.indices) {
-      entryMap.get(i) match {
-        case Some(v) => newData(i) = _clone(v)
-        case None => newData(i) = _clone(newData(i))
-      }
-    }
-    new MSImpl[I, V](sz, newData)
+    new _MS[I, V](newValue)
   }
 
-  override def indices: Traversable[I] = {
+  def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
+
+  def indices: Traversable[I] = {
     import scala.reflect.runtime.universe._
     import _S._
-    (typeOf[I] match {
+    val sz = value.size
+    implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
+    (typeOf[I].dealias.toString match {
       case `zType` => (0 until sz).map(i => _Z(i))
       case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
       case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
@@ -398,5 +401,33 @@ private[logika] class MSImpl[I : org.sireum.logika.TT, V](val sz: Int, val data:
       case `u32Type` => (0 until sz).map(i => _Z(i).toU32)
       case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
     }).asInstanceOf[Traversable[I]]
+  }
+
+  def clone: MS[I, V] = new _MS[I, V](ArrayBuffer(value.map(_clone)))
+
+  override def toString: String = {
+    val elements = this.elements
+
+    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
+
+    val sb = new StringBuilder
+    sb.append('[')
+    if (elements.nonEmpty) {
+      val isBoolean = elements.head.isInstanceOf[Boolean]
+      if (isBoolean) {
+        sb.append(toBit(0))
+        for (i <- 1 until elements.length) {
+          sb.append(toBit(i))
+        }
+      } else {
+        sb.append(elements.head.toString)
+        for (i <- 1 until elements.length) {
+          sb.append(", ")
+          sb.append(elements(i).toString)
+        }
+      }
+    }
+    sb.append(']')
+    sb.toString
   }
 }

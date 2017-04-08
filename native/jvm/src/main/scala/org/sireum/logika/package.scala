@@ -29,7 +29,6 @@ package object logika {
   type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
 
   type B = _B
-  type INT = math._LogikaIntegralNumber
   type Z = math._Z
   type Z8 = math._Z8.Value
   type Z16 = math._Z16.Value
@@ -60,13 +59,13 @@ package object logika {
   type ZS = collection._MS[Z, Z]
 
   object MS {
-    def apply[I <: INT: TT, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
-    def create[I <: INT: TT, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
+    def apply[I: TT, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
+    def create[I: TT, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
   }
 
   object IS {
-    def apply[I <: INT: TT, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
-    def create[I <: INT: TT, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
+    def apply[I: TT, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
+    def create[I: TT, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
   }
 
   object MSZ {

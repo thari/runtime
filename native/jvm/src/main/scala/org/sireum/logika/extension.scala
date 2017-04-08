@@ -945,151 +945,138 @@ object R_Ext {
   @pure def toR(n: R): R = n
 }
 
+import collection._S._
 
 object SI_Ext {
 
-  @pure def append[I <: INT : TT, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
+  @pure def append[I: TT, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
 
-  @pure def prepend[I <: INT : TT, E](s: IS[I, E], e: E): IS[I, E] = e +: s
+  @pure def prepend[I: TT, E](s: IS[I, E], e: E): IS[I, E] = e +: s
 
-  @pure def appends[I <: INT : TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
+  @pure def appends[I: TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
 
-  @pure def toMS[I <: INT : TT, E](s: IS[I, E]): MS[I, E] = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      new collection.MSImpl[I, E](s.sz, ArrayBuffer(s.data.map(_clone): _*))
-  }
+  @pure def toMS[I: TT, E](s: IS[I, E]): MS[I, E] = collection._MS[I, E](s.elements: _*)
 
-  @pure def chunk[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz % sizeInt == 0)
-      val sz = s.sz / sizeInt
-      var result = Vector[IS[I, E]]()
-      for (i <- 0 until sz) {
-        var chunk = Vector[E]()
-        for (j <- 0 until sizeInt) {
-          chunk +:= _clone(s.data(i * sizeInt + j))
-        }
-        result +:= new collection.ISImpl(sizeInt, chunk)
+  @pure def chunk[I: TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt % sizeInt == 0)
+    val sz = sSizeInt / sizeInt
+    val result = ArrayBuffer[IS[I, E]]()
+    val sData = s.data
+    for (i <- 0 until sz) {
+      val chunk = ArrayBuffer[E]()
+      for (j <- 0 until sizeInt) {
+        chunk += s(i * sizeInt + j)
       }
-      new collection.ISImpl(sz, result)
+      result += (collection._IS(chunk: _*).data = sData)
+    }
+    collection._IS(result: _*).data = sData
   }
 
-  @pure def drop[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, E] = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz >= sizeInt)
-      var result = Vector[E]()
-      for (i <- sizeInt until s.sz) {
-        result +:= _clone(s.data(i))
-      }
-      new collection.ISImpl(s.sz - sizeInt, result)
+  @pure def drop[I: TT, E](s: IS[I, E], size: I): IS[I, E] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    val result = ArrayBuffer[E]()
+    for (i <- sizeInt until sSizeInt) {
+      result += s(i)
+    }
+    collection._IS(result: _*).data = s.data
   }
 
-  @pure def foldLeft[I <: INT : TT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      var r = init
-      for (e <- s.data) {
-        r = f(r, e)
-      }
-      r
+  @pure def foldLeft[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
+    var r = init
+    for (e <- s.elements) r = f(r, e)
+    r
   }
 
-  @pure def foldRight[I <: INT : TT, E, R](s: IS[I, E], @pure f: (R, E) => R, init: R): R = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      var r = init
-      for (e <- s.data.reverseIterator) {
-        r = f(r, e)
-      }
-      r
+  @pure def foldRight[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
+    var r = init
+    for (e <- s.elements.reverseIterator) r = f(r, e)
+    r
   }
 
-  @pure def map[I <: INT : TT, E1, E2](s: IS[I, E1], @pure f: E1 => E2): IS[I, E2] = s match {
-    case (s: collection.ISImpl[I, E1]@unchecked) =>
-      new collection.ISImpl[I, E2](s.sz, _clone(s.data.map(f)))
+  @pure def map[I: TT, E1, E2](s: IS[I, E1], f: E1 => E2): IS[I, E2] =
+    collection._IS[I, E2](s.elements.map(f): _*).data = s.data
+
+  @pure def take[I: TT, E](s: IS[I, E], size: I): IS[I, E] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    var result = ArrayBuffer[E]()
+    for (i <- 0 until sizeInt) {
+      result += s(i)
+    }
+    collection._IS(result: _*).data = s.data
   }
 
-  @pure def take[I <: INT : TT, E](s: IS[I, E], size: I): IS[I, E] = s match {
-    case (s: collection.ISImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz >= sizeInt)
-      var result = Vector[E]()
-      for (i <- 0 until sizeInt) {
-        result +:= _clone(s.data(i))
-      }
-      new collection.ISImpl(sizeInt, result)
-  }
-
-  @pure def fromU8[I <: INT : TT](n: U8): IS[I, B] = {
-    new collection.ISImpl[I, B](8, (0 until 8).toVector.map { i =>
+  @pure def fromU8[I: TT](n: U8): IS[I, B] =
+    collection._IS[I, B]((0 until 8).map { i =>
       val mask = u8"1" << i.toU8
       _2B((n & mask) != mask)
-    })
-  }
+    }: _*)
 
-  @pure def fromU16[I <: INT : TT](n: U16): IS[I, B] = {
-    new collection.ISImpl[I, B](16, (0 until 16).toVector.map { i =>
+  @pure def fromU16[I: TT](n: U16): IS[I, B] =
+    collection._IS[I, B]((0 until 16).map { i =>
       val mask = u16"1" << i.toU16
       _2B((n & mask) != mask)
-    })
-  }
+    }: _*)
 
-  @pure def fromU32[I <: INT : TT](n: U32): IS[I, B] = {
-    new collection.ISImpl[I, B](32, (0 until 32).toVector.map { i =>
+  @pure def fromU32[I: TT](n: U32): IS[I, B] =
+    collection._IS[I, B]((0 until 32).map { i =>
       val mask = u32"1" << i.toU32
       _2B((n & mask) != mask)
-    })
-  }
+    }: _*)
 
-  @pure def fromU64[I <: INT : TT](n: U64): IS[I, B] = {
-    new collection.ISImpl[I, B](64, (0 until 64).toVector.map { i =>
+  @pure def fromU64[I: TT](n: U64): IS[I, B] =
+    collection._IS[I, B]((0 until 64).map { i =>
       val mask = u64"1" << i.toU64
       _2B((n & mask) != mask)
-    })
-  }
+    }: _*)
 
-  @pure def toU8[I <: INT : TT](s: IS[I, B]): U8 = {
+  @pure def toU8[I: TT](s: IS[I, B]): U8 = {
     require(s.size == z"8")
     var result = u8"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u8"1" << i.toU8
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU16[I <: INT : TT](s: IS[I, B]): U16 = {
+  @pure def toU16[I: TT](s: IS[I, B]): U16 = {
     require(s.size == z"16")
     var result = u16"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u16"1" << i.toU16
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU32[I <: INT : TT](s: IS[I, B]): U32 = {
+  @pure def toU32[I: TT](s: IS[I, B]): U32 = {
     require(s.size == z"32")
     var result = u32"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u32"1" << i.toU32
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU64[I <: INT : TT](s: IS[I, B]): U64 = {
+  @pure def toU64[I: TT](s: IS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u64"1" << i.toU64
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
@@ -1099,156 +1086,139 @@ object SI_Ext {
 
 object SM_Ext {
 
-  @pure def append[I <: INT : TT, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
+  @pure def append[I: TT, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
 
-  @pure def prepend[I <: INT : TT, E](s: MS[I, E], e: E): MS[I, E] = e +: s
+  @pure def prepend[I: TT, E](s: MS[I, E], e: E): MS[I, E] = e +: s
 
-  @pure def appends[I <: INT : TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
+  @pure def appends[I: TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
 
-  @pure def toIS[I <: INT : TT, E](s: MS[I, E]): IS[I, E] = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      new collection.ISImpl(s.sz, Vector(s.data.map(_clone): _*))
-  }
+  @pure def toIS[I: TT, E](s: MS[I, E]): IS[I, E] = collection._IS(s.elements: _*)
 
-  @pure def chunk[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz % sizeInt == 0)
-      val sz = s.sz / sizeInt
-      val result = new ArrayBuffer[MS[I, E]](sz)
-      for (i <- 0 until sz) {
-        val chunk = new ArrayBuffer[E](sizeInt)
-        for (j <- 0 until sizeInt) {
-          chunk += _clone(s.data(i * sizeInt + j))
-        }
-        result += new collection.MSImpl(sizeInt, chunk)
+  @pure def chunk[I: TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt % sizeInt == 0)
+    val sz = sSizeInt / sizeInt
+    val result = ArrayBuffer[MS[I, E]]()
+    val sData = s.data
+    for (i <- 0 until sz) {
+      val chunk = ArrayBuffer[E]()
+      for (j <- 0 until sizeInt) {
+        chunk += _clone(s(i * sizeInt + j))
       }
-      new collection.MSImpl(sz, result)
+      result += (collection._MS(chunk: _*).data = sData)
+    }
+    collection._MS(result: _*).data = sData
   }
 
-  @pure def drop[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, E] = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz >= sizeInt)
-      val rSize = s.sz - sizeInt
-      val result = new ArrayBuffer[E](rSize)
-      for (i <- sizeInt until s.sz) {
-        result += _clone(s.data(i))
-      }
-      new collection.MSImpl(rSize, result)
+  @pure def drop[I: TT, E](s: MS[I, E], size: I): MS[I, E] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    val result = ArrayBuffer[E]()
+    for (i <- sizeInt until sSizeInt) {
+      result += s(i)
+    }
+    collection._MS(result: _*).data = s.data
   }
 
-  @pure def foldLeft[I <: INT : TT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      var r = init
-      for (e <- s.data) {
-        r = f(r, e)
-      }
-      r
+  @pure def foldLeft[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
+    var r = init
+    for (e <- s.elements) r = f(r, e)
+    r
   }
 
-  @pure def foldRight[I <: INT : TT, E, R](s: MS[I, E], @pure f: (R, E) => R, init: R): R = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      var r = init
-      for (e <- s.data.reverseIterator) {
-        r = f(r, e)
-      }
-      r
+  @pure def foldRight[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
+    var r = init
+    for (e <- s.elements.reverseIterator) r = f(r, e)
+    r
   }
 
-  @pure def map[I <: INT : TT, E1, E2](s: MS[I, E1], @pure f: E1 => E2): MS[I, E2] = s match {
-    case (s: collection.MSImpl[I, E1]@unchecked) =>
-      new collection.MSImpl[I, E2](s.sz, _clone(s.data.map(f)))
+  @pure def map[I: TT, E1, E2](s: MS[I, E1], f: E1 => E2): MS[I, E2] =
+    collection._MS[I, E2](s.elements.map(e => f(_clone(e))): _*).data = s.data
+
+  def transform[I: TT, E](s: MS[I, E], f: E => E): Unit =
+    for (i <- s.indices.map(x => ln2int(x))) {
+      s(i) = _clone(f(s(i)))
+    }
+
+  @pure def take[I: TT, E](s: MS[I, E], size: I): MS[I, E] = {
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    var result = ArrayBuffer[E]()
+    for (i <- 0 until sizeInt) {
+      result += _clone(s(i))
+    }
+    collection._MS(result: _*).data = s.data
   }
 
-  def transform[I <: INT : TT, E](s: MS[I, E], @pure f: E => E): Unit = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      for (i <- s.data.indices) {
-        s.data(i) = _clone(f(s.data(i)))
-      }
-  }
-
-  @pure def take[I <: INT : TT, E](s: MS[I, E], size: I): MS[I, E] = s match {
-    case (s: collection.MSImpl[I, E]@unchecked) =>
-      val sizeInt = size.toZ.toInt
-      require(s.sz >= sizeInt)
-      var result = new ArrayBuffer[E](sizeInt)
-      for (i <- 0 until sizeInt) {
-        result += _clone(s.data(i))
-      }
-      new collection.MSImpl(sizeInt, result)
-  }
-
-  @pure def fromU8[I <: INT : TT](n: U8): MS[I, B] = {
-    new collection.MSImpl[I, B](8, ArrayBuffer((0 until 8).map { i =>
+  @pure def fromU8[I: TT](n: U8): MS[I, B] =
+    collection._MS[I, B]((0 until 8).map { i =>
       val mask = u8"1" << i.toU8
       _2B((n & mask) != mask)
-    }: _*))
-  }
+    }: _*)
 
-  @pure def fromU16[I <: INT : TT](n: U16): MS[I, B] = {
-    new collection.MSImpl[I, B](16, ArrayBuffer((0 until 16).map { i =>
+  @pure def fromU16[I: TT](n: U16): MS[I, B] =
+    collection._MS[I, B]((0 until 16).map { i =>
       val mask = u16"1" << i.toU16
       _2B((n & mask) != mask)
-    }: _*))
-  }
+    }: _*)
 
-  @pure def fromU32[I <: INT : TT](n: U32): MS[I, B] = {
-    new collection.MSImpl[I, B](32, ArrayBuffer((0 until 32).map { i =>
+  @pure def fromU32[I: TT](n: U32): MS[I, B] =
+    collection._MS[I, B]((0 until 32).map { i =>
       val mask = u32"1" << i.toU32
       _2B((n & mask) != mask)
-    }: _*))
-  }
+    }: _*)
 
-  @pure def fromU64[I <: INT : TT](n: U64): MS[I, B] = {
-    new collection.MSImpl[I, B](64, ArrayBuffer((0 until 64).map { i =>
+  @pure def fromU64[I: TT](n: U64): MS[I, B] =
+    collection._MS[I, B]((0 until 64).map { i =>
       val mask = u64"1" << i.toU64
       _2B((n & mask) != mask)
-    }: _*))
-  }
+    }: _*)
 
-  @pure def toU8[I <: INT : TT](s: MS[I, B]): U8 = {
+  @pure def toU8[I: TT](s: MS[I, B]): U8 = {
     require(s.size == z"8")
     var result = u8"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u8"1" << i.toU8
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU16[I <: INT : TT](s: MS[I, B]): U16 = {
+  @pure def toU16[I: TT](s: MS[I, B]): U16 = {
     require(s.size == z"16")
     var result = u16"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u16"1" << i.toU16
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU32[I <: INT : TT](s: MS[I, B]): U32 = {
+  @pure def toU32[I: TT](s: MS[I, B]): U32 = {
     require(s.size == z"32")
     var result = u32"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u32"1" << i.toU32
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
     result
   }
 
-  @pure def toU64[I <: INT : TT](s: MS[I, B]): U64 = {
+  @pure def toU64[I: TT](s: MS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
-    for (i <- 0 until s.size.toZ32.value) {
+    for (i <- 0 until ln2int(s.size)) {
       val mask = u64"1" << i.toU64
-      if (s(_Z(i))) {
+      if (s(i)) {
         result = result | mask
       }
     }
