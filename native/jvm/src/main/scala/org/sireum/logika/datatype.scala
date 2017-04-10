@@ -36,6 +36,10 @@ class datatype extends scala.annotation.StaticAnnotation {
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort("Logika @datatype traits have to be of the form '@datatype trait <id> { ... }'.")
         q"sealed trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }"
+      case Term.Block(Seq(q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
+        if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
+          abort("Logika @datatype traits have to be of the form '@datatype trait <id> { ... }'.")
+        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
@@ -155,7 +159,7 @@ class datatype extends scala.annotation.StaticAnnotation {
           }
           Term.Block(Vector(cls, companion))
         }
-      case Term.Block(Seq(cls, _: Defn.Object)) =>
+      case Term.Block(Seq(_: Defn.Class, _: Defn.Object)) =>
         abort(s"Cannot use Logika @datatype on a class with an existing companion object.")
       case _ =>
         abort(s"Invalid Logika @datatype on: ${tree.syntax}.")
