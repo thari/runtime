@@ -1014,25 +1014,25 @@ object SI_Ext {
   @pure def fromU8[I: TT](n: U8): IS[I, B] =
     collection._IS[I, B]((0 until 8).map { i =>
       val mask = u8"1" << i.toU8
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU16[I: TT](n: U16): IS[I, B] =
     collection._IS[I, B]((0 until 16).map { i =>
       val mask = u16"1" << i.toU16
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU32[I: TT](n: U32): IS[I, B] =
     collection._IS[I, B]((0 until 32).map { i =>
       val mask = u32"1" << i.toU32
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU64[I: TT](n: U64): IS[I, B] =
     collection._IS[I, B]((0 until 64).map { i =>
       val mask = u64"1" << i.toU64
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def toU8[I: TT](s: IS[I, B]): U8 = {
@@ -1156,25 +1156,25 @@ object SM_Ext {
   @pure def fromU8[I: TT](n: U8): MS[I, B] =
     collection._MS[I, B]((0 until 8).map { i =>
       val mask = u8"1" << i.toU8
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU16[I: TT](n: U16): MS[I, B] =
     collection._MS[I, B]((0 until 16).map { i =>
       val mask = u16"1" << i.toU16
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU32[I: TT](n: U32): MS[I, B] =
     collection._MS[I, B]((0 until 32).map { i =>
       val mask = u32"1" << i.toU32
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def fromU64[I: TT](n: U64): MS[I, B] =
     collection._MS[I, B]((0 until 64).map { i =>
       val mask = u64"1" << i.toU64
-      _2B((n & mask) != mask)
+      (n & mask) != mask
     }: _*)
 
   @pure def toU8[I: TT](s: MS[I, B]): U8 = {

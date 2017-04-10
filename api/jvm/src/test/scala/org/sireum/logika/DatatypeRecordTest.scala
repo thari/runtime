@@ -27,17 +27,29 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
-@record trait F
-@record class Foo(x: Z, var bar: Bar) extends F
-@record class Bar(x: Z, var y: Z) extends F
+@record trait F2
+@record class Foo(x: Z, var bar: Bar) extends F2
+@record class Bar(x: Z, var y: Z) extends F2
 @datatype class Baz(x: Z, y: Z)
 @datatype class Bazz()
+
+@record class Bazzz[T](var x: T) {
+  def updateX(newX: T): Unit = {
+    x = newX.copy
+  }
+}
 
 class RecordTest extends LogikaSpec {
   * {
     val foo = Foo(1, Bar(2, 3))
-    val fooClone: Foo = foo.clone
+    val fooClone: Foo = foo.copy
     foo.bar.y = 4
     fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
+  }
+
+  * {
+    val bazzz = Bazzz[Z](5)
+    bazzz.updateX(4)
+    bazzz.x == 4
   }
 }

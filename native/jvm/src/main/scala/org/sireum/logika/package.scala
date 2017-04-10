@@ -28,7 +28,7 @@ package org.sireum
 package object logika {
   type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
 
-  type B = _B
+  type B = scala.Boolean
   type Z = math._Z
   type Z8 = math._Z8.Value
   type Z16 = math._Z16.Value
@@ -57,6 +57,9 @@ package object logika {
   type ISZ[V] = collection._IS[Z, V]
 
   type ZS = collection._MS[Z, Z]
+
+  val T: B = true
+  val F: B = false
 
   object MS {
     def apply[I: TT, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
@@ -250,10 +253,6 @@ package object logika {
 
   final implicit def _Z(n: Int): Z = math._Z(n)
 
-  final implicit def _2B(b: Boolean): B = if (b) T else F
-
-  final implicit def _2Boolean(b: B): Boolean = b.value
-
   final implicit def _F32(n: Float): F32 = math._F32(n)
 
   final implicit def _F64(n: Double): F64 = math._F64(n)
@@ -319,6 +318,8 @@ package object logika {
   def $[T]: T = macro _macro.$Impl[T]
 
   def _clone[T](o: T): T = o match {
+    case o: IS[_, _] => o.clone.asInstanceOf[T]
+    case o: MS[_, _] => o.clone.asInstanceOf[T]
     case o: _Clonable => o.clone.asInstanceOf[T]
     case x => x
   }
@@ -343,5 +344,15 @@ package object logika {
   def _append(sb: StringBuilder, x: Any): Unit = x match {
     case x: String => sb.append(_quote(x))
     case _ => sb.append(x)
+  }
+
+  import scala.language.implicitConversions
+
+  implicit class _2B(x: Boolean) {
+    def ^|(other: B): B = x != other
+  }
+
+  implicit class _Copyable[T](x: T) {
+    def copy: T = _clone(x)
   }
 }
