@@ -30,26 +30,26 @@ package object logika {
 
   type B = scala.Boolean
   type Z = math._Z
-  type Z8 = math._Z8.Value
-  type Z16 = math._Z16.Value
-  type Z32 = math._Z32.Value
-  type Z64 = math._Z64.Value
-  type S8 = math._S8.Value
-  type S16 = math._S16.Value
-  type S32 = math._S32.Value
-  type S64 = math._S64.Value
+  type Z8 = scala.Byte
+  type Z16 = scala.Short
+  type Z32 = scala.Int
+  type Z64 = scala.Long
+  type S8 = scala.Byte
+  type S16 = scala.Short
+  type S32 = scala.Int
+  type S64 = scala.Long
   type N = math._N
-  type N8 = math._N8.Value
-  type N16 = math._N16.Value
-  type N32 = math._N32.Value
-  type N64 = math._N64.Value
-  type U8 = math._U8.Value
-  type U16 = math._U16.Value
-  type U32 = math._U32.Value
-  type U64 = math._U64.Value
+  type N8 = spire.math.UByte
+  type N16 = spire.math.UShort
+  type N32 = spire.math.UInt
+  type N64 = spire.math.ULong
+  type U8 = spire.math.UByte
+  type U16 = spire.math.UShort
+  type U32 = spire.math.UInt
+  type U64 = spire.math.ULong
   type R = math._R
-  type F32 = math._F32.Value
-  type F64 = math._F64.Value
+  type F32 = scala.Float
+  type F64 = scala.Double
 
   type MS[I, V] = collection._MS[I, V]
   type MSZ[V] = collection._MS[Z, V]
@@ -60,160 +60,6 @@ package object logika {
 
   val T: B = true
   val F: B = false
-
-  object MS {
-    def apply[I: TT, V](values: V*): MS[I, V] = collection._MS.apply[I, V](values: _*)
-    def create[I: TT, V](size: I, default: V): MS[I, V] = collection._MS.create[I, V](size, default)
-  }
-
-  object IS {
-    def apply[I: TT, V](values: V*): IS[I, V] = collection._IS.apply[I, V](values: _*)
-    def create[I: TT, V](size: I, default: V): IS[I, V] = collection._IS.create[I, V](size, default)
-  }
-
-  object MSZ {
-    def apply[V](values: V*): MSZ[V] = collection._MS.apply[Z, V](values: _*)
-    def create[V](size: Z, default: V): MSZ[V] = collection._MS.create[Z, V](size, default)
-  }
-
-  object ISZ {
-    def apply[V](values: V*): ISZ[V] = collection._IS.apply[Z, V](values: _*)
-    def create[V](size: Z, default: V): ISZ[V] = collection._IS.create[Z, V](size, default)
-  }
-
-  object ZS {
-    def apply(values: Z*): ZS = collection._MS.apply[Z, Z](values: _*)
-    def create(size: Z, default: Z): ZS = collection._MS.create[Z, Z](size, default)
-  }
-
-  /* deprecated: begin */
-  type BS = MS[Z, B]
-  type Z8S = MS[Z, Z8]
-  type Z16S = MS[Z, Z16]
-  type Z32S = MS[Z, Z32]
-  type Z64S = MS[Z, Z64]
-  type NS = MS[Z, N]
-  type N8S = MS[Z, N8]
-  type N16S = MS[Z, N16]
-  type N32S = MS[Z, N32]
-  type N64S = MS[Z, N64]
-  type S8S = MS[Z, S8]
-  type S16S = MS[Z, S16]
-  type S32S = MS[Z, S32]
-  type S64S = MS[Z, S64]
-  type U8S = MS[Z, U8]
-  type U16S = MS[Z, U16]
-  type U32S = MS[Z, U32]
-  type U64S = MS[Z, U64]
-  type F32S = MS[Z, F32]
-  type F64S = MS[Z, F64]
-  type RS = MS[Z, R]
-
-  object BS {
-    def apply(values: B*): BS = collection._MS.apply[Z, B](values: _*)
-    def create(size: Z, default: B): BS = collection._MS.create[Z, B](size, default)
-  }
-
-  object Z8S {
-    def apply(values: Z8*): Z8S = collection._MS.apply[Z, Z8](values: _*)
-    def create(size: Z, default: Z8): Z8S = collection._MS.create[Z, Z8](size, default)
-  }
-
-  object Z16S {
-    def apply(values: Z16*): Z16S = collection._MS.apply[Z, Z16](values: _*)
-    def create(size: Z, default: Z16): Z16S = collection._MS.create[Z, Z16](size, default)
-  }
-
-  object Z32S {
-    def apply(values: Z32*): Z32S = collection._MS.apply[Z, Z32](values: _*)
-    def create(size: Z, default: Z32): Z32S = collection._MS.create[Z, Z32](size, default)
-  }
-
-  object Z64S {
-    def apply(values: Z64*): Z64S = collection._MS.apply[Z, Z64](values: _*)
-    def create(size: Z, default: Z64): Z64S = collection._MS.create[Z, Z64](size, default)
-  }
-
-  object NS {
-    def apply(values: N*): NS = collection._MS.apply[Z, N](values: _*)
-    def create(size: Z, default: N): NS = collection._MS.create[Z, N](size, default)
-  }
-
-  object N8S {
-    def apply(values: N8*): N8S = collection._MS.apply[Z, N8](values: _*)
-    def create(size: Z, default: N8): N8S = collection._MS.create[Z, N8](size, default)
-  }
-
-  object N16S {
-    def apply(values: N16*): N16S = collection._MS.apply[Z, N16](values: _*)
-    def create(size: Z, default: N16): N16S = collection._MS.create[Z, N16](size, default)
-  }
-
-  object N32S {
-    def apply(values: N32*): N32S = collection._MS.apply[Z, N32](values: _*)
-    def create(size: Z, default: N32): N32S = collection._MS.create[Z, N32](size, default)
-  }
-
-  object N64S {
-    def apply(values: N64*): N64S = collection._MS.apply[Z, N64](values: _*)
-    def create(size: Z, default: N64): N64S = collection._MS.create[Z, N64](size, default)
-  }
-
-  object S8S {
-    def apply(values: S8*): S8S = collection._MS.apply[Z, S8](values: _*)
-    def create(size: Z, default: S8): S8S = collection._MS.create[Z, S8](size, default)
-  }
-
-  object S16S {
-    def apply(values: S16*): S16S = collection._MS.apply[Z, S16](values: _*)
-    def create(size: Z, default: S16): S16S = collection._MS.create[Z, S16](size, default)
-  }
-
-  object S32S {
-    def apply(values: S32*): S32S = collection._MS.apply[Z, S32](values: _*)
-    def create(size: Z, default: S32): S32S = collection._MS.create[Z, S32](size, default)
-  }
-
-  object S64S {
-    def apply(values: S64*): S64S = collection._MS.apply[Z, S64](values: _*)
-    def create(size: Z, default: S64): S64S = collection._MS.create[Z, S64](size, default)
-  }
-
-  object U8S {
-    def apply(values: U8*): U8S = collection._MS.apply[Z, U8](values: _*)
-    def create(size: Z, default: U8): U8S = collection._MS.create[Z, U8](size, default)
-  }
-
-  object U16S {
-    def apply(values: U16*): U16S = collection._MS.apply[Z, U16](values: _*)
-    def create(size: Z, default: U16): U16S = collection._MS.create[Z, U16](size, default)
-  }
-
-  object U32S {
-    def apply(values: U32*): U32S = collection._MS.apply[Z, U32](values: _*)
-    def create(size: Z, default: U32): U32S = collection._MS.create[Z, U32](size, default)
-  }
-
-  object U64S {
-    def apply(values: U64*): U64S = collection._MS.apply[Z, U64](values: _*)
-    def create(size: Z, default: U64): U64S = collection._MS.create[Z, U64](size, default)
-  }
-
-  object F32S {
-    def apply(values: F32*): F32S = collection._MS.apply[Z, F32](values: _*)
-    def create(size: Z, default: F32): F32S = collection._MS.create[Z, F32](size, default)
-  }
-
-  object F64S {
-    def apply(values: F64*): F64S = collection._MS.apply[Z, F64](values: _*)
-    def create(size: Z, default: F64): F64S = collection._MS.create[Z, F64](size, default)
-  }
-
-  object RS {
-    def apply(values: R*): RS = collection._MS.apply[Z, R](values: _*)
-    def create(size: Z, default: R): RS = collection._MS.create[Z, R](size, default)
-  }
-  /* deprecated: end */
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
@@ -249,15 +95,223 @@ package object logika {
 
   final class part extends scala.annotation.StaticAnnotation
 
-  import scala.language.implicitConversions
+  def _clone[T](o: T): T = o match {
+    case o: IS[_, _] => o.clone.asInstanceOf[T]
+    case o: MS[_, _] => o.clone.asInstanceOf[T]
+    case o: _Clonable => o.clone.asInstanceOf[T]
+    case x => x
+  }
 
-  final implicit def _Z(n: Int): Z = math._Z(n)
+  def _quote(s: String): String = {
+    def escape(s: String): String = s.flatMap(escapedChar)
 
-  final implicit def _F32(n: Float): F32 = math._F32(n)
+    def escapedChar(ch: Char): String = ch match {
+      case '\b' => "\\b"
+      case '\t' => "\\t"
+      case '\n' => "\\n"
+      case '\f' => "\\f"
+      case '\r' => "\\r"
+      case '"' => "\\\""
+      case '\'' => "\\\'"
+      case '\\' => "\\\\"
+      case _ => if (ch.isControl) "\\0" + Integer.toOctalString(ch.toInt)
+      else String.valueOf(ch)
+    }
 
-  final implicit def _F64(n: Double): F64 = math._F64(n)
+    "\"" + escape(s) + "\""
+  }
+
+  def _append(sb: StringBuilder, x: Any): Unit = x match {
+    case x: String => sb.append(_quote(x))
+    case _ => sb.append(x)
+  }
 
   import scala.language.experimental.macros
+
+  object MS {
+    def apply[I, V](values: V*): MS[I, V] = macro _macro.msApplyImpl[I, V]
+
+    def create[I, V](size: I, default: V): MS[I, V] = macro _macro.msCreateImpl[I, V]
+  }
+
+  object IS {
+    def apply[I, V](values: V*): IS[I, V] = macro _macro.isApplyImpl[I, V]
+
+    def create[I, V](size: I, default: V): IS[I, V] = macro _macro.isCreateImpl[I, V]
+  }
+
+  object MSZ {
+    def apply[V](values: V*): MSZ[V] = macro _macro.msApplyImpl[Z, V]
+
+    def create[V](size: Z, default: V): MSZ[V] = macro _macro.msCreateImpl[Z, V]
+  }
+
+  object ISZ {
+    def apply[V](values: V*): ISZ[V] = macro _macro.isApplyImpl[Z, V]
+
+    def create[V](size: Z, default: V): ISZ[V] = macro _macro.isCreateImpl[Z, V]
+  }
+
+  object ZS {
+    def apply(values: Z*): ZS = macro _macro.msApplyImpl[Z, Z]
+
+    def create(size: Z, default: Z): ZS = macro _macro.msCreateImpl[Z, Z]
+  }
+
+  /* deprecated: begin */
+  type BS = MS[Z, B]
+  type Z8S = MS[Z, Z8]
+  type Z16S = MS[Z, Z16]
+  type Z32S = MS[Z, Z32]
+  type Z64S = MS[Z, Z64]
+  type NS = MS[Z, N]
+  type N8S = MS[Z, N8]
+  type N16S = MS[Z, N16]
+  type N32S = MS[Z, N32]
+  type N64S = MS[Z, N64]
+  type S8S = MS[Z, S8]
+  type S16S = MS[Z, S16]
+  type S32S = MS[Z, S32]
+  type S64S = MS[Z, S64]
+  type U8S = MS[Z, U8]
+  type U16S = MS[Z, U16]
+  type U32S = MS[Z, U32]
+  type U64S = MS[Z, U64]
+  type F32S = MS[Z, F32]
+  type F64S = MS[Z, F64]
+  type RS = MS[Z, R]
+
+  object BS {
+    def apply(values: B*): BS = macro _macro.msApplyImpl[Z, B]
+
+    def create(size: Z, default: B): BS = macro _macro.msCreateImpl[Z, B]
+  }
+
+  object Z8S {
+    def apply(values: Z8*): Z8S = macro _macro.msApplyImpl[Z, Z8]
+
+    def create(size: Z, default: Z8): Z8S = macro _macro.msCreateImpl[Z, Z8]
+  }
+
+  object Z16S {
+    def apply(values: Z16*): Z16S = macro _macro.msApplyImpl[Z, Z16]
+
+    def create(size: Z, default: Z16): Z16S = macro _macro.msCreateImpl[Z, Z16]
+  }
+
+  object Z32S {
+    def apply(values: Z32*): Z32S = macro _macro.msApplyImpl[Z, Z32]
+
+    def create(size: Z, default: Z32): Z32S = macro _macro.msCreateImpl[Z, Z32]
+  }
+
+  object Z64S {
+    def apply(values: Z64*): Z64S = macro _macro.msApplyImpl[Z, Z64]
+
+    def create(size: Z, default: Z64): Z64S = macro _macro.msCreateImpl[Z, Z64]
+  }
+
+  object NS {
+    def apply(values: N*): NS = macro _macro.msApplyImpl[Z, N]
+
+    def create(size: Z, default: N): NS = macro _macro.msCreateImpl[Z, N]
+  }
+
+  object N8S {
+    def apply(values: N8*): N8S = macro _macro.msApplyImpl[Z, N8]
+
+    def create(size: Z, default: N8): N8S = macro _macro.msCreateImpl[Z, N8]
+  }
+
+  object N16S {
+    def apply(values: N16*): N16S = macro _macro.msApplyImpl[Z, N16]
+
+    def create(size: Z, default: N16): N16S = macro _macro.msCreateImpl[Z, N16]
+  }
+
+  object N32S {
+    def apply(values: N32*): N32S = macro _macro.msApplyImpl[Z, N32]
+
+    def create(size: Z, default: N32): N32S = macro _macro.msCreateImpl[Z, N32]
+  }
+
+  object N64S {
+    def apply(values: N64*): N64S = macro _macro.msApplyImpl[Z, N64]
+
+    def create(size: Z, default: N64): N64S = macro _macro.msCreateImpl[Z, N64]
+  }
+
+  object S8S {
+    def apply(values: S8*): S8S = macro _macro.msApplyImpl[Z, S8]
+
+    def create(size: Z, default: S8): S8S = macro _macro.msCreateImpl[Z, S8]
+  }
+
+  object S16S {
+    def apply(values: S16*): S16S = macro _macro.msApplyImpl[Z, S16]
+
+    def create(size: Z, default: S16): S16S = macro _macro.msCreateImpl[Z, S16]
+  }
+
+  object S32S {
+    def apply(values: S32*): S32S = macro _macro.msApplyImpl[Z, S32]
+
+    def create(size: Z, default: S32): S32S = macro _macro.msCreateImpl[Z, S32]
+  }
+
+  object S64S {
+    def apply(values: S64*): S64S = macro _macro.msApplyImpl[Z, S64]
+
+    def create(size: Z, default: S64): S64S = macro _macro.msCreateImpl[Z, S64]
+  }
+
+  object U8S {
+    def apply(values: U8*): U8S = macro _macro.msApplyImpl[Z, U8]
+
+    def create(size: Z, default: U8): U8S = macro _macro.msCreateImpl[Z, U8]
+  }
+
+  object U16S {
+    def apply(values: U16*): U16S = macro _macro.msApplyImpl[Z, U16]
+
+    def create(size: Z, default: U16): U16S = macro _macro.msCreateImpl[Z, U16]
+  }
+
+  object U32S {
+    def apply(values: U32*): U32S = macro _macro.msApplyImpl[Z, U32]
+
+    def create(size: Z, default: U32): U32S = macro _macro.msCreateImpl[Z, U32]
+  }
+
+  object U64S {
+    def apply(values: U64*): U64S = macro _macro.msApplyImpl[Z, U64]
+
+    def create(size: Z, default: U64): U64S = macro _macro.msCreateImpl[Z, U64]
+  }
+
+  object F32S {
+    def apply(values: F32*): F32S = macro _macro.msApplyImpl[Z, F32]
+
+    def create(size: Z, default: F32): F32S = macro _macro.msCreateImpl[Z, F32]
+  }
+
+  object F64S {
+    def apply(values: F64*): F64S = macro _macro.msApplyImpl[Z, F64]
+
+    def create(size: Z, default: F64): F64S = macro _macro.msCreateImpl[Z, F64]
+  }
+
+  object RS {
+    def apply(values: R*): RS = macro _macro.msApplyImpl[Z, R]
+
+    def create(size: Z, default: R): RS = macro _macro.msCreateImpl[Z, R]
+  }
+
+  /* deprecated: end */
+
+  def $[T]: T = macro _macro.$Impl[T]
+
+  import scala.language.implicitConversions
 
   final implicit class _2Clonable[T](val o: T) extends AnyVal {
     def clone: T = o match {
@@ -270,43 +324,43 @@ package object logika {
 
     def z(args: Any*): Z = math._Z(sc.parts.mkString(""))
 
-    def z8(args: Any*): Z8 = z(args: _*).toZ8
+    def z8(args: Any*): Z8 = Z_Ext.toZ8(z(args: _*))
 
-    def z16(args: Any*): Z16 = z(args: _*).toZ16
+    def z16(args: Any*): Z16 = Z_Ext.toZ16(z(args: _*))
 
-    def z32(args: Any*): Z32 = z(args: _*).toZ32
+    def z32(args: Any*): Z32 = Z_Ext.toZ32(z(args: _*))
 
-    def z64(args: Any*): Z64 = z(args: _*).toZ64
+    def z64(args: Any*): Z64 = Z_Ext.toZ64(z(args: _*))
 
-    def n(args: Any*): N = z(args: _*).toN
+    def n(args: Any*): N = Z_Ext.toN(z(args: _*))
 
-    def n8(args: Any*): N8 = z(args: _*).toN8
+    def n8(args: Any*): N8 = Z_Ext.toN8(z(args: _*))
 
-    def n16(args: Any*): N16 = z(args: _*).toN16
+    def n16(args: Any*): N16 = Z_Ext.toN16(z(args: _*))
 
-    def n32(args: Any*): N32 = z(args: _*).toN32
+    def n32(args: Any*): N32 = Z_Ext.toN32(z(args: _*))
 
-    def n64(args: Any*): N64 = z(args: _*).toN64
+    def n64(args: Any*): N64 = Z_Ext.toN64(z(args: _*))
 
-    def s8(args: Any*): S8 = z(args: _*).toS8
+    def s8(args: Any*): S8 = Z_Ext.toS8(z(args: _*))
 
-    def s16(args: Any*): S16 = z(args: _*).toS16
+    def s16(args: Any*): S16 = Z_Ext.toS16(z(args: _*))
 
-    def s32(args: Any*): S32 = z(args: _*).toS32
+    def s32(args: Any*): S32 = Z_Ext.toS32(z(args: _*))
 
-    def s64(args: Any*): S64 = z(args: _*).toS64
+    def s64(args: Any*): S64 = Z_Ext.toS64(z(args: _*))
 
-    def u8(args: Any*): U8 = z(args: _*).toU8
+    def u8(args: Any*): U8 = Z_Ext.toU8(z(args: _*))
 
-    def u16(args: Any*): U16 = z(args: _*).toU16
+    def u16(args: Any*): U16 = Z_Ext.toU16(z(args: _*))
 
-    def u32(args: Any*): U32 = z(args: _*).toU32
+    def u32(args: Any*): U32 = Z_Ext.toU32(z(args: _*))
 
-    def u64(args: Any*): U64 = z(args: _*).toU64
+    def u64(args: Any*): U64 = Z_Ext.toU64(z(args: _*))
 
-    def f32(args: Any*): F32 = math._F32(sc.parts.mkString("").toFloat)
+    def f32(args: Any*): F32 = sc.parts.mkString("").toFloat
 
-    def f64(args: Any*): F64 = math._F64((sc.parts.mkString("") + "d").toDouble)
+    def f64(args: Any*): F64 = (sc.parts.mkString("") + "d").toDouble
 
     def r(args: Any*): R = math._R(sc.raw(args))
 
@@ -315,44 +369,18 @@ package object logika {
     def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
 
-  def $[T]: T = macro _macro.$Impl[T]
+  final implicit def _Z(n: Int): Z = math._Z(n)
 
-  def _clone[T](o: T): T = o match {
-    case o: IS[_, _] => o.clone.asInstanceOf[T]
-    case o: MS[_, _] => o.clone.asInstanceOf[T]
-    case o: _Clonable => o.clone.asInstanceOf[T]
-    case x => x
-  }
+  final implicit def _Z(n: Long): Z = math._Z(n)
 
-  def _quote(s: String): String = {
-    def escape(s: String): String = s.flatMap(escapedChar)
-    def escapedChar(ch: Char): String = ch match {
-      case '\b' => "\\b"
-      case '\t' => "\\t"
-      case '\n' => "\\n"
-      case '\f' => "\\f"
-      case '\r' => "\\r"
-      case '"'  => "\\\""
-      case '\'' => "\\\'"
-      case '\\' => "\\\\"
-      case _    => if (ch.isControl) "\\0" + Integer.toOctalString(ch.toInt)
-      else              String.valueOf(ch)
-    }
-    "\"" + escape(s) + "\""
-  }
+  final implicit def _Z(n: BigInt): Z = math._Z(n)
 
-  def _append(sb: StringBuilder, x: Any): Unit = x match {
-    case x: String => sb.append(_quote(x))
-    case _ => sb.append(x)
-  }
-
-  import scala.language.implicitConversions
-
-  implicit class _2B(x: Boolean) {
+  final implicit class _2B(x: Boolean) {
     def ^|(other: B): B = x != other
   }
 
-  implicit class _Copyable[T](x: T) {
+  final implicit class _Copyable[T](x: T) {
     def copy: T = _clone(x)
   }
+
 }

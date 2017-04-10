@@ -51,48 +51,5 @@ package object math {
   trait _LogikaNumber extends _Clonable with _Immutable
 
   trait _LogikaIntegralNumber extends _LogikaNumber {
-    import org.sireum.logika.{B, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64}
-
-    def toBigInteger: java.math.BigInteger
-
-    def toBigInt: BigInt
-
-    def toApint: Apint
-
-    def toZ: Z
-
-    final def toZ8: Z8 = math._Z8.checkRange(toZ)
-
-    final def toZ16: Z16 = math._Z16.checkRange(toZ)
-
-    final def toZ32: Z32 = math._Z32.checkRange(toZ)
-
-    final def toZ64: Z64 = math._Z64.checkRange(toZ)
-
-    final def toS8: S8 = math._S8.ValueImpl(toZ8.value)
-
-    final def toS16: S16 = math._S16.ValueImpl(toZ16.value)
-
-    final def toS32: S32 = math._S32.ValueImpl(toZ32.value)
-
-    final def toS64: S64 = math._S64.ValueImpl(toZ64.value)
-
-    final def toN: N = math._N.checkRange(toZ)
-
-    final def toN8: N8 = math._N8.checkRange(toZ)
-
-    final def toN16: N16 = math._N16.checkRange(toZ)
-
-    final def toN32: N32 = math._N32.checkRange(toZ)
-
-    final def toN64: N64 = math._N64.checkRange(toZ)
-
-    final def toU8: U8 = math._U8.ValueImpl(toN8.value)
-
-    final def toU16: U16 = math._U16.ValueImpl(toN16.value)
-
-    final def toU32: U32 = math._U32.ValueImpl(toN32.value)
-
-    final def toU64: U64 = math._U64.ValueImpl(toN64.value)
   }
 }

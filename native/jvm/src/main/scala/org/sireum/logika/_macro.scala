@@ -42,4 +42,72 @@ object _macro {
     import c.universe._
     c.Expr[T](q"???")
   }
+
+  def msApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+    values: c.Expr[V]*): c.Expr[MS[I, V]] = {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    import collection._S._
+    if (!(iType match {
+      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
+      case _ => false
+    })) {
+      c.abort(c.enclosingPosition, "Invalid index type for Logika MS.")
+    }
+    import c.universe._
+    c.Expr[MS[I, V]](q"org.sireum.logika.collection._MS(..$values)")
+  }
+
+  def msCreateImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+    size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    import collection._S._
+    if (!(iType match {
+      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
+      case _ => false
+    })) {
+      c.abort(c.enclosingPosition, "Invalid index type for Logika MS.")
+    }
+    import c.universe._
+    c.Expr[MS[I, V]](q"org.sireum.logika.collection._MS.create($size, $default)")
+  }
+
+  def isApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+    values: c.Expr[V]*): c.Expr[IS[I, V]] = {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    import collection._S._
+    if (!(iType match {
+      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
+      case _ => false
+    })) {
+      c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
+    }
+    import c.universe._
+    c.Expr[IS[I, V]](q"org.sireum.logika.collection._IS(..$values)")
+  }
+
+  def isCreateImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+    size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    import collection._S._
+    if (!(iType match {
+      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
+      case _ => false
+    })) {
+      c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
+    }
+    import c.universe._
+    c.Expr[IS[I, V]](q"org.sireum.logika.collection._IS.create($size, $default)")
+  }
 }

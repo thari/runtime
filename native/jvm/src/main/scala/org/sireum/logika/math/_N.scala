@@ -26,10 +26,8 @@
 package org.sireum.logika.math
 
 import org.apfloat.Apint
-import org.sireum.logika.Z
-import scala.math.ScalaNumericConversions
 
-import org.sireum.logika.{B, N}
+import org.sireum.logika.{B, Z, N, $}
 
 object _N extends LogikaNumberCompanion {
 
@@ -68,7 +66,7 @@ object _N extends LogikaNumberCompanion {
   }
 }
 
-sealed trait _N extends ScalaNumericConversions with Comparable[_N] with _LogikaIntegralNumber {
+sealed trait _N extends Comparable[_N] with _LogikaIntegralNumber {
   final def +(other: N): N = _N(toZ + other.toZ)
 
   final def -(other: N): N = _N(toZ - other.toZ)
@@ -87,39 +85,36 @@ sealed trait _N extends ScalaNumericConversions with Comparable[_N] with _Logika
 
   final def <=(other: N): B = toZ <= other.toZ
 
-  final override def toBigInteger: java.math.BigInteger = toZ.toBigInteger
+  def toZ: Z
 
-  final override def toBigInt: BigInt = toZ.toBigInt
+  override def hashCode: Int
+
+  override def equals(other: Any): Boolean
 
   final def toApint: Apint = toZ.toApint
 
-  final override def doubleValue: Double = toBigInt.doubleValue
-
-  final override def floatValue: Float = toBigInt.floatValue
-
-  final override def intValue: Int = toBigInt.intValue
-
-  final override def longValue: Long = toBigInt.longValue
-
-  final override def underlying: java.math.BigInteger = toBigInteger
-
-  final override def isWhole = true
+  final def toBigInt: BigInt = toZ.toBigInt
 
   final override def toString: String = toZ.toString
 }
 
 final private case class NImpl(value: _Z) extends _N {
-  override def toZ: _Z = value
+  override def toZ: Z = value
 
   override lazy val hashCode: Int = value.hashCode
 
   override def equals(other: Any): Boolean = other match {
-    case other: _LogikaIntegralNumber => (this eq other) || value.equals(other.toZ)
+    case other: _Z => value == other
+    case other: _N => value == other.toZ
     case other: Byte => value == _Z(other)
     case other: Char => value == _Z(other)
     case other: Short => value == _Z(other)
     case other: Int => value == _Z(other)
     case other: Long => value == _Z(other)
+    case other: spire.math.UByte => value == _Z(other.toLong)
+    case other: spire.math.UShort => value == _Z(other.toLong)
+    case other: spire.math.UInt => value == _Z(other.toLong)
+    case other: spire.math.ULong => value == _Z(other.toBigInt)
     case other: java.math.BigInteger => value == _Z(other)
     case other: BigInt => value == _Z(other)
     case _ => false

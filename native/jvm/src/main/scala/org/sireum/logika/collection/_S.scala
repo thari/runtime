@@ -25,8 +25,7 @@
 
 package org.sireum.logika.collection
 
-import org.sireum.logika.{_Clonable, _Immutable, TT, Z, Z8, Z16, Z32, Z64, N, N8, N16, N32, N64, S8, S16, S32, S64, U8, U16, U32, U64, IS, MS, _clone}
-import org.sireum.logika.math._
+import org.sireum.logika._
 import scala.collection.mutable.ArrayBuffer
 
 object _S {
@@ -58,33 +57,32 @@ object _S {
            `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
            `s8Type` | `s16Type` | `s32Type` | `s64Type` |
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
-      case x =>
-        false
+      case _ => false
     }
   }
 
-  private[sireum] def ln2int(value: Z): Int = value.toZ32.toInt
+  private[sireum] def ln2int(value: Z): Int = Z_Ext.toZ32(value)
 
   private[sireum] def ln2int[T: TT](value: T): Int = {
     scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
-      case `zType` => value.asInstanceOf[Z].toZ32.toInt
-      case `z8Type` => value.asInstanceOf[Z8].toZ32.toInt
-      case `z16Type` => value.asInstanceOf[Z16].toZ32.toInt
-      case `z32Type` => value.asInstanceOf[Z32].toInt
-      case `z64Type` => value.asInstanceOf[Z64].toZ32.toInt
-      case `nType` => value.asInstanceOf[N].toZ32.toInt
-      case `n8Type` => value.asInstanceOf[N8].toZ32.toInt
-      case `n16Type` => value.asInstanceOf[N16].toZ32.toInt
-      case `n32Type` => value.asInstanceOf[N32].toZ32.toInt
-      case `n64Type` => value.asInstanceOf[N64].toZ32.toInt
-      case `s8Type` => value.asInstanceOf[S8].toZ32.toInt
-      case `s16Type` => value.asInstanceOf[S16].toZ32.toInt
-      case `s32Type` => value.asInstanceOf[S32].toZ32.toInt
-      case `s64Type` => value.asInstanceOf[S64].toZ32.toInt
-      case `u8Type` => value.asInstanceOf[U8].toZ32.toInt
-      case `u16Type` => value.asInstanceOf[U16].toZ32.toInt
-      case `u32Type` => value.asInstanceOf[U32].toZ32.toInt
-      case `u64Type` => value.asInstanceOf[U64].toZ32.toInt
+      case `zType` => Z_Ext.toZ32(value.asInstanceOf[Z])
+      case `z8Type` => Z8_Ext.toZ32(value.asInstanceOf[Z8])
+      case `z16Type` => Z16_Ext.toZ32(value.asInstanceOf[Z16])
+      case `z32Type` => Z32_Ext.toZ32(value.asInstanceOf[Z32])
+      case `z64Type` => Z64_Ext.toZ32(value.asInstanceOf[Z64])
+      case `nType` => N_Ext.toZ32(value.asInstanceOf[N])
+      case `n8Type` => N8_Ext.toZ32(value.asInstanceOf[N8])
+      case `n16Type` => N16_Ext.toZ32(value.asInstanceOf[N16])
+      case `n32Type` => N32_Ext.toZ32(value.asInstanceOf[N32])
+      case `n64Type` => N64_Ext.toZ32(value.asInstanceOf[N64])
+      case `s8Type` => S8_Ext.toZ32(value.asInstanceOf[S8])
+      case `s16Type` => S16_Ext.toZ32(value.asInstanceOf[S16])
+      case `s32Type` => S32_Ext.toZ32(value.asInstanceOf[S32])
+      case `s64Type` => S64_Ext.toZ32(value.asInstanceOf[S64])
+      case `u8Type` => U8_Ext.toZ32(value.asInstanceOf[U8])
+      case `u16Type` => U16_Ext.toZ32(value.asInstanceOf[U16])
+      case `u32Type` => U32_Ext.toZ32(value.asInstanceOf[U32])
+      case `u64Type` => U64_Ext.toZ32(value.asInstanceOf[U64])
     }
   }
 }
@@ -93,89 +91,56 @@ object _IS {
 
   import _S._
 
+  import scala.language.experimental.macros
+
   def apply[I: TT, V](elements: V*): IS[I, V] = {
     require(isLogikaNumber[I])
-    new _IS[I, V](Vector(implicitly[TT[I]], null) ++ elements)
+    new _IS[I, V](Vector(implicitly[TT[I]]) ++ elements)
   }
 
   def create[I: TT, V](size: I, default: V): IS[I, V] = {
     require(isLogikaNumber[I])
     val sz = ln2int(size)
-    new _IS[I, V](Vector(implicitly[TT[I]], null) ++ (0 until sz).map(_ => default))
+    new _IS[I, V](Vector(implicitly[TT[I]]) ++ (0 until sz).map(_ => default))
   }
 }
 
 final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
-  private[sireum] def data_=(o: Any): IS[I, V] = {
-    new _IS(value.updated(1, o))
-    this
-  }
+  def size: Z = value.size - 1
 
-  private[sireum] def data[T]: T = value(1).asInstanceOf[T]
-
-  def size: Z = value.size - 2
-
-  def elements: scala.collection.Seq[V] = value.drop(2).asInstanceOf[scala.collection.Seq[V]]
+  def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
   def apply(index: Int): V = {
     require(0 <= index && index < size)
-    value(index + 2).asInstanceOf[V]
+    value(index + 1).asInstanceOf[V]
   }
 
   def apply(index: Z): V = {
     require(0 <= index && index < size)
-    value(index.toInt + 2).asInstanceOf[V]
+    value(_S.ln2int(index) + 1).asInstanceOf[V]
   }
 
-  def apply(index: Z8): V = apply(index.toZ)
+  def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
 
-  def apply(index: Z16): V = apply(index.toZ)
+  def apply(index: Z16): V = apply(Z16_Ext.toZ(index))
 
-  def apply(index: Z32): V = apply(index.toZ)
-
-  def apply(index: Z64): V = apply(index.toZ)
-
-  def apply(index: N): V = apply(index.toZ)
-
-  def apply(index: N8): V = apply(index.toZ)
-
-  def apply(index: N16): V = apply(index.toZ)
-
-  def apply(index: N32): V = apply(index.toZ)
-
-  def apply(index: N64): V = apply(index.toZ)
-
-  def apply(index: S8): V = apply(index.toZ)
-
-  def apply(index: S16): V = apply(index.toZ)
-
-  def apply(index: S32): V = apply(index.toZ)
-
-  def apply(index: S64): V = apply(index.toZ)
-
-  def apply(index: U8): V = apply(index.toZ)
-
-  def apply(index: U16): V = apply(index.toZ)
-
-  def apply(index: U32): V = apply(index.toZ)
-
-  def apply(index: U64): V = apply(index.toZ)
+  def apply(index: Z64): V = apply(Z64_Ext.toZ(index))
 
   def :+(value: V): IS[I, V] = new _IS[I, V](this.value :+ value)
 
-  def +:(value: V): IS[I, V] = new _IS[I, V]((this.value.take(2) :+ value) ++ this.value.drop(2))
+  def +:(value: V): IS[I, V] = new _IS[I, V](this.value.head +: value +: this.value.tail)
 
   def ++(other: IS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
 
   def ++(other: MS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
 
-  def apply[T](entries: (T, V)*): IS[I, V] = {
+  def apply[T: TT](entries: (T, V)*): IS[I, V] = {
     var newValue = value
     val sz = value.size - 1
     for ((i, v) <- entries) {
-      val index = i.asInstanceOf[_LogikaIntegralNumber].toZ32.value
+      val index = _S.ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index + 2, v)
+      newValue = newValue.updated(index + 1, v)
     }
     new _IS[I, V](newValue)
   }
@@ -188,24 +153,24 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
     val sz = value.size
     implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
     (typeOf[I].dealias.toString match {
-      case `zType` => (0 until sz).map(i => _Z(i))
-      case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
-      case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
-      case `z32Type` => (0 until sz).map(i => _Z(i).toZ32)
-      case `z64Type` => (0 until sz).map(i => _Z(i).toZ64)
-      case `nType` => (0 until sz).map(i => _N(i))
-      case `n8Type` => (0 until sz).map(i => _Z(i).toN8)
-      case `n16Type` => (0 until sz).map(i => _Z(i).toN16)
-      case `n32Type` => (0 until sz).map(i => _Z(i).toN32)
-      case `n64Type` => (0 until sz).map(i => _Z(i).toN64)
-      case `s8Type` => (0 until sz).map(i => _Z(i).toS8)
-      case `s16Type` => (0 until sz).map(i => _Z(i).toS16)
-      case `s32Type` => (0 until sz).map(i => _Z(i).toS32)
-      case `s64Type` => (0 until sz).map(i => _Z(i).toS64)
-      case `u8Type` => (0 until sz).map(i => _Z(i).toU8)
-      case `u16Type` => (0 until sz).map(i => _Z(i).toU16)
-      case `u32Type` => (0 until sz).map(i => _Z(i).toU32)
-      case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
+      case `zType` => (0 until sz).map(Z32_Ext.toZ)
+      case `z8Type` => (0 until sz).map(Z32_Ext.toZ8)
+      case `z16Type` => (0 until sz).map(Z32_Ext.toZ16)
+      case `z32Type` => 0 until sz
+      case `z64Type` => (0 until sz).map(Z32_Ext.toZ64)
+      case `nType` => (0 until sz).map(Z32_Ext.toN)
+      case `n8Type` => (0 until sz).map(Z32_Ext.toN8)
+      case `n16Type` => (0 until sz).map(Z32_Ext.toN16)
+      case `n32Type` => (0 until sz).map(Z32_Ext.toN32)
+      case `n64Type` => (0 until sz).map(Z32_Ext.toN64)
+      case `s8Type` => (0 until sz).map(Z32_Ext.toS8)
+      case `s16Type` => (0 until sz).map(Z32_Ext.toS16)
+      case `s32Type` => (0 until sz).map(Z32_Ext.toS32)
+      case `s64Type` => (0 until sz).map(Z32_Ext.toS64)
+      case `u8Type` => (0 until sz).map(Z32_Ext.toU8)
+      case `u16Type` => (0 until sz).map(Z32_Ext.toU16)
+      case `u32Type` => (0 until sz).map(Z32_Ext.toU32)
+      case `u64Type` => (0 until sz).map(Z32_Ext.toU64)
     }).asInstanceOf[Traversable[I]]
   }
 
@@ -245,131 +210,72 @@ object _MS {
 
   def apply[I: TT, V](elements: V*): MS[I, V] = {
     require(isLogikaNumber[I])
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]], null) ++ elements.map(_clone))
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ elements.map(_clone))
   }
 
   def create[I: TT, V](size: I, default: V): MS[I, V] = {
     require(isLogikaNumber[I])
     val sz = ln2int(size)
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]], null) ++ (0 until sz).map(_ => _clone(default)))
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ (0 until sz).map(_ => _clone(default)))
   }
 }
 
 final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
-  private[sireum] def data_=(o: Any): MS[I, V] = {
-    value(1) = o
-    this
-  }
+  def size: Z = value.size - 1
 
-  private[sireum] def data[T]: T = value(1).asInstanceOf[T]
-
-  def size: Z = value.size - 2
-
-  def elements: scala.collection.Seq[V] = value.drop(2).asInstanceOf[scala.collection.Seq[V]]
+  def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
   def apply(index: Int): V = {
     require(0 <= index && index < size)
-    value(index + 2).asInstanceOf[V]
+    value(index + 1).asInstanceOf[V]
   }
 
   def apply(index: Z): V = {
     require(0 <= index && index < size)
-    value(index.toInt + 2).asInstanceOf[V]
+    value(_S.ln2int(index) + 1).asInstanceOf[V]
   }
 
   def update(index: Int, value: V): Unit = {
     require(0 <= index && index < size)
-    this.value(index + 2) = value
+    this.value(index + 1) = value
   }
 
   def update(index: Z, value: V): Unit = {
     require(0 <= index && index < size)
-    this.value(index.toInt + 2) = value
+    this.value(_S.ln2int(index) + 1) = value
   }
 
-  def update(index: Z8, value: V): Unit = update(index.toZ, value)
+  def update(index: Z8, value: V): Unit = update(Z8_Ext.toZ(index), value)
 
-  def update(index: Z16, value: V): Unit = update(index.toZ, value)
+  def update(index: Z16, value: V): Unit = update(Z16_Ext.toZ(index), value)
 
-  def update(index: Z32, value: V): Unit = update(index.toZ, value)
+  def update(index: Z64, value: V): Unit = update(Z64_Ext.toZ(index), value)
 
-  def update(index: Z64, value: V): Unit = update(index.toZ, value)
+  def update(index: N, value: V): Unit = update(N_Ext.toZ(index), value)
 
-  def update(index: N, value: V): Unit = update(index.toZ, value)
+  def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
 
-  def update(index: N8, value: V): Unit = update(index.toZ, value)
+  def apply(index: Z16): V = apply(Z16_Ext.toZ(index))
 
-  def update(index: N16, value: V): Unit = update(index.toZ, value)
+  def apply(index: Z64): V = apply(Z64_Ext.toZ(index))
 
-  def update(index: N32, value: V): Unit = update(index.toZ, value)
-
-  def update(index: N64, value: V): Unit = update(index.toZ, value)
-
-  def update(index: S8, value: V): Unit = update(index.toZ, value)
-
-  def update(index: S16, value: V): Unit = update(index.toZ, value)
-
-  def update(index: S32, value: V): Unit = update(index.toZ, value)
-
-  def update(index: S64, value: V): Unit = update(index.toZ, value)
-
-  def update(index: U8, value: V): Unit = update(index.toZ, value)
-
-  def update(index: U16, value: V): Unit = update(index.toZ, value)
-
-  def update(index: U32, value: V): Unit = update(index.toZ, value)
-
-  def update(index: U64, value: V): Unit = update(index.toZ, value)
-
-  def apply(index: Z8): V = apply(index.toZ)
-
-  def apply(index: Z16): V = apply(index.toZ)
-
-  def apply(index: Z32): V = apply(index.toZ)
-
-  def apply(index: Z64): V = apply(index.toZ)
-
-  def apply(index: N): V = apply(index.toZ)
-
-  def apply(index: N8): V = apply(index.toZ)
-
-  def apply(index: N16): V = apply(index.toZ)
-
-  def apply(index: N32): V = apply(index.toZ)
-
-  def apply(index: N64): V = apply(index.toZ)
-
-  def apply(index: S8): V = apply(index.toZ)
-
-  def apply(index: S16): V = apply(index.toZ)
-
-  def apply(index: S32): V = apply(index.toZ)
-
-  def apply(index: S64): V = apply(index.toZ)
-
-  def apply(index: U8): V = apply(index.toZ)
-
-  def apply(index: U16): V = apply(index.toZ)
-
-  def apply(index: U32): V = apply(index.toZ)
-
-  def apply(index: U64): V = apply(index.toZ)
+  def apply(index: N): V = apply(N_Ext.toZ(index))
 
   def :+(value: V): MS[I, V] = new _MS[I, V](this.value :+ value)
 
-  def +:(value: V): MS[I, V] = new _MS[I, V]((this.value.take(2) :+ value) ++ this.value.drop(2))
+  def +:(value: V): MS[I, V] = new _MS[I, V](this.value.head +: value +: this.value.tail)
 
   def ++(other: MS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
 
   def ++(other: IS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
 
-  def apply[T](entries: (T, V)*): MS[I, V] = {
+  def apply[T: TT](entries: (T, V)*): MS[I, V] = {
     var newValue = value
     val sz = value.size - 1
     for ((i, v) <- entries) {
-      val index = i.asInstanceOf[_LogikaIntegralNumber].toZ32.value
+      val index = _S.ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index + 2, v)
+      newValue = newValue.updated(index + 1, v)
     }
     new _MS[I, V](newValue)
   }
@@ -382,24 +288,24 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
     val sz = value.size
     implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
     (typeOf[I].dealias.toString match {
-      case `zType` => (0 until sz).map(i => _Z(i))
-      case `z8Type` => (0 until sz).map(i => _Z(i).toZ8)
-      case `z16Type` => (0 until sz).map(i => _Z(i).toZ16)
-      case `z32Type` => (0 until sz).map(i => _Z(i).toZ32)
-      case `z64Type` => (0 until sz).map(i => _Z(i).toZ64)
-      case `nType` => (0 until sz).map(i => _N(i))
-      case `n8Type` => (0 until sz).map(i => _Z(i).toN8)
-      case `n16Type` => (0 until sz).map(i => _Z(i).toN16)
-      case `n32Type` => (0 until sz).map(i => _Z(i).toN32)
-      case `n64Type` => (0 until sz).map(i => _Z(i).toN64)
-      case `s8Type` => (0 until sz).map(i => _Z(i).toS8)
-      case `s16Type` => (0 until sz).map(i => _Z(i).toS16)
-      case `s32Type` => (0 until sz).map(i => _Z(i).toS32)
-      case `s64Type` => (0 until sz).map(i => _Z(i).toS64)
-      case `u8Type` => (0 until sz).map(i => _Z(i).toU8)
-      case `u16Type` => (0 until sz).map(i => _Z(i).toU16)
-      case `u32Type` => (0 until sz).map(i => _Z(i).toU32)
-      case `u64Type` => (0 until sz).map(i => _Z(i).toU64)
+      case `zType` => (0 until sz).map(Z32_Ext.toZ)
+      case `z8Type` => (0 until sz).map(Z32_Ext.toZ8)
+      case `z16Type` => (0 until sz).map(Z32_Ext.toZ16)
+      case `z32Type` => 0 until sz
+      case `z64Type` => (0 until sz).map(Z32_Ext.toZ64)
+      case `nType` => (0 until sz).map(Z32_Ext.toN)
+      case `n8Type` => (0 until sz).map(Z32_Ext.toN8)
+      case `n16Type` => (0 until sz).map(Z32_Ext.toN16)
+      case `n32Type` => (0 until sz).map(Z32_Ext.toN32)
+      case `n64Type` => (0 until sz).map(Z32_Ext.toN64)
+      case `s8Type` => (0 until sz).map(Z32_Ext.toS8)
+      case `s16Type` => (0 until sz).map(Z32_Ext.toS16)
+      case `s32Type` => (0 until sz).map(Z32_Ext.toS32)
+      case `s64Type` => (0 until sz).map(Z32_Ext.toS64)
+      case `u8Type` => (0 until sz).map(Z32_Ext.toU8)
+      case `u16Type` => (0 until sz).map(Z32_Ext.toU16)
+      case `u32Type` => (0 until sz).map(Z32_Ext.toU32)
+      case `u64Type` => (0 until sz).map(Z32_Ext.toU64)
     }).asInstanceOf[Traversable[I]]
   }
 

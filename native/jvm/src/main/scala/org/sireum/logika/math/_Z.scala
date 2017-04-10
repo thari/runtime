@@ -26,9 +26,7 @@
 package org.sireum.logika.math
 
 import org.apfloat._
-import org.sireum.logika.{B, Z}
-
-import scala.math.ScalaNumericConversions
+import org.sireum.logika.{B, Z, $}
 
 object _Z extends LogikaNumberCompanion {
   final private[logika] val intMin = new Apint(Int.MinValue)
@@ -74,7 +72,7 @@ object _Z extends LogikaNumberCompanion {
     rnd = new scala.util.Random()))
 }
 
-sealed trait _Z extends ScalaNumericConversions with Comparable[_Z] with _LogikaIntegralNumber {
+sealed trait _Z extends Comparable[_Z] with _LogikaIntegralNumber {
   def unary_- : Z
 
   def +(other: Z): Z
@@ -131,19 +129,15 @@ sealed trait _Z extends ScalaNumericConversions with Comparable[_Z] with _Logika
 
   final def >=(other: Long): B = this >= _Z(other)
 
-  final override def toZ: Z = this
+  final def toZ: Z = this
 
-  final override def doubleValue: Double = toBigInt.doubleValue
+  def toApint: Apint
 
-  final override def floatValue: Float = toBigInt.floatValue
+  def toBigInt: BigInt
 
-  final override def intValue: Int = toBigInt.intValue
+  override def hashCode: Int
 
-  final override def longValue: Long = toBigInt.longValue
-
-  final override def underlying: java.math.BigInteger = toBigInteger
-
-  final override def isWhole = true
+  override def equals(other: Any): Boolean
 }
 
 private[logika] final case class _ZLong(value: Long) extends _Z {
@@ -195,13 +189,16 @@ private[logika] final case class _ZLong(value: Long) extends _Z {
 
   override def equals(other: Any): Boolean = other match {
     case _ZLong(n) => value == n
-    case other: _ZT#_Value => value == other.toLong
-    case other: _LogikaIntegralNumber => upgrade == other.toZ
+    case _ZApint(n) => toApint == n
     case other: Byte => value == other.toLong
     case other: Char => value == other.toLong
     case other: Short => value == other.toLong
     case other: Int => value == other.toLong
     case other: Long => value == other
+    case other: spire.math.UByte => value == other.toLong
+    case other: spire.math.UShort => value == other.toLong
+    case other: spire.math.UInt => value == other.toLong
+    case other: spire.math.ULong => upgrade == _Z(other.toBigInt)
     case other: java.math.BigInteger => upgrade == _Z(other)
     case other: BigInt => upgrade == _Z(other)
     case _ => false
@@ -232,16 +229,13 @@ private[logika] final case class _ZLong(value: Long) extends _Z {
     case _ => upgrade <= other
   }
 
-  override def toBigInteger: java.math.BigInteger =
-    new java.math.BigInteger(value.toString)
+  override def toApint: Apint = new Apint(value)
 
   override def toBigInt: BigInt = BigInt(value)
 
-  override def toApint: Apint = new Apint(value)
-
   override def toString: String = value.toString
 
-  private def upgrade: _ZApint = _ZApint(new Apint(value))
+  private def upgrade: _ZApint = _ZApint(toApint)
 }
 
 private[logika] final case class _ZApint(value: Apint) extends _Z {
@@ -257,17 +251,22 @@ private[logika] final case class _ZApint(value: Apint) extends _Z {
 
   def %(other: Z): Z = _ZApint(value.mod(other.toApint)).pack
 
-  override lazy val hashCode: Int = toBigInt.hashCode
+  override lazy val hashCode: Int = toApint.hashCode
 
   override def equals(other: Any): Boolean = other match {
-    case other: _LogikaIntegralNumber => (this eq other) || value.equals(other.toZ.toApint)
+    case other: _ZLong => value == other.toApint
+    case _ZApint(n) => value == n
     case other: Byte => value == new Apint(other)
     case other: Char => value == new Apint(other)
     case other: Short => value == new Apint(other)
     case other: Int => value == new Apint(other)
     case other: Long => value == new Apint(other)
-    case other: java.math.BigInteger => toBigInteger == other
-    case other: BigInt => toBigInt == other
+    case other: spire.math.UByte => value == new Apint(other.toLong)
+    case other: spire.math.UShort => value == new Apint(other.toLong)
+    case other: spire.math.UInt => value == new Apint(other.toLong)
+    case other: spire.math.ULong => value == new Apint(other.toBigInt.bigInteger)
+    case other: java.math.BigInteger => value == new Apint(other)
+    case other: BigInt => value == new Apint(other.bigInteger)
     case _ => false
   }
 
@@ -284,11 +283,9 @@ private[logika] final case class _ZApint(value: Apint) extends _Z {
 
   def >=(other: Z): B = value.compareTo(other.toApint) >= 0
 
-  override def toBigInteger: java.math.BigInteger = value.toBigInteger
+  override def toApint: Apint = value
 
   override def toBigInt: BigInt = BigInt(value.toBigInteger)
-
-  override def toApint: Apint = value
 
   override def toString: String = value.toString
 

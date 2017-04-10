@@ -34,12 +34,13 @@ class ZSTest extends LogikaSpec {
 
   "append" - {
     * (zs123 == zs12 :+ 3)
-    * (zs123.hashCode == (zs12 :+ 3).hashCode)
+
+    *(zs123.hashCode == (zs12 :+ 3).hashCode)
   }
 
   "prepend" - {
-    * (zs123 == 1 +: zs23)
-    * (zs123.hashCode == (1 +: zs23).hashCode)
+    *(zs123 == 1 +: zs23)
+    *(zs123.hashCode == (1 +: zs23).hashCode)
   }
 
   "impl" - {
