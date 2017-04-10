@@ -112,7 +112,7 @@ class record extends scala.annotation.StaticAnnotation {
               appends =
                 if (appends.isEmpty) appends
                 else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
-              q"""override def toString(): java.lang.String = {
+              q"""override def toString: java.lang.String = {
                     val sb = new StringBuilder
                     sb.append(${Lit(tname.value)})
                     sb.append('(')
@@ -121,7 +121,7 @@ class record extends scala.annotation.StaticAnnotation {
                     sb.toString
                   }"""
             }
-            q"class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${(hashCodeDirty +: vars) ++ Vector(hashCodeVar, hashCodeDef, hashCode, equals, clone, apply, toString) ++ stats} }"
+            q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${(hashCodeDirty +: vars) ++ Vector(hashCodeVar, hashCodeDef, hashCode, equals, clone, apply, toString) ++ stats} }"
           }
           val companion = {
             val (apply, unapply) =
@@ -155,9 +155,9 @@ class record extends scala.annotation.StaticAnnotation {
             }
             val toString = {
               val r = tname.value + "()"
-              q"""override def toString(): java.lang.String = ${Lit(r)}"""
+              q"""override def toString: java.lang.String = ${Lit(r)}"""
             }
-            q"class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
+            q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
           val companion = {
             val (v, apply, unapply) =
