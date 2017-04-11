@@ -310,6 +310,12 @@ package object logika {
 
   def $[T]: T = macro _macro.$Impl[T]
 
+  final class _Up[T] {
+    def update(lhs: T, rhs: T): Unit = macro _macro.up[T]
+  }
+
+  def up[T]: _Up[T] = new _Up[T]
+
   import scala.language.implicitConversions
 
   final implicit class _2Clonable[T](val o: T) extends AnyVal {

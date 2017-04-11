@@ -25,6 +25,7 @@
 
 package org.sireum.logika
 
+import com.github.ghik.silencer.silent
 import org.sireum.logika.test.LogikaSpec
 
 @record trait F2
@@ -42,6 +43,7 @@ import org.sireum.logika.test.LogikaSpec
 class RecordTest extends LogikaSpec {
   * {
     val foo = Foo(1, Bar(2, 3))
+    assert(foo.x == 1: @silent)
     val fooClone: Foo = foo.copy
     foo.bar.y = 4
     fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo

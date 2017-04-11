@@ -110,4 +110,30 @@ object _macro {
     import c.universe._
     c.Expr[IS[I, V]](q"org.sireum.logika.collection._IS.create($size, $default)")
   }
+
+  def up[T: c.WeakTypeTag](c: scala.reflect.macros.blackbox.Context)(
+    lhs: c.Tree, rhs: c.Tree): c.Tree = {
+    import c.universe._
+    def f(t: c.Tree, r: c.Tree): c.Tree = t match {
+      case q"${name : c.TermName}.$tname" =>
+        q"$name = $name($tname = $r)"
+      case q"${name : c.TermName}.apply($arg)" =>
+        q"$name = $name($arg -> $r)"
+      case q"$tpname.this.$name.$tname" =>
+        q"$tpname.this.$name = $name($tname = $r)"
+      case q"$tpname.this.$name.apply($arg)" =>
+        q"$tpname.this.$name = this.$name($arg -> $r)"
+      case q"${name : c.TermName}.apply($arg)" =>
+        q"$name = $name($arg -> $r)"
+      case q"${expr: c.Tree}.$tname" => f(expr,  q"$expr($tname = $r)")
+      case q"${expr: c.Tree}.apply($arg)" => f(expr, q"$expr($arg -> $r)")
+      case _ =>
+        c.abort(c.enclosingPosition, s"Unexpected left-hand side form: ${showCode(t)}")
+    }
+    //println(showRaw(lhs))
+    val r = f(lhs, rhs)
+    //println(showRaw(r))
+    //println(showCode(r))
+    r
+  }
 }
