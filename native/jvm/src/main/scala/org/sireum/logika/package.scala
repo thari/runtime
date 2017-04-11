@@ -47,7 +47,7 @@ package object logika {
   type U16 = spire.math.UShort
   type U32 = spire.math.UInt
   type U64 = spire.math.ULong
-  type R = math._R
+  type R = spire.math.Real
   type F32 = scala.Float
   type F64 = scala.Double
 
@@ -87,13 +87,12 @@ package object logika {
 
   final def randomInt(): Z = math._Z.random
 
-  final class helper extends scala.annotation.StaticAnnotation
+  object _R {
 
-  final class pure extends scala.annotation.StaticAnnotation
+    final def apply(r: String): R = spire.math.Real(r.replaceAllLiterally(" ", ""))
 
-  final class hidden extends scala.annotation.StaticAnnotation
-
-  final class part extends scala.annotation.StaticAnnotation
+    final def random: R = apply(math._Z.random.toString + "." + math._N.random.toString)
+  }
 
   def _clone[T](o: T): T = o match {
     case o: IS[_, _] => o.clone.asInstanceOf[T]
@@ -362,7 +361,7 @@ package object logika {
 
     def f64(args: Any*): F64 = (sc.parts.mkString("") + "d").toDouble
 
-    def r(args: Any*): R = math._R(sc.raw(args))
+    def r(args: Any*): R = _R(sc.raw(args))
 
     def l(args: Any*): Unit = macro _macro.lImpl
 
@@ -379,8 +378,26 @@ package object logika {
     def ^|(other: B): B = x != other
   }
 
+  final implicit class _2R(n: R) {
+    def <(other: R): B = n.compare(other) < 0
+
+    def >(other: R): B = n.compare(other) > 0
+
+    def <=(other: R): B = n.compare(other) <= 0
+
+    def >=(other: R): B = n.compare(other) >= 0
+  }
+
   final implicit class _Copyable[T](x: T) {
     def copy: T = _clone(x)
   }
+
+  final class helper extends scala.annotation.StaticAnnotation
+
+  final class pure extends scala.annotation.StaticAnnotation
+
+  final class hidden extends scala.annotation.StaticAnnotation
+
+  final class part extends scala.annotation.StaticAnnotation
 
 }

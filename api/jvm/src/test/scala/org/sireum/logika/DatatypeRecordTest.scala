@@ -50,6 +50,6 @@ class RecordTest extends LogikaSpec {
   * {
     val bazzz = Bazzz[Z](5)
     bazzz.updateX(4)
-    bazzz.x == 4
+    bazzz.x == z"4"
   }
 }

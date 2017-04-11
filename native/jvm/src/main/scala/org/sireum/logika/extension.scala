@@ -186,7 +186,7 @@ object Z_Ext {
 
   @pure def toU64(n: Z): U64 = toN64(n)
 
-  @pure def toR(n: Z): R = math._R(n.toString)
+  @pure def toR(n: Z): R = _R(n.toString)
 }
 
 
@@ -231,7 +231,7 @@ object Z8_Ext {
 
   @pure def toU64(n: Z8): U64 = toN64(n)
 
-  @pure def toR(n: Z8): R = math._R(n.toString)
+  @pure def toR(n: Z8): R = _R(n.toString)
 }
 
 
@@ -276,7 +276,7 @@ object Z16_Ext {
 
   @pure def toU64(n: Z16): U64 = toN64(n)
 
-  @pure def toR(n: Z16): R = math._R(n.toString)
+  @pure def toR(n: Z16): R = _R(n.toString)
 }
 
 
@@ -321,7 +321,7 @@ object Z32_Ext {
 
   @pure def toU64(n: Z32): U64 = toN64(n)
 
-  @pure def toR(n: Z32): R = math._R(n.toString)
+  @pure def toR(n: Z32): R = _R(n.toString)
 }
 
 
@@ -366,7 +366,7 @@ object Z64_Ext {
 
   @pure def toU64(n: Z64): U64 = toN64(n)
 
-  @pure def toR(n: Z64): R = math._R(n.toString)
+  @pure def toR(n: Z64): R = _R(n.toString)
 }
 
 
@@ -411,7 +411,7 @@ object N_Ext {
 
   @pure def toU64(n: N): U64 = toN64(n)
 
-  @pure def toR(n: N): R = math._R(n.toString)
+  @pure def toR(n: N): R = _R(n.toString)
 }
 
 
@@ -456,7 +456,7 @@ object N8_Ext {
 
   @pure def toU64(n: N8): U64 = toN64(n)
 
-  @pure def toR(n: N8): R = math._R(n.toString)
+  @pure def toR(n: N8): R = _R(n.toString)
 }
 
 
@@ -501,7 +501,7 @@ object N16_Ext {
 
   @pure def toU64(n: N16): U64 = toN64(n)
 
-  @pure def toR(n: N16): R = math._R(n.toString)
+  @pure def toR(n: N16): R = _R(n.toString)
 }
 
 
@@ -546,7 +546,7 @@ object N32_Ext {
 
   @pure def toU64(n: N32): U64 = toN64(n)
 
-  @pure def toR(n: N32): R = math._R(n.toString)
+  @pure def toR(n: N32): R = _R(n.toString)
 }
 
 
@@ -591,7 +591,7 @@ object N64_Ext {
 
   @pure def toU64(n: N64): U64 = toN64(n)
 
-  @pure def toR(n: N64): R = math._R(n.toString)
+  @pure def toR(n: N64): R = _R(n.toString)
 }
 
 
@@ -983,15 +983,15 @@ object F64_Ext {
 
 
 object R_Ext {
-  def random: R = math._R.random
+  def random: R = _R.random
 
   @pure def toB(n: R): B = n != r"0.0"
 
-  @pure def toZ(n: R): Z = math._Z(n.value.floor.apply(0).toBigInt)
+  @pure def toZ(n: R): Z = math._Z(n.floor.apply(0).toBigInt)
 
   @pure def toN(n: R): N = {
     require(n >= r"0.0")
-    math._N(n.value.floor.apply(0).toBigInt)
+    math._N(n.floor.apply(0).toBigInt)
   }
 
   @pure def toR(n: R): R = n

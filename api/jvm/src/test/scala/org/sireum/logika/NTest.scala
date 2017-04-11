@@ -27,6 +27,8 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
+import com.github.ghik.silencer.silent
+
 class NTest extends LogikaSpec {
   final val n5 = math._N("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
@@ -34,19 +36,15 @@ class NTest extends LogikaSpec {
   final val size = 1024
 
   "eqs" - {
-    * (true)
-    * (!(5 == n5)) // does not support Int == Z
-    * (5 != n5) // does not support Int != Z
-    * (n5 == 5)
-    * (n5 == java.lang.Byte.valueOf("5"))
-    * (n5 == new java.lang.Character(5.toChar))
-    * (n5 == java.lang.Short.valueOf("5"))
-    * (n5 == java.lang.Integer.valueOf("5"))
-    * (n5 == java.lang.Long.valueOf("5"))
-    * (n5 == new java.math.BigInteger("5"))
-    * (n5 == BigInt("5"))
-    * (nBig == new java.math.BigInteger(bigVal))
-    * (nBig == BigInt(bigVal))
+    * (!(5 == n5): @silent) // does not support Int == N
+    * (5 != n5: @silent) // does not support Int != N
+    * (!(n5 == 5): @silent) // does not support N == Int
+    * (n5 != 5: @silent) // does not support N == Int
+    * (!(BigInt(5) == n5): @silent) // does not support BigInt == Z
+    * (BigInt(5) != n5: @silent) // does not support BigtInt != Z
+    * (!(n5 == BigInt(5)): @silent) // does not support BigInt == Z
+    * (n5 != BigInt(5): @silent) // does not support BigtInt != Z
+    * (n5 == n"5")
   }
 
   "comps" - {
@@ -80,19 +78,19 @@ class NTest extends LogikaSpec {
     val sub = ("-", (n1: N, n2: N) => n1 - n2, (i1: I, i2: I) => i1 - i2)
     val mul = ("*", (n1: N, n2: N) => n1 * n2, (i1: I, i2: I) => i1 * i2)
     val zero = BigInt(0)
-    for (i <- 0 until size)
+    for (_ <- 0 until size)
       for ((op, nop, iop) <- Seq(add, sub, mul)) {
         lazy val n1 = math._N(randomInt().toBigInt.abs)
         lazy val n2 = math._N(randomInt().toBigInt.abs)
         lazy val nr = nop(n1, n2)
-        lazy val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
+        lazy val ir = iop(n1.toBigInt, n2.toBigInt)
 
-        * (nr == ir, s"$n1 $op $n2 ($nr != $ir)")
+        * (if (ir >= 0) nr == math._N(ir) else true, s"$n1 $op $n2 ($nr != $ir)")
       }
 
     val div = ("/", (n1: N, n2: N) => n1 / n2, (i1: I, i2: I) => i1 / i2)
     val rem = ("%", (n1: N, n2: N) => n1 % n2, (i1: I, i2: I) => i1 % i2)
-    for (i <- 0 until size)
+    for (_ <- 0 until size)
       for ((op, nop, iop) <- Seq(div, rem)) {
         lazy val n1 = math._N(randomInt().toBigInt.abs)
         lazy val n2 = {
@@ -104,8 +102,8 @@ class NTest extends LogikaSpec {
           r
         }
         lazy val nr = nop(n1, n2)
-        lazy val ir = zero.max(iop(n1.toBigInt, n2.toBigInt))
-        * (nr == ir, s"$n1 $op $n2 ($nr != $ir)")
+        lazy val ir = iop(n1.toBigInt, n2.toBigInt)
+        * (if (ir >= 0) nr == math._N(ir) else true, s"$n1 $op $n2 ($nr != $ir)")
       }
 
     val eq = ("==", (n1: N, n2: N) => n1 == n2, (i1: I, i2: I) => i1 == i2)
@@ -114,7 +112,7 @@ class NTest extends LogikaSpec {
     val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => i1 >= i2)
     val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => i1 < i2)
     val le = ("<=", (n1: N, n2: N) => n1 <= n2, (i1: I, i2: I) => i1 <= i2)
-    for (i <- 0 until size)
+    for (_ <- 0 until size)
       for ((op, nop, iop) <- Seq(eq, ne, gt, ge, lt, le)) {
         lazy val n1 = math._N(randomInt().toBigInt.abs)
         lazy val n2 = math._N(randomInt().toBigInt.abs)

@@ -27,6 +27,8 @@ package org.sireum.logika
 
 import org.sireum.logika.test.LogikaSpec
 
+import com.github.ghik.silencer.silent
+
 class ZTest extends LogikaSpec {
   final val z5 = z"5"
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
@@ -34,9 +36,9 @@ class ZTest extends LogikaSpec {
   final val size = 1024
 
   "eqs" - {
-    *(!(5 == z5)) // does not support Int == Z
-    *(5 != z5) // does not support Int != Z
-    *(z5 == 5)
+    *(!(5 == z5): @silent) // does not support Int == Z
+    *(5 != z5: @silent) // does not support Int != Z
+    *(z5 == 5: @silent)
     *(z5 == java.lang.Byte.valueOf("5"))
     *(z5 == new java.lang.Character(5.toChar))
     *(z5 == java.lang.Short.valueOf("5"))

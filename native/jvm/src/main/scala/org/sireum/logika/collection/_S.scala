@@ -251,15 +251,11 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
 
   def update(index: Z64, value: V): Unit = update(Z64_Ext.toZ(index), value)
 
-  def update(index: N, value: V): Unit = update(N_Ext.toZ(index), value)
-
   def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
 
   def apply(index: Z16): V = apply(Z16_Ext.toZ(index))
 
   def apply(index: Z64): V = apply(Z64_Ext.toZ(index))
-
-  def apply(index: N): V = apply(N_Ext.toZ(index))
 
   def :+(value: V): MS[I, V] = new _MS[I, V](this.value :+ value)
 

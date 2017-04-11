@@ -4,6 +4,8 @@ val metaVersion = "1.6.0"
 
 val paradiseVersion = "3.0.0-M7"
 
+val silencerVersion = "0.5"
+
 val logikaVersion = "3.0.1-1-SNAPSHOT"
 
 lazy val logikaRuntime = Project(
@@ -16,14 +18,17 @@ lazy val logikaRuntime = Project(
     retrieveManaged := true,
     version := logikaVersion,
     scalaVersion := scalaVer,
-    scalacOptions := Seq("-deprecation", "-unchecked"),
+    scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
+      "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "scalameta" % metaVersion,
       "org.apfloat" % "apfloat" % "1.8.2",
       "org.scala-lang" % "scala-reflect" % scalaVer,
-      "org.spire-math" %% "spire" % "0.13.0"
+      "org.spire-math" %% "spire" % "0.13.0",
+      "com.github.ghik" %% "silencer-lib" % silencerVersion
     ),
+    addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
@@ -67,14 +72,17 @@ lazy val logikaPrelude = Project(
     retrieveManaged := true,
     version := logikaVersion,
     scalaVersion := scalaVer,
-    scalacOptions := Seq("-deprecation", "-unchecked"),
+    scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
+      "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "scalameta" % metaVersion,
       "org.sireum" %% "logika-runtime" % logikaVersion,
-      "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+      "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+      "com.github.ghik" %% "silencer-lib" % silencerVersion
     ),
     unmanagedResourceDirectories in Compile += file("api/jvm/src/main/scala"),
+    addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {

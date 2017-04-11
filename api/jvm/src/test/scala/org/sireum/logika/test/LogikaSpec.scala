@@ -45,6 +45,6 @@ class LogikaSpec extends FreeSpec {
   }
 
   def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber))(assert(b, msg))(pos)
+    registerTest(name(pos.lineNumber))(if (!b) assert(b, msg))(pos)
   }
 }

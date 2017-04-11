@@ -26,9 +26,9 @@
 package org.sireum.logika.math
 
 import org.apfloat._
-import org.sireum.logika.{B, Z, $}
+import org.sireum.logika.{B, Z}
 
-object _Z extends LogikaNumberCompanion {
+object _Z {
   final private[logika] val intMin = new Apint(Int.MinValue)
   final private[logika] val intMax = new Apint(Int.MaxValue)
   final private[logika] val longMin = new Apint(Long.MinValue)
@@ -67,12 +67,12 @@ object _Z extends LogikaNumberCompanion {
   @inline
   final def apply(z: Apint): Z = _ZApint(z).pack
 
-  final override def random: Z = _Z(BigInt(
+  final def random: Z = _Z(BigInt(
     numbits = new scala.util.Random().nextInt(1024),
     rnd = new scala.util.Random()))
 }
 
-sealed trait _Z extends Comparable[_Z] with _LogikaIntegralNumber {
+sealed trait _Z extends Comparable[_Z] {
   def unary_- : Z
 
   def +(other: Z): Z

@@ -27,17 +27,13 @@ package org.sireum.logika.math
 
 import org.apfloat.Apint
 
-import org.sireum.logika.{B, Z, N, $}
+import org.sireum.logika.{B, Z, N}
 
-object _N extends LogikaNumberCompanion {
+object _N {
 
-  final val zero: N = NImpl(_Z.zero)
-  final val one: N = NImpl(_Z.one)
+  final val zero: N = _N(_Z.zero)
 
-  private[logika] def checkRange(n: Z): N = {
-    require(n >= 0)
-    apply(n)
-  }
+  final val one: N = _N(_Z.one)
 
   @inline
   final def apply(n: Int): N = apply(_Z(n))
@@ -58,69 +54,42 @@ object _N extends LogikaNumberCompanion {
   final def apply(n: Apint): N = apply(_Z(n))
 
   @inline
-  final def apply(z: _Z): N = if (z <= 0) zero else NImpl(z)
+  final def apply(z: _Z): N = {
+    if (z < 0) println(z)
+    require(z >= 0)
+    new _N(z)
+  }
 
-  final override def random: N = {
+  final def random: N = {
     val z = _Z.random
     if (z < _Z.zero) _N(-z) else _N(z)
   }
 }
 
-sealed trait _N extends Comparable[_N] with _LogikaIntegralNumber {
-  final def +(other: N): N = _N(toZ + other.toZ)
+final class _N(val n: Z) extends AnyVal {
+  def +(other: N): N = _N(toZ + other.toZ)
 
-  final def -(other: N): N = _N(toZ - other.toZ)
+  def -(other: N): N = _N(toZ - other.toZ)
 
-  final def *(other: N): N = _N(toZ * other.toZ)
+  def *(other: N): N = _N(toZ * other.toZ)
 
-  final def /(other: N): N = _N(toZ / other.toZ)
+  def /(other: N): N = _N(toZ / other.toZ)
 
-  final def %(other: N): N = _N(toZ % other.toZ)
+  def %(other: N): N = _N(toZ % other.toZ)
 
-  final def >(other: N): B = toZ > other.toZ
+  def >(other: N): B = toZ > other.toZ
 
-  final def >=(other: N): B = toZ >= other.toZ
+  def >=(other: N): B = toZ >= other.toZ
 
-  final def <(other: N): B = toZ < other.toZ
+  def <(other: N): B = toZ < other.toZ
 
-  final def <=(other: N): B = toZ <= other.toZ
+  def <=(other: N): B = toZ <= other.toZ
 
-  def toZ: Z
+  def toZ: Z = n
 
-  override def hashCode: Int
+  def toApint: Apint = toZ.toApint
 
-  override def equals(other: Any): Boolean
+  def toBigInt: BigInt = toZ.toBigInt
 
-  final def toApint: Apint = toZ.toApint
-
-  final def toBigInt: BigInt = toZ.toBigInt
-
-  final override def toString: String = toZ.toString
-}
-
-final private case class NImpl(value: _Z) extends _N {
-  override def toZ: Z = value
-
-  override lazy val hashCode: Int = value.hashCode
-
-  override def equals(other: Any): Boolean = other match {
-    case other: _Z => value == other
-    case other: _N => value == other.toZ
-    case other: Byte => value == _Z(other)
-    case other: Char => value == _Z(other)
-    case other: Short => value == _Z(other)
-    case other: Int => value == _Z(other)
-    case other: Long => value == _Z(other)
-    case other: spire.math.UByte => value == _Z(other.toLong)
-    case other: spire.math.UShort => value == _Z(other.toLong)
-    case other: spire.math.UInt => value == _Z(other.toLong)
-    case other: spire.math.ULong => value == _Z(other.toBigInt)
-    case other: java.math.BigInteger => value == _Z(other)
-    case other: BigInt => value == _Z(other)
-    case _ => false
-  }
-
-  override def compareTo(other: _N): Int = other match {
-    case other: NImpl => value.compareTo(other.value)
-  }
+  override def toString: String = toZ.toString
 }

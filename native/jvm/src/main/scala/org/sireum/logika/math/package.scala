@@ -43,13 +43,4 @@ package object math {
       case _: Throwable => err
     }
   }
-
-  trait LogikaNumberCompanion {
-    def random: _LogikaNumber
-  }
-
-  trait _LogikaNumber extends _Clonable with _Immutable
-
-  trait _LogikaIntegralNumber extends _LogikaNumber {
-  }
 }
