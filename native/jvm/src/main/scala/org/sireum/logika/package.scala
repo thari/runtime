@@ -380,11 +380,11 @@ package object logika {
 
   final implicit def _Z(n: BigInt): Z = math._Z(n)
 
-  final implicit class _2B(x: Boolean) {
+  final implicit class _2B(val x: Boolean) extends AnyVal {
     def ^|(other: B): B = x != other
   }
 
-  final implicit class _2R(n: R) {
+  final implicit class _2R(val n: R) extends AnyVal {
     def <(other: R): B = n.compare(other) < 0
 
     def >(other: R): B = n.compare(other) > 0
@@ -394,7 +394,7 @@ package object logika {
     def >=(other: R): B = n.compare(other) >= 0
   }
 
-  final implicit class _Copyable[T](x: T) {
+  final implicit class _Copyable[T](val x: T) extends AnyVal {
     def copy: T = _clone(x)
   }
 
