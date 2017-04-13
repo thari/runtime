@@ -25,9 +25,12 @@
 
 package org.sireum.test
 
-import org.scalatest.FreeSpec
+import org.scalatest.{FreeSpec, Tag}
 
 class SireumSpec extends FreeSpec {
+
+  val ts: Seq[Tag] = Vector()
+
   private val m: scala.collection.mutable.Map[Int, Int] = {
     import scala.collection.JavaConverters._
     new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
@@ -41,14 +44,14 @@ class SireumSpec extends FreeSpec {
   }
 
   def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title")(assert(b))(pos)
+    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
   }
 
   def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber))(assert(b))(pos)
+    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
   }
 
   def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber))(if (!b) assert(b, msg))(pos)
+    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
   }
 }

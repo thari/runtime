@@ -25,11 +25,11 @@
 
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
 import com.github.ghik.silencer.silent
 
-class NTest extends SireumSpec {
+class NTest extends SireumRuntimeSpec {
   final val n5 = math._N("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val nBig = math._N(bigVal)

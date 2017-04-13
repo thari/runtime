@@ -25,9 +25,9 @@
 
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
-class MSTest extends SireumSpec {
+class MSTest extends SireumRuntimeSpec {
   "S[Z8, B]" - {
     * {
       val s1 = collection._MS[Z8, B](true, true)

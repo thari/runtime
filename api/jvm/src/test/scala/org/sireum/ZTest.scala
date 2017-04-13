@@ -25,11 +25,11 @@
 
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
 import com.github.ghik.silencer.silent
 
-class ZTest extends SireumSpec {
+class ZTest extends SireumRuntimeSpec {
   final val z5 = z"5"
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val zBig = z"10000000000000000000000000000000000000000000000000000000000"

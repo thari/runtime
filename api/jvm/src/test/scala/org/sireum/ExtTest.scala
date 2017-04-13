@@ -25,7 +25,7 @@
 
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
 object NFoo_Ext {
   type NA = String
@@ -47,7 +47,7 @@ object NFoo_Ext {
   def foo[T](x: Z): T = $
 }
 
-class ExtTest extends SireumSpec {
+class ExtTest extends SireumRuntimeSpec {
   * {
     NFoo.x == math._Z(5) && NFoo.y == "abc" && NFoo.foo[Z](4) == math._Z(2)
   }

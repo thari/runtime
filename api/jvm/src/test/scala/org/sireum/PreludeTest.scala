@@ -25,9 +25,9 @@
 
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
-class PreludeTest extends SireumSpec {
+class PreludeTest extends SireumRuntimeSpec {
   * {
     B.toN(T) == n"1"
   }

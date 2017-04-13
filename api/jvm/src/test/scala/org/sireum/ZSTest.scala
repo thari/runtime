@@ -24,9 +24,9 @@
  */
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
-class ZSTest extends SireumSpec {
+class ZSTest extends SireumRuntimeSpec {
   final val size = math._Z(1024)
   final val zs123 = ZS(1, 2, 3)
   final val zs12 = ZS(1, 2)
