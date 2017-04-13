@@ -1,12 +1,14 @@
 val scalaVer = "2.12.1"
 
-val metaVersion = "1.6.0"
+val metaVersion = "1.7.0"
 
-val paradiseVersion = "3.0.0-M7"
+val paradiseVersion = "3.0.0-M8"
 
 val silencerVersion = "0.5"
 
 val logikaVersion = "3.0.1-1-SNAPSHOT"
+
+val sireumScalacVersion = "3.0.0"
 
 lazy val logikaRuntime = Project(
   id = "logika-runtime",
@@ -84,6 +86,7 @@ lazy val logikaPrelude = Project(
     unmanagedResourceDirectories in Compile += file("api/jvm/src/main/scala"),
     addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
+    addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion),
     publishMavenStyle := true,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"

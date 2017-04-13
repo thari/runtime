@@ -54,6 +54,7 @@ object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
+      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Logika MS.")
       c.abort(c.enclosingPosition, "Invalid index type for Logika MS.")
     }
     import c.universe._
@@ -71,7 +72,7 @@ object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      c.abort(c.enclosingPosition, "Invalid index type for Logika MS.")
+      c.abort(size.tree.pos, "Invalid index type for Logika MS.")
     }
     import c.universe._
     c.Expr[MS[I, V]](q"org.sireum.logika.collection._MS.create($size, $default)")
@@ -88,7 +89,8 @@ object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
+      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Logika IS.")
+      else c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
     }
     import c.universe._
     c.Expr[IS[I, V]](q"org.sireum.logika.collection._IS(..$values)")
@@ -105,33 +107,88 @@ object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
+      c.abort(size.tree.pos, "Invalid index type for Logika IS.")
     }
     import c.universe._
     c.Expr[IS[I, V]](q"org.sireum.logika.collection._IS.create($size, $default)")
   }
 
+  def _assign[T: c.WeakTypeTag](c: scala.reflect.macros.blackbox.Context)(
+    arg: c.Tree): c.Tree = {
+    import c.universe._
+    //println(showRaw(arg))
+    val r = arg.tpe match {
+      case t if t <:< c.typeOf[_Datatype] => arg
+      case t if t <:< c.typeOf[_Record] => q"__assign($arg)"
+      case t if t.erasure =:= c.typeOf[MS[_, _]].erasure => q"__assign($arg)"
+      case t if t.erasure =:= c.typeOf[IS[_, _]].erasure => arg
+      case _ =>
+        import collection._S._
+        arg.tpe.dealias.toString match {
+          case `bType` | `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+               `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+               `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+               `u8Type` | `u16Type` | `u32Type` | `u64Type` |
+               `f32Type` | `f64Type` | `rType` => arg
+          case _ => q"__assign($arg)"
+        }
+    }
+    //println(showRaw(r))
+    //println(showCode(r))
+    r
+  }
+
   def up[T: c.WeakTypeTag](c: scala.reflect.macros.blackbox.Context)(
     lhs: c.Tree, rhs: c.Tree): c.Tree = {
     import c.universe._
+    def isVar(symbol: Symbol): Boolean = {
+      val t = symbol.asTerm
+      if (t.isVar) true
+      else if (t.isGetter & t.setter.toString != "<none>") true
+      else false
+    }
+    def varType(t: c.Tree): Option[c.Type] = t match {
+      case q"${name: Ident}.$_" =>
+        if (isVar(name.symbol)) Some(name.tpe) else None
+      case q"${name: Ident}.apply($_)" =>
+        if (isVar(name.symbol)) Some(name.tpe) else None
+      case t@Select(This(_), _) =>
+        if (isVar(t.symbol)) Some(t.tpe) else None
+      case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
+        if (isVar(t.symbol)) Some(t.tpe) else None
+      case q"${expr: c.Tree}.$_" => varType(expr)
+      case q"${expr: c.Tree}.apply($arg)" => varType(expr)
+      case _ =>
+        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
+    }
+
     def f(t: c.Tree, r: c.Tree): c.Tree = t match {
-      case q"${name : c.TermName}.$tname" =>
+      case q"${name: c.TermName}.$tname" =>
         q"$name = $name($tname = $r)"
-      case q"${name : c.TermName}.apply($arg)" =>
+      case q"${name: c.TermName}.apply($arg)" =>
         q"$name = $name($arg -> $r)"
       case q"$tpname.this.$name.$tname" =>
         q"$tpname.this.$name = $name($tname = $r)"
       case q"$tpname.this.$name.apply($arg)" =>
         q"$tpname.this.$name = this.$name($arg -> $r)"
-      case q"${name : c.TermName}.apply($arg)" =>
-        q"$name = $name($arg -> $r)"
-      case q"${expr: c.Tree}.$tname" => f(expr,  q"$expr($tname = $r)")
+      case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
       case q"${expr: c.Tree}.apply($arg)" => f(expr, q"$expr($arg -> $r)")
       case _ =>
-        c.abort(c.enclosingPosition, s"Unexpected left-hand side form: ${showCode(t)}")
+        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }
+
     //println(showRaw(lhs))
-    val r = f(lhs, rhs)
+    //println(showRaw(rhs))
+    val tpe = varType(lhs)
+    //println(t)
+    val r = tpe match {
+      case Some(t) =>
+        if (t <:< c.typeOf[_Datatype] ||
+          t.erasure =:= c.typeOf[IS[_, _]].erasure)
+          f(lhs, rhs)
+        else c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a @datatype var or a var of type IS.")
+      case _ => c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a var.")
+    }
     //println(showRaw(r))
     //println(showCode(r))
     r

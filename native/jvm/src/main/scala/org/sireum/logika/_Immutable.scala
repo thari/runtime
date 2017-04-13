@@ -25,4 +25,4 @@
 
 package org.sireum.logika
 
-trait _Immutable
+trait _Immutable extends _Clonable

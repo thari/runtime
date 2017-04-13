@@ -26,7 +26,6 @@
 package org.sireum.logika
 
 import scala.meta._
-import scala.meta.dialects.Scala212
 
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
 class datatype extends scala.annotation.StaticAnnotation {
@@ -35,11 +34,11 @@ class datatype extends scala.annotation.StaticAnnotation {
       case q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort("Logika @datatype traits have to be of the form '@datatype trait <id> { ... }'.")
-        q"sealed trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }"
+        q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum.logika._Datatype with ..$ctorcalls { $param => ..$stats }"
       case Term.Block(Seq(q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort("Logika @datatype traits have to be of the form '@datatype trait <id> { ... }'.")
-        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o))
+        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum.logika._Datatype with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
@@ -100,14 +99,14 @@ class datatype extends scala.annotation.StaticAnnotation {
                 else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
               q"""override def toString: java.lang.String = {
                     val sb = new StringBuilder
-                    sb.append(${Lit(tname.value)})
+                    sb.append(${Lit.String(tname.value)})
                     sb.append('(')
                     ..$appends
                     sb.append(')')
                     sb.toString
                   }"""
             }
-            q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
+            q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum.logika._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
           }
           val companion = {
             val (apply, unapply) =
@@ -140,9 +139,9 @@ class datatype extends scala.annotation.StaticAnnotation {
             }
             val toString = {
               val r = tname.value + "()"
-              q"""override def toString: java.lang.String = ${Lit(r)}"""
+              q"""override def toString: java.lang.String = ${Lit.String(r)}"""
             }
-            q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Immutable with org.sireum.logika._Clonable with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
+            q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum.logika._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
           }
           val companion = {
             val (v, apply, unapply) =

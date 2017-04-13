@@ -32,6 +32,7 @@ object _S {
 
   import scala.reflect.runtime.universe._
 
+  private[sireum] val bType = typeOf[Z].dealias.toString
   private[sireum] val zType = typeOf[Z].dealias.toString
   private[sireum] val z8Type = typeOf[Z8].dealias.toString
   private[sireum] val z16Type = typeOf[Z16].dealias.toString
@@ -50,6 +51,9 @@ object _S {
   private[sireum] val u16Type = typeOf[U16].dealias.toString
   private[sireum] val u32Type = typeOf[U32].dealias.toString
   private[sireum] val u64Type = typeOf[U64].dealias.toString
+  private[sireum] val f32Type = typeOf[F32].dealias.toString
+  private[sireum] val f64Type = typeOf[F64].dealias.toString
+  private[sireum] val rType = typeOf[R].dealias.toString
 
   private[sireum] def isLogikaNumber[T: TT]: Boolean = {
     scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
@@ -83,6 +87,10 @@ object _S {
       case `u16Type` => U16_Ext.toZ32(value.asInstanceOf[U16])
       case `u32Type` => U32_Ext.toZ32(value.asInstanceOf[U32])
       case `u64Type` => U64_Ext.toZ32(value.asInstanceOf[U64])
+      case _ => value match {
+        case value: Int => value
+        case value: Long => Z64_Ext.toZ32(value.asInstanceOf[Z64])
+      }
     }
   }
 }

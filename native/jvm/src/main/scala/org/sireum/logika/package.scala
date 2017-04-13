@@ -316,14 +316,15 @@ package object logika {
 
   def up[T]: _Up[T] = new _Up[T]
 
-  import scala.language.implicitConversions
+  def _assign[T](arg: T): T = macro _macro._assign[T]
 
-  final implicit class _2Clonable[T](val o: T) extends AnyVal {
-    def clone: T = o match {
-      case o: _Clonable => o.clone.asInstanceOf[T]
-      case _ => o
-    }
+  def __assign[T](arg: T): T = arg match {
+    case x: _Record => (if (x.owned) x.clone.owned = true else x.owned = true).asInstanceOf[T]
+    case x: MS[_, _] => x.clone.asInstanceOf[T]
+    case _ => arg
   }
+
+  import scala.language.implicitConversions
 
   final implicit class _Logika(val sc: StringContext) extends AnyVal {
 
@@ -392,10 +393,6 @@ package object logika {
     def <=(other: R): B = n.compare(other) <= 0
 
     def >=(other: R): B = n.compare(other) >= 0
-  }
-
-  final implicit class _Copyable[T](val x: T) extends AnyVal {
-    def copy: T = _clone(x)
   }
 
   final class helper extends scala.annotation.StaticAnnotation

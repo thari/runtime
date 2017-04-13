@@ -4,3 +4,12 @@
 
 This project provides a runtime library for the
 [Sireum Logika](http://logika.sireum.org) programming language.
+
+## Building and Testing using Sbt Locally
+
+```sbtshell
+project logika-runtime
+publishLocal
+project logika-prelude
+test
+```

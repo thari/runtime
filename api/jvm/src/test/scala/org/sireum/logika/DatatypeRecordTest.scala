@@ -1,3 +1,4 @@
+// #Sireum
 /*
  * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
@@ -29,24 +30,47 @@ import com.github.ghik.silencer.silent
 import org.sireum.logika.test.LogikaSpec
 
 @record trait F2
+
 @record class Foo(x: Z, var bar: Bar) extends F2
+
 @record class Bar(x: Z, var y: Z) extends F2
+
 @datatype class Baz(x: Z, y: Z)
+
 @datatype class Bazz()
+
+@datatype class $Foo(x: Z, y: $Bar)
+
+@datatype class $Bar(z: Z, zz: ISZ[Z])
 
 @record class Bazzz[T](var x: T) {
   def updateX(newX: T): Unit = {
-    x = newX.copy
+    x = newX
   }
 }
 
-class RecordTest extends LogikaSpec {
+class DatatypeRecordTest extends LogikaSpec {
+  val foo = Foo(1, Bar(2, 5))
+
   * {
-    val foo = Foo(1, Bar(2, 3))
+    foo.x == 1: @silent
+  }
+
+  * {
     assert(foo.x == 1: @silent)
-    val fooClone: Foo = foo.copy
+    val fooClone: Foo = foo
     foo.bar.y = 4
     fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
+  }
+
+  * {
+    var a = $Foo(5, $Bar(4, ISZ(1, 2, 3)))
+
+    up(a.x) = 6
+    up(a.y.z) = 7
+    up(a.y.zz(0)) = 8
+
+    a == $Foo(6, $Bar(7, ISZ(8, 2, 3)))
   }
 
   * {

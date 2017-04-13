@@ -26,5 +26,5 @@
 package org.sireum.logika
 
 trait _Clonable {
-  override def clone: java.lang.Object = this
+  override def clone: java.lang.Object = ???
 }
