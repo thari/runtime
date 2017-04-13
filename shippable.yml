@@ -1,7 +1,7 @@
 language: scala
 
 scala:
-  - 2.11.7
+  - 2.12.1
 
 jdk:
   - oraclejdk8
@@ -14,12 +14,8 @@ build:
         pull:
         options:
     ci:
-        - rm -fR `find . -path "*/target/scala-2.??"`
-        - rm -fR `find . -path "*/target/streams"`
-        - rm -fR `find . -path "*/target/resolution-cache"`
-        - sbt clean
-        - sbt "project logika-runtime" publishLocal
-        - sbt "project logika-prelude" "test:compile" test
+        - rm -fR native/jvm/target api/jvm/target
+        - sbt clean "test:compile" test
     post_ci:
     on_success:
     on_failure:
