@@ -6,19 +6,19 @@ val paradiseVersion = "3.0.0-M8"
 
 val silencerVersion = "0.5"
 
-val logikaVersion = "3.0.1-1-SNAPSHOT"
+val runtimeVersion = "3.0.1-1-SNAPSHOT"
 
 val sireumScalacVersion = "3.0.0"
 
-lazy val logikaRuntime = Project(
-  id = "logika-runtime",
+lazy val sireumRuntime = Project(
+  id = "sireum-runtime",
   base = file("native/jvm"),
   settings = Seq(
     organization := "org.sireum",
-    name := "logika-runtime",
+    name := "runtime",
     incOptions := incOptions.value.withNameHashing(true),
     retrieveManaged := true,
-    version := logikaVersion,
+    version := runtimeVersion,
     scalaVersion := scalaVer,
     scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
       "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
@@ -43,16 +43,16 @@ lazy val logikaRuntime = Project(
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     pomExtra :=
-      <url>https://github.com/sireum/v3-logika-runtime/</url>
+      <url>https://github.com/sireum/v3-runtime/</url>
         <licenses>
           <license>
             <name>Simplified BSD License</name>
-            <url>https://github.com/sireum/v3-logika-runtime/blob/master/license.md</url>
+            <url>https://github.com/sireum/v3-runtime/blob/master/license.md</url>
           </license>
         </licenses>
         <scm>
-          <url>https://github.com/sireum/v3-logika-runtime.git</url>
-          <connection>scm:git:https://github.com/sireum/v3-logika-runtime.git</connection>
+          <url>https://github.com/sireum/v3-runtime.git</url>
+          <connection>scm:git:https://github.com/sireum/v3-runtime.git</connection>
         </scm>
         <developers>
           <developer>
@@ -64,26 +64,24 @@ lazy val logikaRuntime = Project(
   )
 )
 
-lazy val logikaPrelude = Project(
-  id = "logika-prelude",
+lazy val sireumPrelude = Project(
+  id = "sireum-prelude",
   base = file("api/jvm"),
   settings = Seq(
     organization := "org.sireum",
-    name := "logika-prelude",
+    name := "prelude",
     incOptions := incOptions.value.withNameHashing(true),
     retrieveManaged := true,
-    version := logikaVersion,
+    version := runtimeVersion,
     scalaVersion := scalaVer,
     scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
       "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
     parallelExecution in Test := true,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "scalameta" % metaVersion,
-      "org.sireum" %% "logika-runtime" % logikaVersion,
       "org.scalatest" %% "scalatest" % "3.0.1" % "test",
       "com.github.ghik" %% "silencer-lib" % silencerVersion
     ),
-    unmanagedResourceDirectories in Compile += file("api/jvm/src/main/scala"),
     addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion),
@@ -98,16 +96,16 @@ lazy val logikaPrelude = Project(
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     pomExtra :=
-      <url>https://github.com/sireum/v3-logika-runtime/</url>
+      <url>https://github.com/sireum/v3-runtime/</url>
         <licenses>
           <license>
             <name>Simplified BSD License</name>
-            <url>https://github.com/sireum/v3-logika-runtime/blob/master/license.md</url>
+            <url>https://github.com/sireum/v3-runtime/blob/master/license.md</url>
           </license>
         </licenses>
         <scm>
-          <url>https://github.com/sireum/v3-logika-runtime.git</url>
-          <connection>scm:git:https://github.com/sireum/v3-logika-runtime.git</connection>
+          <url>https://github.com/sireum/v3-runtime.git</url>
+          <connection>scm:git:https://github.com/sireum/v3-runtime.git</connection>
         </scm>
         <developers>
           <developer>
@@ -117,4 +115,4 @@ lazy val logikaPrelude = Project(
           </developer>
         </developers>
   )
-)
+).dependsOn(sireumRuntime)
