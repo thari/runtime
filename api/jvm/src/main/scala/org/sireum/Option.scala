@@ -33,6 +33,8 @@ package org.sireum
 
   @pure def map[T2](f: T => T2): Option[T2]
 
+  @pure def flatMap[T2](f: T => Option[T2]): Option[T2]
+
   @pure def forall(f: T => B): B
 
   @pure def exists(f: T => B): B
@@ -42,28 +44,33 @@ package org.sireum
 
 @datatype class None[T] extends Option[T] {
 
-  @pure override def isEmpty: B = {
+  @pure def isEmpty: B = {
     l"""{ ensures  result = T }"""
 
     return T
   }
 
-  @pure override def nonEmpty: B = {
+  @pure def nonEmpty: B = {
     l"""{ ensures  result = F }"""
     return F
   }
 
-  @pure override def map[T2](f: T => T2): Option[T2] = {
+  @pure def map[T2](f: T => T2): Option[T2] = {
     l"""{ ensures  result = None[T2]() }"""
-    return None()
+    return None[T2]()
   }
 
-  @pure override def forall(f: T => B): B = {
+  @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
+    l"""{ ensures  result = None[T2]() }"""
+    return None[T2]()
+  }
+
+  @pure def forall(f: T => B): B = {
     l"""{ ensures  result = T }""" // or simply: result
     return T
   }
 
-  @pure override def exists(f: T => B): B = {
+  @pure def exists(f: T => B): B = {
     l"""{ ensures  result = F }"""// or simply: ¬result
     return F
   }
@@ -74,26 +81,31 @@ package org.sireum
 
 @datatype class Some[T](value: T) extends Option[T] {
 
-  @pure override def isEmpty: B = {
+  @pure def isEmpty: B = {
     l"""{ ensures  result = F }"""
     return F
   }
-  @pure override def nonEmpty: B = {
+  @pure def nonEmpty: B = {
     l"""{ ensures  result = T }"""
     return T
   }
 
-  @pure override def map[T2](f: T => T2): Option[T2] = {
+  @pure def map[T2](f: T => T2): Option[T2] = {
     l"""{ ensures  result = f(value) }"""
     return Some(f(value))
   }
 
-  @pure override def forall(f: T => B): B = {
+  @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
     l"""{ ensures  result = f(value) }"""
     return f(value)
   }
 
-  @pure override def exists(f: T => B): B = {
+  @pure def forall(f: T => B): B = {
+    l"""{ ensures  result = f(value) }"""
+    return f(value)
+  }
+
+  @pure def exists(f: T => B): B = {
     l"""{ ensures  result = f(value) }"""
     return f(value)
   }

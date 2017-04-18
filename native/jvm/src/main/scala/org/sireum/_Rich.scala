@@ -25,4 +25,4 @@
 
 package org.sireum
 
-final class sig extends scala.annotation.StaticAnnotation
+trait _Rich extends Any

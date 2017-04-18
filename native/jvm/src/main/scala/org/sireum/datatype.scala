@@ -34,11 +34,11 @@ class datatype extends scala.annotation.StaticAnnotation {
       case q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort("Logika @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
-        q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }"
+        q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }"
       case Term.Block(Seq(q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort("Logika @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
-        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }", o))
+        Term.Block(Vector(q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
@@ -91,6 +91,8 @@ class datatype extends scala.annotation.StaticAnnotation {
                   p"case _ => false")
               q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
             }
+            val eq = q"def ===(other: $tpe): B = this == other"
+            val ne = q"def =!=(other: $tpe): B = this != other"
             val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
             val toString = {
               var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
@@ -106,7 +108,7 @@ class datatype extends scala.annotation.StaticAnnotation {
                     sb.toString
                   }"""
             }
-            q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
+            q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, eq, ne, clone, apply, toString) ++ stats} }"
           }
           val companion = {
             val (apply, unapply) =

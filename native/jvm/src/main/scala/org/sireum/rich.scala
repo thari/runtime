@@ -23,66 +23,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.math
+package org.sireum
 
-import org.sireum._Type.Alias._
-
-object _N {
-
-  final val zero: N = _N(_Z.zero)
-
-  final val one: N = _N(_Z.one)
-
-  @inline
-  final def apply(n: Int): N = apply(_Z(n))
-
-  @inline
-  final def apply(n: Long): N = apply(_Z(n))
-
-  @inline
-  final def apply(n: String): N = apply(_Z(n))
-
-  @inline
-  final def apply(n: BigInt): N = apply(_Z(n))
-
-  @inline
-  final def apply(n: java.math.BigInteger): N = apply(_Z(n))
-
-  @inline
-  final def apply(z: _Z): N = {
-    //if (z < 0) println(z)
-    require(z >= 0)
-    new _N(z)
-  }
-
-  final def random: N = {
-    val z = _Z.random
-    if (z < _Z.zero) _N(-z) else _N(z)
-  }
-}
-
-final class _N(val value: Z) extends AnyVal {
-  def +(other: N): N = _N(value + other.value)
-
-  def -(other: N): N = _N(value - other.value)
-
-  def *(other: N): N = _N(value * other.value)
-
-  def /(other: N): N = _N(value / other.value)
-
-  def %(other: N): N = _N(value % other.value)
-
-  def >(other: N): B = value > other.value
-
-  def >=(other: N): B = value >= other.value
-
-  def <(other: N): B = value < other.value
-
-  def <=(other: N): B = value <= other.value
-
-  def ===(other: N): B = value == other.value
-
-  def =!=(other: N): B = value != other.value
-
-  override def toString: String = value.toString
-}
+final class rich extends scala.annotation.StaticAnnotation

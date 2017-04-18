@@ -23,14 +23,12 @@ lazy val sireumRuntime = Project(
     scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
       "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
     parallelExecution in Test := true,
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src-pure/main/scala",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "scalameta" % metaVersion,
-      "org.apfloat" % "apfloat" % "1.8.2",
       "org.scala-lang" % "scala-reflect" % scalaVer,
-      "org.spire-math" %% "spire" % "0.13.0",
-      "com.github.ghik" %% "silencer-lib" % silencerVersion
+      "org.spire-math" %% "spire" % "0.13.0"
     ),
-    addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
