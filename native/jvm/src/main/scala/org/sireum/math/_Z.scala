@@ -26,7 +26,7 @@
 package org.sireum.math
 
 import org.apfloat._
-import org.sireum.logika.{B, Z}
+import org.sireum._Type.Alias._
 
 object _Z {
   final private[sireum] val intMin = new Apint(Int.MinValue)
@@ -36,14 +36,6 @@ object _Z {
 
   final val zero: Z = _Z(0)
   final val one: Z = _Z(1)
-
-  lazy val Min: Z =
-    if (defaultBitWidth == 0) sys.error("Unbounded integer does not have a minimum value.")
-    else apply(BigInt(-2).pow(defaultBitWidth - 1))
-
-  lazy val Max: Z =
-    if (defaultBitWidth == 0) sys.error("Unbounded integer does not have a maximum value.")
-    else apply(BigInt(2).pow(defaultBitWidth - 1) - 1)
 
   @inline
   final def apply(z: Int): Z = apply(new Apint(z))
@@ -93,6 +85,10 @@ sealed trait _Z extends Comparable[_Z] {
 
   def <=(other: Z): B
 
+  def ===(other: Z): B = this == other
+
+  def =!=(other: Z): B = this != other
+
   final def +(other: Int): Z = this + _Z(other)
 
   final def -(other: Int): Z = this - _Z(other)
@@ -131,13 +127,19 @@ sealed trait _Z extends Comparable[_Z] {
 
   final def toZ: Z = this
 
-  def toApint: Apint
-
-  def toBigInt: BigInt
-
   override def hashCode: Int
 
   override def equals(other: Any): Boolean
+
+  private[sireum] def toByte: Byte
+
+  private[sireum] def toShort: Short
+
+  private[sireum] def toInt: Int
+
+  private[sireum] def toLong: Long
+
+  private[sireum] def toBigInt: BigInt
 }
 
 private[sireum] final case class _ZLong(value: Long) extends _Z {
@@ -189,7 +191,7 @@ private[sireum] final case class _ZLong(value: Long) extends _Z {
 
   override def equals(other: Any): Boolean = other match {
     case _ZLong(n) => value == n
-    case _ZApint(n) => toApint == n
+    case _ZApint(n) => new Apint(value) == n
     case other: Byte => value == other.toLong
     case other: Char => value == other.toLong
     case other: Short => value == other.toLong
@@ -229,32 +231,53 @@ private[sireum] final case class _ZLong(value: Long) extends _Z {
     case _ => upgrade <= other
   }
 
-  override def toApint: Apint = new Apint(value)
-
-  override def toBigInt: BigInt = BigInt(value)
-
   override def toString: String = value.toString
 
-  private def upgrade: _ZApint = _ZApint(toApint)
+  private def upgrade: _ZApint = _ZApint(new Apint(value))
+
+  private[sireum] override def toByte: Byte = value.toByte
+
+  private[sireum] override def toShort: Short = value.toShort
+
+  private[sireum] override def toInt: Int = value.toInt
+
+  private[sireum] override def toLong: Long = value.toLong
+
+  private[sireum] def toBigInt: BigInt = BigInt(value)
 }
 
 private[sireum] final case class _ZApint(value: Apint) extends _Z {
   def unary_- : Z = _ZApint(value.negate)
 
-  def +(other: Z): Z = _ZApint(value.add(other.toApint))
+  def +(other: Z): Z = other match {
+    case _ZLong(n) => _ZApint(value.add(new Apint(n)))
+    case _ZApint(n) => _ZApint(value.add(n))
+  }
 
-  def -(other: Z): Z = _ZApint(value.subtract(other.toApint)).pack
+  def -(other: Z): Z = (other match {
+    case _ZLong(n) => _ZApint(value.subtract(new Apint(n)))
+    case _ZApint(n) => _ZApint(value.subtract(n))
+  }).pack
 
-  def *(other: Z): Z = _ZApint(value.multiply(other.toApint))
+  def *(other: Z): Z = other match {
+    case _ZLong(n) => _ZApint(value.multiply(new Apint(n)))
+    case _ZApint(n) => _ZApint(value.multiply(n))
+  }
 
-  def /(other: Z): Z = _ZApint(value.divide(other.toApint)).pack
+  def /(other: Z): Z = (other match {
+    case _ZLong(n) => _ZApint(value.divide(new Apint(n)))
+    case _ZApint(n) => _ZApint(value.divide(n))
+  }).pack
 
-  def %(other: Z): Z = _ZApint(value.mod(other.toApint)).pack
+  def %(other: Z): Z = (other match {
+    case _ZLong(n) => _ZApint(value.mod(new Apint(n)))
+    case _ZApint(n) => _ZApint(value.mod(n))
+  }).pack
 
-  override lazy val hashCode: Int = toApint.hashCode
+  override lazy val hashCode: Int = value.hashCode
 
   override def equals(other: Any): Boolean = other match {
-    case other: _ZLong => value == other.toApint
+    case other: _ZLong => value == new Apint(other.value)
     case _ZApint(n) => value == n
     case other: Byte => value == new Apint(other)
     case other: Char => value == new Apint(other)
@@ -275,17 +298,25 @@ private[sireum] final case class _ZApint(value: Apint) extends _Z {
     case other: _ZApint => value.compareTo(other.value)
   }
 
-  def <(other: Z): B = value.compareTo(other.toApint) < 0
+  def <(other: Z): B = other match {
+    case _ZLong(n) => value.compareTo(new Apint(n)) < 0
+    case _ZApint(n) => value.compareTo(n) < 0
+  }
 
-  def <=(other: Z): B = value.compareTo(other.toApint) <= 0
+  def <=(other: Z): B = other match {
+    case _ZLong(n) => value.compareTo(new Apint(n)) <= 0
+    case _ZApint(n) => value.compareTo(n) <= 0
+  }
 
-  def >(other: Z): B = value.compareTo(other.toApint) > 0
+  def >(other: Z): B = other match {
+    case _ZLong(n) => value.compareTo(new Apint(n)) > 0
+    case _ZApint(n) => value.compareTo(n) > 0
+  }
 
-  def >=(other: Z): B = value.compareTo(other.toApint) >= 0
-
-  override def toApint: Apint = value
-
-  override def toBigInt: BigInt = BigInt(value.toBigInteger)
+  def >=(other: Z): B = other match {
+    case _ZLong(n) => value.compareTo(new Apint(n)) >= 0
+    case _ZApint(n) => value.compareTo(n) >= 0
+  }
 
   override def toString: String = value.toString
 
@@ -293,4 +324,14 @@ private[sireum] final case class _ZApint(value: Apint) extends _Z {
     if ((value.compareTo(_Z.longMin) >= 0) && (value.compareTo(_Z.longMax) <= 0))
       _ZLong(value.longValue)
     else this
+
+  private[sireum] override def toByte: Byte = value.toBigInteger.byteValue
+
+  private[sireum] override def toShort: Short = value.toBigInteger.shortValue
+
+  private[sireum] override def toInt: Int = value.toBigInteger.intValue
+
+  private[sireum] override def toLong: Long = value.toBigInteger.longValue
+
+  private[sireum] def toBigInt: BigInt = BigInt(value.toBigInteger)
 }

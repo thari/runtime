@@ -26,14 +26,6 @@
 
 package org.sireum
 
-@datatype trait Opt[T]
-
-@datatype class none[T]
-  extends Opt[T]
-
-@datatype class some[T](value: T)
-  extends Opt[T]
-
 @ext object B {
   def random: B = $
 
@@ -108,28 +100,28 @@ package org.sireum
 @ext object Z {
   def random: Z = $
 
-  @pure def isInRangeZ8(n: Z): B =
+  @pure def isInRangeSigned8(n: Z): B =
     c"""{ ensures result = (-128 ≤ n ∧ n ≤ 127) }"""
 
-  @pure def isInRangeZ16(n: Z): B =
+  @pure def isInRangeSigned16(n: Z): B =
     c"""{ ensures result = (-32768 ≤ n ∧ n ≤ 32767) }"""
 
-  @pure def isInRangeZ32(n: Z): B =
+  @pure def isInRangeSigned32(n: Z): B =
     c"""{ ensures result = (-2147483648 ≤ n ∧ n ≤ 2147483647) }"""
 
-  @pure def isInRangeZ64(n: Z): B =
+  @pure def isInRangeSigned64(n: Z): B =
     c"""{ ensures result = (-9223372036854775808 ≤ n ∧ n ≤ 9223372036854775807) }"""
 
-  @pure def isInRangeN8(n: Z): B =
+  @pure def isInRangeUnsigned8(n: Z): B =
     c"""{ ensures result = (0 ≤ n ∧ n ≤ 255) }"""
 
-  @pure def isInRangeN16(n: Z): B =
+  @pure def isInRangeUnsigned16(n: Z): B =
     c"""{ ensures result = (0 ≤ n ∧ n ≤ 65535) }"""
 
-  @pure def isInRangeN32(n: Z): B =
+  @pure def isInRangeUnsigned32(n: Z): B =
     c"""{ ensures result = (0 ≤ n ∧ n ≤ 4294967295) }"""
 
-  @pure def isInRangeN64(n: Z): B =
+  @pure def isInRangeUnsigned64(n: Z): B =
     c"""{ ensures result = (0 ≤ n ∧ n ≤ 18446744073709551615) }"""
 
   @pure def toB(n: Z): B =
@@ -2213,26 +2205,26 @@ package org.sireum
 
 @ext object SI {
 
-  @pure def append[I : TT, E](s: IS[I, E], e: E): IS[I, E] =
+  @pure def append[I: TT, E](s: IS[I, E], e: E): IS[I, E] =
     c"""{ ensures result.size == s.size + 1
                   ∀i: (0 ..< result.size)  result(i) = s(i)
                   result(result.size - 1) = e               }"""
 
-  @pure def prepend[I : TT, E](s: IS[I, E], e: E): IS[I, E] =
+  @pure def prepend[I: TT, E](s: IS[I, E], e: E): IS[I, E] =
     c"""{ ensures result.size == s.size + 1
                   ∀i: (1 ..< result.size)  result(i) = s(i - 1)
                   result(0) = e                                 }"""
 
-  @pure def appends[I : TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] =
+  @pure def appends[I: TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] =
     c"""{ ensures result.size == s1.size + s2.size
                   ∀i: (0 ..< s1.size)  result(i) = s1(i)
                   ∀i: (0 ..< s2.size)  result(s1.size + i) = s2(i) }"""
 
-  @pure def toMS[I : TT, E](s: IS[I, E]): MS[I, E] =
+  @pure def toMS[I: TT, E](s: IS[I, E]): MS[I, E] =
     c"""{ ensures result.size = s.size
                   ∀i: (0 ..< result.size)  result(i) = s(i) }"""
 
-  @pure def chunk[I : TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] =
+  @pure def chunk[I: TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] =
     c"""{ requires s.size % size = 0
           ensures  result.size * size = s.size
                    ∀i: (0 ..< result.size)  result(i).size = size
@@ -2240,13 +2232,13 @@ package org.sireum
                      ∀j: (0 ..< size)
                        s(i * result.size + j) = result(i)(j)      }"""
 
-  @pure def drop[I : TT, E](s: IS[I, E], size: I): IS[I, E] =
+  @pure def drop[I: TT, E](s: IS[I, E], size: I): IS[I, E] =
     c"""{ requires s.size ≥ size
           ensures  result.size = s.size - size
                    ∀i (0 ..< s.size - size)  result(i) = s(size + i) }"""
 
-  @spec def foldLeftSpec[I : TT, E, R](s: IS[I, E], f: (R, E) => R, init: R, i: I): R =
-   c"""{ = init,                                      if i = 0               (base)
+  @spec def foldLeftSpec[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R, i: I): R =
+    c"""{ = init,                                      if i = 0               (base)
          = f(foldLeftSpec(s, f, init, i - 1), s(i)),  if 0 < i ∧ i < s.size  (rec)  }"""
 
   /* s = [0, 1, 2, 3]
@@ -2255,10 +2247,10 @@ package org.sireum
                                  = f(f(f(foldLeftSpec(s, f, init, 0), s(i1), s(2)), s(3))
                                  = f(f(f(init, s(i1)), s(2)), s(3)) */
 
-  @pure def foldLeft[I : TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R =
+  @pure def foldLeft[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R =
     c"""{ ensures result = foldLeftSpec(s, f, init, s.size - 1) }"""
 
-  @spec def foldRightSpec[I : TT, E, R](s: IS[I, E], f: (R, E) => R, init: R, i: I): R =
+  @spec def foldRightSpec[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R, i: I): R =
     c"""{ = f(init, s(s.size - 1)),                                  if i = 0               (base)
           = f(foldRightSpec(s, f, init, i - 1), s(s.size - i - 1)),  if 1 < i ∧ i ≤ s.size  (rec)  }"""
 
@@ -2268,19 +2260,19 @@ package org.sireum
                                   = f(f(f(foldRightSpec(s, f, init, 0), s(2)), s(1)), s(0))
                                   = f(f(f(f(init, s(3)), s(2)), s(1)), s(0)) */
 
-  @pure def foldRight[I : TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R =
+  @pure def foldRight[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R =
     c"""{ ensures result = foldRightSpec(s, f, init, s.size - 1) }"""
 
-  @pure def map[I : TT, E1, E2](s: IS[I, E1], f: E1 => E2): IS[I, E2] =
+  @pure def map[I: TT, E1, E2](s: IS[I, E1], f: E1 => E2): IS[I, E2] =
     c"""{ ensures result.size = s.size
                   ∀i: (0 ..< result.size)  result(i) = f(s(i)) }"""
 
-  @pure def take[I : TT, E](s: IS[I, E], size: I): IS[I, E] =
+  @pure def take[I: TT, E](s: IS[I, E], size: I): IS[I, E] =
     c"""{ requires s.size ≥ size
           ensures  result.size = size
                    ∀i: (0 ..< result.size)  result(i) = s(i) }"""
 
-  @pure def fromU8[I : TT](n: U8): IS[I, B] =
+  @pure def fromU8[I: TT](n: U8): IS[I, B] =
     c"""{ ensures result.size = 8
                   result(0) = ((n & u8"0x01") ≠ u8"0x01") ∧
                   result(1) = ((n & u8"0x02") ≠ u8"0x02") ∧
@@ -2291,7 +2283,7 @@ package org.sireum
                   result(6) = ((n & u8"0x40") ≠ u8"0x40") ∧
                   result(7) = ((n & u8"0x80") ≠ u8"0x80")   }"""
 
-  @pure def fromU16[I : TT](n: U16): IS[I, B] =
+  @pure def fromU16[I: TT](n: U16): IS[I, B] =
     c"""{ ensures result.size = 16
                   result( 0) = ((n & u16"0x0001") ≠ u16"0x0001") ∧
                   result( 1) = ((n & u16"0x0002") ≠ u16"0x0002") ∧
@@ -2310,7 +2302,7 @@ package org.sireum
                   result(14) = ((n & u16"0x4000") ≠ u16"0x4000") ∧
                   result(15) = ((n & u16"0x8000") ≠ u16"0x8000")   }"""
 
-  @pure def fromU32[I : TT](n: U32): IS[I, B] =
+  @pure def fromU32[I: TT](n: U32): IS[I, B] =
     c"""{ ensures result.size = 32
                   result( 0) = ((n & u32"0x00000001") ≠ u32"0x00000001") ∧
                   result( 1) = ((n & u32"0x00000002") ≠ u32"0x00000002") ∧
@@ -2345,7 +2337,7 @@ package org.sireum
                   result(30) = ((n & u32"0x40000000") ≠ u32"0x40000000") ∧
                   result(31) = ((n & u32"0x80000000") ≠ u32"0x80000000")   }"""
 
-  @pure def fromU64[I : TT](n: U64): IS[I, B] =
+  @pure def fromU64[I: TT](n: U64): IS[I, B] =
     c"""{ ensures result.size = 64
                   result( 0) = ((n & u64"0x0000000000000001") ≠ u64"0x0000000000000001") ∧
                   result( 1) = ((n & u64"0x0000000000000002") ≠ u64"0x0000000000000002") ∧
@@ -2412,19 +2404,19 @@ package org.sireum
                   result(62) = ((n & u64"0x4000000000000000") ≠ u64"0x4000000000000000") ∧
                   result(63) = ((n & u64"0x8000000000000000") ≠ u64"0x8000000000000000")   }"""
 
-  @pure def toU8[I : TT](s: IS[I, B]): U8 =
+  @pure def toU8[I: TT](s: IS[I, B]): U8 =
     c"""{ requires s.size = 8
           ensures  fromU8(result) = s }"""
 
-  @pure def toU16[I : TT](s: IS[I, B]): U16 =
+  @pure def toU16[I: TT](s: IS[I, B]): U16 =
     c"""{ requires s.size = 16
           ensures  fromU16(result) = s }"""
 
-  @pure def toU32[I : TT](s: IS[I, B]): U32 =
+  @pure def toU32[I: TT](s: IS[I, B]): U32 =
     c"""{ requires s.size = 32
           ensures  fromU32(result) = s }"""
 
-  @pure def toU64[I : TT](s: IS[I, B]): U64 =
+  @pure def toU64[I: TT](s: IS[I, B]): U64 =
     c"""{ requires s.size = 64
           ensures  fromU64(result) = s }"""
 }
@@ -2432,26 +2424,26 @@ package org.sireum
 
 @ext object SM {
 
-  @pure def append[I : TT, E](s: MS[I, E], e: E): MS[I, E] =
+  @pure def append[I: TT, E](s: MS[I, E], e: E): MS[I, E] =
     c"""{ ensures result.size == s.size + 1
                   ∀i: (0 ..< result.size)  result(i) = s(i)
                   result(result.size - 1) = e               }"""
 
-  @pure def prepend[I : TT, E](s: MS[I, E], e: E): MS[I, E] =
+  @pure def prepend[I: TT, E](s: MS[I, E], e: E): MS[I, E] =
     c"""{ ensures result.size == s.size + 1
                   ∀i: (1 ..< result.size)  result(i) = s(i - 1)
                   result(0) = e                                 }"""
 
-  @pure def appends[I : TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] =
+  @pure def appends[I: TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] =
     c"""{ ensures result.size == s1.size + s2.size
                   ∀i: (0 ..< s1.size)  result(i) = s1(i)
                   ∀i: (0 ..< s2.size)  result(s1.size + i) = s2(i) }"""
 
-  @pure def toIS[I : TT, E](s: MS[I, E]): IS[I, E] =
+  @pure def toIS[I: TT, E](s: MS[I, E]): IS[I, E] =
     c"""{ ensures result.size = s.size
                   ∀i: (0 ..< result.size)  result(i) = s(i) }"""
 
-  @pure def chunk[I : TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] =
+  @pure def chunk[I: TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] =
     c"""{ requires s.size % size = 0
           ensures  result.size * size = s.size
                    ∀i: (0 ..< result.size)  result(i).size = size
@@ -2459,40 +2451,40 @@ package org.sireum
                      ∀j: (0 ..< size)
                        s(i * result.size + j) = result(i)(j) }"""
 
-  @pure def drop[I : TT, E](s: MS[I, E], size: I): MS[I, E] =
+  @pure def drop[I: TT, E](s: MS[I, E], size: I): MS[I, E] =
     c"""{ requires s.size ≥ size
           ensures  result.size = s.size - size
                    ∀i (0 ..< s.size - size)  result(i) = s(size + i) }"""
 
-  @spec def foldLeftSpec[I : TT, E, R](s: MS[I, E], f: (R, E) => R, init: R, i: I): R =
+  @spec def foldLeftSpec[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R, i: I): R =
     c"""{ = init,                                      if i = 0               (base)
           = f(foldLeftSpec(s, f, init, i - 1), s(i)),  if 0 < i ∧ i < s.size  (rec)  }"""
 
-  @pure def foldLeft[I : TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R =
+  @pure def foldLeft[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R =
     c"""{ ensures result = foldLeftSpec(s, f, init, s.size - 1) }"""
 
-  @spec def foldRightSpec[I : TT, E, R](s: MS[I, E], f: (R, E) => R, init: R, i: I): R =
+  @spec def foldRightSpec[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R, i: I): R =
     c"""{ = f(init, s(s.size - 1)),                                  if i = 0               (base)
           = f(foldRightSpec(s, f, init, i - 1), s(s.size - i - 1)),  if 1 < i ∧ i ≤ s.size  (rec)  }"""
 
-  @pure def foldRight[I : TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R =
+  @pure def foldRight[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R =
     c"""{ ensures result = foldRightSpec(s, f, init, s.size - 1) }"""
 
-  @pure def map[I : TT, E1, E2](s: MS[I, E1], f: E1 => E2): MS[I, E2] =
+  @pure def map[I: TT, E1, E2](s: MS[I, E1], f: E1 => E2): MS[I, E2] =
     c"""{ ensures result.size = s.size
                   ∀i: (0 ..< result.size)  result(i) = f(s(i)) }"""
 
-  def transform[I : TT, E](s: MS[I, E], f: E => E): Unit =
+  def transform[I: TT, E](s: MS[I, E], f: E => E): Unit =
     c"""{ modifies s
           ensures  s.size = s_in.size
                    ∀i: (0 ..< s.size)  s(i) = f(s_in(i)) }"""
 
-  @pure def take[I : TT, E](s: MS[I, E], size: I): MS[I, E] =
+  @pure def take[I: TT, E](s: MS[I, E], size: I): MS[I, E] =
     c"""{ requires s.size ≥ size
           ensures  result.size = size
                    ∀i: (0 ..< result.size)  result(i) = s(i) }"""
 
-  @pure def fromU8[I : TT](n: U8): MS[I, B] =
+  @pure def fromU8[I: TT](n: U8): MS[I, B] =
     c"""{ ensures result.size = 8
                   result(0) = ((n & u8"0x01") ≠ u8"0x01") ∧
                   result(1) = ((n & u8"0x02") ≠ u8"0x02") ∧
@@ -2503,7 +2495,7 @@ package org.sireum
                   result(6) = ((n & u8"0x40") ≠ u8"0x40") ∧
                   result(7) = ((n & u8"0x80") ≠ u8"0x80")   }"""
 
-  @pure def fromU16[I : TT](n: U16): MS[I, B] =
+  @pure def fromU16[I: TT](n: U16): MS[I, B] =
     c"""{ ensures result.size = 16
                   result(0 ) = ((n & u16"0x0001") ≠ u16"0x0001") ∧
                   result(1 ) = ((n & u16"0x0002") ≠ u16"0x0002") ∧
@@ -2522,7 +2514,7 @@ package org.sireum
                   result(14) = ((n & u16"0x4000") ≠ u16"0x4000") ∧
                   result(15) = ((n & u16"0x8000") ≠ u16"0x8000")   }"""
 
-  @pure def fromU32[I : TT](n: U32): MS[I, B] =
+  @pure def fromU32[I: TT](n: U32): MS[I, B] =
     c"""{ ensures result.size = 32
                   result(0 ) = ((n & u32"0x00000001") ≠ u32"0x00000001") ∧
                   result(1 ) = ((n & u32"0x00000002") ≠ u32"0x00000002") ∧
@@ -2557,7 +2549,7 @@ package org.sireum
                   result(30) = ((n & u32"0x40000000") ≠ u32"0x40000000") ∧
                   result(31) = ((n & u32"0x80000000") ≠ u32"0x80000000")   }"""
 
-  @pure def fromU64[I : TT](n: U64): MS[I, B] =
+  @pure def fromU64[I: TT](n: U64): MS[I, B] =
     c"""{ ensures result.size = 64
                   result(0 ) = ((n & u64"0x0000000000000001") ≠ u64"0x0000000000000001") ∧
                   result(1 ) = ((n & u64"0x0000000000000002") ≠ u64"0x0000000000000002") ∧
@@ -2624,19 +2616,19 @@ package org.sireum
                   result(62) = ((n & u64"0x4000000000000000") ≠ u64"0x4000000000000000") ∧
                   result(63) = ((n & u64"0x8000000000000000") ≠ u64"0x8000000000000000")   }"""
 
-  @pure def toU8[I : TT](s: MS[I, B]): U8 =
+  @pure def toU8[I: TT](s: MS[I, B]): U8 =
     c"""{ requires s.size = 8
           ensures  fromU8(result) = s }"""
 
-  @pure def toU16[I : TT](s: MS[I, B]): U16 =
+  @pure def toU16[I: TT](s: MS[I, B]): U16 =
     c"""{ requires s.size = 16
           ensures  fromU16(result) = s }"""
 
-  @pure def toU32[I : TT](s: MS[I, B]): U32 =
+  @pure def toU32[I: TT](s: MS[I, B]): U32 =
     c"""{ requires s.size = 32
           ensures  fromU32(result) = s }"""
 
-  @pure def toU64[I : TT](s: MS[I, B]): U64 =
+  @pure def toU64[I: TT](s: MS[I, B]): U64 =
     c"""{ requires s.size = 64
           ensures  fromU64(result) = s }"""
 }

@@ -25,10 +25,41 @@
 
 package org.sireum
 
-object _Type {
+private[sireum] object _Type {
+
   import scala.reflect.runtime.universe._
 
-  private[sireum] val bType = typeOf[Z].dealias.toString
+  object Alias {
+    type TT[T] = TypeTag[T]
+    type B = org.sireum._B
+    type C = org.sireum._C
+    type Z = math._Z
+    type Z8 = org.sireum.math._Z8
+    type Z16 = org.sireum.math._Z16
+    type Z32 = org.sireum.math._Z32
+    type Z64 = org.sireum.math._Z64
+    type S8 = org.sireum.math._S8
+    type S16 = org.sireum.math._S16
+    type S32 = org.sireum.math._S32
+    type S64 = org.sireum.math._S64
+    type N = math._N
+    type N8 = org.sireum.math._N8
+    type N16 = org.sireum.math._N16
+    type N32 = org.sireum.math._N32
+    type N64 = org.sireum.math._N64
+    type U8 = org.sireum.math._U8
+    type U16 = org.sireum.math._U16
+    type U32 = org.sireum.math._U32
+    type U64 = org.sireum.math._U64
+    type R = org.sireum.math._R
+    type F32 = org.sireum.math._F32
+    type F64 = org.sireum.math._F64
+    type IS[I, V] = collection._IS[I, V]
+    type MS[I, V] = collection._MS[I, V]
+  }
+
+  private[sireum] val bType = typeOf[B].dealias.toString
+  private[sireum] val cType = typeOf[C].dealias.toString
   private[sireum] val zType = typeOf[Z].dealias.toString
   private[sireum] val z8Type = typeOf[Z8].dealias.toString
   private[sireum] val z16Type = typeOf[Z16].dealias.toString
@@ -61,31 +92,31 @@ object _Type {
     }
   }
 
-  private[sireum] def ln2int(value: Z): Int = Z_Ext.toZ32(value)
+  private[sireum] def ln2int(value: Z): Int = Z_Ext.toZ32(value).value
 
   private[sireum] def ln2int[T: TT](value: T): Int = {
     scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
-      case `zType` => Z_Ext.toZ32(value.asInstanceOf[Z])
-      case `z8Type` => Z8_Ext.toZ32(value.asInstanceOf[Z8])
-      case `z16Type` => Z16_Ext.toZ32(value.asInstanceOf[Z16])
-      case `z32Type` => Z32_Ext.toZ32(value.asInstanceOf[Z32])
-      case `z64Type` => Z64_Ext.toZ32(value.asInstanceOf[Z64])
-      case `nType` => N_Ext.toZ32(value.asInstanceOf[N])
-      case `n8Type` => N8_Ext.toZ32(value.asInstanceOf[N8])
-      case `n16Type` => N16_Ext.toZ32(value.asInstanceOf[N16])
-      case `n32Type` => N32_Ext.toZ32(value.asInstanceOf[N32])
-      case `n64Type` => N64_Ext.toZ32(value.asInstanceOf[N64])
-      case `s8Type` => S8_Ext.toZ32(value.asInstanceOf[S8])
-      case `s16Type` => S16_Ext.toZ32(value.asInstanceOf[S16])
-      case `s32Type` => S32_Ext.toZ32(value.asInstanceOf[S32])
-      case `s64Type` => S64_Ext.toZ32(value.asInstanceOf[S64])
-      case `u8Type` => U8_Ext.toZ32(value.asInstanceOf[U8])
-      case `u16Type` => U16_Ext.toZ32(value.asInstanceOf[U16])
-      case `u32Type` => U32_Ext.toZ32(value.asInstanceOf[U32])
-      case `u64Type` => U64_Ext.toZ32(value.asInstanceOf[U64])
+      case `zType` => Z_Ext.toZ32(value.asInstanceOf[Z]).value
+      case `z8Type` => Z8_Ext.toZ32(value.asInstanceOf[Z8]).value
+      case `z16Type` => Z16_Ext.toZ32(value.asInstanceOf[Z16]).value
+      case `z32Type` => Z32_Ext.toZ32(value.asInstanceOf[Z32]).value
+      case `z64Type` => Z64_Ext.toZ32(value.asInstanceOf[Z64]).value
+      case `nType` => N_Ext.toZ32(value.asInstanceOf[N]).value
+      case `n8Type` => N8_Ext.toZ32(value.asInstanceOf[N8]).value
+      case `n16Type` => N16_Ext.toZ32(value.asInstanceOf[N16]).value
+      case `n32Type` => N32_Ext.toZ32(value.asInstanceOf[N32]).value
+      case `n64Type` => N64_Ext.toZ32(value.asInstanceOf[N64]).value
+      case `s8Type` => S8_Ext.toZ32(value.asInstanceOf[S8]).value
+      case `s16Type` => S16_Ext.toZ32(value.asInstanceOf[S16]).value
+      case `s32Type` => S32_Ext.toZ32(value.asInstanceOf[S32]).value
+      case `s64Type` => S64_Ext.toZ32(value.asInstanceOf[S64]).value
+      case `u8Type` => U8_Ext.toZ32(value.asInstanceOf[U8]).value
+      case `u16Type` => U16_Ext.toZ32(value.asInstanceOf[U16]).value
+      case `u32Type` => U32_Ext.toZ32(value.asInstanceOf[U32]).value
+      case `u64Type` => U64_Ext.toZ32(value.asInstanceOf[U64]).value
       case _ => value match {
         case value: Int => value
-        case value: Long => Z64_Ext.toZ32(value.asInstanceOf[Z64])
+        case value: Long => Z64_Ext.toZ32(value.asInstanceOf[Z64]).value
       }
     }
   }

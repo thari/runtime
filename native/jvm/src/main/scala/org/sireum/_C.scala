@@ -25,17 +25,16 @@
 
 package org.sireum
 
-import _Type._
-
-trait _Clonable {
-  override def clone: java.lang.Object = ???
-}
-
-object _Clonable {
-  def clone[T](o: T): T = o match {
-    case o: IS[_, _] => o.clone.asInstanceOf[T]
-    case o: MS[_, _] => o.clone.asInstanceOf[T]
-    case o: _Clonable => o.clone.asInstanceOf[T]
-    case x => x
-  }
+final class _C(val value: Char) extends AnyVal {
+  private type T = C
+  def <(other: T): B = value < other.value
+  def <=(other: T): B = value <= other.value
+  def >(other: T): B = value > other.value
+  def >=(other: T): B = value >= other.value
+  def ===(other: T): B = value == other.value
+  def =!=(other: T): B = value != other.value
+  def ≤(other: T): B = this <= other
+  def ≥(other: T): B = this >= other
+  def ≠(other: T): B = this =!= other
+  override def toString: String = value.toString
 }

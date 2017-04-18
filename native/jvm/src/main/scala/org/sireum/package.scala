@@ -26,37 +26,38 @@
 package org
 
 package object sireum {
-  type TT[T] = scala.reflect.runtime.universe.TypeTag[T]
+  type TT[T] = _Type.Alias.TT[T]
 
-  type B = scala.Boolean
-  type Z = math._Z
-  type Z8 = scala.Byte
-  type Z16 = scala.Short
-  type Z32 = scala.Int
-  type Z64 = scala.Long
-  type S8 = scala.Byte
-  type S16 = scala.Short
-  type S32 = scala.Int
-  type S64 = scala.Long
-  type N = math._N
-  type N8 = spire.math.UByte
-  type N16 = spire.math.UShort
-  type N32 = spire.math.UInt
-  type N64 = spire.math.ULong
-  type U8 = spire.math.UByte
-  type U16 = spire.math.UShort
-  type U32 = spire.math.UInt
-  type U64 = spire.math.ULong
-  type R = spire.math.Real
-  type F32 = scala.Float
-  type F64 = scala.Double
+  type B = _Type.Alias.B
+  type C = _Type.Alias.C
+  type Z = _Type.Alias.Z
+  type Z8 = _Type.Alias.Z8
+  type Z16 = _Type.Alias.Z16
+  type Z32 = _Type.Alias.Z32
+  type Z64 = _Type.Alias.Z64
+  type S8 = _Type.Alias.S8
+  type S16 = _Type.Alias.S16
+  type S32 = _Type.Alias.S32
+  type S64 = _Type.Alias.S64
+  type N = _Type.Alias.N
+  type N8 = _Type.Alias.N8
+  type N16 = _Type.Alias.N16
+  type N32 = _Type.Alias.N32
+  type N64 = _Type.Alias.N64
+  type U8 = _Type.Alias.U8
+  type U16 = _Type.Alias.U16
+  type U32 = _Type.Alias.U32
+  type U64 = _Type.Alias.U64
+  type R = _Type.Alias.R
+  type F32 = _Type.Alias.F32
+  type F64 = _Type.Alias.F64
 
-  type MS[I, V] = collection._MS[I, V]
-  type MSZ[V] = collection._MS[Z, V]
-  type IS[I, V] = collection._IS[I, V]
-  type ISZ[V] = collection._IS[Z, V]
+  type MS[I, V] = _Type.Alias.MS[I, V]
+  type MSZ[V] = _Type.Alias.MS[Z, V]
+  type IS[I, V] = _Type.Alias.IS[I, V]
+  type ISZ[V] = _Type.Alias.IS[Z, V]
 
-  type ZS = collection._MS[Z, Z]
+  type ZS = _Type.Alias.MS[Z, Z]
 
   val T: B = true
   val F: B = false
@@ -86,44 +87,6 @@ package object sireum {
     for (a <- as) scala.Predef.print(a)
 
   final def randomInt(): Z = math._Z.random
-
-  object _R {
-
-    final def apply(r: String): R = spire.math.Real(r.replaceAllLiterally(" ", ""))
-
-    final def random: R = apply(math._Z.random.toString + "." + math._N.random.toString)
-  }
-
-  def _clone[T](o: T): T = o match {
-    case o: IS[_, _] => o.clone.asInstanceOf[T]
-    case o: MS[_, _] => o.clone.asInstanceOf[T]
-    case o: _Clonable => o.clone.asInstanceOf[T]
-    case x => x
-  }
-
-  def _quote(s: String): String = {
-    def escape(s: String): String = s.flatMap(escapedChar)
-
-    def escapedChar(ch: Char): String = ch match {
-      case '\b' => "\\b"
-      case '\t' => "\\t"
-      case '\n' => "\\n"
-      case '\f' => "\\f"
-      case '\r' => "\\r"
-      case '"' => "\\\""
-      case '\'' => "\\\'"
-      case '\\' => "\\\\"
-      case _ => if (ch.isControl) "\\0" + Integer.toOctalString(ch.toInt)
-      else String.valueOf(ch)
-    }
-
-    "\"" + escape(s) + "\""
-  }
-
-  def _append(sb: StringBuilder, x: Any): Unit = x match {
-    case x: String => sb.append(_quote(x))
-    case _ => sb.append(x)
-  }
 
   import scala.language.experimental.macros
 
@@ -159,18 +122,23 @@ package object sireum {
 
   def $[T]: T = macro _macro.$Impl[T]
 
-  final class _Up[T] {
-    def update(lhs: T, rhs: T): Unit = macro _macro.up[T]
+  def up[T]: _Helper.Up[T] = new _Helper.Up[T]
+
+  def _assign[T](arg: T): T = macro _macro._assignImpl
+
+  def __assign[T](arg: T): T = {
+    arg match {
+      case x: _Record => (if (x.owned) x.clone.owned = true else x.owned = true).asInstanceOf[T]
+      case x: MS[_, _] => x.clone.asInstanceOf[T]
+      case _ => arg
+    }
   }
 
-  def up[T]: _Up[T] = new _Up[T]
+  def _cleanup[T](arg: T): Unit = macro _macro._cleanupImpl
 
-  def _assign[T](arg: T): T = macro _macro._assign[T]
-
-  def __assign[T](arg: T): T = arg match {
-    case x: _Record => (if (x.owned) x.clone.owned = true else x.owned = true).asInstanceOf[T]
-    case x: MS[_, _] => x.clone.asInstanceOf[T]
-    case _ => arg
+  def __cleanup[T](arg: T): Unit = arg match {
+    case x: _Record => if (x.owned) x.owned = false
+    case _ =>
   }
 
   import scala.language.implicitConversions
@@ -213,42 +181,24 @@ package object sireum {
 
     def u64(args: Any*): U64 = Z_Ext.toU64(z(args: _*))
 
-    def f32(args: Any*): F32 = sc.parts.mkString("").toFloat
+    def f32(args: Any*): F32 = math.Numbers.toF32(sc.parts.mkString("").toFloat)
 
-    def f64(args: Any*): F64 = (sc.parts.mkString("") + "d").toDouble
+    def f64(args: Any*): F64 = math.Numbers.toF64((sc.parts.mkString("") + "d").toDouble)
 
-    def r(args: Any*): R = _R(sc.raw(args))
+    def r(args: Any*): R = _Helper.R(sc.raw(args))
 
     def l(args: Any*): Unit = macro _macro.lImpl
 
     def c[T](args: Any*): T = macro _macro.cImpl[T]
   }
 
-  final implicit def _Z(n: Int): Z = math._Z(n)
+  final implicit def _Z(n: Int): Z = math.Numbers.toZ(n)
 
-  final implicit def _Z(n: Long): Z = math._Z(n)
+  final implicit def _Z(n: Long): Z = math.Numbers.toZ(n)
 
-  final implicit def _Z(n: BigInt): Z = math._Z(n)
+  final implicit def _Z(n: BigInt): Z = math.Numbers.toZ(n)
 
-  final implicit class _2B(val x: Boolean) extends AnyVal {
-    def ^|(other: B): B = x != other
-  }
+  final implicit def _2B(b: Boolean): B = new _B(b)
 
-  final implicit class _2R(val n: R) extends AnyVal {
-    def <(other: R): B = n.compare(other) < 0
-
-    def >(other: R): B = n.compare(other) > 0
-
-    def <=(other: R): B = n.compare(other) <= 0
-
-    def >=(other: R): B = n.compare(other) >= 0
-  }
-
-  final class helper extends scala.annotation.StaticAnnotation
-
-  final class pure extends scala.annotation.StaticAnnotation
-
-  final class hidden extends scala.annotation.StaticAnnotation
-
-  final class part extends scala.annotation.StaticAnnotation
+  final implicit def _2Boolean(b: B): Boolean = b.value
 }

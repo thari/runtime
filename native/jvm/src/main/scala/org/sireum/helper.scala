@@ -25,19 +25,4 @@
 
 package org.sireum
 
-package object math {
-  final val defaultBitWidth: Int = {
-    def err = sys.error("org.sireum.math.bitWidth should be either 8, 16, 32, or 64.")
-    try Option(System.getProperty("org.sireum.math.bitWidth")) match {
-      case Some(v) =>
-        val n = v.toInt
-        n match {
-          case 8 | 16 | 32 | 64 => n
-          case _ => err
-        }
-      case _ => 0
-    } catch {
-      case _: Throwable => err
-    }
-  }
-}
+final class helper extends scala.annotation.StaticAnnotation

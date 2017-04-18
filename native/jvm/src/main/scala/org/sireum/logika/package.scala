@@ -23,6 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 package org.sireum
 
 package object logika {
@@ -254,11 +255,11 @@ package object logika {
 
     def u64(args: Any*): U64 = org.sireum.Z_Ext.toU64(z(args: _*))
 
-    def f32(args: Any*): F32 = sc.parts.mkString("").toFloat
+    def f32(args: Any*): F32 = math.Numbers.toF32(sc.parts.mkString("").toFloat)
 
-    def f64(args: Any*): F64 = (sc.parts.mkString("") + "d").toDouble
+    def f64(args: Any*): F64 = math.Numbers.toF64((sc.parts.mkString("") + "d").toDouble)
 
-    def r(args: Any*): R = _R(sc.raw(args))
+    def r(args: Any*): R = org.sireum._Helper.R(sc.raw(args))
 
     def l(args: Any*): Unit = macro org.sireum._macro.lImpl
   }
@@ -269,17 +270,7 @@ package object logika {
 
   final implicit def _Z(n: BigInt): Z = math._Z(n)
 
-  final implicit class _2B(val x: Boolean) extends AnyVal {
-    def ^|(other: B): B = x != other
-  }
+  final implicit def _2B(b: Boolean): B = new B(b)
 
-  final implicit class _2R(val n: R) extends AnyVal {
-    def <(other: R): B = n.compare(other) < 0
-
-    def >(other: R): B = n.compare(other) > 0
-
-    def <=(other: R): B = n.compare(other) <= 0
-
-    def >=(other: R): B = n.compare(other) >= 0
-  }
+  final implicit def _2Boolean(b: B): Boolean = b.value
 }

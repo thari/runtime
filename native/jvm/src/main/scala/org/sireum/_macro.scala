@@ -25,18 +25,26 @@
 
 package org.sireum
 
-object _macro {
+import scala.language.experimental.macros
+
+private[sireum] object _macro {
+  def l(args: Any*): Unit = macro _macro.lImpl
+
   def lImpl(c: scala.reflect.macros.blackbox.Context)(
     args: c.Expr[Any]*): c.Expr[Unit] = {
     import c.universe._
     c.Expr[Unit](q"{}")
   }
 
+  def c[T](args: Any*): T = macro _macro.cImpl[T]
+
   def cImpl[T](c: scala.reflect.macros.blackbox.Context)(
     args: c.Expr[Any]*): c.Expr[T] = {
     import c.universe._
     c.Expr[T](q"???")
   }
+
+  def $[T]: T = macro _macro.$Impl[T]
 
   def $Impl[T](c: scala.reflect.macros.blackbox.Context): c.Expr[T] = {
     import c.universe._
@@ -61,9 +69,9 @@ object _macro {
     c.Expr[MS[I, V]](q"org.sireum.collection._MS(..$values)")
   }
 
-  def msCreateImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+  def msCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
-    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    val iType = size.tree.tpe
     import _Type._
     if (!(iType match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
@@ -96,9 +104,9 @@ object _macro {
     c.Expr[IS[I, V]](q"org.sireum.collection._IS(..$values)")
   }
 
-  def isCreateImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
+  def isCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
-    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
+    val iType = size.tree.tpe
     import _Type._
     if (!(iType match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
@@ -113,7 +121,9 @@ object _macro {
     c.Expr[IS[I, V]](q"org.sireum.collection._IS.create($size, $default)")
   }
 
-  def _assign[T: c.WeakTypeTag](c: scala.reflect.macros.blackbox.Context)(
+  def _assign[T](arg: T): T = macro _macro._assignImpl
+
+  def _assignImpl(c: scala.reflect.macros.blackbox.Context)(
     arg: c.Tree): c.Tree = {
     import c.universe._
     //println(showRaw(arg))
@@ -138,7 +148,34 @@ object _macro {
     r
   }
 
-  def up[T: c.WeakTypeTag](c: scala.reflect.macros.blackbox.Context)(
+  def _cleanup[T](arg: T): Unit = macro _cleanupImpl
+
+  def _cleanupImpl(c: scala.reflect.macros.blackbox.Context)(
+    arg: c.Tree): c.Tree = {
+    import c.universe._
+    //println(showRaw(arg))
+    val r = arg.tpe match {
+      case t if t <:< c.typeOf[_Datatype] => arg
+      case t if t <:< c.typeOf[_Record] => q"__cleanup($arg)"
+      case t if t.erasure =:= c.typeOf[MS[_, _]].erasure => q"__cleanup($arg)"
+      case t if t.erasure =:= c.typeOf[IS[_, _]].erasure => arg
+      case _ =>
+        import _Type._
+        arg.tpe.dealias.toString match {
+          case `bType` | `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
+               `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
+               `s8Type` | `s16Type` | `s32Type` | `s64Type` |
+               `u8Type` | `u16Type` | `u32Type` | `u64Type` |
+               `f32Type` | `f64Type` | `rType` => arg
+          case _ => q"__cleanup($arg)"
+        }
+    }
+    //println(showRaw(r))
+    //println(showCode(r))
+    r
+  }
+
+  def up(c: scala.reflect.macros.blackbox.Context)(
     lhs: c.Tree, rhs: c.Tree): c.Tree = {
     import c.universe._
     def isVar(symbol: Symbol): Boolean = {
@@ -147,6 +184,7 @@ object _macro {
       else if (t.isGetter & t.setter.toString != "<none>") true
       else false
     }
+
     def varType(t: c.Tree): Option[c.Type] = t match {
       case q"${name: Ident}.$_" =>
         if (isVar(name.symbol)) Some(name.tpe) else None
@@ -183,9 +221,7 @@ object _macro {
     //println(t)
     val r = tpe match {
       case Some(t) =>
-        if (t <:< c.typeOf[_Datatype] ||
-          t.erasure =:= c.typeOf[IS[_, _]].erasure)
-          f(lhs, rhs)
+        if (t <:< c.typeOf[_Datatype] || t.erasure.dealias =:= c.typeOf[IS[_, _]].erasure) f(lhs, rhs)
         else c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a @datatype var or a var of type IS.")
       case _ => c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a var.")
     }

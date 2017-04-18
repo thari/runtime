@@ -27,7 +27,7 @@ package org.sireum.math
 
 import org.apfloat.Apint
 
-import org.sireum.logika.{B, Z, N}
+import org.sireum._Type.Alias._
 
 object _N {
 
@@ -55,7 +55,7 @@ object _N {
 
   @inline
   final def apply(z: _Z): N = {
-    if (z < 0) println(z)
+    //if (z < 0) println(z)
     require(z >= 0)
     new _N(z)
   }
@@ -66,30 +66,28 @@ object _N {
   }
 }
 
-final class _N(val n: Z) extends AnyVal {
-  def +(other: N): N = _N(toZ + other.toZ)
+final class _N(val value: Z) extends AnyVal {
+  def +(other: N): N = _N(value + other.value)
 
-  def -(other: N): N = _N(toZ - other.toZ)
+  def -(other: N): N = _N(value - other.value)
 
-  def *(other: N): N = _N(toZ * other.toZ)
+  def *(other: N): N = _N(value * other.value)
 
-  def /(other: N): N = _N(toZ / other.toZ)
+  def /(other: N): N = _N(value / other.value)
 
-  def %(other: N): N = _N(toZ % other.toZ)
+  def %(other: N): N = _N(value % other.value)
 
-  def >(other: N): B = toZ > other.toZ
+  def >(other: N): B = value > other.value
 
-  def >=(other: N): B = toZ >= other.toZ
+  def >=(other: N): B = value >= other.value
 
-  def <(other: N): B = toZ < other.toZ
+  def <(other: N): B = value < other.value
 
-  def <=(other: N): B = toZ <= other.toZ
+  def <=(other: N): B = value <= other.value
 
-  def toZ: Z = n
+  def ===(other: N): B = value == other.value
 
-  def toApint: Apint = toZ.toApint
+  def =!=(other: N): B = value != other.value
 
-  def toBigInt: BigInt = toZ.toBigInt
-
-  override def toString: String = toZ.toString
+  override def toString: String = value.toString
 }

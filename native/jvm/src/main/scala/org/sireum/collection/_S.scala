@@ -25,12 +25,13 @@
 
 package org.sireum.collection
 
-import org.sireum._
 import scala.collection.mutable.ArrayBuffer
 
-object _IS {
+import org.sireum._
+import org.sireum._Type._
+import org.sireum.math._Z
 
-  import _Type._
+object _IS {
 
   import scala.language.experimental.macros
 
@@ -47,18 +48,23 @@ object _IS {
 }
 
 final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
-  def size: Z = value.size - 1
+
+  def ===(other: IS[I, V]): B = this == other
+
+  def =!=(other: IS[I, V]): B = this != other
+
+  def size: Z = _Z(value.size - 1)
 
   def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
   def apply(index: Int): V = {
-    require(0 <= index && index < size)
+    require(0 <= index && _Z(index) < size)
     value(index + 1).asInstanceOf[V]
   }
 
   def apply(index: Z): V = {
-    require(0 <= index && index < size)
-    value(_Type.ln2int(index) + 1).asInstanceOf[V]
+    require(_Z.zero <= index && index < size)
+    value(ln2int(index) + 1).asInstanceOf[V]
   }
 
   def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
@@ -79,7 +85,7 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
     var newValue = value
     val sz = value.size - 1
     for ((i, v) <- entries) {
-      val index = _Type.ln2int(i)
+      val index = ln2int(i)
       require(0 <= index && index < sz)
       newValue = newValue.updated(index + 1, v)
     }
@@ -94,24 +100,24 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
     val sz = value.size
     implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
     (typeOf[I].dealias.toString match {
-      case `zType` => (0 until sz).map(Z32_Ext.toZ)
-      case `z8Type` => (0 until sz).map(Z32_Ext.toZ8)
-      case `z16Type` => (0 until sz).map(Z32_Ext.toZ16)
-      case `z32Type` => 0 until sz
-      case `z64Type` => (0 until sz).map(Z32_Ext.toZ64)
-      case `nType` => (0 until sz).map(Z32_Ext.toN)
-      case `n8Type` => (0 until sz).map(Z32_Ext.toN8)
-      case `n16Type` => (0 until sz).map(Z32_Ext.toN16)
-      case `n32Type` => (0 until sz).map(Z32_Ext.toN32)
-      case `n64Type` => (0 until sz).map(Z32_Ext.toN64)
-      case `s8Type` => (0 until sz).map(Z32_Ext.toS8)
-      case `s16Type` => (0 until sz).map(Z32_Ext.toS16)
-      case `s32Type` => (0 until sz).map(Z32_Ext.toS32)
-      case `s64Type` => (0 until sz).map(Z32_Ext.toS64)
-      case `u8Type` => (0 until sz).map(Z32_Ext.toU8)
-      case `u16Type` => (0 until sz).map(Z32_Ext.toU16)
-      case `u32Type` => (0 until sz).map(Z32_Ext.toU32)
-      case `u64Type` => (0 until sz).map(Z32_Ext.toU64)
+      case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
+      case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
+      case `z16Type` => (0 until sz).map(n => Z32_Ext.toZ16(math.Numbers.toZ32(n)))
+      case `z32Type` => (0 until sz).map(x => math.Numbers.toZ32(x))
+      case `z64Type` => (0 until sz).map(n => Z32_Ext.toZ64(math.Numbers.toZ32(n)))
+      case `nType` => (0 until sz).map(n => Z32_Ext.toN(math.Numbers.toZ32(n)))
+      case `n8Type` => (0 until sz).map(n => Z32_Ext.toN8(math.Numbers.toZ32(n)))
+      case `n16Type` => (0 until sz).map(n => Z32_Ext.toN16(math.Numbers.toZ32(n)))
+      case `n32Type` => (0 until sz).map(n => Z32_Ext.toN32(math.Numbers.toZ32(n)))
+      case `n64Type` => (0 until sz).map(n => Z32_Ext.toN64(math.Numbers.toZ32(n)))
+      case `s8Type` => (0 until sz).map(n => Z32_Ext.toS8(math.Numbers.toZ32(n)))
+      case `s16Type` => (0 until sz).map(n => Z32_Ext.toS16(math.Numbers.toZ32(n)))
+      case `s32Type` => (0 until sz).map(n => Z32_Ext.toS32(math.Numbers.toZ32(n)))
+      case `s64Type` => (0 until sz).map(n => Z32_Ext.toS64(math.Numbers.toZ32(n)))
+      case `u8Type` => (0 until sz).map(n => Z32_Ext.toU8(math.Numbers.toZ32(n)))
+      case `u16Type` => (0 until sz).map(n => Z32_Ext.toU16(math.Numbers.toZ32(n)))
+      case `u32Type` => (0 until sz).map(n => Z32_Ext.toU32(math.Numbers.toZ32(n)))
+      case `u64Type` => (0 until sz).map(n => Z32_Ext.toU64(math.Numbers.toZ32(n)))
     }).asInstanceOf[Traversable[I]]
   }
 
@@ -120,12 +126,12 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
   override def toString: String = {
     val elements = this.elements
 
-    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
+    def toBit(i: Int): Char = if (elements(i).asInstanceOf[B]) '1' else '0'
 
     val sb = new StringBuilder
     sb.append('[')
     if (elements.nonEmpty) {
-      val isBoolean = elements.head.isInstanceOf[Boolean]
+      val isBoolean = elements.head.isInstanceOf[B]
       if (isBoolean) {
         sb.append(toBit(0))
         for (i <- 1 until elements.length) {
@@ -147,43 +153,46 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
 
 object _MS {
 
-  import _Type._
-
   def apply[I: TT, V](elements: V*): MS[I, V] = {
     require(isLogikaNumber[I])
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ elements.map(_clone))
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ elements.map(_Clonable.clone))
   }
 
   def create[I: TT, V](size: I, default: V): MS[I, V] = {
     require(isLogikaNumber[I])
     val sz = ln2int(size)
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ (0 until sz).map(_ => _clone(default)))
+    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ (0 until sz).map(_ => _Clonable.clone(default)))
   }
 }
 
 final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
-  def size: Z = value.size - 1
+
+  def ===(other: MS[I, V]): B = this == other
+
+  def =!=(other: MS[I, V]): B = this != other
+
+  def size: Z = _Z(value.size - 1)
 
   def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
   def apply(index: Int): V = {
-    require(0 <= index && index < size)
+    require(0 <= index && _Z(index) < size)
     value(index + 1).asInstanceOf[V]
   }
 
   def apply(index: Z): V = {
-    require(0 <= index && index < size)
-    value(_Type.ln2int(index) + 1).asInstanceOf[V]
+    require(_Z.zero <= index && index < size)
+    value(ln2int(index) + 1).asInstanceOf[V]
   }
 
   def update(index: Int, value: V): Unit = {
-    require(0 <= index && index < size)
+    require(0 <= index && _Z(index) < size)
     this.value(index + 1) = value
   }
 
   def update(index: Z, value: V): Unit = {
-    require(0 <= index && index < size)
-    this.value(_Type.ln2int(index) + 1) = value
+    require(_Z.zero <= index && index < size)
+    this.value(ln2int(index) + 1) = value
   }
 
   def update(index: Z8, value: V): Unit = update(Z8_Ext.toZ(index), value)
@@ -210,7 +219,7 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
     var newValue = value
     val sz = value.size - 1
     for ((i, v) <- entries) {
-      val index = _Type.ln2int(i)
+      val index = ln2int(i)
       require(0 <= index && index < sz)
       newValue = newValue.updated(index + 1, v)
     }
@@ -225,38 +234,38 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
     val sz = value.size
     implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
     (typeOf[I].dealias.toString match {
-      case `zType` => (0 until sz).map(Z32_Ext.toZ)
-      case `z8Type` => (0 until sz).map(Z32_Ext.toZ8)
-      case `z16Type` => (0 until sz).map(Z32_Ext.toZ16)
-      case `z32Type` => 0 until sz
-      case `z64Type` => (0 until sz).map(Z32_Ext.toZ64)
-      case `nType` => (0 until sz).map(Z32_Ext.toN)
-      case `n8Type` => (0 until sz).map(Z32_Ext.toN8)
-      case `n16Type` => (0 until sz).map(Z32_Ext.toN16)
-      case `n32Type` => (0 until sz).map(Z32_Ext.toN32)
-      case `n64Type` => (0 until sz).map(Z32_Ext.toN64)
-      case `s8Type` => (0 until sz).map(Z32_Ext.toS8)
-      case `s16Type` => (0 until sz).map(Z32_Ext.toS16)
-      case `s32Type` => (0 until sz).map(Z32_Ext.toS32)
-      case `s64Type` => (0 until sz).map(Z32_Ext.toS64)
-      case `u8Type` => (0 until sz).map(Z32_Ext.toU8)
-      case `u16Type` => (0 until sz).map(Z32_Ext.toU16)
-      case `u32Type` => (0 until sz).map(Z32_Ext.toU32)
-      case `u64Type` => (0 until sz).map(Z32_Ext.toU64)
+      case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
+      case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
+      case `z16Type` => (0 until sz).map(n => Z32_Ext.toZ16(math.Numbers.toZ32(n)))
+      case `z32Type` => (0 until sz).map(x => math.Numbers.toZ32(x))
+      case `z64Type` => (0 until sz).map(n => Z32_Ext.toZ64(math.Numbers.toZ32(n)))
+      case `nType` => (0 until sz).map(n => Z32_Ext.toN(math.Numbers.toZ32(n)))
+      case `n8Type` => (0 until sz).map(n => Z32_Ext.toN8(math.Numbers.toZ32(n)))
+      case `n16Type` => (0 until sz).map(n => Z32_Ext.toN16(math.Numbers.toZ32(n)))
+      case `n32Type` => (0 until sz).map(n => Z32_Ext.toN32(math.Numbers.toZ32(n)))
+      case `n64Type` => (0 until sz).map(n => Z32_Ext.toN64(math.Numbers.toZ32(n)))
+      case `s8Type` => (0 until sz).map(n => Z32_Ext.toS8(math.Numbers.toZ32(n)))
+      case `s16Type` => (0 until sz).map(n => Z32_Ext.toS16(math.Numbers.toZ32(n)))
+      case `s32Type` => (0 until sz).map(n => Z32_Ext.toS32(math.Numbers.toZ32(n)))
+      case `s64Type` => (0 until sz).map(n => Z32_Ext.toS64(math.Numbers.toZ32(n)))
+      case `u8Type` => (0 until sz).map(n => Z32_Ext.toU8(math.Numbers.toZ32(n)))
+      case `u16Type` => (0 until sz).map(n => Z32_Ext.toU16(math.Numbers.toZ32(n)))
+      case `u32Type` => (0 until sz).map(n => Z32_Ext.toU32(math.Numbers.toZ32(n)))
+      case `u64Type` => (0 until sz).map(n => Z32_Ext.toU64(math.Numbers.toZ32(n)))
     }).asInstanceOf[Traversable[I]]
   }
 
-  def clone: MS[I, V] = new _MS[I, V](ArrayBuffer(value.map(_clone)))
+  def clone: MS[I, V] = new _MS[I, V](ArrayBuffer(value.map(_Clonable.clone)))
 
   override def toString: String = {
     val elements = this.elements
 
-    def toBit(i: Int): Char = if (elements(i).asInstanceOf[Boolean]) '1' else '0'
+    def toBit(i: Int): Char = if (elements(i).asInstanceOf[B]) '1' else '0'
 
     val sb = new StringBuilder
     sb.append('[')
     if (elements.nonEmpty) {
-      val isBoolean = elements.head.isInstanceOf[Boolean]
+      val isBoolean = elements.head.isInstanceOf[B]
       if (isBoolean) {
         sb.append(toBit(0))
         for (i <- 1 until elements.length) {

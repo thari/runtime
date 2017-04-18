@@ -32,19 +32,17 @@ class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
       case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
-        if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty
-          || !param.name.isInstanceOf[Name.Anonymous] || stats.nonEmpty)
-          abort("Logika @record traits have to be of the form '@record trait <id> { ... }'.")
+        if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
+          abort("Logika @record traits have to be of the form '@record trait <id> ... { ... }'.")
         q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }"
       case Term.Block(Seq(r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
-        if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty
-          || !param.name.isInstanceOf[Name.Anonymous] || stats.nonEmpty)
-          abort("Logika @record traits have to be of the form '@record trait <id> { ... }'.")
+        if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
+          abort("Logika @record traits have to be of the form '@record trait <id> ... { ... }'.")
         Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
-          estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @record classes have to be of the form '@record class <id>(...) { ... }'.")
+          estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
+          abort("Logika @record classes have to be of the form '@record class <id>(...) ... { ... }'.")
         val tVars = tparams.map { tp =>
           val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
           Type.Name(tparamname.value)
@@ -91,7 +89,7 @@ class record extends scala.annotation.StaticAnnotation {
             case _ => abort(param.pos, "Unsupported Logika @record parameter form.")
           }
           val cls = {
-            val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._clone($arg)")})"
+            val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._Clonable.clone($arg)")})"
             val hashCodeDirty = q"private var dirty: Boolean = true"
             val hashCodeVar = q"private var _hashCode: Int = _"
             val hashCodeDef = q"private def computeHashCode: Int = (this.getClass, ..$unapplyArgs).hashCode"
@@ -105,9 +103,9 @@ class record extends scala.annotation.StaticAnnotation {
                   p"case _ => false")
               q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
             }
-            val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
+            val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._macro._assign($arg)")})"
             val toString = {
-              var appends = applyArgs.map(arg => q"org.sireum._append(sb, $arg)")
+              var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
               appends =
                 if (appends.isEmpty) appends
                 else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
@@ -127,16 +125,16 @@ class record extends scala.annotation.StaticAnnotation {
               if (tparams.isEmpty)
                 (q"def apply(..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
                   unapplyTypes.size match {
-                    case 0 => q"def unapply(o: $tpe): Option[Unit] = scala.Some(())"
-                    case 1 => q"def unapply(o: $tpe): Option[${unapplyTypes.head}] = scala.Some(org.sireum._clone(o.${unapplyArgs.head}))"
-                    case _ => q"def unapply(o: $tpe): Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._clone(o.$arg)")}))"
+                    case 0 => q"def unapply(o: $tpe): Boolean = true"
+                    case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
+                    case _ => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
                   })
               else
                 (q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
                   unapplyTypes.size match {
-                    case 0 => q"def unapply[..$tparams](o: $tpe): Option[Unit] = scala.Some(())"
-                    case 1 => q"def unapply[..$tparams](o: $tpe): Option[${unapplyTypes.head}] = scala.Some(org.sireum._clone(o.${unapplyArgs.head}))"
-                    case _ => q"def unapply[..$tparams](o: $tpe): Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._clone(o.$arg)")}))"
+                    case 0 => q"def unapply[..$tparams](o: $tpe): Boolean = true"
+                    case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
+                    case _ => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
                   })
             q"object ${Term.Name(tname.value)} { ..${Vector(apply, unapply)} }"
           }
@@ -163,13 +161,12 @@ class record extends scala.annotation.StaticAnnotation {
               if (tparams.isEmpty)
                 (q"private[this] val v: AnyRef = new $ctorName()",
                   q"def apply(): $tpe = v.asInstanceOf[$tpe]",
-                  q"def unapply(o: $tpe): Option[Unit] = unv")
+                  q"def unapply(o: $tpe): Boolean = true")
               else
                 (q"private[this] val v: AnyRef = new $ctorName[..${tparams.map(_ => t"Nothing")}]()",
                   q"def apply[..$tparams](): $tpe = v.asInstanceOf[$tpe]",
-                  q"def unapply[..$tparams](o: $tpe): Option[Unit] = unv")
-            val unv = q"private[this] lazy val unv: Option[Unit] = scala.Some(())"
-            q"object ${Term.Name(tname.value)} { ..${Vector(v, unv, apply, unapply)} }"
+                  q"def unapply[..$tparams](o: $tpe): Boolean = true")
+            q"object ${Term.Name(tname.value)} { ..${Vector(v, apply, unapply)} }"
           }
           Term.Block(Vector(cls, companion))
         }

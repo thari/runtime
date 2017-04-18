@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Robby, Kansas State University
+ * Copyright (c) 2016, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,4 @@
 
 package org.sireum
 
-import _Type._
-
-trait _Clonable {
-  override def clone: java.lang.Object = ???
-}
-
-object _Clonable {
-  def clone[T](o: T): T = o match {
-    case o: IS[_, _] => o.clone.asInstanceOf[T]
-    case o: MS[_, _] => o.clone.asInstanceOf[T]
-    case o: _Clonable => o.clone.asInstanceOf[T]
-    case x => x
-  }
-}
+final class hidden extends scala.annotation.StaticAnnotation
