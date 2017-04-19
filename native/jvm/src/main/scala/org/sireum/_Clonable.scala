@@ -25,10 +25,8 @@
 
 package org.sireum
 
-import _Type._
-
 trait _Clonable {
-  override def clone: java.lang.Object = ???
+  override def clone: java.lang.Object = this
 }
 
 object _Clonable {

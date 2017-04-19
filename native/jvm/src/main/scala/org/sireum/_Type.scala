@@ -82,7 +82,7 @@ private[sireum] object _Type {
   private[sireum] val f64Type = typeOf[F64].dealias.toString
   private[sireum] val rType = typeOf[R].dealias.toString
 
-  private[sireum] def isLogikaNumber[T: TT]: Boolean = {
+  private[sireum] def isSlangNumber[T: TT]: Boolean = {
     scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
            `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |

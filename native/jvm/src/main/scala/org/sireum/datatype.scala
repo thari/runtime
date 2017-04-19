@@ -33,23 +33,21 @@ class datatype extends scala.annotation.StaticAnnotation {
     val result: Stat = tree match {
       case q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
-        q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }"
+          abort("Slang @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
+        q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }"
       case Term.Block(Seq(q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
-        Term.Block(Vector(q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }", o))
+          abort("Slang @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
+        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @datatype classes have to be of the form '@datatype class <id>(...) ... { ... }'.")
+          abort("Slang @datatype classes have to be of the form '@datatype class <id> ... (...) ... { ... }'.")
         val tVars = tparams.map { tp =>
           val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
           Type.Name(tparamname.value)
         }
-        val tpe = {
-          if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-        }
+        val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
         val clone = q"override def clone: $tpe = this"
         val ctorName = Ctor.Name(tname.value)
         if (paramss.nonEmpty && paramss.head.nonEmpty) {
@@ -78,7 +76,7 @@ class datatype extends scala.annotation.StaticAnnotation {
                 unapplyTypes :+= tpe
                 unapplyArgs :+= varName
               }
-            case _ => abort(param.pos, "Unsupported Logika @datatype parameter form.")
+            case _ => abort(param.pos, "Unsupported Slang @datatype parameter form.")
           }
           val cls = {
             val hashCode = q"override lazy val hashCode: Int = { (this.getClass, ..$unapplyArgs).hashCode }"
@@ -160,9 +158,9 @@ class datatype extends scala.annotation.StaticAnnotation {
           Term.Block(Vector(cls, companion))
         }
       case Term.Block(Seq(_: Defn.Class, _: Defn.Object)) =>
-        abort(s"Cannot use Logika @datatype on a class with an existing companion object.")
+        abort(s"Cannot use Slang @datatype on a class with an existing companion object.")
       case _ =>
-        abort(s"Invalid Logika @datatype on: ${tree.syntax}.")
+        abort(s"Invalid Slang @datatype on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

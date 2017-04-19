@@ -62,8 +62,8 @@ private[sireum] object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Logika MS.")
-      c.abort(c.enclosingPosition, "Invalid index type for Logika MS.")
+      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang MS.")
+      c.abort(c.enclosingPosition, "Invalid index type for Slang MS.")
     }
     import c.universe._
     c.Expr[MS[I, V]](q"org.sireum.collection._MS(..$values)")
@@ -80,7 +80,7 @@ private[sireum] object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      c.abort(size.tree.pos, "Invalid index type for Logika MS.")
+      c.abort(size.tree.pos, "Invalid index type for Slang MS.")
     }
     import c.universe._
     c.Expr[MS[I, V]](q"org.sireum.collection._MS.create($size, $default)")
@@ -97,8 +97,8 @@ private[sireum] object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Logika IS.")
-      else c.abort(c.enclosingPosition, "Invalid index type for Logika IS.")
+      if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang IS.")
+      else c.abort(c.enclosingPosition, "Invalid index type for Slang IS.")
     }
     import c.universe._
     c.Expr[IS[I, V]](q"org.sireum.collection._IS(..$values)")
@@ -115,7 +115,7 @@ private[sireum] object _macro {
            `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
       case _ => false
     })) {
-      c.abort(size.tree.pos, "Invalid index type for Logika IS.")
+      c.abort(size.tree.pos, "Invalid index type for Slang IS.")
     }
     import c.universe._
     c.Expr[IS[I, V]](q"org.sireum.collection._IS.create($size, $default)")

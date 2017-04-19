@@ -31,7 +31,7 @@ class spec extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
       case _: Defn.Val | _: Defn.Var | _: Defn.Def => q"{}"
-      case _ => abort("Logika @spec can only be used on a val/var declaration or a method.")
+      case _ => abort("Slang @spec can only be used on a val/var declaration or a method.")
     }
     //println(result.syntax)
     result

@@ -34,7 +34,7 @@ class enum extends scala.annotation.StaticAnnotation {
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort(s"Invalid @enum form on an object; it has to be of the form '@enum object ${name.value} { ... }'.")
         q"object $name extends {} with Enumeration { ..${q"type Type = Value" +: stats} }"
-      case _ => abort("Logika @enum can only be used on an object.")
+      case _ => abort("Slang @enum can only be used on an object.")
     }
     //println(result.syntax)
     result

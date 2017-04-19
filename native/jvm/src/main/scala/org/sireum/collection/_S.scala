@@ -36,12 +36,12 @@ object _IS {
   import scala.language.experimental.macros
 
   def apply[I: TT, V](elements: V*): IS[I, V] = {
-    require(isLogikaNumber[I])
+    require(isSlangNumber[I])
     new _IS[I, V](Vector(implicitly[TT[I]]) ++ elements)
   }
 
   def create[I: TT, V](size: I, default: V): IS[I, V] = {
-    require(isLogikaNumber[I])
+    require(isSlangNumber[I])
     val sz = ln2int(size)
     new _IS[I, V](Vector(implicitly[TT[I]]) ++ (0 until sz).map(_ => default))
   }
@@ -154,12 +154,12 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
 object _MS {
 
   def apply[I: TT, V](elements: V*): MS[I, V] = {
-    require(isLogikaNumber[I])
+    require(isSlangNumber[I])
     new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ elements.map(_Clonable.clone))
   }
 
   def create[I: TT, V](size: I, default: V): MS[I, V] = {
-    require(isLogikaNumber[I])
+    require(isSlangNumber[I])
     val sz = ln2int(size)
     new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ (0 until sz).map(_ => _Clonable.clone(default)))
   }

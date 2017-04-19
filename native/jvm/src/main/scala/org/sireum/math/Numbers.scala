@@ -267,7 +267,7 @@ object _Z8 {
   def apply(value: Byte): Z8 = new _Z8(value)
 }
 
-final class _Z8(val value: Byte) extends AnyVal {
+final class _Z8(val value: Byte) extends AnyVal with _Rich {
   private type T = Z8
 
   def unary_- : T = toZ8(-value)
@@ -293,7 +293,7 @@ object _Z16 {
   def apply(value: Short): Z16 = new _Z16(value)
 }
 
-final class _Z16(val value: Short) extends AnyVal {
+final class _Z16(val value: Short) extends AnyVal with _Rich {
   private type T = Z16
 
   def unary_- : T = toZ16(-value)
@@ -319,7 +319,7 @@ object _Z32 {
   def apply(value: Int): Z32 = new _Z32(value)
 }
 
-final class _Z32(val value: Int) extends AnyVal {
+final class _Z32(val value: Int) extends AnyVal with _Rich {
   private type T = Z32
 
   def unary_- : T = toZ32(-value)
@@ -345,7 +345,7 @@ object _Z64 {
   def apply(value: Long): Z64 = new _Z64(value)
 }
 
-final class _Z64(val value: Long) extends AnyVal {
+final class _Z64(val value: Long) extends AnyVal with _Rich {
   private type T = Z64
 
   def unary_- : T = toZ64(-value)
@@ -371,7 +371,7 @@ object _S8 {
   def apply(value: Byte): S8 = new _S8(value)
 }
 
-final class _S8(val value: Byte) extends AnyVal {
+final class _S8(val value: Byte) extends AnyVal with _Rich {
   private type T = S8
 
   def unary_- : T = toS8(-value)
@@ -404,7 +404,7 @@ object _S16 {
   def apply(value: Short): S16 = new _S16(value)
 }
 
-final class _S16(val value: Short) extends AnyVal {
+final class _S16(val value: Short) extends AnyVal with _Rich {
   private type T = S16
 
   def unary_- : T = toS16(-value)
@@ -470,7 +470,7 @@ object _S64 {
   def apply(value: Long): S64 = new _S64(value)
 }
 
-final class _S64(val value: Long) extends AnyVal {
+final class _S64(val value: Long) extends AnyVal with _Rich {
   private type T = S64
 
   def unary_- : T = toS64(-value)
@@ -503,7 +503,7 @@ object _N8 {
   def apply(value: Byte): N8 = new _N8(value)
 }
 
-final class _N8(val signed: Byte) extends AnyVal {
+final class _N8(val signed: Byte) extends AnyVal with _Rich {
   private type T = N8
 
   private[sireum] def value: UByte = UByte(signed)
@@ -529,7 +529,7 @@ object _N16 {
   def apply(value: Short): N16 = new _N16(value)
 }
 
-final class _N16(val signed: Short) extends AnyVal {
+final class _N16(val signed: Short) extends AnyVal with _Rich {
   private type T = N16
 
   private[sireum] def value: UShort = UShort(signed)
@@ -581,7 +581,7 @@ object _N64 {
   def apply(value: Long): N64 = new _N64(value)
 }
 
-final class _N64(val signed: Long) extends AnyVal {
+final class _N64(val signed: Long) extends AnyVal with _Rich {
   private type T = N64
 
   private[sireum] def value: ULong = ULong.fromLong(signed)
@@ -607,7 +607,7 @@ object _U8 {
   def apply(value: Byte): U8 = new _U8(value)
 }
 
-final class _U8(val signed: Byte) extends AnyVal {
+final class _U8(val signed: Byte) extends AnyVal with _Rich {
   private type T = U8
 
   private[sireum] def value: UByte = UByte(signed)
@@ -639,7 +639,7 @@ object _U16 {
   def apply(value: Short): U16 = new _U16(value)
 }
 
-final class _U16(val signed: Short) extends AnyVal {
+final class _U16(val signed: Short) extends AnyVal with _Rich {
   private type T = U16
 
   private[sireum] def value: UShort = UShort(signed)
@@ -671,7 +671,7 @@ object _U32 {
   def apply(value: Int): U32 = new _U32(value)
 }
 
-final class _U32(val signed: Int) extends AnyVal {
+final class _U32(val signed: Int) extends AnyVal with _Rich {
   private type T = U32
 
   private[sireum] def value: UInt = UInt(signed)
@@ -702,7 +702,7 @@ object _U64 {
   def apply(value: Long): U64 = new _U64(value)
 }
 
-final class _U64(val signed: Long) extends AnyVal {
+final class _U64(val signed: Long) extends AnyVal with _Rich {
   private type T = U64
 
   private[sireum] def value: ULong = ULong.fromLong(signed)
@@ -734,7 +734,7 @@ object _F32 {
   def apply(value: Float): F32 = new _F32(value)
 }
 
-final class _F32(val value: Float) extends AnyVal {
+final class _F32(val value: Float) extends AnyVal with _Rich {
   private type T = F32
 
   def unary_- : T = toF32(-value)
@@ -753,7 +753,7 @@ object _F64 {
   def apply(value: Double): F64 = new _F64(value)
 }
 
-final class _F64(val value: Double) extends AnyVal {
+final class _F64(val value: Double) extends AnyVal with _Rich {
   private type T = F64
 
   def unary_- : T = toF64(-value)
@@ -772,7 +772,7 @@ object _R {
   def apply(value: Real): R = new _R(value)
 }
 
-final class _R(val value: Real) extends AnyVal {
+final class _R(val value: Real) extends AnyVal with _Rich {
   private type T = R
 
   def unary_- : T = toR(-value)

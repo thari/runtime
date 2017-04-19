@@ -143,7 +143,7 @@ package object sireum {
 
   import scala.language.implicitConversions
 
-  final implicit class _Logika(val sc: StringContext) extends AnyVal {
+  final implicit class _Slang(val sc: StringContext) extends AnyVal {
 
     def z(args: Any*): Z = math._Z(sc.parts.mkString(""))
 

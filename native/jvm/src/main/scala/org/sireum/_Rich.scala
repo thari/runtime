@@ -26,3 +26,8 @@
 package org.sireum
 
 trait _Rich extends Any
+
+trait _RichF[T, U] {
+  def result: U
+}
+

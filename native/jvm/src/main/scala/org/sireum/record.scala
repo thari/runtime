@@ -31,25 +31,23 @@ import scala.meta._
 class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
-      case r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
+      case q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @record traits have to be of the form '@record trait <id> ... { ... }'.")
-        q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }"
+          abort("Slang @record traits have to be of the form '@record trait <id> ... { ... }'.")
+        q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }"
       case Term.Block(Seq(r@q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }", o: Defn.Object)) =>
         if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @record traits have to be of the form '@record trait <id> ... { ... }'.")
-        Term.Block(Vector(q"trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }", o))
+          abort("Slang @record traits have to be of the form '@record trait <id> ... { ... }'.")
+        Term.Block(Vector(q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }", o))
       case q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || ctorMods.nonEmpty || paramss.size > 1 ||
           estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-          abort("Logika @record classes have to be of the form '@record class <id>(...) ... { ... }'.")
+          abort("Slang @record classes have to be of the form '@record class <id> ... (...) ... { ... }'.")
         val tVars = tparams.map { tp =>
           val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
           Type.Name(tparamname.value)
         }
-        val tpe = {
-          if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-        }
+        val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
         val ctorName = Ctor.Name(tname.value)
         if (paramss.nonEmpty && paramss.head.nonEmpty) {
           var varNames: Vector[Term.Name] = Vector()
@@ -86,7 +84,7 @@ class record extends scala.annotation.StaticAnnotation {
                 unapplyTypes :+= tpe
                 unapplyArgs :+= varName
               }
-            case _ => abort(param.pos, "Unsupported Logika @record parameter form.")
+            case _ => abort(param.pos, "Unsupported Slang @record parameter form.")
           }
           val cls = {
             val clone = q"override def clone: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._Clonable.clone($arg)")})"
@@ -173,9 +171,9 @@ class record extends scala.annotation.StaticAnnotation {
           Term.Block(Vector(cls, companion))
         }
       case Term.Block(Seq(_: Defn.Class, _: Defn.Object)) =>
-        abort(s"Cannot use Logika @record on a class with an existing companion object.")
+        abort(s"Cannot use Slang @record on a class with an existing companion object.")
       case _ =>
-        abort(s"Invalid Logika @record on: ${tree.syntax}.")
+        abort(s"Invalid Slang @record on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result
