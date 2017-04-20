@@ -1,4 +1,4 @@
-val scalaVer = "2.12.1"
+val scalaVer = "2.12.2"
 
 val metaVersion = "1.7.0"
 
