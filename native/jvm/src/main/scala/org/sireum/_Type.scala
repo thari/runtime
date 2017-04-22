@@ -61,6 +61,8 @@ private[sireum] object _Type {
   private[sireum] val bType = typeOf[B].dealias.toString
   private[sireum] val cType = typeOf[C].dealias.toString
   private[sireum] val zType = typeOf[Z].dealias.toString
+  private[sireum] val intType = typeOf[Int].dealias.toString
+  private[sireum] val longType = typeOf[Long].dealias.toString
   private[sireum] val z8Type = typeOf[Z8].dealias.toString
   private[sireum] val z16Type = typeOf[Z16].dealias.toString
   private[sireum] val z32Type = typeOf[Z32].dealias.toString

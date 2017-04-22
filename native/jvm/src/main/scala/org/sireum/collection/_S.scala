@@ -57,21 +57,11 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
 
   def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
-  def apply(index: Int): V = {
-    require(0 <= index && _Z(index) < size)
-    value(index + 1).asInstanceOf[V]
+  def apply[T: TT](index: T): V = {
+    val i = ln2int(index)
+    require(0 <= i && i < value.size - 1)
+    value(i + 1).asInstanceOf[V]
   }
-
-  def apply(index: Z): V = {
-    require(_Z.zero <= index && index < size)
-    value(ln2int(index) + 1).asInstanceOf[V]
-  }
-
-  def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
-
-  def apply(index: Z16): V = apply(Z16_Ext.toZ(index))
-
-  def apply(index: Z64): V = apply(Z64_Ext.toZ(index))
 
   def :+(value: V): IS[I, V] = new _IS[I, V](this.value :+ value)
 
@@ -175,37 +165,17 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
 
   def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
 
-  def apply(index: Int): V = {
-    require(0 <= index && _Z(index) < size)
-    value(index + 1).asInstanceOf[V]
+  def apply[T: TT](index: T): V = {
+    val i = ln2int(index)
+    require(0 <= i && i < value.size - 1)
+    value(i + 1).asInstanceOf[V]
   }
 
-  def apply(index: Z): V = {
-    require(_Z.zero <= index && index < size)
-    value(ln2int(index) + 1).asInstanceOf[V]
+  def update[T: TT](index: T, value: V): Unit = {
+    val i = ln2int(index)
+    require(0 <= i && i < this.value.size - 1)
+    this.value(i + 1) = value
   }
-
-  def update(index: Int, value: V): Unit = {
-    require(0 <= index && _Z(index) < size)
-    this.value(index + 1) = value
-  }
-
-  def update(index: Z, value: V): Unit = {
-    require(_Z.zero <= index && index < size)
-    this.value(ln2int(index) + 1) = value
-  }
-
-  def update(index: Z8, value: V): Unit = update(Z8_Ext.toZ(index), value)
-
-  def update(index: Z16, value: V): Unit = update(Z16_Ext.toZ(index), value)
-
-  def update(index: Z64, value: V): Unit = update(Z64_Ext.toZ(index), value)
-
-  def apply(index: Z8): V = apply(Z8_Ext.toZ(index))
-
-  def apply(index: Z16): V = apply(Z16_Ext.toZ(index))
-
-  def apply(index: Z64): V = apply(Z64_Ext.toZ(index))
 
   def :+(value: V): MS[I, V] = new _MS[I, V](this.value :+ value)
 

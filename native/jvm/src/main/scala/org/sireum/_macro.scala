@@ -188,29 +188,29 @@ private[sireum] object _macro {
     def varType(t: c.Tree): Option[c.Type] = t match {
       case q"${name: Ident}.$_" =>
         if (isVar(name.symbol)) Some(name.tpe) else None
-      case q"${name: Ident}.apply($_)" =>
+      case q"${name: Ident}.apply[..$_]($_)($_)" =>
         if (isVar(name.symbol)) Some(name.tpe) else None
       case t@Select(This(_), _) =>
         if (isVar(t.symbol)) Some(t.tpe) else None
       case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
         if (isVar(t.symbol)) Some(t.tpe) else None
       case q"${expr: c.Tree}.$_" => varType(expr)
-      case q"${expr: c.Tree}.apply($arg)" => varType(expr)
+      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => varType(expr)
       case _ =>
-        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
+        c.abort(t.pos, s"Unexpected left-hand side form: ${showRaw(t)}")
     }
 
     def f(t: c.Tree, r: c.Tree): c.Tree = t match {
       case q"${name: c.TermName}.$tname" =>
         q"$name = $name($tname = $r)"
-      case q"${name: c.TermName}.apply($arg)" =>
+      case q"${name: c.TermName}.apply[..$_]($arg)($_)" =>
         q"$name = $name($arg -> $r)"
       case q"$tpname.this.$name.$tname" =>
         q"$tpname.this.$name = $name($tname = $r)"
-      case q"$tpname.this.$name.apply($arg)" =>
+      case q"$tpname.this.$name.apply[..$_]($arg)($_)" =>
         q"$tpname.this.$name = this.$name($arg -> $r)"
       case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
-      case q"${expr: c.Tree}.apply($arg)" => f(expr, q"$expr($arg -> $r)")
+      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr($arg -> $r)")
       case _ =>
         c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }
