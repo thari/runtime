@@ -71,7 +71,7 @@ private[sireum] object _macro {
 
   def msCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
-    val iType = size.tree.tpe
+    val iType = size.tree.tpe.dealias.toString
     import _Type._
     if (!(iType match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
@@ -106,7 +106,7 @@ private[sireum] object _macro {
 
   def isCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
-    val iType = size.tree.tpe
+    val iType = size.tree.tpe.dealias.toString
     import _Type._
     if (!(iType match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |

@@ -71,6 +71,10 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
 
   def ++(other: MS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
 
+  def --(other: IS[I, V]): IS[I, V] = new _IS[I, V](value.filterNot(other.elements.contains))
+
+  def --(other: MS[I, V]): IS[I, V] = new _IS[I, V](value.filterNot(other.elements.contains))
+
   def apply[T: TT](entries: (T, V)*): IS[I, V] = {
     var newValue = value
     val sz = value.size - 1
@@ -184,6 +188,10 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
   def ++(other: MS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
 
   def ++(other: IS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
+
+  def --(other: MS[I, V]): MS[I, V] = new _MS[I, V](value -- other.elements)
+
+  def --(other: IS[I, V]): MS[I, V] = new _MS[I, V](value -- other.elements)
 
   def apply[T: TT](entries: (T, V)*): MS[I, V] = {
     var newValue = value
