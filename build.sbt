@@ -8,7 +8,7 @@ val silencerVersion = "0.5"
 
 val runtimeVersion = "3.0.1-1-SNAPSHOT"
 
-val sireumScalacVersion = "3.0.0-1"
+val sireumScalacVersion = "3.0.0-2"
 
 lazy val sireumRuntime = Project(
   id = "sireum-runtime",
@@ -29,6 +29,7 @@ lazy val sireumRuntime = Project(
       "org.scala-lang" % "scala-reflect" % scalaVer,
       "org.spire-math" %% "spire" % "0.13.0"
     ),
+    resolvers += Resolver.sonatypeRepo("public"),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     publishMavenStyle := true,
     publishTo := {
@@ -80,6 +81,7 @@ lazy val sireumPrelude = Project(
       "org.scalatest" %% "scalatest" % "3.0.1" % "test",
       "com.github.ghik" %% "silencer-lib" % silencerVersion
     ),
+    resolvers += Resolver.sonatypeRepo("public"),
     addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
     addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
     addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion),

@@ -124,6 +124,8 @@ package object sireum {
 
   def up[T]: _Helper.Up[T] = new _Helper.Up[T]
 
+  def tup[T]: _Helper.Tup = new _Helper.Tup
+
   def _assign[T](arg: T): T = macro _macro._assignImpl
 
   def __assign[T](arg: T): T = {
@@ -134,12 +136,7 @@ package object sireum {
     }
   }
 
-  def _cleanup[T](arg: T): Unit = macro _macro._cleanupImpl
-
-  def __cleanup[T](arg: T): Unit = arg match {
-    case x: _Record => if (x.owned) x.owned = false
-    case _ =>
-  }
+  def ??[T]: T = macro _macro.$Impl[T]
 
   import scala.language.implicitConversions
 

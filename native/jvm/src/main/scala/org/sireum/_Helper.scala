@@ -32,6 +32,11 @@ object _Helper {
     def update(lhs: T, rhs: T): Unit = macro _macro.up
   }
 
+  final class Tup {
+    import scala.language.experimental.macros
+    def update(lhs: Product, rhs: Product): Unit = macro _macro.tup
+  }
+
   object R {
 
     final def apply(r: String): R = math.Numbers.toR(r.replaceAllLiterally(" ", ""))

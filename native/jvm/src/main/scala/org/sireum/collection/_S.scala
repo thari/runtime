@@ -233,7 +233,7 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
     }).asInstanceOf[Traversable[I]]
   }
 
-  def clone: MS[I, V] = new _MS[I, V](ArrayBuffer(value.map(_Clonable.clone)))
+  def clone: MS[I, V] = new _MS[I, V](value.map(_Clonable.clone))
 
   override def toString: String = {
     val elements = this.elements

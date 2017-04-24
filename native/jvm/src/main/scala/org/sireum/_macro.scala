@@ -27,7 +27,7 @@ package org.sireum
 
 import scala.language.experimental.macros
 
-private[sireum] object _macro {
+object _macro {
   def l(args: Any*): Unit = macro _macro.lImpl
 
   def lImpl(c: scala.reflect.macros.blackbox.Context)(
@@ -194,10 +194,11 @@ private[sireum] object _macro {
         if (isVar(t.symbol)) Some(t.tpe) else None
       case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
         if (isVar(t.symbol)) Some(t.tpe) else None
+      case Typed(e, t) => varType(e)
       case q"${expr: c.Tree}.$_" => varType(expr)
       case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => varType(expr)
       case _ =>
-        c.abort(t.pos, s"Unexpected left-hand side form: ${showRaw(t)}")
+        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }
 
     def f(t: c.Tree, r: c.Tree): c.Tree = t match {
@@ -209,6 +210,7 @@ private[sireum] object _macro {
         q"$tpname.this.$name = $name($tname = $r)"
       case q"$tpname.this.$name.apply[..$_]($arg)($_)" =>
         q"$tpname.this.$name = this.$name($arg -> $r)"
+      case Typed(e, t) => f(e, r)
       case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
       case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr($arg -> $r)")
       case _ =>
@@ -226,6 +228,22 @@ private[sireum] object _macro {
       case _ => c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a var.")
     }
     //println(showRaw(r))
+    //println(showCode(r))
+    r
+  }
+
+  def tup(c: scala.reflect.macros.blackbox.Context)(
+    lhs: c.Tree, rhs: c.Tree): c.Tree = {
+    import c.universe._
+    val r = lhs match {
+      case q"(..$exprs)" =>
+        val tmp = q"val _tmp = $rhs"
+        var assigns = List[c.Tree]()
+        for (i <- exprs.indices) {
+          assigns ::= q"${exprs(i)} = _tmp.${TermName("_" + (i + 1))}"
+        }
+        Block(tmp :: assigns.reverse, Literal(Constant(())))
+    }
     //println(showCode(r))
     r
   }

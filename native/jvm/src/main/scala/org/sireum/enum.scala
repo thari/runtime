@@ -33,7 +33,13 @@ class enum extends scala.annotation.StaticAnnotation {
       case q"..$mods object $name extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort(s"Invalid @enum form on an object; it has to be of the form '@enum object ${name.value} { ... }'.")
-        q"object $name extends {} with Enumeration { ..${q"type Type = Value" +: stats} }"
+        var names = Vector[Pat.Var.Term]()
+        for (stat <- stats) stat match {
+          case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) =>
+            names :+= Pat.Var.Term(Term.Name(sym.substring(0)))
+          case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.syntax}")
+        }
+        q"object $name extends {} with Enumeration { type Type = Value; val ..$names = Value }"
       case _ => abort("Slang @enum can only be used on an object.")
     }
     //println(result.syntax)
