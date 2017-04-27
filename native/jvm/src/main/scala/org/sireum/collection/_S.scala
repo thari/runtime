@@ -25,8 +25,6 @@
 
 package org.sireum.collection
 
-import scala.collection.mutable.ArrayBuffer
-
 import org.sireum._
 import org.sireum._Type._
 import org.sireum.math._Z
@@ -37,53 +35,82 @@ object _IS {
 
   def apply[I: TT, V](elements: V*): IS[I, V] = {
     require(isSlangNumber[I])
-    new _IS[I, V](Vector(implicitly[TT[I]]) ++ elements)
+    new _IS[I, V](implicitly[TT[I]], elements.toArray)
   }
 
   def create[I: TT, V](size: I, default: V): IS[I, V] = {
     require(isSlangNumber[I])
     val sz = ln2int(size)
-    new _IS[I, V](Vector(implicitly[TT[I]]) ++ (0 until sz).map(_ => default))
+    new _IS[I, V](implicitly[TT[I]], (0 until sz).map(_ => _Clonable.clone(default)).toArray)
   }
 }
 
-final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
+final class _IS[I, V](val iTag: TT[I],
+                      private[_IS] val value: Array[Any]) extends _Immutable {
+
+  override lazy val hashCode: Int = elements.hashCode
+
+  override def equals(o: Any): Boolean =
+    if (this eq o.asInstanceOf[AnyRef]) true
+    else o match {
+      case o: _IS[_, _] => elements == o.elements
+      case _ => false
+    }
 
   def ===(other: IS[I, V]): B = this == other
 
   def =!=(other: IS[I, V]): B = this != other
 
-  def size: Z = _Z(value.size - 1)
+  def size: Z = _Z(value.length)
 
-  def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
+  def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
 
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
-    require(0 <= i && i < value.size - 1)
-    value(i + 1).asInstanceOf[V]
+    require(0 <= i && i < value.length)
+    value(i).asInstanceOf[V]
   }
 
-  def :+(value: V): IS[I, V] = new _IS[I, V](this.value :+ value)
+  def :+(value: V): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, this.value :+ value)
+  }
 
-  def +:(value: V): IS[I, V] = new _IS[I, V](this.value.head +: value +: this.value.tail)
+  def +:(value: V): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, value +: this.value)
+  }
 
-  def ++(other: IS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
+  def ++(other: IS[I, V]): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, value ++ other.elements)
+  }
 
-  def ++(other: MS[I, V]): IS[I, V] = new _IS[I, V](value ++ other.elements)
+  def ++(other: MS[I, V]): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, value ++ other.elements)
+  }
 
-  def --(other: IS[I, V]): IS[I, V] = new _IS[I, V](value.filterNot(other.elements.contains))
+  def --(other: IS[I, V]): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, value.filterNot(other.elements.contains))
+  }
 
-  def --(other: MS[I, V]): IS[I, V] = new _IS[I, V](value.filterNot(other.elements.contains))
+  def --(other: MS[I, V]): IS[I, V] = {
+    implicit val it = iTag
+    new _IS[I, V](iTag, value.filterNot(other.elements.contains))
+  }
 
   def apply[T: TT](entries: (T, V)*): IS[I, V] = {
+    implicit val it = iTag
     var newValue = value
-    val sz = value.size - 1
+    val sz = value.length
     for ((i, v) <- entries) {
       val index = ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index + 1, v)
+      newValue = newValue.updated(index, v)
     }
-    new _IS[I, V](newValue)
+    new _IS[I, V](iTag, newValue)
   }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
@@ -91,8 +118,8 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
   def indices: Traversable[I] = {
     import scala.reflect.runtime.universe._
     import _Type._
-    val sz = value.size
-    implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
+    val sz = value.length
+    implicit val iTag: TT[I] = this.iTag
     (typeOf[I].dealias.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
@@ -115,7 +142,7 @@ final class _IS[I, V](val value: Vector[Any]) extends AnyVal {
     }).asInstanceOf[Traversable[I]]
   }
 
-  def clone: IS[I, V] = this
+  override def clone: IS[I, V] = this
 
   override def toString: String = {
     val elements = this.elements
@@ -149,59 +176,88 @@ object _MS {
 
   def apply[I: TT, V](elements: V*): MS[I, V] = {
     require(isSlangNumber[I])
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ elements.map(_Clonable.clone))
+    new _MS[I, V](implicitly[TT[I]], elements.toArray)
   }
 
   def create[I: TT, V](size: I, default: V): MS[I, V] = {
     require(isSlangNumber[I])
     val sz = ln2int(size)
-    new _MS[I, V](ArrayBuffer(implicitly[TT[I]]) ++ (0 until sz).map(_ => _Clonable.clone(default)))
+    new _MS[I, V](implicitly[TT[I]], (0 until sz).map(_ => _Clonable.clone(default)).toArray)
   }
 }
 
-final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
+final class _MS[I, V](val iTag: TT[I],
+                      private[_MS] val value: Array[Any]) extends _Mutable {
+
+  override def hashCode: Int = elements.hashCode
+
+  override def equals(o: Any): Boolean =
+    if (this eq o.asInstanceOf[AnyRef]) true
+    else o match {
+      case o: _MS[_, _] => elements == o.elements
+      case _ => false
+    }
 
   def ===(other: MS[I, V]): B = this == other
 
   def =!=(other: MS[I, V]): B = this != other
 
-  def size: Z = _Z(value.size - 1)
+  def size: Z = _Z(value.length)
 
-  def elements: scala.collection.Seq[V] = value.tail.asInstanceOf[scala.collection.Seq[V]]
+  def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
 
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
-    require(0 <= i && i < value.size - 1)
-    value(i + 1).asInstanceOf[V]
+    require(0 <= i && i < value.length)
+    value(i).asInstanceOf[V]
   }
 
   def update[T: TT](index: T, value: V): Unit = {
     val i = ln2int(index)
-    require(0 <= i && i < this.value.size - 1)
-    this.value(i + 1) = value
+    require(0 <= i && i < this.value.length)
+    this.value(i) = value
   }
 
-  def :+(value: V): MS[I, V] = new _MS[I, V](this.value :+ value)
+  def :+(value: V): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, this.value :+ value)
+  }
 
-  def +:(value: V): MS[I, V] = new _MS[I, V](this.value.head +: value +: this.value.tail)
+  def +:(value: V): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value +: this.value)
+  }
 
-  def ++(other: MS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
+  def ++(other: MS[I, V]): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value ++ other.elements)
+  }
 
-  def ++(other: IS[I, V]): MS[I, V] = new _MS[I, V](value ++ other.elements)
+  def ++(other: IS[I, V]): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value ++ other.elements)
+  }
 
-  def --(other: MS[I, V]): MS[I, V] = new _MS[I, V](value -- other.elements)
+  def --(other: MS[I, V]): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value.filterNot(other.elements.contains))
+  }
 
-  def --(other: IS[I, V]): MS[I, V] = new _MS[I, V](value -- other.elements)
+  def --(other: IS[I, V]): MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value.filterNot(other.elements.contains))
+  }
 
   def apply[T: TT](entries: (T, V)*): MS[I, V] = {
+    implicit val it = iTag
     var newValue = value
-    val sz = value.size - 1
+    val sz = value.length
     for ((i, v) <- entries) {
       val index = ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index + 1, v)
+      newValue = newValue.updated(index, v)
     }
-    new _MS[I, V](newValue)
+    new _MS[I, V](iTag, newValue)
   }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
@@ -209,8 +265,8 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
   def indices: Traversable[I] = {
     import scala.reflect.runtime.universe._
     import _Type._
-    val sz = value.size
-    implicit val iTag: TT[I] = value(0).asInstanceOf[TT[I]]
+    val sz = value.length
+    implicit val iTag: TT[I] = this.iTag
     (typeOf[I].dealias.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
@@ -233,7 +289,10 @@ final class _MS[I, V](val value: ArrayBuffer[Any]) extends AnyVal {
     }).asInstanceOf[Traversable[I]]
   }
 
-  def clone: MS[I, V] = new _MS[I, V](value.map(_Clonable.clone))
+  override def clone: MS[I, V] = {
+    implicit val it = iTag
+    new _MS[I, V](iTag, value.map(_Clonable.clone))
+  }
 
   override def toString: String = {
     val elements = this.elements

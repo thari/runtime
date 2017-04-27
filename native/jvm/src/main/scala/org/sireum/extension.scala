@@ -976,15 +976,19 @@ import _Type._
 
 object SI_Ext {
 
-  @pure def append[I: TT, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
+  @pure def append[I, E](s: IS[I, E], e: E): IS[I, E] = s :+ e
 
-  @pure def prepend[I: TT, E](s: IS[I, E], e: E): IS[I, E] = e +: s
+  @pure def prepend[I, E](s: IS[I, E], e: E): IS[I, E] = e +: s
 
-  @pure def appends[I: TT, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
+  @pure def appends[I, E](s1: IS[I, E], s2: IS[I, E]): IS[I, E] = s1 ++ s2
 
-  @pure def toMS[I: TT, E](s: IS[I, E]): MS[I, E] = collection._MS[I, E](s.elements: _*)
+  @pure def toMS[I, E](s: IS[I, E]): MS[I, E] = {
+    implicit val it = s.iTag
+    collection._MS[I, E](s.elements: _*)
+  }
 
-  @pure def chunk[I: TT, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = {
+  @pure def chunk[I, E](s: IS[I, E], size: I): IS[I, IS[I, E]] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt % sizeInt == 0)
@@ -1000,7 +1004,8 @@ object SI_Ext {
     collection._IS(result: _*)
   }
 
-  @pure def drop[I: TT, E](s: IS[I, E], size: I): IS[I, E] = {
+  @pure def drop[I, E](s: IS[I, E], size: I): IS[I, E] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt >= sizeInt)
@@ -1011,22 +1016,25 @@ object SI_Ext {
     collection._IS(result: _*)
   }
 
-  @pure def foldLeft[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
+  @pure def foldLeft[I, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
     var r = init
     for (e <- s.elements) r = f(r, e)
     r
   }
 
-  @pure def foldRight[I: TT, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
+  @pure def foldRight[I, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
     var r = init
     for (e <- s.elements.reverseIterator) r = f(r, e)
     r
   }
 
-  @pure def map[I: TT, E1, E2](s: IS[I, E1], f: E1 => E2): IS[I, E2] =
+  @pure def map[I, E1, E2](s: IS[I, E1], f: E1 => E2): IS[I, E2] = {
+    implicit val it = s.iTag
     collection._IS[I, E2](s.elements.map(f): _*)
+  }
 
-  @pure def take[I: TT, E](s: IS[I, E], size: I): IS[I, E] = {
+  @pure def take[I, E](s: IS[I, E], size: I): IS[I, E] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt >= sizeInt)
@@ -1061,7 +1069,7 @@ object SI_Ext {
       (n & mask) != mask : B
     }: _*)
 
-  @pure def toU8[I: TT](s: IS[I, B]): U8 = {
+  @pure def toU8[I](s: IS[I, B]): U8 = {
     require(s.size == z"8")
     var result = u8"0"
     for (i <- 0 until ln2int(s.size)) {
@@ -1073,7 +1081,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU16[I: TT](s: IS[I, B]): U16 = {
+  @pure def toU16[I](s: IS[I, B]): U16 = {
     require(s.size == z"16")
     var result = u16"0"
     for (i <- 0 until ln2int(s.size)) {
@@ -1085,7 +1093,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU32[I: TT](s: IS[I, B]): U32 = {
+  @pure def toU32[I](s: IS[I, B]): U32 = {
     require(s.size == z"32")
     var result = u32"0"
     for (i <- 0 until ln2int(s.size)) {
@@ -1097,7 +1105,7 @@ object SI_Ext {
     result
   }
 
-  @pure def toU64[I: TT](s: IS[I, B]): U64 = {
+  @pure def toU64[I](s: IS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
     for (i <- 0 until ln2int(s.size)) {
@@ -1112,15 +1120,19 @@ object SI_Ext {
 
 object SM_Ext {
 
-  @pure def append[I: TT, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
+  @pure def append[I, E](s: MS[I, E], e: E): MS[I, E] = s :+ e
 
-  @pure def prepend[I: TT, E](s: MS[I, E], e: E): MS[I, E] = e +: s
+  @pure def prepend[I, E](s: MS[I, E], e: E): MS[I, E] = e +: s
 
-  @pure def appends[I: TT, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
+  @pure def appends[I, E](s1: MS[I, E], s2: MS[I, E]): MS[I, E] = s1 ++ s2
 
-  @pure def toIS[I: TT, E](s: MS[I, E]): IS[I, E] = collection._IS(s.elements: _*)
+  @pure def toIS[I, E](s: MS[I, E]): IS[I, E] = {
+    implicit val it = s.iTag
+    collection._IS(s.elements: _*)
+  }
 
-  @pure def chunk[I: TT, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = {
+  @pure def chunk[I, E](s: MS[I, E], size: I): MS[I, MS[I, E]] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt % sizeInt == 0)
@@ -1136,7 +1148,8 @@ object SM_Ext {
     collection._MS(result: _*)
   }
 
-  @pure def drop[I: TT, E](s: MS[I, E], size: I): MS[I, E] = {
+  @pure def drop[I, E](s: MS[I, E], size: I): MS[I, E] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt >= sizeInt)
@@ -1147,27 +1160,32 @@ object SM_Ext {
     collection._MS(result: _*)
   }
 
-  @pure def foldLeft[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
+  @pure def foldLeft[I, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
     var r = init
     for (e <- s.elements) r = f(r, e)
     r
   }
 
-  @pure def foldRight[I: TT, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
+  @pure def foldRight[I, E, R](s: MS[I, E], f: (R, E) => R, init: R): R = {
     var r = init
     for (e <- s.elements.reverseIterator) r = f(r, e)
     r
   }
 
-  @pure def map[I: TT, E1, E2](s: MS[I, E1], f: E1 => E2): MS[I, E2] =
+  @pure def map[I, E1, E2](s: MS[I, E1], f: E1 => E2): MS[I, E2] = {
+    implicit val it = s.iTag
     collection._MS[I, E2](s.elements.map(e => f(_Clonable.clone(e))): _*)
+  }
 
-  def transform[I: TT, E](s: MS[I, E], f: E => E): Unit =
+  def transform[I, E](s: MS[I, E], f: E => E): Unit = {
+    implicit val it = s.iTag
     for (i <- s.indices.map(x => ln2int(x))) {
       s(i) = _Clonable.clone(f(s(i)))
     }
+  }
 
-  @pure def take[I: TT, E](s: MS[I, E], size: I): MS[I, E] = {
+  @pure def take[I, E](s: MS[I, E], size: I): MS[I, E] = {
+    implicit val it = s.iTag
     val sizeInt = ln2int(size)
     val sSizeInt = ln2int(s.size)
     require(sSizeInt >= sizeInt)
@@ -1202,8 +1220,9 @@ object SM_Ext {
       (n & mask) != mask : B
     }: _*)
 
-  @pure def toU8[I: TT](s: MS[I, B]): U8 = {
+  @pure def toU8[I](s: MS[I, B]): U8 = {
     require(s.size == z"8")
+    implicit val it = s.iTag
     var result = u8"0"
     for (i <- 0 until ln2int(s.size)) {
       val mask = u8"1" << math.Numbers.toU8(i)
@@ -1214,8 +1233,9 @@ object SM_Ext {
     result
   }
 
-  @pure def toU16[I: TT](s: MS[I, B]): U16 = {
+  @pure def toU16[I](s: MS[I, B]): U16 = {
     require(s.size == z"16")
+    implicit val it = s.iTag
     var result = u16"0"
     for (i <- 0 until ln2int(s.size)) {
       val mask = u16"1" << math.Numbers.toU16(i)
@@ -1226,8 +1246,9 @@ object SM_Ext {
     result
   }
 
-  @pure def toU32[I: TT](s: MS[I, B]): U32 = {
+  @pure def toU32[I](s: MS[I, B]): U32 = {
     require(s.size == z"32")
+    implicit val it = s.iTag
     var result = u32"0"
     for (i <- 0 until ln2int(s.size)) {
       val mask = u32"1" << math.Numbers.toU32(i)
@@ -1238,7 +1259,7 @@ object SM_Ext {
     result
   }
 
-  @pure def toU64[I: TT](s: MS[I, B]): U64 = {
+  @pure def toU64[I](s: MS[I, B]): U64 = {
     require(s.size == z"64")
     var result = u64"0"
     for (i <- 0 until ln2int(s.size)) {

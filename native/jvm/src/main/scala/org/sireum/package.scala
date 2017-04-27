@@ -130,13 +130,10 @@ package object sireum {
 
   def __assign[T](arg: T): T = {
     arg match {
-      case x: _Record => (if (x.owned) x.clone.owned = true else x.owned = true).asInstanceOf[T]
-      case x: MS[_, _] => x.clone.asInstanceOf[T]
+      case x: _Mutable => (if (x.owned) x.clone.owned = true else x.owned = true).asInstanceOf[T]
       case _ => arg
     }
   }
-
-  def ??[T]: T = macro _macro.$Impl[T]
 
   import scala.language.implicitConversions
 
