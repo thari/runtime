@@ -33,7 +33,7 @@ class ZTest extends SireumRuntimeSpec {
   final val z5 = z"5"
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val zBig = z"10000000000000000000000000000000000000000000000000000000000"
-  final val size = 1024
+  final val size = 128
 
   "eqs" - {
     *(!(5 == z5): @silent) // does not support Int == Z

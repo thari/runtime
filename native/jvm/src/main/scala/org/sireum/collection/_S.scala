@@ -27,6 +27,7 @@ package org.sireum.collection
 
 import org.sireum._
 import org.sireum._Type._
+import org.sireum._Type.Alias.TT
 import org.sireum.math._Z
 
 object _IS {

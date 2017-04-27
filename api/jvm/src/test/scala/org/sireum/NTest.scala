@@ -33,7 +33,7 @@ class NTest extends SireumRuntimeSpec {
   final val n5 = math._N("5")
   final val bigVal = "10000000000000000000000000000000000000000000000000000000000"
   final val nBig = math._N(bigVal)
-  final val size = 1024
+  final val size = 128
 
   "eqs" - {
     * (!(5 == n5): @silent) // does not support Int == N

@@ -58,6 +58,8 @@ private[sireum] object _Type {
     type MS[I, V] = collection._MS[I, V]
   }
 
+  import Alias.TT
+
   private[sireum] val bType = typeOf[B].dealias.toString
   private[sireum] val cType = typeOf[C].dealias.toString
   private[sireum] val zType = typeOf[Z].dealias.toString

@@ -30,7 +30,7 @@ import scala.collection.mutable.ArrayBuffer
 import _Helper._
 
 object B_Ext {
-  def random: B = new java.util.Random().nextBoolean
+  def random: B = new scala.util.Random().nextBoolean
 
   @pure def toB(b: B): B = b
 
@@ -166,7 +166,7 @@ object Z_Ext {
 
 
 object Z8_Ext {
-  def random: Z8 = math._Z8(new java.util.Random().nextInt.toByte)
+  def random: Z8 = math._Z8(new scala.util.Random().nextInt.toByte)
 
   @pure def toB(n: Z8): B = n != z8"0"
 
@@ -211,7 +211,7 @@ object Z8_Ext {
 
 
 object Z16_Ext {
-  def random: Z16 = math._Z16(new java.util.Random().nextInt.toShort)
+  def random: Z16 = math._Z16(new scala.util.Random().nextInt.toShort)
 
   @pure def toB(n: Z16): B = n != z16"0"
 
@@ -256,7 +256,7 @@ object Z16_Ext {
 
 
 object Z32_Ext {
-  def random: Z32 = math._Z32(new java.util.Random().nextInt)
+  def random: Z32 = math._Z32(new scala.util.Random().nextInt)
 
   @pure def toB(n: Z32): B = n != z32"0"
 
@@ -301,7 +301,7 @@ object Z32_Ext {
 
 
 object Z64_Ext {
-  def random: Z64 = math._Z64(new java.util.Random().nextLong)
+  def random: Z64 = math._Z64(new scala.util.Random().nextLong)
 
   @pure def toB(n: Z64): B = n != z64"0"
 
@@ -391,7 +391,7 @@ object N_Ext {
 
 
 object N8_Ext {
-  def random: N8 = math._N8(new java.util.Random().nextInt.toByte)
+  def random: N8 = math._N8(new scala.util.Random().nextInt.toByte)
 
   @pure def toB(n: N8): B = n != n8"0"
 
@@ -436,7 +436,7 @@ object N8_Ext {
 
 
 object N16_Ext {
-  def random: N16 = math._N16(new java.util.Random().nextInt.toShort)
+  def random: N16 = math._N16(new scala.util.Random().nextInt.toShort)
 
   @pure def toB(n: N16): B = n != n16"0"
 
@@ -481,7 +481,7 @@ object N16_Ext {
 
 
 object N32_Ext {
-  def random: N32 = math._N32(new java.util.Random().nextInt)
+  def random: N32 = math._N32(new scala.util.Random().nextInt)
 
   @pure def toB(n: N32): B = n != n32"0"
 
@@ -526,7 +526,7 @@ object N32_Ext {
 
 
 object N64_Ext {
-  def random: N64 = math._N64(new java.util.Random().nextLong)
+  def random: N64 = math._N64(new scala.util.Random().nextLong)
 
   @pure def toB(n: N64): B = n != n64"0"
 
@@ -571,7 +571,7 @@ object N64_Ext {
 
 
 object S8_Ext {
-  def random: S8 = math._S8(new java.util.Random().nextInt.toByte)
+  def random: S8 = math._S8(new scala.util.Random().nextInt.toByte)
 
   @pure def toB(n: S8): B = n != s8"0"
 
@@ -617,7 +617,7 @@ object S8_Ext {
 
 object S16_Ext {
 
-  def random: S16 = math._S16(new java.util.Random().nextInt.toShort)
+  def random: S16 = math._S16(new scala.util.Random().nextInt.toShort)
 
   @pure def toB(n: S16): B = n != s16"0"
 
@@ -662,7 +662,7 @@ object S16_Ext {
 
 
 object S32_Ext {
-  def random: S32 = math._S32(new java.util.Random().nextInt)
+  def random: S32 = math._S32(new scala.util.Random().nextInt)
 
   @pure def toB(n: S32): B = n != s32"0"
 
@@ -707,7 +707,7 @@ object S32_Ext {
 
 
 object S64_Ext {
-  def random: S64 = math._S64(new java.util.Random().nextLong)
+  def random: S64 = math._S64(new scala.util.Random().nextLong)
 
   @pure def toB(n: S64): B = n != s64"0"
 
@@ -752,7 +752,7 @@ object S64_Ext {
 
 
 object U8_Ext {
-  def random: U8 = math._U8(new java.util.Random().nextInt.toByte)
+  def random: U8 = math._U8(new scala.util.Random().nextInt.toByte)
 
   @pure def toB(n: U8): B = n != u8"0"
 
@@ -797,7 +797,7 @@ object U8_Ext {
 
 
 object U16_Ext {
-  def random: U16 = math._U16(new java.util.Random().nextInt.toShort)
+  def random: U16 = math._U16(new scala.util.Random().nextInt.toShort)
 
   @pure def toB(n: U16): B = n != u16"0"
 
@@ -842,7 +842,7 @@ object U16_Ext {
 
 
 object U32_Ext {
-  def random: U32 = math._U32(new java.util.Random().nextInt)
+  def random: U32 = math._U32(new scala.util.Random().nextInt)
 
   @pure def toB(n: U32): B = n != u32"0"
 
@@ -889,7 +889,7 @@ object U32_Ext {
 
 
 object U64_Ext {
-  def random: U64 = math._U64(new java.util.Random().nextLong)
+  def random: U64 = math._U64(new scala.util.Random().nextLong)
 
   @pure def toB(n: U64): B = n != u64"0"
 
@@ -936,7 +936,7 @@ object U64_Ext {
 
 
 object F32_Ext {
-  def random: F32 = math._F32(new java.util.Random().nextFloat)
+  def random: F32 = math._F32(new scala.util.Random().nextFloat)
 
   @pure def toB(n: F32): B = n != f32"0.0"
 
@@ -947,7 +947,7 @@ object F32_Ext {
 
 
 object F64_Ext {
-  def random: F64 = math._F64(new java.util.Random().nextDouble)
+  def random: F64 = math._F64(new scala.util.Random().nextDouble)
 
   @pure def toB(n: F64): B = n != f64"0.0"
 
@@ -1045,29 +1045,38 @@ object SI_Ext {
     collection._IS(result: _*)
   }
 
-  @pure def fromU8[I: TT](n: U8): IS[I, B] =
-    collection._IS[I, B]((0 until 8).map { i =>
+
+  @pure def fromU8[I](s: IS[I, B], n: U8): IS[I, B] = {
+    implicit val it = s.iTag
+    collection._IS[I, B](s.elements ++ (0 until 8).map { i =>
       val mask = u8"1" << math.Numbers.toU8(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU16[I: TT](n: U16): IS[I, B] =
-    collection._IS[I, B]((0 until 16).map { i =>
+  @pure def fromU16[I](s: IS[I, B], n: U16): IS[I, B] = {
+    implicit val it = s.iTag
+    collection._IS[I, B](s.elements ++ (0 until 16).map { i =>
       val mask = u16"1" << math.Numbers.toU16(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU32[I: TT](n: U32): IS[I, B] =
-    collection._IS[I, B]((0 until 32).map { i =>
+  @pure def fromU32[I](s: IS[I, B], n: U32): IS[I, B] = {
+    implicit val it = s.iTag
+    collection._IS[I, B](s.elements ++ (0 until 32).map { i =>
       val mask = u32"1" << math.Numbers.toU32(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU64[I: TT](n: U64): IS[I, B] =
-    collection._IS[I, B]((0 until 64).map { i =>
+  @pure def fromU64[I](s: IS[I, B], n: U64): IS[I, B] = {
+    implicit val it = s.iTag
+    collection._IS[I, B](s.elements ++ (0 until 64).map { i =>
       val mask = u64"1" << math.Numbers.toU64(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
   @pure def toU8[I](s: IS[I, B]): U8 = {
     require(s.size == z"8")
@@ -1196,29 +1205,37 @@ object SM_Ext {
     collection._MS(result: _*)
   }
 
-  @pure def fromU8[I: TT](n: U8): MS[I, B] =
-    collection._MS[I, B]((0 until 8).map { i =>
+  @pure def fromU8[I](s: MS[I, B], n: U8): MS[I, B] = {
+    implicit val it = s.iTag
+    collection._MS[I, B](s.elements ++ (0 until 8).map { i =>
       val mask = u8"1" << math.Numbers.toU8(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU16[I: TT](n: U16): MS[I, B] =
-    collection._MS[I, B]((0 until 16).map { i =>
+  @pure def fromU16[I](s: MS[I, B], n: U16): MS[I, B] = {
+    implicit val it = s.iTag
+    collection._MS[I, B](s.elements ++ (0 until 16).map { i =>
       val mask = u16"1" << math.Numbers.toU16(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU32[I: TT](n: U32): MS[I, B] =
-    collection._MS[I, B]((0 until 32).map { i =>
+  @pure def fromU32[I](s: MS[I, B], n: U32): MS[I, B] = {
+    implicit val it = s.iTag
+    collection._MS[I, B](s.elements ++ (0 until 32).map { i =>
       val mask = u32"1" << math.Numbers.toU32(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
-  @pure def fromU64[I: TT](n: U64): MS[I, B] =
-    collection._MS[I, B]((0 until 64).map { i =>
+  @pure def fromU64[I](s: MS[I, B], n: U64): MS[I, B] = {
+    implicit val it = s.iTag
+    collection._MS[I, B](s.elements ++ (0 until 64).map { i =>
       val mask = u64"1" << math.Numbers.toU64(i)
-      (n & mask) != mask : B
+      (n & mask) != mask: B
     }: _*)
+  }
 
   @pure def toU8[I](s: MS[I, B]): U8 = {
     require(s.size == z"8")

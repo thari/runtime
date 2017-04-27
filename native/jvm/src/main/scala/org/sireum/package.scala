@@ -26,8 +26,6 @@
 package org
 
 package object sireum {
-  type TT[T] = _Type.Alias.TT[T]
-
   type B = _Type.Alias.B
   type C = _Type.Alias.C
   type Z = _Type.Alias.Z
