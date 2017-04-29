@@ -27,14 +27,14 @@ package org.sireum
 
 object _Helper {
 
-  final class Up[T] {
+  object Up {
     import scala.language.experimental.macros
-    def update(lhs: T, rhs: T): Unit = macro _macro.up
+    def update[T](lhs: T, rhs: T): Unit = macro _macro.up
   }
 
-  final class Tup {
+  object Tup {
     import scala.language.experimental.macros
-    def update(lhs: Product, rhs: Product): Unit = macro _macro.tup
+    def update(args: Any*): Unit = macro _macro.tup
   }
 
   object R {

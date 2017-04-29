@@ -120,9 +120,9 @@ package object sireum {
 
   def $[T]: T = macro _macro.$Impl[T]
 
-  def up[T]: _Helper.Up[T] = new _Helper.Up[T]
+  val up = _Helper.Up
 
-  def tup[T]: _Helper.Tup = new _Helper.Tup
+  val tup = _Helper.Tup
 
   def _assign[T](arg: T): T = macro _macro._assignImpl
 
@@ -179,9 +179,11 @@ package object sireum {
 
     def r(args: Any*): R = _Helper.R(sc.raw(args))
 
-    def l(args: Any*): Unit = macro _macro.lImpl
+    def l[T](args: Any*): T = ??? //macro _macro.lDefImpl[T]
 
-    def c[T](args: Any*): T = macro _macro.cImpl[T]
+    def lUnit(args: Any*): Unit = {} //macro _macro.lUnitImpl
+
+    def lDef[T](args: Any*): T = ??? //macro _macro.lDefImpl[T]
   }
 
   final implicit def _Z(n: Int): Z = math.Numbers.toZ(n)

@@ -261,7 +261,7 @@ package object logika {
 
     def r(args: Any*): R = org.sireum._Helper.R(sc.raw(args))
 
-    def l(args: Any*): Unit = macro org.sireum._macro.lImpl
+    def l(args: Any*): Unit = macro org.sireum._macro.lUnitImpl
   }
 
   final implicit def _Z(n: Int): Z = org.sireum._Z(n)

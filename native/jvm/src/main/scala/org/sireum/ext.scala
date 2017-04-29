@@ -65,8 +65,9 @@ class ext extends scala.annotation.StaticAnnotation {
             }
             if (expr.structure == dollar) {
             } else expr match {
-              case expr: Term.Interpolate if expr.prefix.value == "c" =>
-              case _ => abort(stat.pos, "Invalid expression for Slang @ext object method; it should be either $ or c\"\"\"{ ... }\"\"\".")
+              case Term.Apply(Term.Select(Term.Apply(Term.Name("StringContext"), _), Term.Name("lDef")), _) =>
+              case expr: Term.Interpolate if expr.prefix.value == "lDef" =>
+              case _ => abort(stat.pos, "Invalid expression for Slang @ext object method; it should be either $ or l\"\"\"{ ... }\"\"\".")
             }
             if (tVars.isEmpty)
               if (paramss.isEmpty)
@@ -81,7 +82,8 @@ class ext extends scala.annotation.StaticAnnotation {
             if (tparams.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
               abort(stat.pos, s"Invalid Slang @ext on a trait; it has to be of the form: '@ext trait ${tname.value}'")
             q"type $tname = $extName.$tname"
-          case expr: Term.Interpolate if expr.prefix.value == "l" => stat
+          case Term.Apply(Term.Select(Term.Apply(Term.Name("StringContext"), _), Term.Name("lUnit")), _) => stat
+          case expr: Term.Interpolate if expr.prefix.value == "lUnit" => stat
           case q"..$_ val ..$_: $_ = $_" => stat
           case q"..$_ var ..$_: $_ = $_" => stat
           case _ => abort(stat.pos, s"Invalid Slang @ext object member: ${stat.syntax}.")

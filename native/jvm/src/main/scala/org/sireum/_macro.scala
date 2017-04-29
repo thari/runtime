@@ -28,17 +28,17 @@ package org.sireum
 import scala.language.experimental.macros
 
 object _macro {
-  def l(args: Any*): Unit = macro _macro.lImpl
+  def lUnit(args: Any*): Unit = macro _macro.lUnitImpl
 
-  def lImpl(c: scala.reflect.macros.blackbox.Context)(
+  def lUnitImpl(c: scala.reflect.macros.blackbox.Context)(
     args: c.Expr[Any]*): c.Expr[Unit] = {
     import c.universe._
     c.Expr[Unit](q"{}")
   }
 
-  def c[T](args: Any*): T = macro _macro.cImpl[T]
+  def lDef[T](args: Any*): T = macro _macro.lDefImpl[T]
 
-  def cImpl[T](c: scala.reflect.macros.blackbox.Context)(
+  def lDefImpl[T](c: scala.reflect.macros.blackbox.Context)(
     args: c.Expr[Any]*): c.Expr[T] = {
     import c.universe._
     c.Expr[T](q"???")
@@ -233,17 +233,23 @@ object _macro {
   }
 
   def tup(c: scala.reflect.macros.blackbox.Context)(
-    lhs: c.Tree, rhs: c.Tree): c.Tree = {
+    args: c.Tree*): c.Tree = {
     import c.universe._
-    val r = lhs match {
-      case q"(..$exprs)" =>
-        val tmp = q"val _tmp = $rhs"
-        var assigns = List[c.Tree]()
-        for (i <- exprs.indices) {
-          assigns ::= q"${exprs(i)} = _tmp.${TermName("_" + (i + 1))}"
-        }
-        Block(tmp :: assigns.reverse, Literal(Constant(())))
+    if (args.length < 3 || !(args.last.tpe <:< c.typeOf[Product]) || !args.dropRight(1).forall({
+      case Ident(TermName(_)) => true
+      case _ => false
+    })) {
+      c.abort(c.enclosingPosition, "Invalid tup form; it should be: tup(<id>, <id>+) = <exp>: Product.")
     }
+    val lhss = args.dropRight(1)
+    val rhs = args.last
+    val tmp = q"val _tmp = $rhs"
+    var assigns = List[c.Tree]()
+    for (i <- lhss.indices) {
+      assigns ::= q"${lhss(i)} = _tmp.${TermName("_" + (i + 1))}"
+    }
+    val r = Block(tmp :: assigns.reverse, Literal(Constant(())))
+    //println(showRaw(r))
     //println(showCode(r))
     r
   }
