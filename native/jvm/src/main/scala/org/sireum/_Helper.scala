@@ -32,9 +32,9 @@ object _Helper {
     def update[T](lhs: T, rhs: T): Unit = macro _macro.up
   }
 
-  object Tup {
+  object Pat {
     import scala.language.experimental.macros
-    def update(args: Any*): Unit = macro _macro.tup
+    def update(args: Any*): Unit = macro _macro.pat
   }
 
   object R {

@@ -232,25 +232,60 @@ object _macro {
     r
   }
 
-  def tup(c: scala.reflect.macros.blackbox.Context)(
+  def pat(c: scala.reflect.macros.blackbox.Context)(
     args: c.Tree*): c.Tree = {
     import c.universe._
-    if (args.length < 3 || !(args.last.tpe <:< c.typeOf[Product]) || !args.dropRight(1).forall({
-      case Ident(TermName(_)) => true
-      case _ => false
-    })) {
-      c.abort(c.enclosingPosition, "Invalid tup form; it should be: tup(<id>, <id>+) = <exp>: Product.")
+    if (args.last.tpe <:< c.typeOf[Product]) {
+      if (args.length < 3 || !args.dropRight(1).forall({
+        case Ident(TermName(_)) => true
+        case _ => false
+      })) {
+        c.abort(c.enclosingPosition, "Invalid tuple pattern form; it should be: pat(<id>, <id>+) = <exp>.")
+      }
+      val lhss = args.dropRight(1)
+      val rhs = args.last
+      var assigns = List[c.Tree](q"val _tmp = $rhs")
+      for (i <- lhss.indices) {
+        assigns ::= q"${lhss(i)} = _tmp.${TermName("_" + (i + 1))}"
+      }
+      val r = Block(assigns.reverse, Literal(Constant(())))
+      //println(showRaw(r))
+      //println(showCode(r))
+      r
+    } else {
+      if (args.length != 2) {
+        c.abort(c.enclosingPosition, "Invalid extraction pattern form; it should be: pat(<pattern>) = <exp>.")
+      }
+      var names = Map[TermName, TermName]()
+      def f(e: Any): c.Tree = {
+        e match {
+          case q"$expr.apply(...$exprss)" if exprss.size == 1 =>
+            val exprs2 = for (exprs <- exprss) yield for (exp <- exprs) yield f(exp)
+            pq"$expr(..${exprs2.head})"
+          case q"(..$exprs)" if exprs.size > 1 =>
+            pq"(..${for (expr <- exprs) yield f(expr)})"
+          case q"${name: TermName}" =>
+            val id = name.decodedName.toString
+            if (id.startsWith("_placeholder")) {
+              pq"_"
+            } else {
+              val e2 = TermName(s"_$id")
+              names += e2 -> name
+              pq"$e2"
+            }
+          case e: c.Tree => c.abort(e.pos, s"Invalid extraction pattern: ${showCode(e)}")
+        }
+      }
+      //println(showRaw(args.head))
+      val tmp = q"val ${f(args.head)} = ${args(1)}".asInstanceOf[Block].stats
+      var assigns = List[c.Tree]()
+      for ((rhs, lhs) <- names) {
+        assigns ::= q"${Ident(lhs)} = ${Ident(rhs)}"
+      }
+      val r = Block(tmp ++ assigns, Literal(Constant(())))
+      //println(showRaw(r))
+      //println(showCode(r))
+      r
     }
-    val lhss = args.dropRight(1)
-    val rhs = args.last
-    val tmp = q"val _tmp = $rhs"
-    var assigns = List[c.Tree]()
-    for (i <- lhss.indices) {
-      assigns ::= q"${lhss(i)} = _tmp.${TermName("_" + (i + 1))}"
-    }
-    val r = Block(tmp :: assigns.reverse, Literal(Constant(())))
-    //println(showRaw(r))
-    //println(showCode(r))
-    r
   }
 }

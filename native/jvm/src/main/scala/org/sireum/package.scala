@@ -122,7 +122,7 @@ package object sireum {
 
   val up = _Helper.Up
 
-  val tup = _Helper.Tup
+  val pat = _Helper.Pat
 
   def _assign[T](arg: T): T = macro _macro._assignImpl
 
