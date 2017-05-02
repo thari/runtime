@@ -1,20 +1,21 @@
-language: scala
+language: none
 
-scala:
-  - 2.12.1
+services:
 
-jdk:
-  - oraclejdk8
+env:
+  global:
+    - JAVA_OPTIONS="-Xmx2G -XX:+UseG1GC -XX:ReservedCodeCacheSize=1G -Xss2m -XX:+CMSClassUnloadingEnabled"
 
 build:
     pre_ci:
     pre_ci_boot:
-        image_name:
-        image_tag:
-        pull:
-        options:
+        image_name: sireum/v3
+        image_tag: latest
+        pull: true
+        options: "-e HOME=/root"
     ci:
-        - rm -fR native/jvm/target api/jvm/target
+        - git submodule update --init --recursive
+        - export PATH=$PATH:/opt/sireum-v3/platform/node/bin
         - sbt clean "test:compile" test
     post_ci:
     on_success:

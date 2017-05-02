@@ -53,15 +53,12 @@ object _macro {
 
   def msApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
     values: c.Expr[V]*): c.Expr[MS[I, V]] = {
-    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
-    import _Type._
-    if (!(iType match {
-      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
-      case _ => false
-    })) {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe
+
+    if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
+      iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
+      iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
+      iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang MS.")
       c.abort(c.enclosingPosition, "Invalid index type for Slang MS.")
     }
@@ -71,15 +68,11 @@ object _macro {
 
   def msCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
-    val iType = size.tree.tpe.dealias.toString
-    import _Type._
-    if (!(iType match {
-      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
-      case _ => false
-    })) {
+    val iType = size.tree.tpe
+    if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
+      iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
+      iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
+      iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       c.abort(size.tree.pos, "Invalid index type for Slang MS.")
     }
     import c.universe._
@@ -88,15 +81,11 @@ object _macro {
 
   def isApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
     values: c.Expr[V]*): c.Expr[IS[I, V]] = {
-    val iType = implicitly[c.WeakTypeTag[I]].tpe.dealias.toString
-    import _Type._
-    if (!(iType match {
-      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
-      case _ => false
-    })) {
+    val iType = implicitly[c.WeakTypeTag[I]].tpe
+    if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
+      iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
+      iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
+      iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang IS.")
       else c.abort(c.enclosingPosition, "Invalid index type for Slang IS.")
     }
@@ -106,15 +95,11 @@ object _macro {
 
   def isCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
     size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
-    val iType = size.tree.tpe.dealias.toString
-    import _Type._
-    if (!(iType match {
-      case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-           `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-           `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-           `u8Type` | `u16Type` | `u32Type` | `u64Type` => true
-      case _ => false
-    })) {
+    val iType = size.tree.tpe
+    if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
+      iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
+      iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
+      iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       c.abort(size.tree.pos, "Invalid index type for Slang IS.")
     }
     import c.universe._
@@ -133,42 +118,14 @@ object _macro {
       case t if t.erasure =:= c.typeOf[MS[_, _]].erasure => q"__assign($arg)"
       case t if t.erasure =:= c.typeOf[IS[_, _]].erasure => arg
       case _ =>
-        import _Type._
-        arg.tpe.dealias.toString match {
-          case `bType` | `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-               `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-               `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-               `u8Type` | `u16Type` | `u32Type` | `u64Type` |
-               `f32Type` | `f64Type` | `rType` => arg
-          case _ => q"__assign($arg)"
-        }
-    }
-    //println(showRaw(r))
-    //println(showCode(r))
-    r
-  }
-
-  def _cleanup[T](arg: T): Unit = macro _cleanupImpl
-
-  def _cleanupImpl(c: scala.reflect.macros.blackbox.Context)(
-    arg: c.Tree): c.Tree = {
-    import c.universe._
-    //println(showRaw(arg))
-    val r = arg.tpe match {
-      case t if t <:< c.typeOf[_Datatype] => arg
-      case t if t <:< c.typeOf[_Record] => q"__cleanup($arg)"
-      case t if t.erasure =:= c.typeOf[MS[_, _]].erasure => q"__cleanup($arg)"
-      case t if t.erasure =:= c.typeOf[IS[_, _]].erasure => arg
-      case _ =>
-        import _Type._
-        arg.tpe.dealias.toString match {
-          case `bType` | `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
-               `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
-               `s8Type` | `s16Type` | `s32Type` | `s64Type` |
-               `u8Type` | `u16Type` | `u32Type` | `u64Type` |
-               `f32Type` | `f64Type` | `rType` => arg
-          case _ => q"__cleanup($arg)"
-        }
+        val iType = arg.tpe
+        if (!(iType =:= c.typeOf[B] || iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
+          iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
+          iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
+          iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64] ||
+          iType =:= c.typeOf[F32] || iType =:= c.typeOf[F64] || iType =:= c.typeOf[R])) {
+          arg
+        } else q"__assign($arg)"
     }
     //println(showRaw(r))
     //println(showCode(r))
@@ -257,6 +214,7 @@ object _macro {
         c.abort(c.enclosingPosition, "Invalid extraction pattern form; it should be: pat(<pattern>) = <exp>.")
       }
       var names = Map[TermName, TermName]()
+
       def f(e: Any): c.Tree = {
         e match {
           case q"$expr.apply(...$exprss)" if exprss.size == 1 =>
@@ -276,6 +234,7 @@ object _macro {
           case e: c.Tree => c.abort(e.pos, s"Invalid extraction pattern: ${showCode(e)}")
         }
       }
+
       //println(showRaw(args.head))
       val tmp = q"val ${f(args.head)} = ${args(1)}".asInstanceOf[Block].stats
       var assigns = List[c.Tree]()

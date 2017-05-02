@@ -117,11 +117,9 @@ final class _IS[I, V](val iTag: TT[I],
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def indices: Traversable[I] = {
-    import scala.reflect.runtime.universe._
     import _Type._
     val sz = value.length
-    implicit val iTag: TT[I] = this.iTag
-    (typeOf[I].dealias.toString match {
+    (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
       case `z16Type` => (0 until sz).map(n => Z32_Ext.toZ16(math.Numbers.toZ32(n)))
@@ -264,11 +262,9 @@ final class _MS[I, V](val iTag: TT[I],
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def indices: Traversable[I] = {
-    import scala.reflect.runtime.universe._
     import _Type._
     val sz = value.length
-    implicit val iTag: TT[I] = this.iTag
-    (typeOf[I].dealias.toString match {
+    (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
       case `z16Type` => (0 until sz).map(n => Z32_Ext.toZ16(math.Numbers.toZ32(n)))

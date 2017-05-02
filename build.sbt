@@ -8,7 +8,12 @@ val silencerVersion = "0.5"
 
 val runtimeVersion = "3.0.1-1-SNAPSHOT"
 
-val sireumScalacVersion = "3.0.0-4"
+val sireumScalacVersion = "3.0.0-5"
+
+scalaVersion in ThisBuild := scalaVer
+
+scalacOptions in ThisBuild := Seq("-target:jvm-1.8", "-deprecation",
+  "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings")
 
 val commonSettings = Seq(
   organization := "org.sireum",
@@ -16,13 +21,12 @@ val commonSettings = Seq(
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
   retrieveManaged := true,
   version := runtimeVersion,
-  scalaVersion := scalaVer,
-  scalacOptions := Seq("-target:jvm-1.8", "-deprecation",
-    "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings"),
   parallelExecution in Test := true,
   libraryDependencies ++= Seq(
     "org.scalameta" %% "scalameta" % metaVersion
   ),
+  sources in(Compile, doc) := Seq.empty,
+  publishArtifact in(Compile, packageDoc) := false,
   resolvers += Resolver.sonatypeRepo("public"),
   addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
   publishMavenStyle := true,
@@ -56,29 +60,33 @@ val commonSettings = Seq(
       </developers>
 )
 
-lazy val sireumRuntime = Project(
-  id = "sireum-runtime",
-  base = file("native/jvm"),
-  settings = commonSettings ++ Seq(
-    name := "runtime",
-    unmanagedSourceDirectories in Compile += baseDirectory.value / "src-pure/main/scala",
-    libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVer,
-      "org.spire-math" %% "spire" % "0.13.0"
-    )
+lazy val root = project.in(file(".")).
+  aggregate(runtimeJvm, runtimeJs, preludeJvm, preludeJs).
+  settings(
+    publish := {},
+    publishLocal := {}
+  )
+
+lazy val runtime = crossProject.in(file("runtime")).settings(commonSettings: _*).settings(
+  name := "runtime",
+  libraryDependencies ++= Seq(
+    "org.scala-lang" % "scala-reflect" % scalaVer,
+    "org.spire-math" %%% "spire" % "0.13.0"
   )
 )
 
-lazy val sireumPrelude = Project(
-  id = "sireum-prelude",
-  base = file("api/jvm"),
-  settings = commonSettings ++ Seq(
-    name := "prelude",
-    libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-      "com.github.ghik" %% "silencer-lib" % silencerVersion
-    ),
-    addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
-    addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion)
-  )
-).dependsOn(sireumRuntime)
+lazy val runtimeJvm = runtime.jvm
+lazy val runtimeJs = runtime.js
+
+lazy val prelude = crossProject.in(file("prelude")).settings(commonSettings: _*).settings(
+  name := "prelude",
+  libraryDependencies ++= Seq(
+    "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
+    "com.github.ghik" %% "silencer-lib" % silencerVersion
+  ),
+  addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
+  addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion)
+).dependsOn(runtime)
+
+lazy val preludeJvm = prelude.jvm
+lazy val preludeJs = prelude.js

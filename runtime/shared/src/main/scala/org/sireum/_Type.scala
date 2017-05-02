@@ -27,10 +27,8 @@ package org.sireum
 
 private[sireum] object _Type {
 
-  import scala.reflect.runtime.universe._
-
   object Alias {
-    type TT[T] = TypeTag[T]
+    type TT[T] = scala.reflect.ClassTag[T]
     type B = org.sireum._B
     type C = org.sireum._C
     type Z = math._Z
@@ -60,34 +58,34 @@ private[sireum] object _Type {
 
   import Alias.TT
 
-  private[sireum] val bType = typeOf[B].dealias.toString
-  private[sireum] val cType = typeOf[C].dealias.toString
-  private[sireum] val zType = typeOf[Z].dealias.toString
-  private[sireum] val intType = typeOf[Int].dealias.toString
-  private[sireum] val longType = typeOf[Long].dealias.toString
-  private[sireum] val z8Type = typeOf[Z8].dealias.toString
-  private[sireum] val z16Type = typeOf[Z16].dealias.toString
-  private[sireum] val z32Type = typeOf[Z32].dealias.toString
-  private[sireum] val z64Type = typeOf[Z64].dealias.toString
-  private[sireum] val nType = typeOf[N].dealias.toString
-  private[sireum] val n8Type = typeOf[N8].dealias.toString
-  private[sireum] val n16Type = typeOf[N16].dealias.toString
-  private[sireum] val n32Type = typeOf[N32].dealias.toString
-  private[sireum] val n64Type = typeOf[N64].dealias.toString
-  private[sireum] val s8Type = typeOf[S8].dealias.toString
-  private[sireum] val s16Type = typeOf[S16].dealias.toString
-  private[sireum] val s32Type = typeOf[S32].dealias.toString
-  private[sireum] val s64Type = typeOf[S64].dealias.toString
-  private[sireum] val u8Type = typeOf[U8].dealias.toString
-  private[sireum] val u16Type = typeOf[U16].dealias.toString
-  private[sireum] val u32Type = typeOf[U32].dealias.toString
-  private[sireum] val u64Type = typeOf[U64].dealias.toString
-  private[sireum] val f32Type = typeOf[F32].dealias.toString
-  private[sireum] val f64Type = typeOf[F64].dealias.toString
-  private[sireum] val rType = typeOf[R].dealias.toString
+  private[sireum] val bType = classOf[B].toString
+  private[sireum] val cType = classOf[C].toString
+  private[sireum] val zType = classOf[Z].toString
+  private[sireum] val intType = classOf[Int].toString
+  private[sireum] val longType = classOf[Long].toString
+  private[sireum] val z8Type = classOf[Z8].toString
+  private[sireum] val z16Type = classOf[Z16].toString
+  private[sireum] val z32Type = classOf[Z32].toString
+  private[sireum] val z64Type = classOf[Z64].toString
+  private[sireum] val nType = classOf[N].toString
+  private[sireum] val n8Type = classOf[N8].toString
+  private[sireum] val n16Type = classOf[N16].toString
+  private[sireum] val n32Type = classOf[N32].toString
+  private[sireum] val n64Type = classOf[N64].toString
+  private[sireum] val s8Type = classOf[S8].toString
+  private[sireum] val s16Type = classOf[S16].toString
+  private[sireum] val s32Type = classOf[S32].toString
+  private[sireum] val s64Type = classOf[S64].toString
+  private[sireum] val u8Type = classOf[U8].toString
+  private[sireum] val u16Type = classOf[U16].toString
+  private[sireum] val u32Type = classOf[U32].toString
+  private[sireum] val u64Type = classOf[U64].toString
+  private[sireum] val f32Type = classOf[F32].toString
+  private[sireum] val f64Type = classOf[F64].toString
+  private[sireum] val rType = classOf[R].toString
 
   private[sireum] def isSlangNumber[T: TT]: Boolean = {
-    scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
+    implicitly[TT[T]].runtimeClass.toString match {
       case `zType` | `z8Type` | `z16Type` | `z32Type` | `z64Type` |
            `nType` | `n8Type` | `n16Type` | `n32Type` | `n64Type` |
            `s8Type` | `s16Type` | `s32Type` | `s64Type` |
@@ -99,7 +97,7 @@ private[sireum] object _Type {
   private[sireum] def ln2int(value: Z): Int = Z_Ext.toZ32(value).value
 
   private[sireum] def ln2int[T: TT](value: T): Int = {
-    scala.reflect.runtime.universe.typeOf[T].dealias.toString match {
+    implicitly[TT[T]].runtimeClass.toString match {
       case `zType` => Z_Ext.toZ32(value.asInstanceOf[Z]).value
       case `z8Type` => Z8_Ext.toZ32(value.asInstanceOf[Z8]).value
       case `z16Type` => Z16_Ext.toZ32(value.asInstanceOf[Z16]).value
