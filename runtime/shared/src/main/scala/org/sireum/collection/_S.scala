@@ -64,6 +64,10 @@ final class _IS[I, V](val iTag: TT[I],
 
   def size: Z = _Z(value.length)
 
+  def nonEmpty: B = value.length > 0
+
+  def isEmpty: B = value.length == 0
+
   def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
 
   def apply[T: TT](index: T): V = {
@@ -202,6 +206,10 @@ final class _MS[I, V](val iTag: TT[I],
   def =!=(other: MS[I, V]): B = this != other
 
   def size: Z = _Z(value.length)
+
+  def nonEmpty: B = value.length > 0
+
+  def isEmpty: B = value.length == 0
 
   def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
 
