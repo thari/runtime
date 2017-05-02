@@ -1,0 +1,33 @@
+version: 1.0.{build}
+
+image: Visual Studio 2017
+
+environment:
+  matrix:
+  - COMPILER: msys2
+    PLATFORM: x64
+    MSYS2_ARCH: x86_64
+    MSYS2_DIR: msys64
+    MSYSTEM: MINGW64
+    BIT: 64
+  PATH: 'C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%APPVEYOR_BUILD_FOLDER%\platform\java\bin;%APPVEYOR_BUILD_FOLDER%\platform\scala\bin;%APPVEYOR_BUILD_FOLDER%\platform\sbt\bin;%APPVEYOR_BUILD_FOLDER%\platform\node\bin;%APPVEYOR_BUILD_FOLDER%\apps\z3\bin;%PATH%'
+
+cache:
+  - platform -> bin\prelude.sh
+  - apps -> bin\prelude.sh
+  - '%USERPROFILE%\.ivy2'
+  - '%USERPROFILE%\.coursier'
+  - '%USERPROFILE%\.sbt'
+
+install:
+  - bash -lc "pacman --noconfirm -S unzip"
+  - bash -lc "mkdir -p $APPVEYOR_BUILD_FOLDER/bin"
+  - bash -lc "wget -qO $APPVEYOR_BUILD_FOLDER/bin/prelude.sh https://raw.githubusercontent.com/sireum/v3/master/bin/prelude.sh"
+  - bash -lc "chmod +x $APPVEYOR_BUILD_FOLDER/bin/prelude.sh"
+  - bash -lc "$APPVEYOR_BUILD_FOLDER/bin/prelude.sh"
+
+build_script:
+  - bash -lc "sbt clean test:compile"
+
+test_script:
+  - bash -lc "sbt test"

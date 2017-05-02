@@ -60,12 +60,15 @@ val commonSettings = Seq(
       </developers>
 )
 
-lazy val root = project.in(file(".")).
-  aggregate(runtimeJvm, runtimeJs, preludeJvm, preludeJs).
-  settings(
-    publish := {},
-    publishLocal := {}
-  )
+lazy val sireumRuntime = {
+  val `sireum-runtime` = project.in(file(".")).
+    aggregate(runtimeJvm, runtimeJs, preludeJvm, preludeJs).
+    settings(
+      publish := {},
+      publishLocal := {}
+    )
+  `sireum-runtime`
+}
 
 lazy val runtime = crossProject.in(file("runtime")).settings(commonSettings: _*).settings(
   name := "runtime",
