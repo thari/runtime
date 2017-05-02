@@ -27,7 +27,7 @@ install:
   - bash -lc "$APPVEYOR_BUILD_FOLDER/bin/prelude.sh"
 
 build_script:
-  - bash -lc "sbt clean test:compile"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && sbt clean test:compile"
 
 test_script:
-  - bash -lc "sbt test"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && sbt test"
