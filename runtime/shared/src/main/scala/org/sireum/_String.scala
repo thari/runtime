@@ -25,16 +25,7 @@
 
 package org.sireum
 
-final class _C(val value: Char) extends AnyVal {
+final class _String(val value: Predef.String) extends AnyVal {
   private type T = C
-  def <(other: T): B = value < other.value
-  def <=(other: T): B = value <= other.value
-  def >(other: T): B = value > other.value
-  def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
   override def toString: Predef.String = value.toString
 }

@@ -49,6 +49,7 @@ package object sireum {
   type R = _Type.Alias.R
   type F32 = _Type.Alias.F32
   type F64 = _Type.Alias.F64
+  type String = _Type.Alias.String
 
   type MS[I, V] = _Type.Alias.MS[I, V]
   type MSZ[V] = _Type.Alias.MS[Z, V]
@@ -179,20 +180,28 @@ package object sireum {
 
     def r(args: Any*): R = _Helper.R(sc.raw(args))
 
-    def l[T](args: Any*): T = ??? //macro _macro.lDefImpl[T]
+    def l[T](args: Any*): T = throw new NotImplementedError
 
-    def lUnit(args: Any*): Unit = {} //macro _macro.lUnitImpl
+    def lUnit(args: Any*): Unit = {}
 
-    def lDef[T](args: Any*): T = ??? //macro _macro.lDefImpl[T]
+    def lDef[T](args: Any*): T = throw new NotImplementedError
   }
 
-  final implicit def _Z(n: Int): Z = math.Numbers.toZ(n)
+  final implicit def _Z(n: Int): Z = math._Z(n)
 
-  final implicit def _Z(n: Long): Z = math.Numbers.toZ(n)
+  final implicit def _Z(n: Long): Z = math._Z(n)
 
-  final implicit def _Z(n: BigInt): Z = math.Numbers.toZ(n)
+  final implicit def _Z(n: BigInt): Z = math._Z(n)
 
   final implicit def _2B(b: Boolean): B = new _B(b)
 
   final implicit def _2Boolean(b: B): Boolean = b.value
+
+  final implicit def _2C(c: Char): C = new _C(c)
+
+  final implicit def _2F32(f: Float): F32 = new math._F32(f)
+
+  final implicit def _2F64(d: Double): F64 = new math._F64(d)
+
+  final implicit def _2String(s: Predef.String): String = new _String(s)
 }

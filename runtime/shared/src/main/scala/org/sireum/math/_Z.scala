@@ -43,7 +43,7 @@ object _Z {
   final def apply(z: Long): Z = _ZLong(z)
 
   @inline
-  final def apply(z: String): Z = {
+  final def apply(z: Predef.String): Z = {
     val s = z.replaceAll(" ", "")
     if (s.startsWith("0x")) apply(BigInt(s.substring(2), 16))
     else apply(BigInt(s))
@@ -223,7 +223,7 @@ private[sireum] final case class _ZLong(value: Long) extends _Z {
     case _ => upgrade <= other
   }
 
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 
   private def upgrade: _ZBigInt = _ZBigInt(BigInt(value))
 
@@ -306,7 +306,7 @@ private[sireum] final case class _ZBigInt(value: BigInt) extends _Z {
     case _ZBigInt(n) => value >= n
   }
 
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 
   private[math] def pack: Z =
     if ((value.compareTo(_Z.longMin) >= 0) && (value.compareTo(_Z.longMax) <= 0))

@@ -256,7 +256,7 @@ private[sireum] object Numbers {
 
   def toF64(n: Double): F64 = _F64(n)
 
-  def toR(s: String): R = _R(spire.math.Real(s))
+  def toR(s: Predef.String): R = _R(spire.math.Real(s))
 
   def toR(n: Real): R = _R(n)
 }
@@ -285,7 +285,7 @@ final class _Z8(val value: Byte) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -311,7 +311,7 @@ final class _Z16(val value: Short) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -337,7 +337,7 @@ final class _Z32(val value: Int) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -363,7 +363,7 @@ final class _Z64(val value: Long) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -396,7 +396,7 @@ final class _S8(val value: Byte) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -429,7 +429,7 @@ final class _S16(val value: Short) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -462,7 +462,7 @@ final class _S32(val value: Int) extends AnyVal {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -495,7 +495,7 @@ final class _S64(val value: Long) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -521,7 +521,7 @@ final class _N8(val signed: Byte) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -547,7 +547,7 @@ final class _N16(val signed: Short) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -573,7 +573,7 @@ final class _N32(val signed: Int) extends AnyVal {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -599,7 +599,7 @@ final class _N64(val signed: Long) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -631,7 +631,7 @@ final class _U8(val signed: Byte) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -663,7 +663,7 @@ final class _U16(val signed: Short) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -695,7 +695,7 @@ final class _U32(val signed: Int) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 object _U64 {
@@ -726,7 +726,7 @@ final class _U64(val signed: Long) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -745,7 +745,7 @@ final class _F32(val value: Float) extends AnyVal with _Rich {
   def %(other: T): T = toF32(value % other.value)
   def <(other: T): B = value < other.value
   def >(other: T): B = value > other.value
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -764,7 +764,7 @@ final class _F64(val value: Double) extends AnyVal with _Rich {
   def %(other: T): T = toF64(value % other.value)
   def <(other: T): B = value < other.value
   def >(other: T): B = value > other.value
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
 
 
@@ -790,5 +790,5 @@ final class _R(val value: Real) extends AnyVal with _Rich {
   def ≤(other: T): B = this <= other
   def ≥(other: T): B = this >= other
   def ≠(other: T): B = this =!= other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }

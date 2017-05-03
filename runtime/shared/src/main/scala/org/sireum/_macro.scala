@@ -28,21 +28,6 @@ package org.sireum
 import scala.language.experimental.macros
 
 object _macro {
-  def lUnit(args: Any*): Unit = macro _macro.lUnitImpl
-
-  def lUnitImpl(c: scala.reflect.macros.blackbox.Context)(
-    args: c.Expr[Any]*): c.Expr[Unit] = {
-    import c.universe._
-    c.Expr[Unit](q"{}")
-  }
-
-  def lDef[T](args: Any*): T = macro _macro.lDefImpl[T]
-
-  def lDefImpl[T](c: scala.reflect.macros.blackbox.Context)(
-    args: c.Expr[Any]*): c.Expr[T] = {
-    import c.universe._
-    c.Expr[T](q"???")
-  }
 
   def $[T]: T = macro _macro.$Impl[T]
 

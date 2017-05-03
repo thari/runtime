@@ -54,6 +54,7 @@ private[sireum] object _Type {
     type F64 = org.sireum.math._F64
     type IS[I, V] = collection._IS[I, V]
     type MS[I, V] = collection._MS[I, V]
+    type String = org.sireum._String
   }
 
   import Alias.TT

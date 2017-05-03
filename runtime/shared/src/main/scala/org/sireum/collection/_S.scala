@@ -147,7 +147,7 @@ final class _IS[I, V](val iTag: TT[I],
 
   override def clone: IS[I, V] = this
 
-  override def toString: String = {
+  override def toString: Predef.String = {
     val elements = this.elements
 
     def toBit(i: Int): Char = if (elements(i).asInstanceOf[B]) '1' else '0'
@@ -299,7 +299,7 @@ final class _MS[I, V](val iTag: TT[I],
     new _MS[I, V](iTag, value.map(_Clonable.clone))
   }
 
-  override def toString: String = {
+  override def toString: Predef.String = {
     val elements = this.elements
 
     def toBit(i: Int): Char = if (elements(i).asInstanceOf[B]) '1' else '0'

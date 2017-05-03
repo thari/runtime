@@ -39,15 +39,15 @@ object _Helper {
 
   object R {
 
-    final def apply(r: String): R = math.Numbers.toR(r.replaceAllLiterally(" ", ""))
+    final def apply(r: Predef.String): R = math.Numbers.toR(r.replaceAllLiterally(" ", ""))
 
     final def random: R = apply(math._Z.random.toString + "." + math._N.random.toString)
   }
 
-  def quote(s: String): String = {
-    def escape(s: String): String = s.flatMap(escapedChar)
+  def quote(s: Predef.String): Predef.String = {
+    def escape(s: Predef.String): Predef.String = s.flatMap(escapedChar)
 
-    def escapedChar(ch: Char): String = ch match {
+    def escapedChar(ch: Char): Predef.String = ch match {
       case '\b' => "\\b"
       case '\t' => "\\t"
       case '\n' => "\\n"
@@ -64,7 +64,7 @@ object _Helper {
   }
 
   def append(sb: StringBuilder, x: Any): Unit = x match {
-    case x: String => sb.append(quote(x))
+    case x: Predef.String => sb.append(quote(x))
     case _ => sb.append(x)
   }
 }

@@ -41,5 +41,5 @@ final class _B(val value: Boolean) extends AnyVal {
   def ∨(other: T): T = this | other
   def ⊻(other: T): T = this |^ other
   def →(other: T): T = !this | other
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }

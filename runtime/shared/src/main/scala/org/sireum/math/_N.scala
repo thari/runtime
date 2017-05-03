@@ -40,7 +40,7 @@ object _N {
   final def apply(n: Long): N = apply(_Z(n))
 
   @inline
-  final def apply(n: String): N = apply(_Z(n))
+  final def apply(n: Predef.String): N = apply(_Z(n))
 
   @inline
   final def apply(n: BigInt): N = apply(_Z(n))
@@ -84,5 +84,5 @@ final class _N(val value: Z) extends AnyVal {
 
   def =!=(other: N): B = value != other.value
 
-  override def toString: String = value.toString
+  override def toString: Predef.String = value.toString
 }
