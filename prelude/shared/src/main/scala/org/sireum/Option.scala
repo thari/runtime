@@ -75,7 +75,7 @@ package org.sireum
     return F
   }
 
-  override def foreach(f: T => Unit): Unit = {}
+  def foreach(f: T => Unit): Unit = {}
 }
 
 
@@ -110,7 +110,7 @@ package org.sireum
     return f(value)
   }
 
-  override def foreach(f: T => Unit): Unit = {
+  def foreach(f: T => Unit): Unit = {
     l"""{ reads    f_reads
           requires f_requires(value)
           modifies f_modifies

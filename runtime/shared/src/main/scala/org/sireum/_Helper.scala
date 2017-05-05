@@ -63,8 +63,52 @@ object _Helper {
     "\"" + escape(s) + "\""
   }
 
-  def append(sb: StringBuilder, x: Any): Unit = x match {
-    case x: Predef.String => sb.append(quote(x))
-    case _ => sb.append(x)
+  def append(sb: StringBuilder, x: Any): Unit = {
+    import _Type._
+    def iType(c: Class[_]): String = c.toString match {
+      case `zType` => "Z"
+      case `z8Type` => "Z8"
+      case `z16Type` => "Z16"
+      case `z32Type` => "Z32"
+      case `z64Type` => "Z64"
+      case `nType` => "N"
+      case `n8Type` => "N8"
+      case `n16Type` => "N16"
+      case `n32Type` => "N32"
+      case `n64Type` => "N64"
+      case `s8Type` => "S8"
+      case `s16Type` => "S16"
+      case `s32Type` => "S32"
+      case `s64Type` => "S64"
+      case `u8Type` => "U8"
+      case `u16Type` => "U16"
+      case `u32Type` => "U32"
+      case `u64Type` => "U64"
+    }
+    x match {
+      case x: Predef.String => sb.append(quote(x))
+      case x: String => sb.append(quote(x.value))
+      case x: IS[_, _] =>
+        sb.append(s"IS${iType(x.iTag.runtimeClass)}(")
+        if (x.nonEmpty) {
+          sb.append(x.elements.head)
+          for (e <- x.elements.tail) {
+            sb.append(", ")
+            sb.append(e)
+          }
+        }
+        sb.append(")")
+      case x: MS[_, _] =>
+        sb.append(s"MS${iType(x.iTag.runtimeClass)}(")
+        if (x.nonEmpty) {
+          sb.append(x.elements.head)
+          for (e <- x.elements.tail) {
+            sb.append(", ")
+            sb.append(e)
+          }
+        }
+        sb.append(")")
+      case _ => sb.append(x)
+    }
   }
 }
