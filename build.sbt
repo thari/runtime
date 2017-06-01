@@ -1,8 +1,8 @@
 val scalaVer = "2.12.2"
 
-val metaVersion = "1.7.0"
+val metaVersion = "1.8.0"
 
-val paradiseVersion = "3.0.0-M8"
+val paradiseVersion = "3.0.0-M9"
 
 val silencerVersion = "0.5"
 
