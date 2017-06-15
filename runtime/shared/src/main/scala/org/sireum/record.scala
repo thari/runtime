@@ -104,7 +104,7 @@ object record {
         }
         val hashCodeDirty = q"private var dirty: Boolean = true"
         val hashCodeVar = q"private var _hashCode: Int = _"
-        val hashCodeDef = q"private def computeHashCode: Int = (this.getClass, ..$unapplyArgs).hashCode"
+        val hashCodeDef = q"private def computeHashCode: Int = Seq(this.getClass, ..$unapplyArgs).hashCode"
         val hashCode = q"override def hashCode: Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
         val equals = {
           val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
@@ -141,14 +141,22 @@ object record {
               unapplyTypes.size match {
                 case 0 => q"def unapply(o: $tpe): Boolean = true"
                 case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
-                case _ => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case _ =>
+                  val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum._Clonable.clone(o.$a)")})").toVector
+                  q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
               })
           else
             (q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
               unapplyTypes.size match {
                 case 0 => q"def unapply[..$tparams](o: $tpe): Boolean = true"
                 case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
-                case _ => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case _ =>
+                  val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum._Clonable.clone(o.$a)")})").toVector
+                  q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
               })
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(apply, unapply))))
       }

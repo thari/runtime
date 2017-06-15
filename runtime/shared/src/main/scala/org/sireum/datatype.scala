@@ -78,7 +78,7 @@ object datatype {
         case _ => abort(param.pos, "Unsupported Slang @datatype parameter form.")
       }
       val cls = {
-        val hashCode = q"override lazy val hashCode: Int = { (this.getClass, ..$unapplyArgs).hashCode }"
+        val hashCode = q"override lazy val hashCode: Int = { Seq(this.getClass, ..$unapplyArgs).hashCode }"
         val equals = {
           val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
           val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
@@ -114,14 +114,22 @@ object datatype {
               unapplyTypes.size match {
                 case 0 => q"def unapply(o: $tpe): Boolean = true"
                 case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(o.${unapplyArgs.head})"
-                case _ => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"o.$arg")}))"
+                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"o.$arg")}))"
+                case _ =>
+                  val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"o.$a")})").toVector
+                  q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
               })
           else
             (q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
               unapplyTypes.size match {
                 case 0 => q"def unapply[..$tparams](o: $tpe): Boolean = true"
                 case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(o.${unapplyArgs.head})"
-                case _ => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"o.$arg")}))"
+                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"o.$arg")}))"
+                case _ =>
+                  val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"o.$a")})").toVector
+                  q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
               })
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(apply, unapply))))
       }
