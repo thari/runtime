@@ -108,7 +108,7 @@ object record {
         val hashCode = q"override def hashCode: Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
         val equals = {
           val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
-          val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
+          val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
           val eCases =
             Vector(if (tparams.isEmpty) p"case o: $tname => $eCaseExp"
             else p"case (o: $tname[..$tVars] @unchecked) => $eCaseExp",

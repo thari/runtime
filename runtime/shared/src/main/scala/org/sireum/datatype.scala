@@ -81,7 +81,7 @@ object datatype {
         val hashCode = q"override lazy val hashCode: Int = { Seq(this.getClass, ..$unapplyArgs).hashCode }"
         val equals = {
           val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
-          val eCaseExp = eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
+          val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
           val eCases =
             Vector(if (tparams.isEmpty) p"case o: $tname => if (this.hashCode != o.hashCode) false else $eCaseExp"
             else p"case (o: $tname[..$tVars] @unchecked) => $eCaseExp",
