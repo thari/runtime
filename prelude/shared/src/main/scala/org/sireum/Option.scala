@@ -45,33 +45,33 @@ package org.sireum
 @datatype class None[T] extends Option[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result = T """
+    l""" ensures  result ≡ T """
 
     return T
   }
 
   @pure def nonEmpty: B = {
-    l""" ensures  result = F """
+    l""" ensures  result ≡ F """
     return F
   }
 
   @pure def map[T2](f: T => T2): Option[T2] = {
-    l""" ensures  result = None[T2]() """
+    l""" ensures  result ≡ None[T2]() """
     return None[T2]()
   }
 
   @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
-    l""" ensures  result = None[T2]() """
+    l""" ensures  result ≡ None[T2]() """
     return None[T2]()
   }
 
   @pure def forall(f: T => B): B = {
-    l""" ensures  result = T """ // or simply: result
+    l""" ensures  result ≡ T """ // or simply: result
     return T
   }
 
   @pure def exists(f: T => B): B = {
-    l""" ensures  result = F """// or simply: ¬result
+    l""" ensures  result ≡ F """ // or simply: ¬result
     return F
   }
 
@@ -82,39 +82,40 @@ package org.sireum
 @datatype class Some[T](value: T) extends Option[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result = F """
+    l""" ensures  result ≡ F """
     return F
   }
+
   @pure def nonEmpty: B = {
-    l""" ensures  result = T """
+    l""" ensures  result ≡ T """
     return T
   }
 
   @pure def map[T2](f: T => T2): Option[T2] = {
-    l""" ensures  result = f(value) """
+    l""" ensures  result ≡ f(value) """
     return Some(f(value))
   }
 
   @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
-    l""" ensures  result = f(value) """
+    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   @pure def forall(f: T => B): B = {
-    l""" ensures  result = f(value) """
+    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   @pure def exists(f: T => B): B = {
-    l""" ensures  result = f(value) """
+    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   def foreach(f: T => Unit): Unit = {
     l""" reads    f_reads
-          requires f_requires(value)
-          modifies f_modifies
-          ensures  f_ensures(value) """
+         requires f_requires(value)
+         modifies f_modifies
+         ensures  f_ensures(value) """
     f(value)
   }
 }
