@@ -39,6 +39,8 @@ package org.sireum
 
   @pure def exists(f: T => B): B
 
+  @pure def getOrElse(default: T): T
+
   def foreach(f: T => Unit): Unit
 }
 
@@ -75,6 +77,11 @@ package org.sireum
     return F
   }
 
+  @pure def getOrElse(default: T): T = {
+    l""" ensures  result ≡ default """
+    return default
+  }
+
   def foreach(f: T => Unit): Unit = {}
 }
 
@@ -109,6 +116,11 @@ package org.sireum
   @pure def exists(f: T => B): B = {
     l""" ensures  result ≡ f(value) """
     return f(value)
+  }
+
+  @pure def getOrElse(default: T): T = {
+    l""" ensures  result ≡ value """
+    return value
   }
 
   def foreach(f: T => Unit): Unit = {
