@@ -30,24 +30,37 @@ import org.sireum._Type._
 import org.sireum._Type.Alias.TT
 import org.sireum.math._Z
 
+object _S {
+  private[collection] def computeCapacity(array: Array[Any], len: Int): Int =
+    if (array.length < len) (len * 1.5).toInt else array.length
+
+  private[collection] def cloneValue(array: Array[Any], length: Int, newLength: Int, offset: Int): Array[Any] = {
+    val capacity = computeCapacity(array, newLength)
+    val r = new Array[Any](capacity)
+    System.arraycopy(array, 0, r, offset, length)
+    r
+  }
+}
+
 object _IS {
 
   import scala.language.experimental.macros
 
   def apply[I: TT, V](elements: V*): IS[I, V] = {
     require(isSlangNumber[I])
-    new _IS[I, V](implicitly[TT[I]], elements.toArray)
+    new _IS[I, V](implicitly[TT[I]], elements.length, elements.toArray)
   }
 
   def create[I: TT, V](size: I, default: V): IS[I, V] = {
     require(isSlangNumber[I])
     val sz = ln2int(size)
-    new _IS[I, V](implicitly[TT[I]], (0 until sz).map(_ => _Clonable.clone(default)).toArray)
+    new _IS[I, V](implicitly[TT[I]], sz, (0 until sz).map(_ => _Clonable.clone(default)).toArray)
   }
 }
 
 final class _IS[I, V](val iTag: TT[I],
-                      private[_IS] val value: Array[Any]) extends _Immutable {
+                      private[collection] val length: Int,
+                      private[collection] val array: Array[Any]) extends _Immutable {
 
   override lazy val hashCode: Int = elements.hashCode
 
@@ -62,67 +75,83 @@ final class _IS[I, V](val iTag: TT[I],
 
   def =!=(other: IS[I, V]): B = this != other
 
-  def size: Z = _Z(value.length)
+  def size: Z = _Z(length)
 
-  def nonEmpty: B = value.length > 0
+  def nonEmpty: B = length > 0
 
-  def isEmpty: B = value.length == 0
+  def isEmpty: B = length == 0
 
-  def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
+  def elements: scala.collection.Seq[V] = array.asInstanceOf[Array[V]].toSeq.slice(0, length)
 
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
-    require(0 <= i && i < value.length)
-    value(i).asInstanceOf[V]
+    require(0 <= i && i < length)
+    array(i).asInstanceOf[V]
   }
 
   def :+(value: V): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, this.value :+ value)
+    val len = length + 1
+    val newArray = _S.cloneValue(array, length, len, 0)
+    newArray(length) = value
+    new _IS[I, V](iTag, len, newArray)
   }
 
   def +:(value: V): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, value +: this.value)
+    val len = length + 1
+    val newArray = _S.cloneValue(array, length, len, 1)
+    newArray(0) = value
+    new _IS[I, V](iTag, len, newArray)
   }
 
   def ++(other: IS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, value ++ other.elements)
+    val len = length + other.length
+    val newArray = _S.cloneValue(array, length, len, 0)
+    System.arraycopy(other.array, 0, newArray, length, other.length)
+    new _IS[I, V](iTag, len, newArray)
   }
 
   def ++(other: MS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, value ++ other.elements)
+    val len = length + other.length
+    val newArray = _S.cloneValue(array, length, len, 0)
+    for (i <- 0 until other.length) {
+      newArray(length + i) = _Clonable.clone(other.array(i))
+    }
+    new _IS[I, V](iTag, len, newArray)
   }
 
   def --(other: IS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, value.filterNot(other.elements.contains))
+    val newArray = array.filterNot(other.elements.contains)
+    new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    new _IS[I, V](iTag, value.filterNot(other.elements.contains))
+    val newArray = array.filterNot(other.elements.contains)
+    new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def apply[T: TT](entries: (T, V)*): IS[I, V] = {
     implicit val it = iTag
-    var newValue = value
-    val sz = value.length
+    val sz = length
+    val newArray = _S.cloneValue(array, sz, sz, 0)
     for ((i, v) <- entries) {
       val index = ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index, v)
+      newArray(index) = v
     }
-    new _IS[I, V](iTag, newValue)
+    new _IS[I, V](iTag, length, newArray)
   }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def indices: Traversable[I] = {
     import _Type._
-    val sz = value.length
+    val sz = array.length
     (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
@@ -179,18 +208,19 @@ object _MS {
 
   def apply[I: TT, V](elements: V*): MS[I, V] = {
     require(isSlangNumber[I])
-    new _MS[I, V](implicitly[TT[I]], elements.toArray)
+    new _MS[I, V](implicitly[TT[I]], elements.length, elements.toArray)
   }
 
   def create[I: TT, V](size: I, default: V): MS[I, V] = {
     require(isSlangNumber[I])
     val sz = ln2int(size)
-    new _MS[I, V](implicitly[TT[I]], (0 until sz).map(_ => _Clonable.clone(default)).toArray)
+    new _MS[I, V](implicitly[TT[I]], sz, (0 until sz).map(_ => _Clonable.clone(default)).toArray)
   }
 }
 
 final class _MS[I, V](val iTag: TT[I],
-                      private[_MS] val value: Array[Any]) extends _Mutable {
+                      private[collection] val length: Int,
+                      private[collection] val array: Array[Any]) extends _Mutable {
 
   override def hashCode: Int = elements.hashCode
 
@@ -205,73 +235,89 @@ final class _MS[I, V](val iTag: TT[I],
 
   def =!=(other: MS[I, V]): B = this != other
 
-  def size: Z = _Z(value.length)
+  def size: Z = _Z(length)
 
-  def nonEmpty: B = value.length > 0
+  def nonEmpty: B = length > 0
 
-  def isEmpty: B = value.length == 0
+  def isEmpty: B = length == 0
 
-  def elements: scala.collection.Seq[V] = value.asInstanceOf[Array[V]]
+  def elements: scala.collection.Seq[V] = array.asInstanceOf[Array[V]].toSeq.slice(0, length)
 
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
-    require(0 <= i && i < value.length)
-    value(i).asInstanceOf[V]
+    require(0 <= i && i < length)
+    array(i).asInstanceOf[V]
   }
 
   def update[T: TT](index: T, value: V): Unit = {
     val i = ln2int(index)
-    require(0 <= i && i < this.value.length)
-    this.value(i) = value
+    require(0 <= i && i < length)
+    array(i) = _Clonable.clone(value)
   }
 
   def :+(value: V): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, this.value :+ value)
+    val len = length + 1
+    val newArray = _S.cloneValue(array, length, len, 0)
+    newArray(length) = _Clonable.clone(value)
+    new _MS[I, V](iTag, len, newArray)
   }
 
   def +:(value: V): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value +: this.value)
+    val len = length + 1
+    val newArray = _S.cloneValue(array, length, len, 1)
+    newArray(0) = _Clonable.clone(value)
+    new _MS[I, V](iTag, len, newArray)
   }
 
   def ++(other: MS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value ++ other.elements)
+    val len = length + other.length
+    val newArray = _S.cloneValue(array, length, len, 0)
+    for (i <- 0 until other.length) {
+      newArray(length + i) = _Clonable.clone(other.array(i))
+    }
+    new _MS[I, V](iTag, len, newArray)
   }
 
   def ++(other: IS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value ++ other.elements)
+    val len = length + other.length
+    val newArray = _S.cloneValue(array, length, len, 0)
+    System.arraycopy(other.array, 0, newArray, length, other.length)
+    new _MS[I, V](iTag, len, newArray)
   }
 
   def --(other: MS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value.filterNot(other.elements.contains))
+    val newArray = array.filterNot(other.elements.contains)
+    new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value.filterNot(other.elements.contains))
+    val newArray = array.filterNot(other.elements.contains)
+    new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def apply[T: TT](entries: (T, V)*): MS[I, V] = {
     implicit val it = iTag
-    var newValue = value
-    val sz = value.length
+    val sz = length
+    val newArray = _S.cloneValue(array, sz, sz, 0)
     for ((i, v) <- entries) {
       val index = ln2int(i)
       require(0 <= index && index < sz)
-      newValue = newValue.updated(index, v)
+      newArray(index) = _Clonable.clone(v)
     }
-    new _MS[I, V](iTag, newValue)
+    new _MS[I, V](iTag, sz, newArray)
   }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def indices: Traversable[I] = {
     import _Type._
-    val sz = value.length
+    val sz = array.length
     (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
@@ -296,7 +342,7 @@ final class _MS[I, V](val iTag: TT[I],
 
   override def clone: MS[I, V] = {
     implicit val it = iTag
-    new _MS[I, V](iTag, value.map(_Clonable.clone))
+    new _MS[I, V](iTag, length, array.map(_Clonable.clone))
   }
 
   override def toString: Predef.String = {
