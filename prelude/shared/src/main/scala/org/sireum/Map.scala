@@ -33,7 +33,8 @@ object Map {
 }
 
 @datatype class Map[K, V](entries: ISZ[(K, V)]) {
-  def put(key: K, value: V): Map[K, V] = {
+
+  @pure def put(key: K, value: V): Map[K, V] = {
     val index = indexOf(key)
     val newEntries: ISZ[(K, V)] =
       if (index < 0) entries :+ ((key, value))
@@ -41,12 +42,12 @@ object Map {
     return Map(newEntries)
   }
 
-  def get(key: K): Option[V] = {
+  @pure def get(key: K): Option[V] = {
     val index = indexOf(key)
     return if (index < 0) None[V]() else Some(entries(index)._2)
   }
 
-  def indexOf(key: K): Z = {
+  @pure def indexOf(key: K): Z = {
     var index = -1
     for (i <- entries.indices if index == -1) {
       if (entries(i)._1 == key) {
@@ -54,5 +55,32 @@ object Map {
       }
     }
     return index
+  }
+
+  @pure def removeAll(keys: ISZ[K]): Map[K, V] = {
+    var deletedMappings = ISZ[(K, V)]()
+    for (key <- keys) {
+      get(key) match {
+        case Some(value) => deletedMappings = deletedMappings :+ ((key, value))
+        case _ =>
+      }
+    }
+    if (deletedMappings.nonEmpty) {
+      return Map(entries -- deletedMappings)
+    } else {
+      return this
+    }
+  }
+
+  @pure def remove(key: K, value: V): Map[K, V] = {
+    return Map(entries - ((key, value)))
+  }
+
+  @pure def contains(key: K): B = {
+    return indexOf(key) >= 0
+  }
+
+  @pure def size: Z = {
+    return entries.size
   }
 }

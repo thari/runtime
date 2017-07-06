@@ -71,10 +71,6 @@ final class _IS[I, V](val iTag: TT[I],
       case _ => false
     }
 
-  def ===(other: IS[I, V]): B = this == other
-
-  def =!=(other: IS[I, V]): B = this != other
-
   def size: Z = _Z(length)
 
   def nonEmpty: B = length > 0
@@ -121,6 +117,12 @@ final class _IS[I, V](val iTag: TT[I],
       newArray(length + i) = _Clonable.clone(other.array(i))
     }
     new _IS[I, V](iTag, len, newArray)
+  }
+
+  def -(value: V): IS[I, V] = {
+    implicit val it = iTag
+    val newArray = array.filterNot(_ == value)
+    new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): IS[I, V] = {
@@ -231,10 +233,6 @@ final class _MS[I, V](val iTag: TT[I],
       case _ => false
     }
 
-  def ===(other: MS[I, V]): B = this == other
-
-  def =!=(other: MS[I, V]): B = this != other
-
   def size: Z = _Z(length)
 
   def nonEmpty: B = length > 0
@@ -287,6 +285,12 @@ final class _MS[I, V](val iTag: TT[I],
     val newArray = _S.cloneValue(array, length, len, 0)
     System.arraycopy(other.array, 0, newArray, length, other.length)
     new _MS[I, V](iTag, len, newArray)
+  }
+
+  def -(value: V): MS[I, V] = {
+    implicit val it = iTag
+    val newArray = array.filterNot(_ == value)
+    new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): MS[I, V] = {
