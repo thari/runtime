@@ -280,11 +280,8 @@ final class _Z8(val value: Byte) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _Z8(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _Z8(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -306,11 +303,8 @@ final class _Z16(val value: Short) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _Z16(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _Z16(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -332,11 +326,8 @@ final class _Z32(val value: Int) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _Z32(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _Z32(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -358,11 +349,8 @@ final class _Z64(val value: Long) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _Z64(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _Z64(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -391,11 +379,8 @@ final class _S8(val value: Byte) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _S8(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _S8(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -424,11 +409,8 @@ final class _S16(val value: Short) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _S16(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _S16(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -457,11 +439,8 @@ final class _S32(val value: Int) extends AnyVal {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _S32(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _S32(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -490,11 +469,8 @@ final class _S64(val value: Long) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _S64(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _S64(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -516,11 +492,8 @@ final class _N8(val signed: Byte) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _N8(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _N8(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -542,11 +515,8 @@ final class _N16(val signed: Short) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _N16(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _N16(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -568,11 +538,8 @@ final class _N32(val signed: Int) extends AnyVal {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _N32(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _N32(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -594,11 +561,8 @@ final class _N64(val signed: Long) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _N64(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _N64(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -626,11 +590,8 @@ final class _U8(val signed: Byte) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _U8(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _U8(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -658,11 +619,8 @@ final class _U16(val signed: Short) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _U16(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _U16(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -690,11 +648,8 @@ final class _U32(val signed: Int) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _U32(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _U32(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -721,11 +676,8 @@ final class _U64(val signed: Long) extends AnyVal with _Rich {
   def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
   def >=(other: T): B = value >= other.value
-  def ===(other: T): B = value == other.value
-  def =!=(other: T): B = value != other.value
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
+  def until(hi: T): _Range[T] = new _Range(this, i => i < hi, (n, m) => n + m, _U64(1))
+  def to(hi: T): _Range[T] = new _Range(this, i => i <= hi, (n, m) => n + m, _U64(1))
   override def toString: Predef.String = value.toString
 }
 
@@ -744,7 +696,9 @@ final class _F32(val value: Float) extends AnyVal with _Rich {
   def /(other: T): T = toF32(value / other.value)
   def %(other: T): T = toF32(value % other.value)
   def <(other: T): B = value < other.value
+  def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
+  def >=(other: T): B = value >= other.value
   override def toString: Predef.String = value.toString
 }
 
@@ -763,7 +717,9 @@ final class _F64(val value: Double) extends AnyVal with _Rich {
   def /(other: T): T = toF64(value / other.value)
   def %(other: T): T = toF64(value % other.value)
   def <(other: T): B = value < other.value
+  def <=(other: T): B = value <= other.value
   def >(other: T): B = value > other.value
+  def >=(other: T): B = value >= other.value
   override def toString: Predef.String = value.toString
 }
 
@@ -785,10 +741,5 @@ final class _R(val value: Real) extends AnyVal with _Rich {
   def >(other: T): B = value.compare(other.value) > 0
   def <=(other: T): B = value.compare(other.value) <= 0
   def >=(other: T): B = value.compare(other.value) >= 0
-  def ===(other: T): B = value.compare(other.value) == 0
-  def =!=(other: T): B = value.compare(other.value) != 0
-  def ≤(other: T): B = this <= other
-  def ≥(other: T): B = this >= other
-  def ≠(other: T): B = this =!= other
   override def toString: Predef.String = value.toString
 }

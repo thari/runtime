@@ -106,8 +106,8 @@ class NTest extends SireumRuntimeSpec {
         * (if (ir >= 0) nr == math._N(ir) else true, s"$n1 $op $n2 ($nr != $ir)")
       }
 
-    val eq = ("==", (n1: N, n2: N) => n1 === n2, (i1: I, i2: I) => i1 == i2)
-    val ne = ("!=", (n1: N, n2: N) => n1 =!= n2, (i1: I, i2: I) => i1 != i2)
+    val eq = ("==", (n1: N, n2: N) => _2B(n1 == n2), (i1: I, i2: I) => i1 == i2)
+    val ne = ("!=", (n1: N, n2: N) => _2B(n1 != n2), (i1: I, i2: I) => i1 != i2)
     val gt = (">", (n1: N, n2: N) => n1 > n2, (i1: I, i2: I) => i1 > i2)
     val ge = (">=", (n1: N, n2: N) => n1 >= n2, (i1: I, i2: I) => i1 >= i2)
     val lt = ("<", (n1: N, n2: N) => n1 < n2, (i1: I, i2: I) => i1 < i2)

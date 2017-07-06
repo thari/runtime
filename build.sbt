@@ -8,7 +8,7 @@ val silencerVersion = "0.5"
 
 val runtimeVersion = "3.0.1-1-SNAPSHOT"
 
-val sireumScalacVersion = "3.0.0-7"
+val sireumScalacVersion = "3.0.0-8"
 
 scalaVersion in ThisBuild := scalaVer
 

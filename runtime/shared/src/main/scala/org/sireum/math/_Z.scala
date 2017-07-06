@@ -26,6 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
+import org.sireum._Range
 
 object _Z {
   final private[sireum] val intMin = BigInt(Int.MinValue)
@@ -81,9 +82,9 @@ sealed trait _Z extends Comparable[_Z] {
 
   def <=(other: Z): B
 
-  def ===(other: Z): B = this == other
+  final def until(hi: Z): _Range[Z] = new _Range(this, i => i < hi, (n, m) => n + m, 1)
 
-  def =!=(other: Z): B = this != other
+  final def to(hi: Z): _Range[Z] = new _Range(this, i => i <= hi, (n, m) => n + m, 1)
 
   final def +(other: Int): Z = this + _Z(other)
 

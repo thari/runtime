@@ -32,14 +32,5 @@ final class _B(val value: Boolean) extends AnyVal {
   def |^(other: T): T = value ^ other.value
   def unary_! : T = !value
   def unary_~ : T = !value
-  def unary_¬ : T = !value
-  def ===(other: T): T = value == other.value
-  def =!=(other: T): T = value != other.value
-  def ^(other: T): T = this & other
-  def ∧(other: T): T = this & other
-  def V(other: T): T = this | other
-  def ∨(other: T): T = this | other
-  def ⊻(other: T): T = this |^ other
-  def →(other: T): T = !this | other
   override def toString: Predef.String = value.toString
 }

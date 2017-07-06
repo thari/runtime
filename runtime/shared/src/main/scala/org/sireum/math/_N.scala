@@ -26,6 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
+import org.sireum._Range
 
 object _N {
 
@@ -80,9 +81,9 @@ final class _N(val value: Z) extends AnyVal {
 
   def <=(other: N): B = value <= other.value
 
-  def ===(other: N): B = value == other.value
+  def until(hi: N): _Range[N] = new _Range(this, i => i < hi, (n, m) => n + m, _N.one)
 
-  def =!=(other: N): B = value != other.value
+  def to(hi: N): _Range[N] = new _Range(this, i => i <= hi, (n, m) => n + m, _N.one)
 
   override def toString: Predef.String = value.toString
 }

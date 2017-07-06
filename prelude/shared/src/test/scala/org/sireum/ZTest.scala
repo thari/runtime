@@ -108,8 +108,8 @@ class ZTest extends SireumRuntimeSpec {
         *(zr == ir: @silent, s"$z1 $op $z2 ($zr != $ir)")
       }
 
-    val eq = ("==", (z1: Z, z2: Z) => z1 === z2, (i1: I, i2: I) => i1 == i2)
-    val ne = ("!=", (z1: Z, z2: Z) => z1 =!= z2, (i1: I, i2: I) => i1 != i2)
+    val eq = ("==", (z1: Z, z2: Z) => _2B(z1 == z2), (i1: I, i2: I) => i1 == i2)
+    val ne = ("!=", (z1: Z, z2: Z) => _2B(z1 != z2), (i1: I, i2: I) => i1 != i2)
     val gt = (">", (z1: Z, z2: Z) => z1 > z2, (i1: I, i2: I) => i1 > i2)
     val ge = (">=", (z1: Z, z2: Z) => z1 >= z2, (i1: I, i2: I) => i1 >= i2)
     val lt = ("<", (z1: Z, z2: Z) => z1 < z2, (i1: I, i2: I) => i1 < i2)
