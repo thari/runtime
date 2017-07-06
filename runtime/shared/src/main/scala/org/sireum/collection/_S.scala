@@ -121,19 +121,19 @@ final class _IS[I, V](val iTag: TT[I],
 
   def -(value: V): IS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(_ == value)
+    val newArray = array.filterNot(v => v == null || v == value)
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(other.elements.contains)
+    val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): IS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(other.elements.contains)
+    val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
@@ -289,19 +289,19 @@ final class _MS[I, V](val iTag: TT[I],
 
   def -(value: V): MS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(_ == value)
+    val newArray = array.filterNot(v => v == null || v == value)
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(other.elements.contains)
+    val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): MS[I, V] = {
     implicit val it = iTag
-    val newArray = array.filterNot(other.elements.contains)
+    val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
