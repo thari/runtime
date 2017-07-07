@@ -26,26 +26,21 @@
 package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
-import org.sireum._
 
-class MapTest extends SireumRuntimeSpec {
-  *(Map.empty[String, Z].size == z"0")
+class SetTest extends SireumRuntimeSpec {
+  *(Set.empty[String].size == z"0")
 
-  *(Map.empty[String, Z].get("a") == None())
+  *(!Set.empty[String].contains("a"))
 
-  *(Map.empty[String, Z].put("a", 1).get("a") == Some(1))
+  *(Set.empty[String].add("a").contains("a"))
 
-  *(Map.empty[String, Z].put("a", 1).get("A") == None())
+  *(!Set.empty[String].add("a").contains("A"))
 
-  *(Map.empty[String, Z].put("a", 1).put("a", 2).get("a") == Some(2))
+  *(Set.empty[String].add("a").add("b").contains("a"))
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).get("a") == Some(1))
+  *(Set.empty[String].add("a").add("b").contains("b"))
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).get("b") == Some(2))
+  *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("a", 1) == Map[String, Z](ISZ(("b", 2))))
-
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("b", 2) == Map[String, Z](ISZ(("a", 1))))
-
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).removeAll(ISZ("a", "b")) == Map[String, Z](ISZ()))
+  *(Set.empty[String].addAll(ISZ("a","b")).isEqual(Set.empty[String].add("b").add("a")))
 }
