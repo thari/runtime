@@ -153,7 +153,7 @@ final class _IS[I, V](val iTag: TT[I],
 
   def indices: Traversable[I] = {
     import _Type._
-    val sz = array.length
+    val sz = length
     (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
@@ -321,7 +321,7 @@ final class _MS[I, V](val iTag: TT[I],
 
   def indices: Traversable[I] = {
     import _Type._
-    val sz = array.length
+    val sz = length
     (iTag.runtimeClass.toString match {
       case `zType` => (0 until sz).map(n => Z32_Ext.toZ(math.Numbers.toZ32(n)))
       case `z8Type` => (0 until sz).map(n => Z32_Ext.toZ8(math.Numbers.toZ32(n)))
