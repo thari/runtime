@@ -111,7 +111,13 @@ object Map {
       val kv = entries(i)
       val k = kv._1
       val v = kv._2
-      if (!eq2.keyEqual(k, otherK) | !eq.valueEqual(v, otherV) | !eq2.valueEqual(v, otherV)) {
+      if (!eq2.keyEqual(k, otherK)) {
+        return F
+      }
+      if (!eq.valueEqual(v, otherV)) {
+        return F
+      }
+      if (!eq2.valueEqual(v, otherV)) {
         return F
       }
     }
