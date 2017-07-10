@@ -42,11 +42,11 @@ object Map {
     }
   }
 
-  def empty[K, V]: Map[K, V] = {
+  @pure def empty[K, V]: Map[K, V] = {
     return emptyEq[K, V](DefaultEq())
   }
 
-  def emptyEq[K, V](eq: Eq[K, V]): Map[K, V] = {
+  @pure def emptyEq[K, V](eq: Eq[K, V]): Map[K, V] = {
     return Map[K, V](ISZ[(K, V)](), eq)
   }
 }

@@ -47,11 +47,11 @@ object Set {
     }
   }
 
-  def empty[T]: Set[T] = {
+  @pure def empty[T]: Set[T] = {
     return emptyEq[T](DefaultEq())
   }
 
-  def emptyEq[T](eq: Eq[T]): Set[T] = {
+  @pure def emptyEq[T](eq: Eq[T]): Set[T] = {
     return Set(Map.emptyEq[T, B](MapEq(eq)))
   }
 }
