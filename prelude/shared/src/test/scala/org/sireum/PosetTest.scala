@@ -27,7 +27,7 @@ package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
 
-class LatticeTest extends SireumRuntimeSpec {
+class PosetTest extends SireumRuntimeSpec {
   /*
         A   H     I
        / \  | \  / \
@@ -40,8 +40,8 @@ class LatticeTest extends SireumRuntimeSpec {
             \/   M
              L
    */
-  val lattice: Lattice[String] = {
-    Lattice.empty[String].
+  val poset: Poset[String] = {
+    Poset.empty[String].
       addChildren("A", ISZ[String]("B", "C")).
       addChildren("B", ISZ[String]("D", "E")).
       addChildren("C", ISZ[String]("E", "F")).
@@ -57,37 +57,37 @@ class LatticeTest extends SireumRuntimeSpec {
       addChildren("N", ISZ[String]("M"))
   }
 
-  *(lattice.isParentOf("B", "A"))
+  *(poset.isParentOf("B", "A"))
 
-  *(lattice.isChildOf("A", "C"))
+  *(poset.isChildOf("A", "C"))
 
-  *(lattice.parentsOf("F") == Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
+  *(poset.parentsOf("F") == Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
 
-  *(lattice.ancestorsOf("J") == Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
+  *(poset.ancestorsOf("J") == Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
 
-  *(lattice.ancestorsOf("F") == Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
+  *(poset.ancestorsOf("F") == Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
 
-  *(lattice.ancestorsOf("L") == Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
+  *(poset.ancestorsOf("L") == Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
-  *(lattice.lub(ISZ[String]("A", "A")) == Some[String]("A"))
+  *(poset.lub(ISZ[String]("A", "A")) == Some[String]("A"))
 
-  *(lattice.lub(ISZ[String]("A", "H")) == None[String]())
+  *(poset.lub(ISZ[String]("A", "H")) == None[String]())
 
-  *(lattice.lub(ISZ[String]("D", "E", "F")) == Some[String]("A"))
+  *(poset.lub(ISZ[String]("D", "E", "F")) == Some[String]("A"))
 
-  *(lattice.lub(ISZ[String]("F", "J", "K")) == Some[String]("G"))
+  *(poset.lub(ISZ[String]("F", "J", "K")) == Some[String]("G"))
 
-  *(lattice.glb(ISZ[String]("A", "A")) == Some[String]("A"))
+  *(poset.glb(ISZ[String]("A", "A")) == Some[String]("A"))
 
-  *(lattice.glb(ISZ[String]("D", "E")) == None[String]())
+  *(poset.glb(ISZ[String]("D", "E")) == None[String]())
 
-  *(lattice.glb(ISZ[String]("A", "I")) == None[String]())
+  *(poset.glb(ISZ[String]("A", "I")) == None[String]())
 
-  *(lattice.glb(ISZ[String]("B", "C")) == Some[String]("E"))
+  *(poset.glb(ISZ[String]("B", "C")) == Some[String]("E"))
 
-  *(lattice.glb(ISZ[String]("A", "B", "C")) == Some[String]("E"))
+  *(poset.glb(ISZ[String]("A", "B", "C")) == Some[String]("E"))
 
-  *(lattice.glb(ISZ[String]("B", "C", "G")) == Some[String]("L"))
+  *(poset.glb(ISZ[String]("B", "C", "G")) == Some[String]("L"))
 
-  *(lattice.glb(ISZ[String]("H", "I", "N")) == Some[String]("M"))
+  *(poset.glb(ISZ[String]("H", "I", "N")) == Some[String]("M"))
 }

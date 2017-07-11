@@ -26,18 +26,18 @@
 
 package org.sireum
 
-object Lattice {
+object Poset {
 
-  @pure def empty[T]: Lattice[T] = {
-    return Lattice[T](Map.empty, Map.empty)
+  @pure def empty[T]: Poset[T] = {
+    return Poset[T](Map.empty, Map.empty)
   }
 }
 
-@datatype class Lattice[T](parents: Map[T, Set[T]],
-                           children: Map[T, Set[T]]) {
+@datatype class Poset[T](parents: Map[T, Set[T]],
+                         children: Map[T, Set[T]]) {
   val emptySet: Set[T] = Set.empty
 
-  @pure def isEqual(other: Lattice[T]): B = {
+  @pure def isEqual(other: Poset[T]): B = {
     if (!parents.isEqual(other.parents)) {
       return F
     }
@@ -47,15 +47,15 @@ object Lattice {
     return T
   }
 
-  @pure def addNode(n: T): Lattice[T] = {
+  @pure def addNode(n: T): Poset[T] = {
     parents.get(n) match {
       case Some(_) => return this
       case _ =>
-        return Lattice(parents.put(n, emptySet), children.put(n, emptySet))
+        return Poset(parents.put(n, emptySet), children.put(n, emptySet))
     }
   }
 
-  @pure def addParents(n: T, ns: ISZ[T]): Lattice[T] = {
+  @pure def addParents(n: T, ns: ISZ[T]): Poset[T] = {
     val newParents: Map[T, Set[T]] = parents.get(n) match {
       case Some(s) => parents.put(n, s.addAll(ns))
       case _ => parents.put(n, emptySet.addAll(ns))
@@ -67,10 +67,10 @@ object Lattice {
         case _ => newChildren.put(c, emptySet.add(n))
       }
     }
-    return Lattice(newParents, newChildren)
+    return Poset(newParents, newChildren)
   }
 
-  @pure def addChildren(n: T, ns: ISZ[T]): Lattice[T] = {
+  @pure def addChildren(n: T, ns: ISZ[T]): Poset[T] = {
     val newChildren: Map[T, Set[T]] = children.get(n) match {
       case Some(s) => children.put(n, s.addAll(ns))
       case _ => children.put(n, emptySet.addAll(ns))
@@ -82,7 +82,7 @@ object Lattice {
         case _ => newParents.put(c, emptySet.add(n))
       }
     }
-    return Lattice(newParents, newChildren)
+    return Poset(newParents, newChildren)
   }
 
   @pure def childrenOf(n: T): Set[T] = {
