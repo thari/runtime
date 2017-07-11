@@ -29,28 +29,13 @@ package org.sireum
 object Lattice {
 
   @pure def empty[T]: Lattice[T] = {
-    return emptyEq(Set.DefaultEq[T]())
-  }
-
-  @pure def emptyEq[T](eq: Set.Eq[T]): Lattice[T] = {
-    return Lattice[T](Map.emptyEq(DefaultEq[T](eq)), Map.emptyEq(DefaultEq[T](eq)), eq)
-  }
-
-  @datatype class DefaultEq[T](eq: Set.Eq[T]) extends Map.Eq[T, Set[T]] {
-    @pure def keyEqual(k1: T, k2: T): B = {
-      return eq.elementEqual(k1, k2)
-    }
-
-    @pure def valueEqual(v1: Set[T], v2: Set[T]): B = {
-      return v1.isEqual(v2)
-    }
+    return Lattice[T](Map.empty, Map.empty)
   }
 }
 
 @datatype class Lattice[T](parents: Map[T, Set[T]],
-                           children: Map[T, Set[T]],
-                           @hidden eq: Set.Eq[T]) {
-  val emptySet: Set[T] = Set.emptyEq(eq)
+                           children: Map[T, Set[T]]) {
+  val emptySet: Set[T] = Set.empty
 
   @pure def isEqual(other: Lattice[T]): B = {
     if (!parents.isEqual(other.parents)) {
@@ -66,7 +51,7 @@ object Lattice {
     parents.get(n) match {
       case Some(_) => return this
       case _ =>
-        return Lattice(parents.put(n, emptySet), children.put(n, emptySet), eq)
+        return Lattice(parents.put(n, emptySet), children.put(n, emptySet))
     }
   }
 
@@ -82,7 +67,7 @@ object Lattice {
         case _ => newChildren.put(c, emptySet.add(n))
       }
     }
-    return Lattice(newParents, newChildren, eq)
+    return Lattice(newParents, newChildren)
   }
 
   @pure def addChildren(n: T, ns: ISZ[T]): Lattice[T] = {
@@ -97,7 +82,7 @@ object Lattice {
         case _ => newParents.put(c, emptySet.add(n))
       }
     }
-    return Lattice(newParents, newChildren, eq)
+    return Lattice(newParents, newChildren)
   }
 
   @pure def childrenOf(n: T): Set[T] = {
@@ -120,5 +105,112 @@ object Lattice {
 
   @pure def isParentOf(n: T, m: T): B = {
     return parentsOf(n).contains(m)
+  }
+
+  @pure def ancestorsOf(n: T): Set[T] = {
+    return ancestorsCache(n, Map.empty)._1
+  }
+
+  @pure def ancestorsCache(n: T, acc: Map[T, Set[T]]): (Set[T], Map[T, Set[T]]) = {
+    var mAcc = acc
+    var r = emptySet
+    for (nParent <- parentsOf(n).elements) {
+      mAcc = ancestorsRec(nParent, mAcc)
+      r = r.add(nParent).union(mAcc.get(nParent).getOrElse(emptySet))
+    }
+    return (r, mAcc)
+  }
+
+  @pure def ancestorsRec(m: T, acc: Map[T, Set[T]]): Map[T, Set[T]] = {
+    if (acc.contains(m)) {
+      return acc
+    }
+    val p = ancestorsCache(m, acc.put(m, emptySet))
+    val mAncestors = p._1
+    val mAcc = p._2
+    return mAcc.put(m, mAncestors)
+  }
+
+  @pure def lub(ns: ISZ[T]): Option[T] = {
+    if (ns.isEmpty) {
+      return None()
+    }
+    val p0 = ancestorsCache(ns(0), Map.empty)
+    var commons = p0._1.add(ns(0))
+    var acc = p0._2
+    for (i <- 1 until ns.size) {
+      val p = ancestorsCache(ns(i), acc)
+      acc = p._2
+      commons = commons.intersect(p._1.add(ns(i)))
+    }
+    if (commons.isEmpty) {
+      return None()
+    }
+    for (b1 <- commons.elements) {
+      for (b2 <- commons.elements if b1 != b2) {
+        if (ancestorsCache(b1, acc)._1.contains(b2)) {
+          commons = commons.remove(b2)
+        }
+      }
+    }
+    if (commons.size == 1) {
+      return Some(commons.elements(0))
+    } else {
+      return None()
+    }
+  }
+
+
+  @pure def descendantsOf(n: T): Set[T] = {
+    return descendantsCache(n, Map.empty)._1
+  }
+
+  @pure def descendantsCache(n: T, acc: Map[T, Set[T]]): (Set[T], Map[T, Set[T]]) = {
+    var mAcc = acc
+    var r = emptySet
+    for (nChild <- childrenOf(n).elements) {
+      mAcc = descendantsRec(nChild, mAcc)
+      r = r.add(nChild).union(mAcc.get(nChild).getOrElse(emptySet))
+    }
+    return (r, mAcc)
+  }
+
+  @pure def descendantsRec(m: T, acc: Map[T, Set[T]]): Map[T, Set[T]] = {
+    if (acc.contains(m)) {
+      return acc
+    }
+    val p = descendantsCache(m, acc.put(m, emptySet))
+    val mDescendants = p._1
+    val mAcc = p._2
+    return mAcc.put(m, mDescendants)
+  }
+
+  @pure def glb(ns: ISZ[T]): Option[T] = {
+    if (ns.isEmpty) {
+      return None()
+    }
+    val p0 = descendantsCache(ns(0), Map.empty)
+    var commons = p0._1.add(ns(0))
+    var acc = p0._2
+    for (i <- 1 until ns.size) {
+      val p = descendantsCache(ns(i), acc)
+      acc = p._2
+      commons = commons.intersect(p._1.add(ns(i)))
+    }
+    if (commons.isEmpty) {
+      return None()
+    }
+    for (b1 <- commons.elements) {
+      for (b2 <- commons.elements if b1 != b2) {
+        if (descendantsCache(b1, acc)._1.contains(b2)) {
+          commons = commons.remove(b2)
+        }
+      }
+    }
+    if (commons.size == 1) {
+      return Some(commons.elements(0))
+    } else {
+      return None()
+    }
   }
 }

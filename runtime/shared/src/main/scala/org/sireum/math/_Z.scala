@@ -132,7 +132,7 @@ sealed trait _Z extends Comparable[_Z] {
 
   private[sireum] def toShort: Short
 
-  private[sireum] def toInt: Int
+  def toInt: Int
 
   private[sireum] def toLong: Long
 
@@ -232,7 +232,7 @@ private[sireum] final case class _ZLong(value: Long) extends _Z {
 
   private[sireum] override def toShort: Short = value.toShort
 
-  private[sireum] override def toInt: Int = value.toInt
+  override def toInt: Int = value.toInt
 
   private[sireum] override def toLong: Long = value.toLong
 
@@ -318,7 +318,7 @@ private[sireum] final case class _ZBigInt(value: BigInt) extends _Z {
 
   private[sireum] override def toShort: Short = value.toShort
 
-  private[sireum] override def toInt: Int = value.toInt
+  override def toInt: Int = value.toInt
 
   private[sireum] override def toLong: Long = value.toLong
 

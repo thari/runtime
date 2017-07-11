@@ -27,32 +27,8 @@
 package org.sireum
 
 object Set {
-  @sig trait Eq[T]{
-    @pure def elementEqual(e1: T, e2: T): B
-  }
-
-  @datatype class DefaultEq[T] extends Eq[T] {
-    @pure def elementEqual(e1: T, e2: T): B = {
-      return e1 == e2
-    }
-  }
-
-  @datatype class MapEq[T](eq: Eq[T]) extends Map.Eq[T, B] {
-    @pure def keyEqual(k1: T, k2: T): B = {
-      return eq.elementEqual(k1, k2)
-    }
-
-    @pure def valueEqual(v1: B, v2: B): B = {
-      return v1.value == v2.value
-    }
-  }
-
   @pure def empty[T]: Set[T] = {
-    return emptyEq[T](DefaultEq())
-  }
-
-  @pure def emptyEq[T](eq: Eq[T]): Set[T] = {
-    return Set(Map.emptyEq[T, B](MapEq(eq)))
+    return Set(Map.empty[T, B])
   }
 }
 
@@ -95,11 +71,11 @@ object Set {
   }
 
   @pure def intersect(other: Set[T]): Set[T] = {
-    var r = this
+    var r = Set.empty[T]
     for (p <- other.map.entries) {
       val e = p._1
-      if (!contains(e)) {
-        r = r.remove(e)
+      if (contains(e)) {
+        r = r.add(e)
       }
     }
     return r
@@ -127,5 +103,9 @@ object Set {
 
   @pure def size: Z = {
     return map.size
+  }
+
+  @pure def elements: ISZ[T] = {
+    return map.keys
   }
 }

@@ -43,9 +43,11 @@ class MapTest extends SireumRuntimeSpec {
 
   *(Map.empty[String, Z].put("a", 1).put("b", 2).get("b") == Some(2))
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("a", 1) == Map[String, Z](ISZ(("b", 2)), Map.DefaultEq[String, Z]()))
+  *(Map.empty[String, Z].put("a", 1).put("b", 2) == Map[String, Z](ISZ(("b", 2), ("a", 1))))
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("b", 2) == Map[String, Z](ISZ(("a", 1)), Map.DefaultEq[String, Z]()))
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("a", 1) == Map[String, Z](ISZ(("b", 2))))
 
-  *(Map.empty[String, Z].put("a", 1).put("b", 2).removeAll(ISZ("a", "b")) == Map[String, Z](ISZ(), Map.DefaultEq[String, Z]()))
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("b", 2) == Map[String, Z](ISZ(("a", 1))))
+
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).removeAll(ISZ("a", "b")) == Map[String, Z](ISZ()))
 }

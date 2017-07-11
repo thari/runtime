@@ -27,20 +27,67 @@ package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
 
-class SetTest extends SireumRuntimeSpec {
-  *(Set.empty[String].size == z"0")
+class LatticeTest extends SireumRuntimeSpec {
+  /*
+        A   H     I
+       / \  | \  / \
+      B   C |  G   /
+     / \ / \| / \ /
+    D   E   F    J
+         \      /   N
+          \    K   /
+           \  / \ /
+            \/   M
+             L
+   */
+  val lattice: Lattice[String] = {
+    Lattice.empty[String].
+      addChildren("A", ISZ[String]("B", "C")).
+      addChildren("B", ISZ[String]("D", "E")).
+      addChildren("C", ISZ[String]("E", "F")).
+      addNode("D").
+      addChildren("E", ISZ[String]("L")).
+      addNode("E").
+      addChildren("G", ISZ[String]("F", "J")).
+      addChildren("H", ISZ[String]("F", "G")).
+      addChildren("I", ISZ[String]("G", "J")).
+      addChildren("J", ISZ[String]("K")).
+      addChildren("K", ISZ[String]("L", "M")).
+      addNode("M").
+      addChildren("N", ISZ[String]("M"))
+  }
 
-  *(!Set.empty[String].contains("a"))
+  *(lattice.isParentOf("B", "A"))
 
-  *(Set.empty[String].add("a").contains("a"))
+  *(lattice.isChildOf("A", "C"))
 
-  *(!Set.empty[String].add("a").contains("A"))
+  *(lattice.parentsOf("F") == Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
 
-  *(Set.empty[String].add("a").add("b").contains("a"))
+  *(lattice.ancestorsOf("J") == Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
 
-  *(Set.empty[String].add("a").add("b").contains("b"))
+  *(lattice.ancestorsOf("F") == Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
 
-  *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *(lattice.ancestorsOf("L") == Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
-  *(Set.empty[String].addAll(ISZ("a","b")) == Set.empty[String].add("b").add("a"))
+  *(lattice.lub(ISZ[String]("A", "A")) == Some[String]("A"))
+
+  *(lattice.lub(ISZ[String]("A", "H")) == None[String]())
+
+  *(lattice.lub(ISZ[String]("D", "E", "F")) == Some[String]("A"))
+
+  *(lattice.lub(ISZ[String]("F", "J", "K")) == Some[String]("G"))
+
+  *(lattice.glb(ISZ[String]("A", "A")) == Some[String]("A"))
+
+  *(lattice.glb(ISZ[String]("D", "E")) == None[String]())
+
+  *(lattice.glb(ISZ[String]("A", "I")) == None[String]())
+
+  *(lattice.glb(ISZ[String]("B", "C")) == Some[String]("E"))
+
+  *(lattice.glb(ISZ[String]("A", "B", "C")) == Some[String]("E"))
+
+  *(lattice.glb(ISZ[String]("B", "C", "G")) == Some[String]("L"))
+
+  *(lattice.glb(ISZ[String]("H", "I", "N")) == Some[String]("M"))
 }

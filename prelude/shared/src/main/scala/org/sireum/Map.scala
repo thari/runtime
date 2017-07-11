@@ -27,39 +27,47 @@
 package org.sireum
 
 object Map {
-  @sig trait Eq[K, V] {
-    @pure def keyEqual(k1: K, k2: K): B
-    @pure def valueEqual(v1: V, v2: V): B
-  }
-
-  @datatype class DefaultEq[K, V] extends Eq[K, V] {
-    @pure def keyEqual(k1: K, k2: K): B = {
-      return k1 == k2
-    }
-
-    @pure def valueEqual(v1: V, v2: V): B = {
-      return v1 == v2
-    }
-  }
-
   @pure def empty[K, V]: Map[K, V] = {
-    return emptyEq[K, V](DefaultEq())
-  }
-
-  @pure def emptyEq[K, V](eq: Eq[K, V]): Map[K, V] = {
-    return Map[K, V](ISZ[(K, V)](), eq)
+    return Map[K, V](ISZ[(K, V)]())
   }
 }
 
-@datatype class Map[K, V](entries: ISZ[(K, V)],
-                          @hidden eq: Map.Eq[K, V]) {
+@datatype class Map[K, V](entries: ISZ[(K, V)]) {
+
+  @pure def hash: Z = {
+    return entries.size
+  }
+
+  @pure def keys: ISZ[K] = {
+    var r = ISZ[K]()
+    for (kv <- entries) {
+      r = r :+ kv._1
+    }
+    return r
+  }
+
+  @pure def values: ISZ[V] = {
+    var r = ISZ[V]()
+    for (kv <- entries) {
+      r = r :+ kv._2
+    }
+    return r
+  }
+
+  @pure def keySet: Set[K] = {
+    return Set.empty[K].addAll(keys)
+  }
+
+  @pure def valueSet: Set[V] = {
+    return Set.empty[V].addAll(values)
+  }
 
   @pure def put(key: K, value: V): Map[K, V] = {
     val index = indexOf(key)
     val newEntries: ISZ[(K, V)] =
       if (index < 0) entries :+ ((key, value))
       else entries((index, (key, value)))
-    return Map(newEntries, eq)
+    return Map(newEntries)
   }
 
   @pure def get(key: K): Option[V] = {
@@ -70,7 +78,7 @@ object Map {
   @pure def indexOf(key: K): Z = {
     var index = z"-1"
     for (i <- entries.indices if index == -1) {
-      if (eq.keyEqual(entries(i)._1, key)) {
+      if (entries(i)._1 == key) {
         index = i
       }
     }
@@ -86,21 +94,20 @@ object Map {
       }
     }
     if (deletedMappings.nonEmpty) {
-      return Map(entries -- deletedMappings, eq)
+      return Map(entries -- deletedMappings)
     } else {
       return this
     }
   }
 
   @pure def remove(key: K, value: V): Map[K, V] = {
-    return Map(entries - ((key, value)), eq)
+    return Map(entries - ((key, value)))
   }
 
   @pure def isEqual(other: Map[K, V]): B = {
     if (size != other.size) {
       return F
     }
-    val eq2 = other.eq
     for (otherKV <- other.entries) {
       val otherK = otherKV._1
       val otherV = otherKV._2
@@ -109,15 +116,8 @@ object Map {
         return F
       }
       val kv = entries(i)
-      val k = kv._1
       val v = kv._2
-      if (!eq2.keyEqual(k, otherK)) {
-        return F
-      }
-      if (!eq.valueEqual(v, otherV)) {
-        return F
-      }
-      if (!eq2.valueEqual(v, otherV)) {
+      if (v != otherV) {
         return F
       }
     }

@@ -42,5 +42,11 @@ class SetTest extends SireumRuntimeSpec {
 
   *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
 
-  *(Set.empty[String].addAll(ISZ("a","b")).isEqual(Set.empty[String].add("b").add("a")))
+  *(Set.empty[String].addAll(ISZ("a","b")) == Set.empty[String].add("b").add("a"))
+
+  *(Set.empty[String].union(Set.empty[String].add("A")) == Set.empty[String].add("A"))
+
+  *(Set.empty[String].intersect(Set.empty[String].add("A")) == Set.empty[String])
+
+  *(Set.empty[String].add("a").intersect(Set.empty[String].add("A")) == Set.empty[String])
 }

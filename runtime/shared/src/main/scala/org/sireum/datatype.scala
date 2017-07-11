@@ -30,6 +30,23 @@ import scala.meta._
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
 object datatype {
 
+  def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
+    var hasEquals = false
+    var hasHash = false
+    for (stat <- stats if !(hasEquals && hasHash)) {
+      stat match {
+        case q"@pure def hash: Z = $_" => hasHash = true
+        case q"@pure def isEqual($name : ${atpeopt: Option[Type.Arg]}): B = $_" =>
+          atpeopt match {
+            case Some(t: Type) if tpe.structure == t.structure => hasEquals = true
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+    (hasHash, hasEquals)
+  }
+
   def transformTrait(tree: Defn.Trait): Defn.Trait = {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
@@ -47,6 +64,7 @@ object datatype {
       Type.Name(tparamname.value)
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
+    val (hasHash, hasEquals) = hasHashEquals(tpe, stats)
     val clone = q"override def clone: $tpe = this"
     val ctorName = Ctor.Name(tname.value)
     if (paramss.nonEmpty && paramss.head.nonEmpty) {
@@ -78,18 +96,24 @@ object datatype {
         case _ => abort(param.pos, "Unsupported Slang @datatype parameter form.")
       }
       val cls = {
-        val hashCode = q"override lazy val hashCode: Int = { Seq(this.getClass, ..$unapplyArgs).hashCode }"
-        val equals = {
-          val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
-          val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
-          val eCases =
-            Vector(if (tparams.isEmpty) p"case o: $tname => if (this.hashCode != o.hashCode) false else $eCaseExp"
-            else p"case (o: $tname[..$tVars] @unchecked) => $eCaseExp",
-              p"case _ => false")
-          q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
-        }
-        val eq = q"def ===(other: $tpe): B = this == other"
-        val ne = q"def =!=(other: $tpe): B = this != other"
+        val hashCode =
+          if (hasHash) q"override lazy val hashCode: Int = hash.toInt"
+          else if (hasEquals) q"override lazy val hashCode: Int = 0"
+          else q"override lazy val hashCode: Int = { Seq(this.getClass, ..$unapplyArgs).hashCode }"
+        val equals =
+          if (hasEquals) {
+            val eCases = Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
+            else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)", p"case _ => false")
+            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+          } else {
+            val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
+            val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
+            val eCases =
+              Vector(if (tparams.isEmpty) p"case o: $tname => if (this.hashCode != o.hashCode) false else $eCaseExp"
+              else p"case (o: $tname[..$tVars] @unchecked) => if (this.hashCode != o.hashCode) false else $eCaseExp",
+                p"case _ => false")
+            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+          }
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
         val toString = {
           var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
@@ -105,7 +129,7 @@ object datatype {
                     sb.toString
                   }"""
         }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, eq, ne, clone, apply, toString) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -136,14 +160,24 @@ object datatype {
       Term.Block(Vector(cls, companion))
     } else {
       val cls = {
-        val hashCode = q"override val hashCode: Int = this.getClass.hashCode"
-        val equals = {
-          val eCases =
-            Vector(if (tparams.isEmpty) p"case o: $tname => true"
-            else p"case o: $tname[..$tVars] => true",
-              p"case _ => false")
-          q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
-        }
+        val hashCode =
+          if (hasHash) q"override val hashCode: Int = hash.toInt"
+          else if (hasEquals) q"override val hashCode: Int = 0"
+          else q"override val hashCode: Int = this.getClass.hashCode"
+        val equals =
+          if (hasEquals) {
+            val eCases =
+              Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
+              else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
+                p"case _ => false")
+            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+          } else {
+            val eCases =
+              Vector(if (tparams.isEmpty) p"case o: $tname => true"
+              else p"case (o: $tname[..$tVars] @unchecked) => true",
+                p"case _ => false")
+            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+          }
         val toString = {
           val r = tname.value + "()"
           q"""override def toString: java.lang.String = ${Lit.String(r)}"""

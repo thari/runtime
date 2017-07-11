@@ -149,6 +149,8 @@ final class _IS[I, V](val iTag: TT[I],
     new _IS[I, V](iTag, length, newArray)
   }
 
+  def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
+
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def indices: Traversable[I] = {
@@ -316,6 +318,8 @@ final class _MS[I, V](val iTag: TT[I],
     }
     new _MS[I, V](iTag, sz, newArray)
   }
+
+  def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
