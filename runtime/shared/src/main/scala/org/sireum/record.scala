@@ -99,8 +99,7 @@ object record {
       }
       val cls = {
         val clone = {
-          val cloneNew = q"val r = new $ctorName(..${applyArgs.map(arg => q"org.sireum._Clonable.clone($arg)")})"
-
+          val cloneNew = q"val r: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._Clonable.clone($arg)")})"
           q"override def clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
         }
         val hashCode =
@@ -175,10 +174,10 @@ object record {
       Term.Block(Vector(cls, companion))
     } else {
       val cls = {
-        val clone = {
-          val cloneNew = q"val r = new $ctorName()"
+        val clone = if (inVars.nonEmpty) {
+          val cloneNew = q"val r: $tpe = new $ctorName()"
           q"override def clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
-        }
+        } else q"override def clone: $tpe = this"
         val hashCode =
           if (hasHash) q"override val hashCode: Int = hash.toInt"
           else if (hasEqual) q"override val hashCode: Int = 0"

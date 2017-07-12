@@ -26,14 +26,14 @@
 
 package org.sireum
 
-@datatype trait Option[T] {
+@record trait MOption[T] {
   @pure def isEmpty: B
 
   @pure def nonEmpty: B
 
-  @pure def map[T2](f: T => T2): Option[T2]
+  @pure def map[T2](f: T => T2): MOption[T2]
 
-  @pure def flatMap[T2](f: T => Option[T2]): Option[T2]
+  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2]
 
   @pure def forall(f: T => B): B
 
@@ -44,7 +44,7 @@ package org.sireum
   def foreach(f: T => Unit): Unit
 }
 
-@datatype class None[T] extends Option[T] {
+@record class MNone[T] extends MOption[T] {
 
   @pure def isEmpty: B = {
     l""" ensures  result ≡ T """
@@ -57,14 +57,14 @@ package org.sireum
     return F
   }
 
-  @pure def map[T2](f: T => T2): Option[T2] = {
-    l""" ensures  result ≡ None[T2]() """
-    return None[T2]()
+  @pure def map[T2](f: T => T2): MOption[T2] = {
+    l""" ensures  result ≡ MNone[T2]() """
+    return MNone[T2]()
   }
 
-  @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
-    l""" ensures  result ≡ None[T2]() """
-    return None[T2]()
+  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2] = {
+    l""" ensures  result ≡ MNone[T2]() """
+    return MNone[T2]()
   }
 
   @pure def forall(f: T => B): B = {
@@ -86,7 +86,7 @@ package org.sireum
 }
 
 
-@datatype class Some[T](value: T) extends Option[T] {
+@record class MSome[T](value: T) extends MOption[T] {
 
   @pure def isEmpty: B = {
     l""" ensures  result ≡ F """
@@ -98,12 +98,12 @@ package org.sireum
     return T
   }
 
-  @pure def map[T2](f: T => T2): Option[T2] = {
+  @pure def map[T2](f: T => T2): MOption[T2] = {
     l""" ensures  result ≡ f(value) """
-    return Some(f(value))
+    return MSome(f(value))
   }
 
-  @pure def flatMap[T2](f: T => Option[T2]): Option[T2] = {
+  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2] = {
     l""" ensures  result ≡ f(value) """
     return f(value)
   }
