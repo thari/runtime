@@ -79,6 +79,8 @@ final class _IS[I, V](val iTag: TT[I],
 
   def elements: scala.collection.Seq[V] = array.asInstanceOf[Array[V]].toSeq.slice(0, length)
 
+  def reverse: scala.collection.Seq[V] = elements.reverse
+
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
     require(0 <= i && i < length)
@@ -153,7 +155,7 @@ final class _IS[I, V](val iTag: TT[I],
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
-  def indices: Traversable[I] = {
+  def indices: scala.collection.Seq[I] = {
     import _Type._
     val sz = length
     (iTag.runtimeClass.toString match {
@@ -175,7 +177,7 @@ final class _IS[I, V](val iTag: TT[I],
       case `u16Type` => (0 until sz).map(n => Z32_Ext.toU16(math.Numbers.toZ32(n)))
       case `u32Type` => (0 until sz).map(n => Z32_Ext.toU32(math.Numbers.toZ32(n)))
       case `u64Type` => (0 until sz).map(n => Z32_Ext.toU64(math.Numbers.toZ32(n)))
-    }).asInstanceOf[Traversable[I]]
+    }).asInstanceOf[scala.collection.Seq[I]]
   }
 
   override def clone: IS[I, V] = this
@@ -242,6 +244,8 @@ final class _MS[I, V](val iTag: TT[I],
   def isEmpty: B = length == 0
 
   def elements: scala.collection.Seq[V] = array.asInstanceOf[Array[V]].toSeq.slice(0, length)
+
+  def reverse: scala.collection.Seq[V] = elements.reverse
 
   def apply[T: TT](index: T): V = {
     val i = ln2int(index)
@@ -323,7 +327,7 @@ final class _MS[I, V](val iTag: TT[I],
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
-  def indices: Traversable[I] = {
+  def indices: scala.collection.Seq[I] = {
     import _Type._
     val sz = length
     (iTag.runtimeClass.toString match {
@@ -345,7 +349,7 @@ final class _MS[I, V](val iTag: TT[I],
       case `u16Type` => (0 until sz).map(n => Z32_Ext.toU16(math.Numbers.toZ32(n)))
       case `u32Type` => (0 until sz).map(n => Z32_Ext.toU32(math.Numbers.toZ32(n)))
       case `u64Type` => (0 until sz).map(n => Z32_Ext.toU64(math.Numbers.toZ32(n)))
-    }).asInstanceOf[Traversable[I]]
+    }).asInstanceOf[scala.collection.Seq[I]]
   }
 
   override def clone: MS[I, V] = {
