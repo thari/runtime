@@ -1016,6 +1016,18 @@ object SI_Ext {
     collection._IS(result: _*)
   }
 
+  @pure def dropRight[I, E](s: IS[I, E], size: I): IS[I, E] = {
+    implicit val it = s.iTag
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    val result = ArrayBuffer[E]()
+    for (i <- 0 until (sSizeInt - sizeInt)) {
+      result += s(i)
+    }
+    collection._IS(result: _*)
+  }
+
   @pure def foldLeft[I, E, R](s: IS[I, E], f: (R, E) => R, init: R): R = {
     var r = init
     for (e <- s.elements) r = f(r, e)
@@ -1164,6 +1176,18 @@ object SM_Ext {
     require(sSizeInt >= sizeInt)
     val result = ArrayBuffer[E]()
     for (i <- sizeInt until sSizeInt) {
+      result += s(i)
+    }
+    collection._MS(result: _*)
+  }
+
+  @pure def dropRight[I, E](s: MS[I, E], size: I): MS[I, E] = {
+    implicit val it = s.iTag
+    val sizeInt = ln2int(size)
+    val sSizeInt = ln2int(s.size)
+    require(sSizeInt >= sizeInt)
+    val result = ArrayBuffer[E]()
+    for (i <- 0 until (sSizeInt - sizeInt)) {
       result += s(i)
     }
     collection._MS(result: _*)

@@ -2237,6 +2237,11 @@ package org.sireum
          ensures  result.size ≡ s.size - size
                   ∀i: [0, s.size - size)  result(i) ≡ s(size + i) """
 
+  @pure def dropRight[I, E](s: IS[I, E], size: I): IS[I, E] =
+    l""" requires s.size ≥ size
+         ensures  result.size ≡ s.size - size
+                  ∀i: [0, s.size - size)  result(i) ≡ s(i) """
+
   @spec def foldLeftSpec[I, E, R](s: IS[I, E], f: (R, E) => R, init: R, i: I): R =
     l""" = base:  init,                                      if i ≡ 0
          = rec:   f(foldLeftSpec(s, f, init, i - 1), s(i)),  if 0 < i ∧ i < s.size """
@@ -2459,6 +2464,11 @@ package org.sireum
     l""" requires s.size ≥ size
           ensures result.size ≡ s.size - size
                   ∀i: [0, s.size - size)  result(i) ≡ s(size + i) """
+
+  @pure def dropRight[I, E](s: MS[I, E], size: I): MS[I, E] =
+    l""" requires s.size ≥ size
+         ensures  result.size ≡ s.size - size
+                  ∀i: [0, s.size - size)  result(i) ≡ s(i) """
 
   @spec def foldLeftSpec[I, E, R](s: MS[I, E], f: (R, E) => R, init: R, i: I): R =
     l""" = base:  init,                                      if i ≡ 0
