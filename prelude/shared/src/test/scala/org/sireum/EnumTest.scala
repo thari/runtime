@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import com.github.ghik.silencer.silent
 import org.sireum.test.SireumRuntimeSpec
 
 @enum object Day {
@@ -41,6 +42,6 @@ class EnumTest extends SireumRuntimeSpec {
   def isMonday(day: Day.Type): Boolean = day == Day.Monday
 
   * {
-    !(Day.Monday == Day.Tuesday)
+    !(Day.Monday == Day.Tuesday: @silent)
   }
 }

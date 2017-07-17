@@ -33,13 +33,50 @@ class enum extends scala.annotation.StaticAnnotation {
       case q"..$mods object $name extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" =>
         if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
           abort(s"Invalid @enum form on an object; it has to be of the form '@enum object ${name.value} { ... }'.")
-        var elements = Vector[Stat]()
-        for (stat <- stats) stat match {
-          case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) =>
-            elements :+= q"val ${Pat.Var.Term(Term.Name(sym))}: Type = Value(${Lit.String(sym): Term.Arg})"
-          case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.syntax}")
+        var decls = Vector[Stat](
+          q"""sealed trait Value extends Ordered[Value] {
+                def ordinal: org.sireum.Z
+
+                def name: org.sireum.String
+
+                final def hash: org.sireum.Z = org.sireum._Z(hashCode)
+
+                final def isEqual(other: Value): org.sireum.B = org.sireum._2B(this == other)
+
+                final def compare(that: Value): Int = this.ordinal.compareTo(that.ordinal)
+              }
+           """,
+          q"""final def byName(name: org.sireum.String): org.sireum.Option[Value] =
+                elements.elements.find(_.name == name) match {
+                  case scala.Some(v) => org.sireum.Some(v)
+                  case _ => org.sireum.None()
+              }
+           """,
+          q"""final def byOrdinal(n: org.sireum.Z): org.sireum.Option[Value] =
+                if (org.sireum.math._Z.zero <= n && n < elements.size) org.sireum.Some(elements(n.toInt)) else org.sireum.None()
+           """
+        )
+        var elements = Vector[Term.Name]()
+        var i = 0
+        for (stat <- stats) {
+          stat match {
+            case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) =>
+              val tname = Term.Name(sym)
+              val ostats = Vector(
+                q"def ordinal: org.sireum.Z = org.sireum._Z(${Lit.Int(i)})",
+                q"def name: org.sireum.String = org.sireum._2String(${Lit.String(sym)})"
+              )
+              decls :+= q"final case object $tname extends Value { ..$ostats }"
+              elements :+= tname
+            case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.syntax}")
+          }
+          i += 1
         }
-        q"object $name extends {} with org.sireum._Enum { type Type = Value; ..$elements }"
+        decls ++= Vector(
+          q"val numOfElements: org.sireum.Z = org.sireum._Z(${Lit.Int(i)})",
+          q"val elements: org.sireum.ISZ[Value] = org.sireum.ISZ[Value](..$elements)"
+        )
+        q"object $name extends {} with org.sireum._Enum { type Type = Value; ..$decls }"
       case _ => abort("Slang @enum can only be used on an object.")
     }
     //println(result.syntax)
