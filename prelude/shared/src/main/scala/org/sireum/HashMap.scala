@@ -72,10 +72,9 @@ object HashMap {
   }
 
   @pure def put(key: K, value: V): HashMap[K, V] = {
-    var r = ensureCapacity()
+    val r = ensureCapacity()
     val i = hashIndex(key)
-    up(r.entries(i)) = r.entries(i).put(key, value)
-    return r
+    return r(entries = entries(i -> entries(i).put(key, value)), size = size + 1)
   }
 
   @pure def ensureCapacity(): HashMap[K, V] = {
@@ -116,9 +115,7 @@ object HashMap {
 
   @pure def remove(key: K, value: V): HashMap[K, V] = {
     val i = hashIndex(key)
-    var r = this
-    up(r.entries(i)) = r.entries(i).remove(key, value)
-    return r
+    return this(entries = entries(i -> entries(i).remove(key, value)), size = size - 1)
   }
 
   @pure def isEqual(other: HashMap[K, V]): B = {
