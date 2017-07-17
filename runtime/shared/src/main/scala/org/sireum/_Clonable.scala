@@ -25,11 +25,31 @@
 
 package org.sireum
 
+import scala.meta._
+
 trait _Clonable {
+  def hash: Z
   override def clone: java.lang.Object = this
 }
 
 object _Clonable {
+  def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
+    var hasEquals = false
+    var hasHash = false
+    for (stat <- stats if !(hasEquals && hasHash)) {
+      stat match {
+        case q"@pure def hash: Z = $_" => hasHash = true
+        case q"@pure def isEqual($name : ${atpeopt: Option[Type.Arg]}): B = $_" =>
+          atpeopt match {
+            case Some(t: Type) if tpe.structure == t.structure => hasEquals = true
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+    (hasHash, hasEquals)
+  }
+
   def clone[T](o: T): T = o match {
     case o: IS[_, _] => o.clone.asInstanceOf[T]
     case o: MS[_, _] => o.clone.asInstanceOf[T]

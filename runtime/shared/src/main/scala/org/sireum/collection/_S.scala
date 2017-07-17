@@ -71,6 +71,10 @@ final class _IS[I, V](val iTag: TT[I],
       case _ => false
     }
 
+  def hash: Z = hashCode
+
+  def isEqual(other: IS[I, V]): B = this == other
+
   def size: Z = _Z(length)
 
   def nonEmpty: B = length > 0
@@ -236,6 +240,10 @@ final class _MS[I, V](val iTag: TT[I],
       case o: _MS[_, _] => elements == o.elements
       case _ => false
     }
+
+  def hash: Z = hashCode
+
+  def isEqual(other: MS[I, V]): B = this == other
 
   def size: Z = _Z(length)
 

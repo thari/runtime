@@ -25,28 +25,39 @@
 
 package org.sireum
 
-trait _Enum {
-  final case class Value(ordinal: Z, name: String) {
+trait _Enum extends Enumeration {
+
+  sealed trait Value extends Ordered[Value] {
+    def ordinal: Z
+
+    def name: String
+
     def hash: Z = hashCode
+
     def isEqual(other: Value): B = this == other
+  }
+
+  private case class Val(ordinal: Z, name: String) extends Value {
+    def compare(that: Value): Int = this.ordinal.compareTo(that.ordinal)
   }
 
   protected var numOfElements: Z = 0
   protected var elements: Vector[Value] = Vector()
 
   def Value(name: String): Value = {
-    val r = Value(numOfElements, name)
+    val r = Val(numOfElements, name)
     elements :+= r
     numOfElements += 1
     r
   }
 
-  def byName(name: String, default: Value): Value = {
-    val i = elements.find(_.name == name)
-    if (i < 0) default else elements(i)
-  }
+  def byName(name: String): Option[Value] =
+    elements.find(_.name == name) match {
+      case scala.Some(v) => Some(v)
+      case _ => None()
+    }
 
-  def byOrdinal(n: Z, default: Value): Value =
-    if (0 <= n && n < elements.length) elements(n) else default
+  def byOrdinal(n: Z): Option[Value] =
+    if (0 <= n && n < elements.length) Some(elements(n.toInt)) else None()
 
 }

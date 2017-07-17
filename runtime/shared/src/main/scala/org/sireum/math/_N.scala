@@ -85,5 +85,9 @@ final class _N(val value: Z) extends AnyVal {
 
   def to(hi: N): _Range[N] = new _Range(this, i => i <= hi, (n, m) => n + m, _N.one)
 
+  def hash: Z = hashCode
+
+  def isEqual(other: N): B = this == other
+
   override def toString: Predef.String = value.toString
 }

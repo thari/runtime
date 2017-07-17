@@ -419,7 +419,7 @@ object _S32 {
   def apply(value: Int): S32 = new _S32(value)
 }
 
-final class _S32(val value: Int) extends AnyVal {
+final class _S32(val value: Int) extends AnyVal with _Rich {
   private type T = S32
 
   def unary_- : T = toS32(-value)
@@ -525,7 +525,7 @@ object _N32 {
   def apply(value: Int): N32 = new _N32(value)
 }
 
-final class _N32(val signed: Int) extends AnyVal {
+final class _N32(val signed: Int) extends AnyVal with _Rich {
   private type T = N32
 
   private[sireum] def value: UInt = UInt(signed)

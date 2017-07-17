@@ -34,7 +34,22 @@ object record {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @record traits have to be of the form '@record trait <id> ... { ... }'.")
-    q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..$stats }"
+    val tVars = tparams.map { tp =>
+      val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
+      Type.Name(tparamname.value)
+    }
+    val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
+    val (hasHash, hasEqual) = _Clonable.hasHashEquals(tpe, stats)
+    val equals =
+      if (hasEqual) {
+        val eCases =
+          Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
+          else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
+            p"case _ => false")
+        List(q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }")
+      } else List()
+    val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+    q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -47,7 +62,7 @@ object record {
       Type.Name(tparamname.value)
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-    val (hasHash, hasEqual) = datatype.hasHashEquals(tpe, stats)
+    val (hasHash, hasEqual) = _Clonable.hasHashEquals(tpe, stats)
     val ctorName = Ctor.Name(tname.value)
     var inVars = Vector[Term.Assign]()
     for (stat <- stats) stat match {
@@ -128,6 +143,8 @@ object record {
                 p"case _ => false")
             q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
           }
+        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: $tpe): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._macro._assign($arg)")})"
         val toString = {
           var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
@@ -143,7 +160,7 @@ object record {
                     sb.toString
                   }"""
         }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Record with ..$ctorcalls { ..${vars ++ Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Record with ..$ctorcalls { ..${vars ++ hash ++ isEqual ++ Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -196,11 +213,13 @@ object record {
                 p"case _ => false")
             q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
           }
+        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: $tpe): B = this == other")
         val toString = {
           val r = tname.value + "()"
           q"""override def toString: java.lang.String = ${Lit.String(r)}"""
         }
-        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Record with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Record with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, clone, toString) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

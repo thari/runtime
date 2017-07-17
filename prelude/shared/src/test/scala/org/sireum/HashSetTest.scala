@@ -27,26 +27,26 @@ package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
 
-class SetTest extends SireumRuntimeSpec {
-  *(Set.empty[String].size == z"0")
+class HashSetTest extends SireumRuntimeSpec {
+  *(HashSet.empty[String].size == z"0")
 
-  *(!Set.empty[String].contains("a"))
+  *(!HashSet.empty[String].contains("a"))
 
-  *(Set.empty[String].add("a").contains("a"))
+  *(HashSet.empty[String].add("a").contains("a"))
 
-  *(!Set.empty[String].add("a").contains("A"))
+  *(!HashSet.empty[String].add("a").contains("A"))
 
-  *(Set.empty[String].add("a").add("b").contains("a"))
+  *(HashSet.empty[String].add("a").add("b").contains("a"))
 
-  *(Set.empty[String].add("a").add("b").contains("b"))
+  *(HashSet.empty[String].add("a").add("b").contains("b"))
 
-  *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *(HashSet.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
 
-  *(Set.empty[String].addAll(ISZ("a","b")) == Set.empty[String].add("b").add("a"))
+  *(HashSet.empty[String].addAll(ISZ("a","b")) == HashSet.empty[String].add("b").add("a"))
 
-  *(Set.empty[String].union(Set.empty[String].add("A")) == Set.empty[String].add("A"))
+  *(HashSet.empty[String].union(HashSet.empty[String].add("A")) == HashSet.empty[String].add("A"))
 
-  *(Set.empty[String].intersect(Set.empty[String].add("A")) == Set.empty[String])
+  *(HashSet.empty[String].intersect(HashSet.empty[String].add("A")) == HashSet.empty[String])
 
-  *(Set.empty[String].add("a").intersect(Set.empty[String].add("A")) == Set.empty[String])
+  *(HashSet.empty[String].add("a").intersect(HashSet.empty[String].add("A")) == HashSet.empty[String])
 }

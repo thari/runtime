@@ -27,5 +27,7 @@ package org.sireum
 
 final class _String(val value: Predef.String) extends AnyVal {
   private type T = C
+  def hash: Z = hashCode
+  def isEqual(other: _String): B = this == other
   override def toString: Predef.String = value.toString
 }

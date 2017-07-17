@@ -30,6 +30,10 @@ object HashSet {
   @pure def empty[T]: HashSet[T] = {
     return HashSet(HashMap.empty[T, B])
   }
+
+  @pure def emptyInit[T](initialCapacity: Z): HashSet[T] = {
+    return HashSet(HashMap.emptyInit(initialCapacity))
+  }
 }
 
 @datatype class HashSet[T](map: HashMap[T, B]) {
@@ -64,16 +68,15 @@ object HashSet {
 
   @pure def union(other: HashSet[T]): HashSet[T] = {
     var r = this
-    for (p <- other.map.entries) {
-      r = r.add(p._1)
+    for (e <- other.map.keys) {
+      r = r.add(e)
     }
     return r
   }
 
   @pure def intersect(other: HashSet[T]): HashSet[T] = {
-    var r = HashSet.empty[T]
-    for (p <- other.map.entries) {
-      val e = p._1
+    var r = HashSet.emptyInit[T](size)
+    for (e <- other.map.keys) {
       if (contains(e)) {
         r = r.add(e)
       }
@@ -83,8 +86,8 @@ object HashSet {
 
   @pure def substract(other: HashSet[T]): HashSet[T] = {
     var r = this
-    for (p <- other.map.entries) {
-      r = r.remove(p._1)
+    for (e <- other.map.keys) {
+      r = r.remove(e)
     }
     return r
   }

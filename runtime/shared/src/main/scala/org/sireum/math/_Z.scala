@@ -124,6 +124,10 @@ sealed trait _Z extends Comparable[_Z] {
 
   final def toZ: Z = this
 
+  final def hash: Z = hashCode
+
+  final def isEqual(other: Z): B = this == other
+
   override def hashCode: Int
 
   override def equals(other: Any): Boolean

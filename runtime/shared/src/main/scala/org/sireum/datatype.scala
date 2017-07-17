@@ -30,28 +30,26 @@ import scala.meta._
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
 object datatype {
 
-  def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
-    var hasEquals = false
-    var hasHash = false
-    for (stat <- stats if !(hasEquals && hasHash)) {
-      stat match {
-        case q"@pure def hash: Z = $_" => hasHash = true
-        case q"@pure def isEqual($name : ${atpeopt: Option[Type.Arg]}): B = $_" =>
-          atpeopt match {
-            case Some(t: Type) if tpe.structure == t.structure => hasEquals = true
-            case _ =>
-          }
-        case _ =>
-      }
-    }
-    (hasHash, hasEquals)
-  }
-
   def transformTrait(tree: Defn.Trait): Defn.Trait = {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @datatype traits have to be of the form '@datatype trait <id> ... { ... }'.")
-    q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..$stats }"
+    val tVars = tparams.map { tp =>
+      val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
+      Type.Name(tparamname.value)
+    }
+    val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
+    val (hasHash, hasEqual) = _Clonable.hasHashEquals(tpe, stats)
+    val equals =
+      if (hasEqual) {
+        val eCases =
+          Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
+          else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
+            p"case _ => false")
+        List(q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }")
+      } else List()
+    val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+    q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Datatype with ..$ctorcalls { $param => ..${ hash ++ equals ++ stats } }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -64,7 +62,7 @@ object datatype {
       Type.Name(tparamname.value)
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-    val (hasHash, hasEquals) = hasHashEquals(tpe, stats)
+    val (hasHash, hasEquals) = _Clonable.hasHashEquals(tpe, stats)
     val clone = q"override def clone: $tpe = this"
     val ctorName = Ctor.Name(tname.value)
     if (paramss.nonEmpty && paramss.head.nonEmpty) {
@@ -114,6 +112,8 @@ object datatype {
                 p"case _ => false")
             q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
           }
+        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: $tpe): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
         val toString = {
           var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
@@ -129,7 +129,7 @@ object datatype {
                     sb.toString
                   }"""
         }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -178,11 +178,13 @@ object datatype {
                 p"case _ => false")
             q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
           }
+        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: $tpe): B = this == other")
         val toString = {
           val r = tname.value + "()"
           q"""override def toString: java.lang.String = ${Lit.String(r)}"""
         }
-        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${Vector(hashCode, equals, clone, toString) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, clone, toString) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

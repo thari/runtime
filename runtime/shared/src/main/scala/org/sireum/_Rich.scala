@@ -25,7 +25,10 @@
 
 package org.sireum
 
-trait _Rich extends Any
+trait _Rich extends Any {
+  def hash: Z = hashCode
+  def isEqual(other: _Rich): B = this == other
+}
 
 trait _RichF[T, U] {
   def result: U

@@ -77,7 +77,7 @@ object Map {
 
   @pure def indexOf(key: K): Z = {
     var index = z"-1"
-    for (i <- entries.indices if index == -1) {
+    for (i <- entries.indices if index == z"-1") {
       if (entries(i)._1 == key) {
         index = i
       }
@@ -108,17 +108,28 @@ object Map {
     if (size != other.size) {
       return F
     }
-    for (otherKV <- other.entries) {
-      val otherK = otherKV._1
-      val otherV = otherKV._2
-      val i = indexOf(otherK)
-      if (i < 0) {
-        return F
+    var seen = Set.empty[K]
+    for (kv <- entries) {
+      val k = kv._1
+      seen = seen.add(k)
+      other.get(k) match {
+        case Some(v) =>
+          if (v != kv._2) {
+            return F
+          }
+        case _ => return F
       }
-      val kv = entries(i)
-      val v = kv._2
-      if (v != otherV) {
-        return F
+    }
+    for (kv <- other.entries) {
+      val k = kv._1
+      if (!seen.contains(k)) {
+        get(k) match {
+          case Some(v) =>
+            if (v != kv._2) {
+              return F
+            }
+          case _ => return F
+        }
       }
     }
     return T
