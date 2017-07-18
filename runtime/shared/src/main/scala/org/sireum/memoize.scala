@@ -40,6 +40,7 @@ final class memoize extends scala.annotation.StaticAnnotation {
         if (tpeopt.isEmpty)
           abort(stat.pos, s"Slang @memoize methods should be explicitly typed.")
         val returnType = tpeopt.get
+        var allParamTypes = Vector[Type]()
         var paramTypes = Vector[Type]()
         var params = Vector[Term.Name]()
         if (paramss.nonEmpty) {
@@ -50,6 +51,7 @@ final class memoize extends scala.annotation.StaticAnnotation {
                 mods.foreach {
                   case mod"@hidden" => isHidden = true
                 }
+                allParamTypes :+= tpe
                 if (!isHidden) {
                   paramTypes :+= tpe
                   params :+= arg"${Term.Name(paramname.value)}"
@@ -59,32 +61,34 @@ final class memoize extends scala.annotation.StaticAnnotation {
           }
         }
         val argType = if (paramTypes.length == 1) paramTypes.head else t"(..$paramTypes)"
-        val cacheVar = q"var _cache: org.sireum.HashMap[$argType, $returnType] = org.sireum.HashMap.empty"
         val arg = if (params.length == 1) params.head else q"(..$params)"
         val body =
           q"""{
                 def _internal: $returnType = $expr
-
                 val arg = $arg
-                _cache.get(arg) match {
+                cache.get(arg) match {
                   case Some(r) => return r
                   case _ =>
                 }
                 val r = _internal
-                _cache = _cache.put(arg, r)
+                cache = cache.put(arg, r)
                 r
               }
            """
+        val cacheVar = q"var cache = org.sireum.HashMap.empty[$argType, $returnType]"
+        val newName = Term.Name("_" + name.value)
         val newStat =
-          if (tparams.isEmpty) q"..$mods def $name(...$paramss): $tpeopt = $body"
-          else q"..$mods def $name[..$tparams](...$paramss): $tpeopt = $body"
-        Defn.Var(Nil, List[Pat](Pat.Tuple(List[Pat.Var.Term](Pat.Var.Term(Term.Name("_cache")), Pat.Var.Term(name)))), None,
-          Some(q"{ ..${List(cacheVar, newStat, q"(_cache, $name _)")} }"))
+          if (tparams.isEmpty) q"..$mods def $newName(...$paramss): $tpeopt = $body"
+          else q"..$mods def $newName[..$tparams](...$paramss): $tpeopt = $body"
+        val fnType =
+          if (allParamTypes.size == 1) t"${allParamTypes.head} => $returnType"
+          else t"(..$allParamTypes) => $returnType"
+        Defn.Val(List(Mod.Lazy()), List[Pat](Pat.Var.Term(name)), Some(fnType),
+          q"{ ..${List(cacheVar, newStat, q"$newName _")} }")
       case _ =>
         abort(s"Invalid Slang @memoize on: ${stat.syntax}.")
     }
     //println(result.syntax)
     result
   }
-
 }
