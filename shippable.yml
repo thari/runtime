@@ -22,3 +22,7 @@ build:
     on_failure:
     push:
     cache: true
+  cache_dir_list:
+    - $HOME/.ivy2
+    - $HOME/.coursier
+    - $HOME/.sbt
