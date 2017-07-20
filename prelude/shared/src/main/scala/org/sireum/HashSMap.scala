@@ -48,6 +48,10 @@ object HashSMap {
     return map.hash
   }
 
+  @pure def entries: ISZ[(K, V)] = {
+    return map.entries
+  }
+
   @pure def values: ISZ[V] = {
     return map.values
   }
@@ -67,6 +71,18 @@ object HashSMap {
     } else {
       return HashSMap(newMap, keys :+ key)
     }
+  }
+
+  @pure def putAll(entries: ISZ[(K, V)]): HashSMap[K, V] = {
+    if (entries.isEmpty) {
+      return this
+    }
+    val newMap = map.putAll(entries)
+    var newKeys = keys
+    for (kv <- entries) {
+      newKeys = newKeys :+ kv._1
+    }
+    return HashSMap(newMap, newKeys)
   }
 
   @pure def get(key: K): Option[V] = {

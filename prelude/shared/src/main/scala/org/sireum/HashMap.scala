@@ -38,14 +38,24 @@ object HashMap {
 
 }
 
-@datatype class HashMap[K, V](entries: ISZ[Map[K, V]], size: Z) {
+@datatype class HashMap[K, V](mapEntries: ISZ[Map[K, V]], size: Z) {
   @pure def hash: Z = {
     return size
   }
 
+  @pure def entries: ISZ[(K, V)] = {
+    var r = ISZ[(K, V)]()
+    for (ms <- mapEntries) {
+      if (ms.nonEmpty) {
+        r = r ++ ms.entries
+      }
+    }
+    return r
+  }
+
   @pure def keys: ISZ[K] = {
     var r = ISZ[K]()
-    for (ms <- entries) {
+    for (ms <- mapEntries) {
       if (ms.nonEmpty) {
         r = r ++ ms.keys
       }
@@ -55,7 +65,7 @@ object HashMap {
 
   @pure def values: ISZ[V] = {
     var r = ISZ[V]()
-    for (ms <- entries) {
+    for (ms <- mapEntries) {
       if (ms.nonEmpty) {
         r = r ++ ms.values
       }
@@ -72,18 +82,29 @@ object HashMap {
   }
 
   @pure def put(key: K, value: V): HashMap[K, V] = {
-    val r = ensureCapacity()
+    val r = ensureCapacity(size + 1)
     val i = hashIndex(key)
-    return r(entries = entries(i -> entries(i).put(key, value)), size = size + 1)
+    return r(mapEntries = mapEntries(i -> mapEntries(i).put(key, value)), size = size + 1)
   }
 
-  @pure def ensureCapacity(): HashMap[K, V] = {
-    if (entries.size * 3 / 4 >= size + 1) {
+  @pure def putAll(entries: ISZ[(K, V)]): HashMap[K, V] = {
+    if (entries.isEmpty) {
       return this
     }
-    val init = size * 3 / 2
+    var r = ensureCapacity(size + entries.size)
+    for (kv <- entries) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
+
+  @pure def ensureCapacity(sz: Z): HashMap[K, V] = {
+    if (mapEntries.size * 3 / 4 >= sz) {
+      return this
+    }
+    val init = sz * 2
     var r = HashMap.emptyInit[K, V](init)
-    for (ms <- entries) {
+    for (ms <- mapEntries) {
       for (kv <- ms.entries) {
         r = r.put(kv._1, kv._2)
       }
@@ -92,13 +113,13 @@ object HashMap {
   }
 
   @pure def hashIndex(key: K): Z = {
-    val sz = entries.size
+    val sz = mapEntries.size
     val i = key.hashCode % sz
     return if (i < 0) i + sz else i
   }
 
   @pure def get(key: K): Option[V] = {
-    val m = entries(hashIndex(key))
+    val m = mapEntries(hashIndex(key))
     m.get(key)
   }
 
@@ -115,7 +136,7 @@ object HashMap {
 
   @pure def remove(key: K, value: V): HashMap[K, V] = {
     val i = hashIndex(key)
-    return this(entries = entries(i -> entries(i).remove(key, value)), size = size - 1)
+    return this(mapEntries = mapEntries(i -> mapEntries(i).remove(key, value)), size = size - 1)
   }
 
   @pure def isEqual(other: HashMap[K, V]): B = {
@@ -123,7 +144,7 @@ object HashMap {
       return F
     }
     var seen = HashSet.emptyInit[K]((size + 1) * 3 / 4)
-    for (ms <- entries) {
+    for (ms <- mapEntries) {
       for (kv <- ms.entries) {
         val k = kv._1
         seen = seen.add(k)
@@ -136,7 +157,7 @@ object HashMap {
         }
       }
     }
-    for (ms <- other.entries) {
+    for (ms <- other.mapEntries) {
       for (kv <- ms.entries) {
         val k = kv._1
         if (!seen.contains(k)) {
