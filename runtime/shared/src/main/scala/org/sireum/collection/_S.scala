@@ -100,7 +100,6 @@ final class _IS[I, V](val iTag: TT[I],
   }
 
   def +:(value: V): IS[I, V] = {
-    implicit val it = iTag
     val len = length + 1
     val newArray = _S.cloneValue(array, length, len, 1)
     newArray(0) = value
@@ -108,7 +107,6 @@ final class _IS[I, V](val iTag: TT[I],
   }
 
   def ++(other: IS[I, V]): IS[I, V] = {
-    implicit val it = iTag
     val len = length + other.length
     val newArray = _S.cloneValue(array, length, len, 0)
     System.arraycopy(other.array, 0, newArray, length, other.length)
@@ -116,7 +114,6 @@ final class _IS[I, V](val iTag: TT[I],
   }
 
   def ++(other: MS[I, V]): IS[I, V] = {
-    implicit val it = iTag
     val len = length + other.length
     val newArray = _S.cloneValue(array, length, len, 0)
     for (i <- 0 until other.length) {
@@ -126,25 +123,21 @@ final class _IS[I, V](val iTag: TT[I],
   }
 
   def -(value: V): IS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || v == value)
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): IS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): IS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _IS[I, V](iTag, newArray.length, newArray)
   }
 
   def apply[T: TT](entries: (T, V)*): IS[I, V] = {
-    implicit val it = iTag
     val sz = length
     val newArray = _S.cloneValue(array, sz, sz, 0)
     for ((i, v) <- entries) {
@@ -158,6 +151,13 @@ final class _IS[I, V](val iTag: TT[I],
   def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
+
+  def map[V2](f: V => V2): IS[I, V2] = new _IS[I, V2](iTag, length, (for (e <- elements) yield f(e)).toArray)
+
+  def flatMap[V2](f: V => IS[I, V2]) = {
+    val newArray = elements.flatMap(e => f(e).elements).toArray[Any]
+    new _IS[I, V2](iTag, newArray.length, newArray)
+  }
 
   def indices: scala.collection.Seq[I] = {
     import _Type._
@@ -268,7 +268,6 @@ final class _MS[I, V](val iTag: TT[I],
   }
 
   def :+(value: V): MS[I, V] = {
-    implicit val it = iTag
     val len = length + 1
     val newArray = _S.cloneValue(array, length, len, 0)
     newArray(length) = _Clonable.clone(value)
@@ -276,7 +275,6 @@ final class _MS[I, V](val iTag: TT[I],
   }
 
   def +:(value: V): MS[I, V] = {
-    implicit val it = iTag
     val len = length + 1
     val newArray = _S.cloneValue(array, length, len, 1)
     newArray(0) = _Clonable.clone(value)
@@ -284,7 +282,6 @@ final class _MS[I, V](val iTag: TT[I],
   }
 
   def ++(other: MS[I, V]): MS[I, V] = {
-    implicit val it = iTag
     val len = length + other.length
     val newArray = _S.cloneValue(array, length, len, 0)
     for (i <- 0 until other.length) {
@@ -294,7 +291,6 @@ final class _MS[I, V](val iTag: TT[I],
   }
 
   def ++(other: IS[I, V]): MS[I, V] = {
-    implicit val it = iTag
     val len = length + other.length
     val newArray = _S.cloneValue(array, length, len, 0)
     System.arraycopy(other.array, 0, newArray, length, other.length)
@@ -302,25 +298,21 @@ final class _MS[I, V](val iTag: TT[I],
   }
 
   def -(value: V): MS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || v == value)
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: MS[I, V]): MS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def --(other: IS[I, V]): MS[I, V] = {
-    implicit val it = iTag
     val newArray = array.filterNot(v => v == null || other.elements.contains(v))
     new _MS[I, V](iTag, newArray.length, newArray)
   }
 
   def apply[T: TT](entries: (T, V)*): MS[I, V] = {
-    implicit val it = iTag
     val sz = length
     val newArray = _S.cloneValue(array, sz, sz, 0)
     for ((i, v) <- entries) {
@@ -334,6 +326,13 @@ final class _MS[I, V](val iTag: TT[I],
   def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
+
+  def map[V2](f: V => V2): MS[I, V2] = new _MS[I, V2](iTag, length, (for (e <- elements) yield f(e)).toArray)
+
+  def flatMap[V2](f: V => MS[I, V2]) = {
+    val newArray = elements.flatMap(e => f(e).elements).toArray[Any]
+    new _MS[I, V2](iTag, newArray.length, newArray)
+  }
 
   def indices: scala.collection.Seq[I] = {
     import _Type._
