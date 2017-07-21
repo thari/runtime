@@ -30,6 +30,8 @@ final class _B(val value: Boolean) extends AnyVal {
   def &(other: T): T = value & other.value
   def |(other: T): T = value | other.value
   def |^(other: T): T = value ^ other.value
+  def &&(other: => T): T = value && other.value
+  def ||(other: => T): T = value || other.value
   def unary_! : T = !value
   def unary_~ : T = !value
   def hash: Z = hashCode
