@@ -112,13 +112,39 @@ package object sireum {
     math._Z.zero
   }
 
-  final def println(as: Any*): Unit = {
-    print(as: _*)
-    scala.Predef.println()
+  final def cprintln(isErr: B, as: Any*): Unit = {
+    if (isErr) eprintln(as: _*) else println(as: _*)
   }
 
-  final def print(as: Any*): Unit =
-    for (a <- as) scala.Predef.print(a)
+  final def cprint(isErr: B, as: Any*): Unit = {
+    if (isErr) eprint(as: _*) else print(as: _*)
+  }
+
+  final def println(as: Any*): Unit = {
+    print(as: _*)
+    Console.out.println()
+    Console.out.flush()
+  }
+
+  final def print(as: Any*): Unit = {
+    for (a <- as) {
+      Console.out.print(a)
+      Console.out.flush()
+    }
+  }
+
+  final def eprintln(as: Any*): Unit = {
+    print(as: _*)
+    Console.err.println()
+    Console.err.flush()
+  }
+
+  final def eprint(as: Any*): Unit = {
+    for (a <- as) {
+      Console.err.print(a)
+      Console.err.flush()
+    }
+  }
 
   final def randomInt(): Z = math._Z.random
 

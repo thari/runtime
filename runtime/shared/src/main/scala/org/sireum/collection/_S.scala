@@ -148,13 +148,16 @@ final class _IS[I, V](val iTag: TT[I],
     new _IS[I, V](iTag, length, newArray)
   }
 
-  def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
+  def withFilter(p: V => Boolean): IS[I, V] = {
+    val newArray = elements.filter(p).toArray[Any]
+    new _IS(iTag, newArray.length, newArray)
+  }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def map[V2](f: V => V2): IS[I, V2] = new _IS[I, V2](iTag, length, (for (e <- elements) yield f(e)).toArray)
 
-  def flatMap[V2](f: V => IS[I, V2]) = {
+  def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] = {
     val newArray = elements.flatMap(e => f(e).elements).toArray[Any]
     new _IS[I, V2](iTag, newArray.length, newArray)
   }
@@ -323,13 +326,16 @@ final class _MS[I, V](val iTag: TT[I],
     new _MS[I, V](iTag, sz, newArray)
   }
 
-  def withFilter(p: V => Boolean): scala.collection.Seq[V] = elements.filter(p)
+  def withFilter(p: V => Boolean): MS[I, V] = {
+    val newArray = elements.filter(p).toArray[Any]
+    new _MS(iTag, newArray.length, newArray)
+  }
 
   def foreach(f: V => Unit): Unit = for (e <- elements) f(e)
 
   def map[V2](f: V => V2): MS[I, V2] = new _MS[I, V2](iTag, length, (for (e <- elements) yield f(e)).toArray)
 
-  def flatMap[V2](f: V => MS[I, V2]) = {
+  def flatMap[V2](f: V => MS[I, V2]): MS[I, V2] = {
     val newArray = elements.flatMap(e => f(e).elements).toArray[Any]
     new _MS[I, V2](iTag, newArray.length, newArray)
   }
