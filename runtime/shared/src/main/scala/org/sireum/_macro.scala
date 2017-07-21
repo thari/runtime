@@ -97,21 +97,7 @@ object _macro {
     arg: c.Tree): c.Tree = {
     import c.universe._
     //println(showRaw(arg))
-    val r = arg.tpe match {
-      case t if t <:< c.typeOf[_Datatype] => arg
-      case t if t <:< c.typeOf[_Record] => q"__assign($arg)"
-      case t if t.erasure =:= c.typeOf[MS[_, _]].erasure => q"__assign($arg)"
-      case t if t.erasure =:= c.typeOf[IS[_, _]].erasure => arg
-      case _ =>
-        val iType = arg.tpe
-        if (!(iType =:= c.typeOf[B] || iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
-          iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
-          iType =:= c.typeOf[S8] || iType =:= c.typeOf[S16] || iType =:= c.typeOf[S32] || iType =:= c.typeOf[S64] ||
-          iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64] ||
-          iType =:= c.typeOf[F32] || iType =:= c.typeOf[F64] || iType =:= c.typeOf[R])) {
-          arg
-        } else q"__assign($arg)"
-    }
+    val r = if (arg.tpe <:< c.typeOf[_Mutable]) q"__assign($arg)" else arg
     //println(showRaw(r))
     //println(showCode(r))
     r
