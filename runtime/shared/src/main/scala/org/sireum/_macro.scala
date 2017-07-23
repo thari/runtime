@@ -29,7 +29,7 @@ import scala.language.experimental.macros
 
 object _macro {
 
-  val templateString = "Template"
+  val templateString = "st\"...\""
 
   def $[T]: T = macro _macro.$Impl[T]
 
@@ -226,7 +226,7 @@ object _macro {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
       val t = e.tpe
       val tName = t.typeSymbol.fullName
-      val templ = c.typeOf[org.sireum.Template]
+      val templ = c.typeOf[org.sireum.ST]
       val r =
         if (t =:= templ) q"org.sireum._Template.Templ(scala.Seq($e), $sep)"
         else if ((tName == "org.sireum.collection._IS") || (tName == "org.sireum.collection._MS")) {
@@ -250,7 +250,12 @@ object _macro {
     val pos = c.prefix.tree.pos
     val source = if (pos.isRange) {
       val text = pos.source.content
-      new Predef.String(text.slice(pos.start, pos.end))
+      val sb = new StringBuilder
+      for (_ <- 0 until pos.column - 1) sb.append(' ')
+      for (i <- pos.start until pos.end) {
+        sb.append(text(i))
+      }
+      sb.toString
     } else templateString
     q"org.sireum._Template(scala.Seq(..$parts), scala.Seq(..$stArgs), ${Literal(Constant(source))})"
   }

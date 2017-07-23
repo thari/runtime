@@ -55,7 +55,7 @@ private[sireum] object _Type {
     type IS[I, V] = collection._IS[I, V]
     type MS[I, V] = collection._MS[I, V]
     type String = org.sireum._String
-    type Template = org.sireum._Template
+    type ST = org.sireum._Template
   }
 
   import Alias.TT

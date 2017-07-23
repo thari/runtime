@@ -33,11 +33,11 @@ object _Template {
 
   final case class Any(args: scala.Seq[scala.Any], sep: Predef.String = "") extends Arg
 
-  final case class Templ(args: scala.Seq[Template], sep: Predef.String = "") extends Arg
+  final case class Templ(args: scala.Seq[ST], sep: Predef.String = "") extends Arg
 
   private def clean(s: Predef.String): Predef.String = s.replaceAllLiterally("\r", "")
 
-  def render(t: Template): String = {
+  def render(t: ST): String = {
     val lineSep = System.lineSeparator
     val sb = new StringBuilder
     var indent = 0
@@ -81,7 +81,7 @@ object _Template {
       }
     }
 
-    def rec(t: Template): Unit = {
+    def rec(t: ST): Unit = {
       val oldIndent = indent
       val parts = t.parts
       appendPart(parts.head)

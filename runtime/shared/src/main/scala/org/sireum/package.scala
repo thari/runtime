@@ -50,7 +50,7 @@ package object sireum {
   type F32 = _Type.Alias.F32
   type F64 = _Type.Alias.F64
   type String = _Type.Alias.String
-  type Template = _Type.Alias.Template
+  type ST = _Type.Alias.ST
 
   type MS[I, V] = _Type.Alias.MS[I, V]
   type MSZ[V] = _Type.Alias.MS[Z, V]
@@ -453,7 +453,7 @@ package object sireum {
 
     def lDef[T](args: Any*): T = throw new NotImplementedError
 
-    def st(args: Any*): Template = macro _macro.st
+    def st(args: Any*): ST = macro _macro.st
   }
 
   final implicit def _Z(n: Int): Z = math._Z(n)
