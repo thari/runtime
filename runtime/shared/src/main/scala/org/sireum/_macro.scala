@@ -29,6 +29,8 @@ import scala.language.experimental.macros
 
 object _macro {
 
+  val templateString = "Template"
+
   def $[T]: T = macro _macro.$Impl[T]
 
   def $Impl[T](c: scala.reflect.macros.blackbox.Context): c.Expr[T] = {
@@ -217,5 +219,39 @@ object _macro {
       //println(showCode(r))
       r
     }
+  }
+
+  def st(c: scala.reflect.macros.blackbox.Context)(args: c.Tree*): c.Tree = {
+    import c.universe._
+    def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
+      val t = e.tpe
+      val tName = t.typeSymbol.fullName
+      val templ = c.typeOf[org.sireum.Template]
+      val r =
+        if (t =:= templ) q"org.sireum._Template.Templ(scala.Seq($e), $sep)"
+        else if ((tName == "org.sireum.collection._IS") || (tName == "org.sireum.collection._MS")) {
+          if (t.dealias.typeArgs(1) =:= templ) q"org.sireum._Template.Templ(($e).elements, $sep)"
+          else q"org.sireum._Template.Any(($e).elements, $sep)"
+        } else q"org.sireum._Template.Any(scala.Seq($e), $sep)"
+      //println(showCode(r))
+      r
+    }
+
+    val q"org.sireum.`package`._Slang(scala.StringContext.apply(..$parts))" = c.prefix.tree
+    val stArgs = for (arg <- args) yield arg match {
+      case q"(..$exprs)" if exprs.size > 1 =>
+        if (exprs.size != 2) c.abort(arg.pos, s"Expecting a pair instead of a ${exprs.size}-tuple.")
+        exprs(1) match {
+          case e@Literal(Constant(s: Predef.String)) => processArg(exprs.head, e)
+          case e => c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
+        }
+      case _ => processArg(arg, Literal(Constant("")))
+    }
+    val pos = c.prefix.tree.pos
+    val source = if (pos.isRange) {
+      val text = pos.source.content
+      new Predef.String(text.slice(pos.start, pos.end))
+    } else templateString
+    q"org.sireum._Template(scala.Seq(..$parts), scala.Seq(..$stArgs), ${Literal(Constant(source))})"
   }
 }

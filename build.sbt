@@ -8,11 +8,11 @@ val silencerVersion = "0.5"
 
 val runtimeVersion = "3.0.1-1-SNAPSHOT"
 
-val sireumScalacVersion = "3.0.0-11"
+val sireumScalacVersion = "3.0.0-12"
 
 scalaVersion in ThisBuild := scalaVer
 
-scalacOptions in ThisBuild := Seq("-target:jvm-1.8", "-deprecation",
+scalacOptions in ThisBuild := Seq("-target:jvm-1.8", "-deprecation", "-Yrangepos",
   "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings")
 
 val commonSettings = Seq(

@@ -50,6 +50,7 @@ package object sireum {
   type F32 = _Type.Alias.F32
   type F64 = _Type.Alias.F64
   type String = _Type.Alias.String
+  type Template = _Type.Alias.Template
 
   type MS[I, V] = _Type.Alias.MS[I, V]
   type MSZ[V] = _Type.Alias.MS[Z, V]
@@ -95,6 +96,7 @@ package object sireum {
 
   val T: B = true
   val F: B = false
+  val Template: _Template.type = _Template
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {
@@ -450,6 +452,8 @@ package object sireum {
     def lUnit(args: Any*): Unit = {}
 
     def lDef[T](args: Any*): T = throw new NotImplementedError
+
+    def st(args: Any*): Template = macro _macro.st
   }
 
   final implicit def _Z(n: Int): Z = math._Z(n)
