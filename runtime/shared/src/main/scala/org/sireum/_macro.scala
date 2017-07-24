@@ -28,18 +28,23 @@ package org.sireum
 import scala.language.experimental.macros
 
 object _macro {
-
   val templateString = "st\"...\""
 
   def $[T]: T = macro _macro.$Impl[T]
 
-  def $Impl[T](c: scala.reflect.macros.blackbox.Context): c.Expr[T] = {
-    import c.universe._
+  def _assign[T](arg: T): T = macro _macro._assignImpl
+}
+
+import _macro._
+
+class _macro(val c: scala.reflect.macros.blackbox.Context) {
+  import c.universe._
+
+  def $Impl[T]: c.Expr[T] = {
     c.Expr[T](q"???")
   }
 
-  def msApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
-    values: c.Expr[V]*): c.Expr[MS[I, V]] = {
+  def msApplyImpl[I: c.WeakTypeTag, V](values: c.Expr[V]*): c.Expr[MS[I, V]] = {
     val iType = implicitly[c.WeakTypeTag[I]].tpe
 
     if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
@@ -49,12 +54,11 @@ object _macro {
       if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang MS.")
       c.abort(c.enclosingPosition, "Invalid index type for Slang MS.")
     }
-    import c.universe._
+
     c.Expr[MS[I, V]](q"org.sireum.collection._MS(..$values)")
   }
 
-  def msCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
-    size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
+  def msCreateImpl[I, V](size: c.Expr[I], default: c.Expr[V]): c.Expr[MS[I, V]] = {
     val iType = size.tree.tpe
     if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
       iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
@@ -62,12 +66,11 @@ object _macro {
       iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       c.abort(size.tree.pos, "Invalid index type for Slang MS.")
     }
-    import c.universe._
+
     c.Expr[MS[I, V]](q"org.sireum.collection._MS.create($size, $default)")
   }
 
-  def isApplyImpl[I: c.WeakTypeTag, V](c: scala.reflect.macros.blackbox.Context)(
-    values: c.Expr[V]*): c.Expr[IS[I, V]] = {
+  def isApplyImpl[I: c.WeakTypeTag, V](values: c.Expr[V]*): c.Expr[IS[I, V]] = {
     val iType = implicitly[c.WeakTypeTag[I]].tpe
     if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
       iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
@@ -76,12 +79,11 @@ object _macro {
       if (values.nonEmpty) c.abort(values.head.tree.pos, "Invalid index type for Slang IS.")
       else c.abort(c.enclosingPosition, "Invalid index type for Slang IS.")
     }
-    import c.universe._
+
     c.Expr[IS[I, V]](q"org.sireum.collection._IS(..$values)")
   }
 
-  def isCreateImpl[I, V](c: scala.reflect.macros.blackbox.Context)(
-    size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
+  def isCreateImpl[I, V](size: c.Expr[I], default: c.Expr[V]): c.Expr[IS[I, V]] = {
     val iType = size.tree.tpe
     if (!(iType =:= c.typeOf[Z] || iType =:= c.typeOf[Z8] || iType =:= c.typeOf[Z16] || iType =:= c.typeOf[Z32] || iType =:= c.typeOf[Z64] ||
       iType =:= c.typeOf[N] || iType =:= c.typeOf[N8] || iType =:= c.typeOf[N16] || iType =:= c.typeOf[N32] || iType =:= c.typeOf[N64] ||
@@ -89,15 +91,11 @@ object _macro {
       iType =:= c.typeOf[U8] || iType =:= c.typeOf[U16] || iType =:= c.typeOf[U32] || iType =:= c.typeOf[U64])) {
       c.abort(size.tree.pos, "Invalid index type for Slang IS.")
     }
-    import c.universe._
+
     c.Expr[IS[I, V]](q"org.sireum.collection._IS.create($size, $default)")
   }
 
-  def _assign[T](arg: T): T = macro _macro._assignImpl
-
-  def _assignImpl(c: scala.reflect.macros.blackbox.Context)(
-    arg: c.Tree): c.Tree = {
-    import c.universe._
+  def _assignImpl(arg: c.Tree): c.Tree = {
     //println(showRaw(arg))
     val r = if (arg.tpe <:< c.typeOf[_Mutable]) q"__assign($arg)" else arg
     //println(showRaw(r))
@@ -105,9 +103,7 @@ object _macro {
     r
   }
 
-  def up(c: scala.reflect.macros.blackbox.Context)(
-    lhs: c.Tree, rhs: c.Tree): c.Tree = {
-    import c.universe._
+  def up(lhs: c.Tree, rhs: c.Tree): c.Tree = {
     def isVar(symbol: Symbol): Boolean = {
       val t = symbol.asTerm
       if (t.isVar) true
@@ -162,9 +158,7 @@ object _macro {
     r
   }
 
-  def pat(c: scala.reflect.macros.blackbox.Context)(
-    args: c.Tree*): c.Tree = {
-    import c.universe._
+  def pat(args: c.Tree*): c.Tree = {
     if (args.last.tpe <:< c.typeOf[Product]) {
       if (args.length < 3 || !args.dropRight(1).forall({
         case Ident(TermName(_)) => true
@@ -221,8 +215,7 @@ object _macro {
     }
   }
 
-  def st(c: scala.reflect.macros.blackbox.Context)(args: c.Tree*): c.Tree = {
-    import c.universe._
+  def st(args: c.Tree*): c.Tree = {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
       val t = e.tpe
       val tName = t.typeSymbol.fullName

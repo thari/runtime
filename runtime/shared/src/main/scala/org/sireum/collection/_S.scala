@@ -44,8 +44,6 @@ object _S {
 
 object _IS {
 
-  import scala.language.experimental.macros
-
   def apply[I: TT, V](elements: V*): IS[I, V] = {
     require(isSlangNumber[I])
     new _IS[I, V](implicitly[TT[I]], elements.length, elements.toArray)

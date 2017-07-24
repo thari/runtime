@@ -150,4 +150,20 @@ object Map {
   @pure def size: Z = {
     return entries.size
   }
+
+  @pure def toHashMap: HashMap[K, V] = {
+    var r = HashMap.emptyInit[K, V](size)
+    for (kv <- entries) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
+
+  @pure def toHashSMap: HashSMap[K, V] = {
+    var r = HashSMap.emptyInit[K, V](size)
+    for (kv <- entries) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
 }

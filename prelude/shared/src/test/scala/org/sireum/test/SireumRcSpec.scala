@@ -25,33 +25,16 @@
 
 package org.sireum.test
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum._
 
-abstract class SireumSpec extends FreeSpec {
+abstract class SireumRcSpec extends SireumSpec {
+  def resources: HashSMap[ISZ[String], String]
 
-  val ts: Seq[Tag] = Vector()
+  def check(path: ISZ[String], content: String): B
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
-  }
+  for (r <- resources.entries.elements.
+    map(p => (p._1.elements.mkString("/"), p._1, p._2))) {
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
-
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
+    registerTest(s"${r._1}", ts: _*)(assert(check(r._2, r._3)))
   }
 }
