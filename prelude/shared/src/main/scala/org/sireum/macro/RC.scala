@@ -45,7 +45,7 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
   def commonImpl(isText: Boolean, p: c.Expr[ISZ[String] => B]): c.Expr[HashSMap[ISZ[String], String]] = {
     val anchorDir = new File(p.tree.pos.source.file.canonicalPath).getParentFile
     val anchorPath = uriOf(anchorDir)
-    val f = c.eval[ISZ[String] => B](c.Expr(c.untypecheck(p.tree)))
+    val pf = c.eval[ISZ[String] => B](c.Expr(c.untypecheck(p.tree)))
     var tree = q"org.sireum.HashSMap.empty[org.sireum.ISZ[org.sireum.String], org.sireum.String]"
 
     def rec(file: File): Unit = {
@@ -53,7 +53,7 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
         val filePath = uriOf(file)
         if (filePath.startsWith(anchorPath)) {
           val path = filePath.substring(anchorPath.length).split('/').map(_2String)
-          if (f(ISZ(path: _*))) {
+          if (pf(ISZ(path: _*))) {
             val pathSegments: Seq[c.Tree] = path.map(p => q"org.sireum._2String(${Literal(Constant(p.value))})")
             val s = Literal(Constant(if (isText) readText(file) else readBase64(file)))
             tree = q"$tree.put(ISZ(..$pathSegments), org.sireum._2String($s))"

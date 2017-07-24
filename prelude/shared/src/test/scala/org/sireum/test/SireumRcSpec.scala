@@ -28,13 +28,13 @@ package org.sireum.test
 import org.sireum._
 
 abstract class SireumRcSpec extends SireumSpec {
-  def resources: HashSMap[ISZ[String], String]
+  def textResources: HashSMap[ISZ[String], String]
 
   def check(path: ISZ[String], content: String): B
 
-  for (r <- resources.entries.elements.
-    map(p => (p._1.elements.mkString("/"), p._1, p._2))) {
-
+  for (r <- textResources.entries.elements.
+    map(p => (p._1.elements.mkString("/"), p._1, p._2)).
+    sortWith((p1, p2) => p1._1.compareTo(p2._1) < 0)) {
     registerTest(s"${r._1}", ts: _*)(assert(check(r._2, r._3)))
   }
 }
