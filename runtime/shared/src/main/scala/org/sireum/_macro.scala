@@ -223,8 +223,11 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
       val r =
         if (t =:= templ) q"org.sireum._Template.Templ(scala.Seq($e), $sep)"
         else if ((tName == "org.sireum.collection._IS") || (tName == "org.sireum.collection._MS")) {
-          if (t.dealias.typeArgs(1) =:= templ) q"org.sireum._Template.Templ(($e).elements, $sep)"
-          else q"org.sireum._Template.Any(($e).elements, $sep)"
+          if (t.dealias.typeArgs(1) =:= templ) q"org.sireum._Template.Templ($e.elements, $sep)"
+          else q"org.sireum._Template.Any($e.elements, $sep)"
+        } else if (t.erasure <:< c.typeOf[scala.Seq[Any]].erasure) {
+          if (t.dealias.typeArgs.head =:= templ) q"org.sireum._Template.Templ($e, $sep)"
+          else q"org.sireum._Template.Any($e, $sep)"
         } else q"org.sireum._Template.Any(scala.Seq($e), $sep)"
       //println(showCode(r))
       r
@@ -234,10 +237,12 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>
         if (exprs.size != 2) c.abort(arg.pos, s"Expecting a pair instead of a ${exprs.size}-tuple.")
-        exprs(1) match {
-          case e@Literal(Constant(s: Predef.String)) => processArg(exprs.head, e)
-          case e => c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
-        }
+        val e = exprs(1)
+        val t = e.tpe
+        if (t <:<
+          c.typeOf[Predef.String]) processArg(arg, e)
+        else if (t =:= c.typeOf[org.sireum._String]) processArg(arg, q"$e.value")
+        else c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
       case _ => processArg(arg, Literal(Constant("")))
     }
     val pos = c.prefix.tree.pos
