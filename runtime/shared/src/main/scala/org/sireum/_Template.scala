@@ -96,29 +96,37 @@ object _Template {
       val parts = t.parts
       appendPart(parts.head)
       var i = 1
-      def trimNlPart(): Unit = {
+      def trimNlPart(): Int = {
         val part = parts(i)
-        if (part.startsWith("\n") || part.startsWith("\r\n"))
+        val j = part.indexOf('\n')
+        if (j >= 0 && (0 until j).forall(part(_).isWhitespace)) {
           trim(includeNewLine = true)
+          j
+        } else 0
       }
-      def appendAny(o: scala.Any): Unit = {
+      def appendAny(o: scala.Any): Int = {
         o match {
           case Some(v: ST) => rec(v)
           case Some(v) => append(v.toString)
-          case None => trimNlPart()
+          case None => return trimNlPart()
           case v => append(v.toString)
         }
+        0
       }
       for (arg <- t.args) {
+        var trimPartBegin = 0
         arg match {
           case Any(vs, sep) =>
             if (vs.nonEmpty) {
-              appendAny(vs.head)
+              trimPartBegin = appendAny(vs.head)
               for (i <- 1 until vs.length) {
+                trimPartBegin = 0
                 append(sep)
                 appendAny(vs(i))
               }
-            } else trimNlPart()
+            } else {
+              trimPartBegin = trimNlPart()
+            }
           case Templ(ts, sep) =>
             if (ts.nonEmpty) {
               rec(ts.head)
@@ -126,10 +134,14 @@ object _Template {
                 append(sep)
                 rec(ts(i))
               }
-            } else trimNlPart()
+            } else {
+              trimPartBegin = trimNlPart()
+            }
         }
         indent = oldIndent
-        appendPart(parts(i))
+        val part = parts(i)
+        if (trimPartBegin > 0) appendPart(part.substring(trimPartBegin))
+        else appendPart(part)
         i += 1
       }
       indent = oldIndent
