@@ -35,8 +35,6 @@ object _Template {
 
   final case class Templ(args: scala.Seq[ST], sep: Predef.String = "") extends Arg
 
-  private def clean(s: Predef.String): Predef.String = s.replaceAllLiterally("\r", "")
-
   def render(t: ST): String = {
     val sb = new StringBuilder
     var indent = 0
@@ -55,7 +53,7 @@ object _Template {
     }
 
     def appendPart(s: Predef.String): Unit = {
-      val tkns = new StringTokenizer(clean(s), "\n", true)
+      val tkns = new StringTokenizer(s, "\r\n", true)
       var n = 0
       var hasLine = false
       while (tkns.hasMoreTokens) {
@@ -64,7 +62,7 @@ object _Template {
           appendLineSep()
           appendIndent()
           hasLine = true
-        } else {
+        } else if (tkn != "\r") {
           val stripped = if (hasLine) {
             val i = tkn.indexOf("|")
             if (i >= 0 && tkn.substring(0, i).forall(_.isWhitespace)) tkn.substring(i + 1) else tkn
@@ -79,13 +77,13 @@ object _Template {
     }
 
     def append(s: Predef.String): Unit = {
-      val tkns = new StringTokenizer(clean(s), "\n", true)
+      val tkns = new StringTokenizer(s, "\r\n", true)
       while (tkns.hasMoreTokens) {
         val tkn = tkns.nextToken()
         if (tkn == "\n") {
           appendLineSep()
           appendIndent()
-        } else {
+        } else if (tkn != "\r") {
           sb.append(tkn)
         }
       }
