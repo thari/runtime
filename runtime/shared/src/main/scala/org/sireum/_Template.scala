@@ -42,9 +42,9 @@ object _Template {
     var indent = 0
 
     def trim(includeNewLine: Boolean = false): Unit = {
-      val i = sb.lastIndexOf("\n")
+      val i = sb.lastIndexOf(System.lineSeparator)
       if (i >= 0 && (i + 1 until sb.length).forall(sb.charAt(_).isWhitespace))
-        sb.setLength(if (includeNewLine) i else i + 1)
+        sb.setLength(if (includeNewLine) i else i + System.lineSeparator.length)
     }
 
     def appendIndent(): Unit = for (i <- 0 until indent) sb.append(' ')
@@ -98,7 +98,7 @@ object _Template {
       var i = 1
       def trimNlPart(): Int = {
         val part = parts(i)
-        val j = part.indexOf('\n')
+        val j = part.indexOf(System.lineSeparator)
         if (j >= 0 && (0 until j).forall(part(_).isWhitespace)) {
           trim(includeNewLine = true)
           j
