@@ -2277,6 +2277,8 @@ package org.sireum
          ensures  result.size ≡ size
                   ∀i: [0, result.size)  result(i) ≡ s(i) """
 
+  @pure def sortWith[I, E](s: IS[I, E], lt: (E, E) => B): IS[I, E] = $
+
   @pure def fromU8[I](s: IS[I, B], n: U8): IS[I, B] =
     l""" ensures result.size ≡ s.size + 8
                  ∀i: [0, s.size)  result(i) ≡ s(i)
@@ -2497,6 +2499,8 @@ package org.sireum
     l""" requires s.size ≥ size
           ensures result.size ≡ size
                   ∀i: [0, result.size)  result(i) ≡ s(i) """
+
+  def sortWith[I, E](s: MS[I, E], @pure lt: (E, E) => B): Unit = $
 
   @pure def fromU8[I](s: MS[I, B], n: U8): MS[I, B] =
     l""" ensures result.size ≡ s.size + 8

@@ -97,6 +97,13 @@ package object sireum {
   val T: B = true
   val F: B = false
   val Template: _Template.type = _Template
+  val _XBoolean: _Extractors.Boolean.type = _Extractors.Boolean
+  val _XChar: _Extractors.Char.type = _Extractors.Char
+  val _XInt: _Extractors.Int.type = _Extractors.Int
+  val _XLong: _Extractors.Long.type = _Extractors.Long
+  val _XFLoat: _Extractors.Float.type = _Extractors.Float
+  val _XDouble: _Extractors.Double.type = _Extractors.Double
+  val _XString: _Extractors.String.type = _Extractors.String
 
   final def readInt(msg: String = "Enter an integer: "): Z = {
     while (true) {

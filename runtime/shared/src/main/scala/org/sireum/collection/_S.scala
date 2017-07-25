@@ -57,8 +57,8 @@ object _IS {
 }
 
 final class _IS[I, V](val iTag: TT[I],
-                      private[collection] val length: Int,
-                      private[collection] val array: Array[Any]) extends _Immutable {
+                      private[sireum] val length: Int,
+                      private[sireum] val array: Array[Any]) extends _Immutable {
 
   override lazy val hashCode: Int = elements.hashCode
 
@@ -230,8 +230,8 @@ object _MS {
 }
 
 final class _MS[I, V](val iTag: TT[I],
-                      private[collection] val length: Int,
-                      private[collection] val array: Array[Any]) extends _Mutable {
+                      private[sireum] val length: Int,
+                      private[sireum] val array: Array[Any]) extends _Mutable {
 
   override def hashCode: Int = elements.hashCode
 

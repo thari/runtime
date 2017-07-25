@@ -1057,6 +1057,10 @@ object SI_Ext {
     collection._IS(result: _*)
   }
 
+  @pure def sortWith[I, E](s: IS[I, E], lt: (E, E) => B): IS[I, E] = {
+    implicit val it = s.iTag
+    collection._IS(s.elements.sortWith((e1, e2) => lt(e1, e2).value): _*)
+  }
 
   @pure def fromU8[I](s: IS[I, B], n: U8): IS[I, B] = {
     implicit val it = s.iTag
@@ -1227,6 +1231,10 @@ object SM_Ext {
       result += _Clonable.clone(s(i))
     }
     collection._MS(result: _*)
+  }
+
+  def sortWith[I, E](s: MS[I, E], @pure lt: (E, E) => B): Unit = {
+    s.array.sortWith((e1, e2) => lt(e1.asInstanceOf[E], e2.asInstanceOf[E]).value)
   }
 
   @pure def fromU8[I](s: MS[I, B], n: U8): MS[I, B] = {
