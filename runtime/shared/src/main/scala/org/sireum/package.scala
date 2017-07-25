@@ -96,7 +96,7 @@ package object sireum {
 
   val T: B = true
   val F: B = false
-  val Template: _Template.type = _Template
+  val ST: _Template.type = _Template
   val _XBoolean: _Extractors.Boolean.type = _Extractors.Boolean
   val _XChar: _Extractors.Char.type = _Extractors.Char
   val _XInt: _Extractors.Int.type = _Extractors.Int
