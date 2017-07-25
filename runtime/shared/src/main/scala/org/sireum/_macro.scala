@@ -224,11 +224,11 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
         if (t =:= templ) q"org.sireum._Template.Templ(scala.Seq($e), $sep)"
         else if ((tName == "org.sireum.collection._IS") || (tName == "org.sireum.collection._MS")) {
           if (t.dealias.typeArgs(1) =:= templ) q"org.sireum._Template.Templ($e.elements, $sep)"
-          else q"org.sireum._Template.Any($e.elements, $sep)"
+          else q"org.sireum._Template.Any($e.elements.map(org.sireum._Option.apply), $sep)"
         } else if (t.erasure <:< c.typeOf[scala.Seq[Any]].erasure) {
           if (t.dealias.typeArgs.head =:= templ) q"org.sireum._Template.Templ($e, $sep)"
-          else q"org.sireum._Template.Any($e, $sep)"
-        } else q"org.sireum._Template.Any(scala.Seq($e), $sep)"
+          else q"org.sireum._Template.Any($e.map(org.sireum._Option.apply), $sep)"
+        } else q"org.sireum._Template.Any(scala.Seq(org.sireum._Option.apply($e)), $sep)"
       //println(showCode(r))
       r
     }

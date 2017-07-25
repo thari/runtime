@@ -41,9 +41,10 @@ object _Template {
     val sb = new StringBuilder
     var indent = 0
 
-    def trim(): Unit = {
+    def trim(includeNewLine: Boolean = false): Unit = {
       val i = sb.lastIndexOf("\n")
-      if (i >= 0 && (i + 1 until sb.length).forall(sb.charAt(_).isWhitespace)) sb.setLength(i + 1)
+      if (i >= 0 && (i + 1 until sb.length).forall(sb.charAt(_).isWhitespace))
+        sb.setLength(if (includeNewLine) i else i + 1)
     }
 
     def appendIndent(): Unit = for (i <- 0 until indent) sb.append(' ')
@@ -95,16 +96,27 @@ object _Template {
       val parts = t.parts
       appendPart(parts.head)
       var i = 1
+      def trimNlPart(): Unit = {
+        if (parts(i).headOption == Some('\n')) trim(includeNewLine = true)
+      }
+      def appendAny(o: scala.Any): Unit = {
+        o match {
+          case Some(v: ST) => rec(v)
+          case Some(v) => append(v.toString)
+          case None => trimNlPart()
+          case v => append(v.toString)
+        }
+      }
       for (arg <- t.args) {
         arg match {
           case Any(vs, sep) =>
             if (vs.nonEmpty) {
-              append(vs.head.toString)
+              appendAny(vs.head)
               for (i <- 1 until vs.length) {
                 append(sep)
-                append(vs(i).toString)
+                appendAny(vs(i))
               }
-            }
+            } else trimNlPart()
           case Templ(ts, sep) =>
             if (ts.nonEmpty) {
               rec(ts.head)
@@ -112,7 +124,7 @@ object _Template {
                 append(sep)
                 rec(ts(i))
               }
-            }
+            } else trimNlPart()
         }
         indent = oldIndent
         appendPart(parts(i))
