@@ -240,10 +240,11 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
         val e = exprs(1)
         val t = e.tpe
         if (t <:<
-          c.typeOf[Predef.String]) processArg(arg, e)
-        else if (t =:= c.typeOf[org.sireum._String]) processArg(arg, q"$e.value")
+          c.typeOf[Predef.String]) processArg(exprs.head, e)
+        else if (t =:= c.typeOf[org.sireum._String]) processArg(exprs.head, q"$e.value")
         else c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
-      case _ => processArg(arg, Literal(Constant("")))
+      case _ =>
+        processArg(arg, Literal(Constant("")))
     }
     val pos = c.prefix.tree.pos
     val source = if (pos.isRange) {

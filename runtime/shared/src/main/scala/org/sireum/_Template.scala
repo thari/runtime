@@ -38,9 +38,20 @@ object _Template {
   private def clean(s: Predef.String): Predef.String = s.replaceAllLiterally("\r", "")
 
   def render(t: ST): String = {
-    val lineSep = System.lineSeparator
     val sb = new StringBuilder
     var indent = 0
+
+    def trim(): Unit = {
+      val i = sb.lastIndexOf("\n")
+      if (i >= 0 && (i + 1 until sb.length).forall(sb.charAt(_).isWhitespace)) sb.setLength(i + 1)
+    }
+
+    def appendIndent(): Unit = for (i <- 0 until indent) sb.append(' ')
+
+    def appendLineSep(): Unit = {
+      trim()
+      sb.append(System.lineSeparator)
+    }
 
     def appendPart(s: Predef.String): Unit = {
       val tkns = new StringTokenizer(clean(s), "\n", true)
@@ -49,7 +60,7 @@ object _Template {
       while (tkns.hasMoreTokens) {
         val tkn = tkns.nextToken()
         if (tkn == "\n") {
-          sb.append(lineSep)
+          appendLineSep()
           appendIndent()
           hasLine = true
         } else {
@@ -66,14 +77,12 @@ object _Template {
       }
     }
 
-    def appendIndent(): Unit = for (i <- 0 until indent) sb.append(' ')
-
     def append(s: Predef.String): Unit = {
       val tkns = new StringTokenizer(clean(s), "\n", true)
       while (tkns.hasMoreTokens) {
         val tkn = tkns.nextToken()
         if (tkn == "\n") {
-          sb.append(lineSep)
+          appendLineSep()
           appendIndent()
         } else {
           sb.append(tkn)
@@ -109,9 +118,11 @@ object _Template {
         appendPart(parts(i))
         i += 1
       }
+      indent = oldIndent
     }
 
     rec(t)
+    trim()
     _2String(sb.toString)
   }
 
