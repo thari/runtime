@@ -97,7 +97,9 @@ object _Template {
       appendPart(parts.head)
       var i = 1
       def trimNlPart(): Unit = {
-        if (parts(i).headOption == Some('\n')) trim(includeNewLine = true)
+        val part = parts(i)
+        if (part.startsWith("\n") || part.startsWith("\r\n"))
+          trim(includeNewLine = true)
       }
       def appendAny(o: scala.Any): Unit = {
         o match {
