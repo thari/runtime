@@ -30,7 +30,7 @@ import scala.meta._
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
 object record {
 
-  def tranformTrait(tree: Defn.Trait): Defn.Trait = {
+  def transformTrait(tree: Defn.Trait): Defn.Trait = {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @record traits have to be of the form '@record trait <id> ... { ... }'.")
@@ -241,8 +241,8 @@ object record {
 class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
-      case tree: Defn.Trait => record.tranformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](record.tranformTrait(t), o))
+      case tree: Defn.Trait => record.transformTrait(tree)
+      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](record.transformTrait(t), o))
       case tree: Defn.Class => record.transformClass(tree, q"object ${Term.Name(tree.name.value)} {}")
       case Term.Block(Seq(t: Defn.Class, o: Defn.Object)) => record.transformClass(t, o)
       case _ =>
