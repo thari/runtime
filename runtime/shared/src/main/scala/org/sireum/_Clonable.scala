@@ -38,8 +38,8 @@ object _Clonable {
     var hasHash = false
     for (stat <- stats if !(hasEquals && hasHash)) {
       stat match {
-        case q"@pure def hash: Z = $_" => hasHash = true
-        case q"@pure def isEqual($name : ${atpeopt: Option[Type.Arg]}): B = $_" =>
+        case q"..$_ def hash: Z = $_" => hasHash = true
+        case q"..$_ def isEqual($_ : ${atpeopt: Option[Type.Arg]}): B = $_" =>
           atpeopt match {
             case Some(t: Type) if tpe.structure == t.structure => hasEquals = true
             case _ =>
