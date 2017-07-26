@@ -32,7 +32,7 @@ object HashMap {
   }
 
   @pure def emptyInit[K, V](initialCapacity: Z): HashMap[K, V] = {
-    val sz: Z = if (initialCapacity <= 0) 4 else initialCapacity
+    val sz: Z = if (initialCapacity <= 0) 4 else initialCapacity * 4 / 3 + 1
     return HashMap[K, V](ISZ.create(sz, Map.empty), 0)
   }
 
