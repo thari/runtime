@@ -69,7 +69,7 @@ object HashSSet {
 
   @pure def union(other: HashSSet[T]): HashSSet[T] = {
     var r = this
-    for (e <- other.map.keys) {
+    for (e <- other.map.keys.elements) {
       r = r.add(e)
     }
     return r
@@ -77,7 +77,7 @@ object HashSSet {
 
   @pure def intersect(other: HashSSet[T]): HashSSet[T] = {
     var r = HashSSet.emptyInit[T](size)
-    for (e <- other.map.keys) {
+    for (e <- other.map.keys.elements) {
       if (contains(e)) {
         r = r.add(e)
       }
@@ -87,7 +87,7 @@ object HashSSet {
 
   @pure def substract(other: HashSSet[T]): HashSSet[T] = {
     var r = this
-    for (e <- other.map.keys) {
+    for (e <- other.map.keys.elements) {
       r = r.remove(e)
     }
     return r
@@ -110,6 +110,6 @@ object HashSSet {
   }
 
   @pure def elements: ISZ[T] = {
-    return map.keys
+    return map.keys.elements
   }
 }

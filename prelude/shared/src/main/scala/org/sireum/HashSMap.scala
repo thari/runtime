@@ -29,17 +29,17 @@ package org.sireum
 object HashSMap {
 
   @pure def empty[K, V]: HashSMap[K, V] = {
-    return HashSMap(HashMap.empty, ISZ())
+    return HashSMap(HashMap.empty, Set.empty)
   }
 
   @pure def emptyInit[K, V](initialCapacity: Z): HashSMap[K, V] = {
-    return HashSMap(HashMap.emptyInit(initialCapacity), ISZ())
+    return HashSMap(HashMap.emptyInit(initialCapacity), Set.empty)
   }
 
 }
 
 @datatype class HashSMap[K, V](map: HashMap[K, V],
-                               keys: ISZ[K]) {
+                               keys: Set[K]) {
   @pure def size: Z = {
     return keys.size
   }
@@ -50,7 +50,7 @@ object HashSMap {
 
   @pure def entries: ISZ[(K, V)] = {
     var r = ISZ[(K, V)]()
-    for (k <- keys) {
+    for (k <- keys.elements) {
       map.get(k) match {
         case Some(v) => r = r :+ ((k, v))
         case _ =>
@@ -64,7 +64,7 @@ object HashSMap {
   }
 
   @pure def keySet: Set[K] = {
-    return Set.empty[K].addAll(keys)
+    return keys
   }
 
   @pure def valueSet: Set[V] = {
@@ -76,7 +76,7 @@ object HashSMap {
     if (newMap.size == size) {
       return this
     } else {
-      return HashSMap(newMap, keys :+ key)
+      return HashSMap(newMap, keys.add(key))
     }
   }
 
@@ -87,7 +87,7 @@ object HashSMap {
     val newMap = map.putAll(entries)
     var newKeys = keys
     for (kv <- entries) {
-      newKeys = newKeys :+ kv._1
+      newKeys = newKeys.add(kv._1)
     }
     return HashSMap(newMap, newKeys)
   }
@@ -97,11 +97,11 @@ object HashSMap {
   }
 
   @pure def removeAll(keys: ISZ[K]): HashSMap[K, V] = {
-    return HashSMap(map.removeAll(keys), this.keys -- keys)
+    return HashSMap(map.removeAll(keys), this.keys.removeAll(keys))
   }
 
   @pure def remove(key: K, value: V): HashSMap[K, V] = {
-    return HashSMap(map.remove(key, value), keys - key)
+    return HashSMap(map.remove(key, value), keys.remove(key))
   }
 
   @pure def isEqual(other: HashSMap[K, V]): B = {

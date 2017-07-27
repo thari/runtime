@@ -143,7 +143,7 @@ package object sireum {
   }
 
   final def eprintln(as: Any*): Unit = {
-    print(as: _*)
+    eprint(as: _*)
     Console.err.println()
     Console.err.flush()
   }
