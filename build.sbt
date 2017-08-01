@@ -6,7 +6,7 @@ val paradiseVersion = "3.0.0-M10"
 
 val silencerVersion = "0.5"
 
-val runtimeVersion = "3.1-SNAPSHOT"
+val runtimeVersion = "3.1"
 
 val sireumScalacVersion = "3.0.0-14"
 
