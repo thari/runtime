@@ -6,7 +6,7 @@ val paradiseVersion = "3.0.0-M10"
 
 val silencerVersion = "0.5"
 
-val runtimeVersion = "3.1"
+val runtimeVersion = "3.1.1-SNAPSHOT"
 
 val sireumScalacVersion = "3.0.0-14"
 
@@ -26,7 +26,6 @@ val commonSettings = Seq(
     "org.scalameta" %% "scalameta" % metaVersion
   ),
   sources in(Compile, doc) := Seq.empty,
-  publishArtifact in(Compile, packageDoc) := false,
   resolvers += Resolver.sonatypeRepo("public"),
   addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
   publishMavenStyle := true,
@@ -64,8 +63,7 @@ lazy val sireumRuntime = {
   val `sireum-runtime` = project.in(file(".")).
     aggregate(runtimeJvm, runtimeJs, preludeJvm, preludeJs).
     settings(
-      publish := {},
-      publishLocal := {}
+      publishArtifact := false
     )
   `sireum-runtime`
 }
