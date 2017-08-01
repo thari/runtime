@@ -78,4 +78,12 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
     bazzz.updateX(4)
     bazzz.x == z"4"
   }
+
+  * {
+    val p = (Bar(1, 2), Bar(3, 4))
+    val q = p
+    p._1.y = 3
+    p != q
+  }
+
 }

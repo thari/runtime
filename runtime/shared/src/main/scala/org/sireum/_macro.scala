@@ -96,8 +96,16 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
   }
 
   def _assignImpl(arg: c.Tree): c.Tree = {
+    def args(n: Int): List[c.Tree] =
+      (for (i <- 1 to n) yield
+        Apply(Ident(TermName("__assign")), List(Select(arg, TermName(s"_$i"))))).toList
     //println(showRaw(arg))
-    val r = if (arg.tpe <:< c.typeOf[_Mutable]) q"__assign($arg)" else arg
+    val r =
+      if (arg.tpe <:< c.typeOf[_Mutable]) q"__assign($arg)"
+      else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
+        val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
+        Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), args(n))
+      } else arg
     //println(showRaw(r))
     //println(showCode(r))
     r
