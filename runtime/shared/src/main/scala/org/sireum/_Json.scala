@@ -1,25 +1,114 @@
+/*
+ * Copyright (c) 2017, Robby, Kansas State University
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package org.sireum
 
-object Json_Ext {
-  def parseString(text: String, offset: Z): (Option[String], Z) = {
-    val s = text.value
-    val sz = s.length
-    var i = offset.toInt
+object _Json {
+
+  final case class ParseException(offset: Int, message: Predef.String) extends RuntimeException(message)
+
+  object ValueKind extends Enumeration {
+    type Type = Value
+    val String, Number, Object, Array, True, False, Null = Value
+  }
+
+}
+
+trait _JsonParser {
+
+  var offset: Int
+
+  val input: Array[Char]
+
+  def errorIfEof(i: Int = offset): Unit = if (i >= input.length) throw _Json.ParseException(offset, "Unexpected end-of-file.")
+
+  def incOffset(n: Int = 1): Char = {
+    offset += n
+    errorIfEof()
+    input(offset)
+  }
+
+  def detect(): _Json.ValueKind.Type = {
+    parseWhitespace()
+    errorIfEof()
+    input(offset) match {
+      case '"' => _Json.ValueKind.String
+      case '{' => _Json.ValueKind.Object
+      case '[' => _Json.ValueKind.Array
+      case 't' => _Json.ValueKind.True
+      case 'f' => _Json.ValueKind.False
+      case 'n' => _Json.ValueKind.Null
+      case '-' => _Json.ValueKind.Number
+      case c if c.isDigit => _Json.ValueKind.Number
+      case _ => throw _Json.ParseException(offset, "Unexpected end-of-file.")
+    }
+  }
+
+  def parseObjectType: Predef.String = {
+    errorIfEof()
+    input(offset) match {
+      case '{' =>
+        parseWhitespace()
+        val i = offset + 1
+        val key = parseString()
+        if (key != "type") throw _Json.ParseException(i, s"Expected 'type', but '$key' found.")
+        parseWhitespace()
+        errorIfEof()
+        input(offset) match {
+          case ':' =>
+            offset += 1
+            parseWhitespace()
+            val value = parseString()
+            parseWhitespace()
+            errorIfEof()
+            input(offset) match {
+              case ',' =>
+                offset += 1
+                parseWhitespace()
+                return value
+              case c => throw _Json.ParseException(offset, s"Expected ',', but '$c' found.")
+            }
+          case c => throw _Json.ParseException(offset, s"Expected ':', but '$c' found.")
+        }
+      case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
+    }
+  }
+
+  def parseString(): Predef.String = {
+    errorIfEof()
+
     val sb = new StringBuilder
 
-    if (i >= sz) return (None(), _Z(i))
-
-    s(i) match {
+    var c = input(offset)
+    c match {
       case '"' =>
-        i += 1
-        if (i >= sz) return (None(), _Z(i))
-        var c = s(i)
-        while (i < sz && c != '"') {
+        c = incOffset()
+        while (c != '"') {
           c match {
             case '\\' =>
-              i += 1
-              if (i >= sz) return (None(), _Z(i))
-              c = s(i)
+              c = incOffset()
               c match {
                 case '"' => sb.append('"')
                 case '\\' => sb.append('\\')
@@ -30,30 +119,105 @@ object Json_Ext {
                 case 'r' => sb.append('\r')
                 case 't' => sb.append('\t')
                 case 'u' =>
-                  i += 1
-                  if (i + 4 >= sz) return (None(), _Z(sz))
-                  c = Integer.parseInt(s.substring(i, i + 4), 16).toChar
+                  incOffset(4)
+                  c = Integer.parseInt(new Predef.String(input.slice(offset - 3, offset + 1)), 16).toChar
                   sb.append(c)
-                  i += 4
-                case _ => return (None(), _Z(i))
+                case _ => throw _Json.ParseException(offset, s"Expected an escaped character but '$c' found.")
               }
             case _ => sb.append(c)
           }
-          i += 1
-          if (i < sz) c = s(i)
+          c = incOffset()
         }
-        if (c == '"') return (Some(_2String(sb.toString)), _Z(i + 1))
-        else return (None(), _Z(sz))
-      case _ => return (None(), _Z(i))
+        offset += 1
+        sb.toString
+      case _ => throw _Json.ParseException(offset, s"""Expected '"' but '$c' found.""")
     }
   }
 
-  def parseNumber(text: String, offset: Z): (Option[String], Z) = {
-    val s = text.value
-    val sz = s.length
-    var i = offset.toInt
+  def parseWhitespace(): Unit = {
+    if (offset >= input.length) return
+    var c = input(offset)
+    while (c.isWhitespace) {
+      offset += 1
+      if (offset >= input.length) return
+      c = input(offset)
+    }
+  }
+
+  def parseNumber(): Predef.String = {
     val sb = new StringBuilder
 
-    if (i >= sz) return (None(), _Z(i))
+    errorIfEof()
+
+    var c = input(offset)
+    c match {
+      case '-' =>
+        sb.append(c)
+        c = incOffset()
+      case _ if c.isDigit =>
+      case _ => throw _Json.ParseException(offset, s"""Expected a '-' or a digit but '$c' found.""")
+    }
+
+    c match {
+      case '0' =>
+        sb.append(c)
+        if (offset + 1 == input.length) {
+          offset += 1
+          return sb.toString
+        }
+        c = incOffset()
+      case _ =>
+        sb.append(c)
+        if (offset + 1 == input.length) {
+          offset += 1
+          return sb.toString
+        }
+        c = incOffset()
+        while (c.isDigit) {
+          sb.append(c)
+          if (offset + 1 == input.length) {
+            offset += 1
+            return sb.toString
+          }
+          c = incOffset()
+        }
+    }
+
+    c match {
+      case '.' =>
+        sb.append(c)
+        c = incOffset()
+        while (c.isDigit) {
+          sb.append(c)
+          if (offset + 1 == input.length) {
+            offset += 1
+            return sb.toString
+          }
+          c = incOffset()
+        }
+      case _ =>
+    }
+
+    c match {
+      case 'e' | 'E' =>
+        sb.append(c)
+        c = incOffset()
+        c match {
+          case '+' | '-' =>
+            sb.append(c)
+            c = incOffset()
+          case _ =>
+        }
+        while (c.isDigit) {
+          sb.append(c)
+          if (offset + 1 == input.length) {
+            offset += 1
+            return sb.toString
+          }
+          c = incOffset()
+        }
+        sb.toString
+      case _ => return sb.toString
+    }
   }
 }
