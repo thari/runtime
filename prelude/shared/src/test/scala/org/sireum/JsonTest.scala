@@ -8,8 +8,6 @@ class JsonTest extends SireumSpec {
 
   * (parseString("\"a\\\"\\rbc\"") == "a\"\rbc")
 
-  * (parseString("") == "a\"\rbc")
-
   * (parseNumber("-0") == "-0")
 
   * (parseNumber("12.33") == "12.33")

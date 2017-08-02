@@ -66,33 +66,32 @@ trait _JsonParser {
     }
   }
 
-  def parseObjectType: Predef.String = {
+  def parseObjectType(): Predef.String = {
     errorIfEof()
     input(offset) match {
       case '{' =>
         parseWhitespace()
         val i = offset + 1
-        val key = parseString()
+        val key = parseObjectKey()
         if (key != "type") throw _Json.ParseException(i, s"Expected 'type', but '$key' found.")
-        parseWhitespace()
-        errorIfEof()
-        input(offset) match {
-          case ':' =>
-            offset += 1
-            parseWhitespace()
-            val value = parseString()
-            parseWhitespace()
-            errorIfEof()
-            input(offset) match {
-              case ',' =>
-                offset += 1
-                parseWhitespace()
-                return value
-              case c => throw _Json.ParseException(offset, s"Expected ',', but '$c' found.")
-            }
-          case c => throw _Json.ParseException(offset, s"Expected ':', but '$c' found.")
-        }
+        val value = parseString()
+        parseValueEnd()
+        value
       case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
+    }
+  }
+
+  def parseObjectKey(): Predef.String = {
+    errorIfEof()
+    val key = parseString()
+    parseWhitespace()
+    errorIfEof()
+    input(offset) match {
+      case ':' =>
+        offset += 1
+        parseWhitespace()
+        key
+      case c => throw _Json.ParseException(offset, s"Expected ':', but '$c' found.")
     }
   }
 
@@ -134,15 +133,6 @@ trait _JsonParser {
     }
   }
 
-  def parseWhitespace(): Unit = {
-    if (offset >= input.length) return
-    var c = input(offset)
-    while (c.isWhitespace) {
-      offset += 1
-      if (offset >= input.length) return
-      c = input(offset)
-    }
-  }
 
   def parseNumber(): Predef.String = {
     val sb = new StringBuilder
@@ -218,6 +208,32 @@ trait _JsonParser {
         }
         sb.toString
       case _ => return sb.toString
+    }
+  }
+
+  def parseValueEnd(): Boolean = {
+    parseWhitespace()
+    errorIfEof()
+    input(offset) match {
+      case ',' =>
+        offset += 1
+        parseWhitespace()
+        true
+      case '}' =>
+        offset += 1
+        parseWhitespace()
+        false
+      case c => throw _Json.ParseException(offset, s"Expected ',' or '}', but '$c' found.")
+    }
+  }
+
+  def parseWhitespace(): Unit = {
+    if (offset >= input.length) return
+    var c = input(offset)
+    while (c.isWhitespace) {
+      offset += 1
+      if (offset >= input.length) return
+      c = input(offset)
     }
   }
 }
