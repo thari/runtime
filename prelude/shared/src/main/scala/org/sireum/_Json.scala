@@ -376,7 +376,7 @@ object _JsonSt {
   def stObject(v: JObject): ST = stRawObject(v.value.map(f => (f.field, stValue(f.value))): _*)
 
   def stRawObject(fields: (Predef.String, ST)*): ST = {
-    val fs = for ((k, v) <- fields) yield st"$k : $v"
+    val fs = for ((k, v) <- fields) yield st""""$k" : $v"""
     st"""{
         |  ${(fs, ",\n")}
         |}"""
