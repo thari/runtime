@@ -29,6 +29,13 @@ import scalajson.ast.unsafe._
 
 object _Json {
 
+  type JsonObject = JObject
+  type JsonArray = JArray
+  type JsonString = JString
+  type JsonNumber = JNumber
+  type JsonTrue = JTrue.type
+  type JsonFalse = JFalse.type
+
   final case class ParseException(offset: Int, message: Predef.String) extends RuntimeException(message)
 
   object ValueKind extends Enumeration {
@@ -36,7 +43,9 @@ object _Json {
     val String, Number, Object, Array, True, False, Null = Value
   }
 
-  def parse(cs: CharSequence): JObject = {
+  def parse(s: String): JsonObject = parse(s.value)
+
+  def parse(cs: CharSequence): JsonObject = {
     val parser = new _JsonParser {
       override var offset: Int = 0
       override val input: CharSequence = cs
@@ -44,7 +53,10 @@ object _Json {
     parser.parseTopObject()
   }
 
+  def stringify(o: JsonObject): String = _JsonSt.stObject(o).render
 }
+
+import _Json._
 
 trait _JsonParser {
 
@@ -54,7 +66,7 @@ trait _JsonParser {
 
   def errorIfEof(i: Int = offset): Unit =
     if (i >= input.length)
-      throw _Json.ParseException(offset, "Unexpected end-of-file.")
+      throw ParseException(offset, "Unexpected end-of-file.")
 
   def incOffset(n: Int = 1): Char = {
     offset += n
@@ -62,40 +74,40 @@ trait _JsonParser {
     input.charAt(offset)
   }
 
-  def detect(): _Json.ValueKind.Type = {
+  def detect(): ValueKind.Type = {
     parseWhitespace()
     errorIfEof()
     input.charAt(offset) match {
-      case '"' => _Json.ValueKind.String
-      case '{' => _Json.ValueKind.Object
-      case '[' => _Json.ValueKind.Array
-      case 't' => _Json.ValueKind.True
-      case 'f' => _Json.ValueKind.False
-      case 'n' => _Json.ValueKind.Null
-      case '-' => _Json.ValueKind.Number
-      case c if c.isDigit => _Json.ValueKind.Number
-      case _ => throw _Json.ParseException(offset, "Unexpected end-of-file.")
+      case '"' => ValueKind.String
+      case '{' => ValueKind.Object
+      case '[' => ValueKind.Array
+      case 't' => ValueKind.True
+      case 'f' => ValueKind.False
+      case 'n' => ValueKind.Null
+      case '-' => ValueKind.Number
+      case c if c.isDigit => ValueKind.Number
+      case _ => throw ParseException(offset, "Unexpected end-of-file.")
     }
   }
 
-  def parseTopObject(): JObject = {
+  def parseTopObject(): JsonObject = {
     parseWhitespace()
     val r = parseObject()
-    if (offset < input.length) throw _Json.ParseException(offset, s"Expected end-of-file, but '${input.charAt(offset)}' found.")
+    if (offset < input.length) throw ParseException(offset, s"Expected end-of-file, but '${input.charAt(offset)}' found.")
     r
   }
 
   def parseValue(): JValue = detect() match {
-    case _Json.ValueKind.String => JString(parseString())
-    case _Json.ValueKind.Object => parseObject()
-    case _Json.ValueKind.Array => parseArray()
-    case _Json.ValueKind.True => parseConstant("true")
-    case _Json.ValueKind.False => parseConstant("false")
-    case _Json.ValueKind.Null => parseConstant("null")
-    case _Json.ValueKind.Number => JNumber(parseNumber())
+    case ValueKind.String => JString(parseString())
+    case ValueKind.Object => parseObject()
+    case ValueKind.Array => parseArray()
+    case ValueKind.True => parseConstant("true")
+    case ValueKind.False => parseConstant("false")
+    case ValueKind.Null => parseConstant("null")
+    case ValueKind.Number => JNumber(parseNumber())
   }
 
-  def parseObject(): JObject = {
+  def parseObject(): JsonObject = {
     errorIfEof()
     input.charAt(offset) match {
       case '{' =>
@@ -110,11 +122,11 @@ trait _JsonParser {
             while (parseObjectEnd()) fields ::= JField(parseObjectKey(), parseValue())
             JObject(fields.reverse.toArray)
         }
-      case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected '{', but '$c' found.")
     }
   }
 
-  def parseArray(): JArray = {
+  def parseArray(): JsonArray = {
     errorIfEof()
     input.charAt(offset) match {
       case '[' =>
@@ -128,7 +140,7 @@ trait _JsonParser {
             while (parseArrayEnd()) values ::= parseValue()
             JArray(values.reverse.toArray)
         }
-      case c => throw _Json.ParseException(offset, s"Expected '[', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected '[', but '$c' found.")
     }
   }
 
@@ -137,11 +149,11 @@ trait _JsonParser {
       case "true" => JTrue
       case "false" => JFalse
       case "null" => JNull
-      case _ => throw _Json.ParseException(offset, s"Invalid constant value '$text'.")
+      case _ => throw ParseException(offset, s"Invalid constant value '$text'.")
     }
     errorIfEof(offset + text.length - 1)
     val t = slice(offset, offset + text.length)
-    if (t != text) throw _Json.ParseException(offset, s"Expected '$text', but '$t' found.")
+    if (t != text) throw ParseException(offset, s"Expected '$text', but '$t' found.")
     offset += text.length
     r
   }
@@ -153,11 +165,11 @@ trait _JsonParser {
         parseWhitespace()
         val i = offset + 1
         val key = parseObjectKey()
-        if (key != "type") throw _Json.ParseException(i, s"Expected 'type', but '$key' found.")
+        if (key != "type") throw ParseException(i, s"Expected 'type', but '$key' found.")
         val value = parseString()
         parseObjectEnd()
         value
-      case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected '{', but '$c' found.")
     }
   }
 
@@ -171,7 +183,7 @@ trait _JsonParser {
         offset += 1
         parseWhitespace()
         key
-      case c => throw _Json.ParseException(offset, s"Expected ':', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected ':', but '$c' found.")
     }
   }
 
@@ -201,7 +213,7 @@ trait _JsonParser {
                   incOffset(4)
                   c = Integer.parseInt(slice(offset - 3, offset + 1), 16).toChar
                   sb.append(c)
-                case _ => throw _Json.ParseException(offset, s"Expected an escaped character but '$c' found.")
+                case _ => throw ParseException(offset, s"Expected an escaped character but '$c' found.")
               }
             case _ => sb.append(c)
           }
@@ -209,7 +221,7 @@ trait _JsonParser {
         }
         offset += 1
         sb.toString
-      case _ => throw _Json.ParseException(offset, s"""Expected '"' but '$c' found.""")
+      case _ => throw ParseException(offset, s"""Expected '"' but '$c' found.""")
     }
   }
 
@@ -224,7 +236,7 @@ trait _JsonParser {
         sb.append(c)
         c = incOffset()
       case _ if c.isDigit =>
-      case _ => throw _Json.ParseException(offset, s"""Expected a '-' or a digit but '$c' found.""")
+      case _ => throw ParseException(offset, s"""Expected a '-' or a digit but '$c' found.""")
     }
 
     c match {
@@ -302,7 +314,7 @@ trait _JsonParser {
         offset += 1
         parseWhitespace()
         false
-      case c => throw _Json.ParseException(offset, s"Expected ',' or '}', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected ',' or '}', but '$c' found.")
     }
   }
 
@@ -318,7 +330,7 @@ trait _JsonParser {
         offset += 1
         parseWhitespace()
         false
-      case c => throw _Json.ParseException(offset, s"Expected ',' or ']', but '$c' found.")
+      case c => throw ParseException(offset, s"Expected ',' or ']', but '$c' found.")
     }
   }
 
@@ -373,7 +385,7 @@ object _JsonSt {
 
   def stNumber(s: Predef.String): ST = st"$s"
 
-  def stObject(v: JObject): ST = stRawObject(v.value.map(f => (f.field, stValue(f.value))): _*)
+  def stObject(v: JsonObject): ST = stRawObject(v.value.map(f => (f.field, stValue(f.value))): _*)
 
   def stRawObject(fields: (Predef.String, ST)*): ST = {
     val fs = for ((k, v) <- fields) yield st""""$k" : $v"""
@@ -382,8 +394,8 @@ object _JsonSt {
         |}"""
   }
 
-  def stArray(v: JArray): ST =
-    if (v.value.exists(e => e.isInstanceOf[JObject] || e.isInstanceOf[JArray]))
+  def stArray(v: JsonArray): ST =
+    if (v.value.exists(e => e.isInstanceOf[JsonObject] || e.isInstanceOf[JArray]))
       stRawComplexArray(v.value.map(stValue): _*)
     else stRawSimpleArray(v.value.map(stValue): _*)
 
@@ -392,10 +404,10 @@ object _JsonSt {
   def stRawSimpleArray(elements: ST*): ST = st"[${(elements, ", ")}]"
 
   def stValue(v: JValue): ST = v match {
-    case v: JObject => stObject(v)
-    case v: JArray => stArray(v)
-    case v: JNumber => stNumber(v.value)
-    case v: JString => stString(v.value)
+    case v: JsonObject => stObject(v)
+    case v: JsonArray => stArray(v)
+    case v: JsonNumber => stNumber(v.value)
+    case v: JsonString => stString(v.value)
     case JTrue => trueSt
     case JFalse => falseSt
     case JNull => nullSt

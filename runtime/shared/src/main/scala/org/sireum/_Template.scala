@@ -53,11 +53,9 @@ object _Template {
     }
 
     def appendPart(s: Predef.String): Unit = {
-      val tkns = new StringTokenizer(s, "\r\n", true)
       var n = 0
       var hasLine = false
-      while (tkns.hasMoreTokens) {
-        val tkn = tkns.nextToken()
+      for (tkn <- splitNlChars(s)) {
         if (tkn == "\n") {
           appendLineSep()
           appendIndent()
@@ -77,9 +75,7 @@ object _Template {
     }
 
     def append(s: Predef.String): Unit = {
-      val tkns = new StringTokenizer(s, "\r\n", true)
-      while (tkns.hasMoreTokens) {
-        val tkn = tkns.nextToken()
+      for (tkn <- splitNlChars(s)) {
         if (tkn == "\n") {
           appendLineSep()
           appendIndent()
@@ -87,6 +83,27 @@ object _Template {
           sb.append(tkn)
         }
       }
+    }
+
+    def splitNlChars(s: Predef.String): List[Predef.String] = {
+      var l = List[Predef.String]()
+      var i = 0
+      val sz = s.length
+      val sb = new StringBuilder(sz)
+      while (i < sz) {
+        s(i) match {
+          case '\r' =>
+            l = if (sb.length > 0) "\r" :: (sb.toString) :: l else "\r" :: l
+            sb.setLength(0)
+          case '\n' =>
+            l = if (sb.length > 0) "\n" :: (sb.toString) :: l else "\n" :: l
+            sb.setLength(0)
+          case c => sb.append(c)
+        }
+        i += 1
+      }
+      if (sb.length > 0) l = sb.toString :: l
+      l.reverse
     }
 
     def rec(t: ST): Unit = {
