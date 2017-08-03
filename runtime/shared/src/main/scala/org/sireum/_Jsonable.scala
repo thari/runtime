@@ -25,16 +25,4 @@
 
 package org.sireum
 
-final class _B(val value: Boolean) extends AnyVal with _Jsonable {
-  private type T = B
-  def &(other: T): T = value & other.value
-  def |(other: T): T = value | other.value
-  def |^(other: T): T = value ^ other.value
-  def &&(other: => T): T = value && other.value
-  def ||(other: => T): T = value || other.value
-  def unary_! : T = !value
-  def unary_~ : T = !value
-  def hash: Z = hashCode
-  def isEqual(other: T): B = this == other
-  override def toString: Predef.String = value.toString
-}
+trait _Jsonable extends Any

@@ -26,7 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
-import org.sireum._Range
+import org.sireum.{_Jsonable, _Range}
 
 object _N {
 
@@ -62,7 +62,7 @@ object _N {
   }
 }
 
-final class _N(val value: Z) extends AnyVal {
+final class _N(val value: Z) extends AnyVal with _Jsonable {
   def +(other: N): N = _N(value + other.value)
 
   def -(other: N): N = _N(value - other.value)

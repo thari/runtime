@@ -160,7 +160,14 @@ object record {
                     sb.toString
                   }"""
         }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Record with ..$ctorcalls { ..${vars ++ hash ++ isEqual ++ Vector(hashCode, equals, clone, apply, toString) ++ stats} }"
+        val content = {
+          var fields = List[Term.Arg](q"(${Lit.String("type")}, ${Lit.String(tname.value)})")
+          for (x <- applyArgs) {
+            fields ::= q"(${Lit.String(x.value)}, $x)"
+          }
+          q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
+        }
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Record with ..$ctorcalls { ..${vars ++ hash ++ isEqual ++ Vector(hashCode, equals, content, clone, apply, toString) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -219,7 +226,8 @@ object record {
           val r = tname.value + "()"
           q"""override def toString: java.lang.String = ${Lit.String(r)}"""
         }
-        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Record with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, clone, toString) ++ stats} }"
+        val content = q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
+        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Record with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, content, clone, toString) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

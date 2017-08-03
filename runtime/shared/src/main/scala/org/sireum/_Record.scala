@@ -25,5 +25,6 @@
 
 package org.sireum
 
-trait _Record extends _Mutable
-
+trait _Record extends _Mutable with _Jsonable {
+  def content: Seq[(Predef.String, Any)]
+}

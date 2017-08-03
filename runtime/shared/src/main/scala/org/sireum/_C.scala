@@ -25,7 +25,7 @@
 
 package org.sireum
 
-final class _C(val value: Char) extends AnyVal {
+final class _C(val value: Char) extends AnyVal with _Jsonable {
   private type T = C
   def <(other: T): B = value < other.value
   def <=(other: T): B = value <= other.value

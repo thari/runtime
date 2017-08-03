@@ -25,4 +25,6 @@
 
 package org.sireum
 
-trait _Datatype extends _Immutable
+trait _Datatype extends _Immutable with _Jsonable {
+  def content: Seq[(Predef.String, Any)]
+}

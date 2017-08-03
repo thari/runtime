@@ -26,7 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
-import org.sireum._Range
+import org.sireum.{_Jsonable, _Range}
 
 object _Z {
   final private[sireum] val intMin = BigInt(Int.MinValue)
@@ -61,7 +61,7 @@ object _Z {
     rnd = new scala.util.Random()))
 }
 
-sealed trait _Z extends Comparable[_Z] {
+sealed trait _Z extends Comparable[_Z] with _Jsonable {
   def unary_- : Z
 
   def +(other: Z): Z

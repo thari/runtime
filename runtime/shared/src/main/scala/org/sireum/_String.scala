@@ -25,7 +25,7 @@
 
 package org.sireum
 
-final class _String(val value: Predef.String) extends AnyVal {
+final class _String(val value: Predef.String) extends AnyVal with _Jsonable {
   private type T = C
   def hash: Z = hashCode
   def isEqual(other: _String): B = this == other
