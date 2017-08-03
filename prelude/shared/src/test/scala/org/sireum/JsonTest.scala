@@ -51,8 +51,8 @@ class JsonTest extends SireumSpec {
 
   def parse[T](s: Predef.String, f: _JsonParser => T): T = {
     val json = new _JsonParser {
-      var offset: Int = 0
-      val input: Array[Char] = s.toCharArray
+      override var offset: Int = 0
+      override val input: CharSequence = s
     }
     val r = f(json)
     assert(json.input.length == json.offset)

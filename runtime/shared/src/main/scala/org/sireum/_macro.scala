@@ -233,15 +233,19 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
         else if ((tName == "org.sireum.collection._IS") || (tName == "org.sireum.collection._MS")) {
           if (t.dealias.typeArgs(1) =:= templ) q"org.sireum._Template.Templ($e.elements, $sep)"
           else q"org.sireum._Template.Any($e.elements.map(org.sireum._Option.apply), $sep)"
-        } else if (t.erasure <:< c.typeOf[scala.Seq[Any]].erasure) {
-          if (t.dealias.typeArgs.head =:= templ) q"org.sireum._Template.Templ($e, $sep)"
-          else q"org.sireum._Template.Any($e.map(org.sireum._Option.apply), $sep)"
+        } else if (t.erasure <:< c.typeOf[scala.collection.GenTraversableOnce[Any]].erasure) {
+          if (t.dealias.typeArgs.head =:= templ) q"org.sireum._Template.Templ($e.toSeq, $sep)"
+          else q"org.sireum._Template.Any($e.toSeq.map(org.sireum._Option.apply), $sep)"
         } else q"org.sireum._Template.Any(scala.Seq(org.sireum._Option.apply($e)), $sep)"
       //println(showCode(r))
       r
     }
-
-    val q"org.sireum.`package`._Slang(scala.StringContext.apply(..$parts))" = c.prefix.tree
+    //println(showRaw(c.prefix.tree))
+    //println(showCode(c.prefix.tree))
+    val parts = c.prefix.tree match {
+      case q"org.sireum.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+      case q"sireum.this.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+    }
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>
         if (exprs.size != 2) c.abort(arg.pos, s"Expecting a pair instead of a ${exprs.size}-tuple.")

@@ -72,8 +72,7 @@ lazy val runtime = crossProject.in(file("runtime")).settings(commonSettings: _*)
   name := "runtime",
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVer,
-    "org.spire-math" %%% "spire" % "0.13.0",
-    "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4"
+    "org.spire-math" %%% "spire" % "0.13.0"
   )
 )
 
@@ -83,6 +82,7 @@ lazy val runtimeJs = runtime.js
 lazy val prelude = crossProject.in(file("prelude")).settings(commonSettings: _*).settings(
   name := "prelude",
   libraryDependencies ++= Seq(
+    "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4",
     "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
     "com.github.ghik" %% "silencer-lib" % silencerVersion
   ),
