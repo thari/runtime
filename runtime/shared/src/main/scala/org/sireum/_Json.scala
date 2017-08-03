@@ -25,6 +25,8 @@
 
 package org.sireum
 
+import scalajson.ast.unsafe._
+
 object _Json {
 
   final case class ParseException(offset: Int, message: Predef.String) extends RuntimeException(message)
@@ -42,7 +44,9 @@ trait _JsonParser {
 
   val input: Array[Char]
 
-  def errorIfEof(i: Int = offset): Unit = if (i >= input.length) throw _Json.ParseException(offset, "Unexpected end-of-file.")
+  def errorIfEof(i: Int = offset): Unit =
+    if (i >= input.length)
+      throw _Json.ParseException(offset, "Unexpected end-of-file.")
 
   def incOffset(n: Int = 1): Char = {
     offset += n
@@ -66,6 +70,74 @@ trait _JsonParser {
     }
   }
 
+  def parseTopObject(): JObject = {
+    parseWhitespace()
+    val r = parseObject()
+    if (offset < input.length) throw _Json.ParseException(offset, s"Expected end-of-file, but '${input(offset)}' found.")
+    r
+  }
+
+  def parseValue(): JValue = detect() match {
+    case _Json.ValueKind.String => JString(parseString())
+    case _Json.ValueKind.Object => parseObject()
+    case _Json.ValueKind.Array => parseArray()
+    case _Json.ValueKind.True => parseConstant("true")
+    case _Json.ValueKind.False => parseConstant("false")
+    case _Json.ValueKind.Null => parseConstant("null")
+    case _Json.ValueKind.Number => JNumber(parseNumber())
+  }
+
+  def parseObject(): JObject = {
+    errorIfEof()
+    input(offset) match {
+      case '{' =>
+        val c = incOffset()
+        parseWhitespace()
+        c match {
+          case '}' =>
+            offset += 1
+            return JObject()
+          case _ =>
+            var fields = List[JField](JField(parseObjectKey(), parseValue()))
+            while (parseObjectEnd()) fields ::= JField(parseObjectKey(), parseValue())
+            JObject(fields.reverse.toArray)
+        }
+      case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
+    }
+  }
+
+  def parseArray(): JArray = {
+    errorIfEof()
+    input(offset) match {
+      case '[' =>
+        val c = incOffset()
+        c match {
+          case ']' =>
+            offset += 1
+            return JArray()
+          case _ =>
+            var values = List[JValue](parseValue())
+            while (parseArrayEnd()) values ::= parseValue()
+            JArray(values.reverse.toArray)
+        }
+      case c => throw _Json.ParseException(offset, s"Expected '[', but '$c' found.")
+    }
+  }
+
+  def parseConstant(text: Predef.String): JValue = {
+    val r = text match {
+      case "true" => JTrue
+      case "false" => JFalse
+      case "null" => JNull
+      case _ => throw _Json.ParseException(offset, s"Invalid constant value '$text'.")
+    }
+    errorIfEof(offset + text.length - 1)
+    val t = new Predef.String(input.slice(offset, offset + text.length))
+    if (t != text) throw _Json.ParseException(offset, s"Expected '$text', but '$t' found.")
+    offset += text.length
+    r
+  }
+
   def parseObjectType(): Predef.String = {
     errorIfEof()
     input(offset) match {
@@ -75,7 +147,7 @@ trait _JsonParser {
         val key = parseObjectKey()
         if (key != "type") throw _Json.ParseException(i, s"Expected 'type', but '$key' found.")
         val value = parseString()
-        parseValueEnd()
+        parseObjectEnd()
         value
       case c => throw _Json.ParseException(offset, s"Expected '{', but '$c' found.")
     }
@@ -132,7 +204,6 @@ trait _JsonParser {
       case _ => throw _Json.ParseException(offset, s"""Expected '"' but '$c' found.""")
     }
   }
-
 
   def parseNumber(): Predef.String = {
     val sb = new StringBuilder
@@ -211,7 +282,7 @@ trait _JsonParser {
     }
   }
 
-  def parseValueEnd(): Boolean = {
+  def parseObjectEnd(): Boolean = {
     parseWhitespace()
     errorIfEof()
     input(offset) match {
@@ -224,6 +295,22 @@ trait _JsonParser {
         parseWhitespace()
         false
       case c => throw _Json.ParseException(offset, s"Expected ',' or '}', but '$c' found.")
+    }
+  }
+
+  def parseArrayEnd(): Boolean = {
+    parseWhitespace()
+    errorIfEof()
+    input(offset) match {
+      case ',' =>
+        offset += 1
+        parseWhitespace()
+        true
+      case ']' =>
+        offset += 1
+        parseWhitespace()
+        false
+      case c => throw _Json.ParseException(offset, s"Expected ',' or ']', but '$c' found.")
     }
   }
 

@@ -72,7 +72,8 @@ lazy val runtime = crossProject.in(file("runtime")).settings(commonSettings: _*)
   name := "runtime",
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVer,
-    "org.spire-math" %%% "spire" % "0.13.0"
+    "org.spire-math" %%% "spire" % "0.13.0",
+    "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4"
   )
 )
 
