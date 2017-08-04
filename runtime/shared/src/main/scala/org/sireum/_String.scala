@@ -30,5 +30,6 @@ final class _String(val value: Predef.String) extends AnyVal with _Jsonable {
   def hash: Z = hashCode
   def isEqual(other: _String): B = this == other
   override def toString: Predef.String = value.toString
+  def size: Z = value.length
   def stripPrefix(prefix: String): String = value.stripPrefix(prefix.value) // Workaround: Needed to make IntelliJ Scala Worksheet works
 }

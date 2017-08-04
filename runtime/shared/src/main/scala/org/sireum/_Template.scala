@@ -66,7 +66,7 @@ object _Template {
             if (i >= 0 && tkn.substring(0, i).forall(_.isWhitespace)) tkn.substring(i + 1) else tkn
           } else tkn
           sb.append(stripped)
-          n = stripped.size
+          n = stripped.length
         }
       }
       if (hasLine) {

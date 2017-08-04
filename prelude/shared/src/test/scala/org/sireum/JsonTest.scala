@@ -52,21 +52,30 @@ class JsonTest extends SireumSpec {
 
   def oPrettyParse(s: Predef.String): Predef.String = _JsonSt.stObject(parseTopObject(s)).render.value
 
-  def parseTopObject(s: Predef.String): JObject = parse(s, _.parseTopObject())
-
-  def parseValue(s: Predef.String): JValue = parse(s, _.parseValue())
-
-  def parseString(s: Predef.String): Predef.String = parse(s, _.parsePredefString())
-
-  def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber())
-
-  def parse[T](s: Predef.String, f: _JsonParser => T): T = {
-    val json = new _JsonParser {
-      override var offset: Int = 0
-      override val input: CharSequence = s
+  def parseTopObject(s: Predef.String): JObject =
+    Json.parseAst(_JsonAst.Binding, _2String(s)) match {
+      case Either(Some(o: JObject), _) => o
+      case Either(_, Some(errMsg)) =>
+        assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
+      case _ => assert(F); null
     }
+
+  def parseValue(s: Predef.String): JValue =
+    Json.parseAst(_JsonAst.Binding, _2String(s)) match {
+      case Either(Some(o), _) => o
+      case Either(_, Some(errMsg)) =>
+        assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
+      case _ => assert(F); null
+    }
+
+  def parseString(s: Predef.String): Predef.String = parse(s, _.parseString().value)
+
+  def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber().value)
+
+  def parse[T](s: Predef.String, f: Json.Parser => T): T = {
+    val json = Json.Parser(String.toValues(_2String(s)), 0, None())
     val r = f(json)
-    assert(json.input.length == json.offset)
+    assert(json.input.size == json.offset)
     r
   }
 }

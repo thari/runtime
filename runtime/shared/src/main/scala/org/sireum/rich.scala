@@ -87,7 +87,10 @@ final class rich extends scala.annotation.StaticAnnotation {
                     (q"lazy val result: $tpe = apply(..${varTypes.indices.map(i => q"arg.${Term.Name(s"_${i + 1}")}")})",
                       param"arg: (..$varTypes)")
                   else (q"lazy val result: $tpe = apply(arg)", param"arg: ${varTypes.head}")
-                q"""implicit final class ${Type.Name(tname.value + "_F")}($impParam) extends org.sireum._RichF[$argType, $tname] { $result }"""
+                if (tparams.nonEmpty)
+                  q"""implicit final class ${Type.Name(tname.value + "_F")}[..$tparams]($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
+                else
+                  q"""implicit final class ${Type.Name(tname.value + "_F")}($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
               }
               q"""object ${Term.Name(tname.value)} { ..${Vector(impClass, apply)} }"""
             case _ => q"object ${Term.Name(tname.value)} { $apply }"

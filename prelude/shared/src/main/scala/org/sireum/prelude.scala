@@ -2654,3 +2654,109 @@ package org.sireum
     l""" requires s.size ≡ 64
           ensures  fromU64(result) ≡ s """
 }
+
+@ext object String {
+
+  @pure def fromB(b: B): String = $
+
+  @pure def fromC(c: C): String = $
+
+  @pure def fromZ(n: Z): String = $
+
+  @pure def fromZ8(n: Z8): String = $
+
+  @pure def fromZ16(n: Z16): String = $
+
+  @pure def fromZ32(n: Z32): String = $
+
+  @pure def fromZ64(n: Z64): String = $
+
+  @pure def fromN(n: N): String = $
+
+  @pure def fromN8(n: N8): String = $
+
+  @pure def fromN16(n: N16): String = $
+
+  @pure def fromN32(n: N32): String = $
+
+  @pure def fromN64(n: N64): String = $
+
+  @pure def fromS8(n: S8): String = $
+
+  @pure def fromS16(n: S16): String = $
+
+  @pure def fromS32(n: S32): String = $
+
+  @pure def fromS64(n: S64): String = $
+
+  @pure def fromU8(n: U8): String = $
+
+  @pure def fromU16(n: U16): String = $
+
+  @pure def fromU32(n: U32): String = $
+
+  @pure def fromU64(n: U64): String = $
+
+  @pure def fromF32(n: F32): String = $
+
+  @pure def fromF64(n: F64): String = $
+
+  @pure def fromR(n: R): String = $
+
+  @pure def fromIS[I, V](s: IS[I, V]): String = $
+
+  @pure def fromMS[I, V](s: MS[I, V]): String = $
+
+  @pure def fromValues(s: ISZ[C]): String = $
+
+  @pure def toB(s: String): Option[B] = $
+
+  @pure def toC(s: String): Option[C] = $
+
+  @pure def toHexC(s: String): Option[C] = $
+
+  @pure def toZ(s: String): Option[Z] = $
+
+  @pure def toZ8(s: String): Option[Z8] = $
+
+  @pure def toZ16(s: String): Option[Z16] = $
+
+  @pure def toZ32(s: String): Option[Z32] = $
+
+  @pure def toZ64(s: String): Option[Z64] = $
+
+  @pure def toN(s: String): Option[N] = $
+
+  @pure def toN8(s: String): Option[N8] = $
+
+  @pure def toN16(s: String): Option[N16] = $
+
+  @pure def toN32(s: String): Option[N32] = $
+
+  @pure def toN64(s: String): Option[N64] = $
+
+  @pure def toS8(s: String): Option[S8] = $
+
+  @pure def toS16(s: String): Option[S16] = $
+
+  @pure def toS32(s: String): Option[S32] = $
+
+  @pure def toS64(s: String): Option[S64] = $
+
+  @pure def toU8(s: String): Option[U8] = $
+
+  @pure def toU16(s: String): Option[U16] = $
+
+  @pure def toU32(s: String): Option[U32] = $
+
+  @pure def toU64(s: String): Option[U64] = $
+
+  @pure def toF32(s: String): Option[F32] = $
+
+  @pure def toF64(s: String): Option[F64] = $
+
+  @pure def toR(s: String): Option[R] = $
+
+  @pure def toValues(s: String): ISZ[C] = $
+
+}
