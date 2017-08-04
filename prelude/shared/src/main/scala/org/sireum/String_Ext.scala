@@ -31,6 +31,8 @@ object String_Ext {
 
   @pure def fromC(c: C): String = c.value.toString
 
+  @pure def fromHexC(c: C): String = f"${c.value.toInt}%4X"
+
   @pure def fromZ(n: Z): String = n.toString
 
   @pure def fromZ8(n: Z8): String = n.toString

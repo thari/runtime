@@ -27,12 +27,30 @@
 package org.sireum
 
 @rich trait SOps[I, T] {
-  def contains(e: T): B
+  @pure def contains(e: T): B
+
+  @pure def forall(p: T => B): B
+
+  @pure def exists(p: T => B): B
 }
 
 @rich class SZOps[T](value: IS[Z, T]) extends SOps[Z, T] {
-  def contains(e: T): B = {
+  @pure def contains(e: T): B = {
     for (v <- value if e == v) {
+      return T
+    }
+    return F
+  }
+
+  @pure def forall(p: T => B): B = {
+    for (e <- value if !p(e)) {
+      return F
+    }
+    return T
+  }
+
+  @pure def exists(p: T => B): B = {
+    for (e <- value if p(e)) {
       return T
     }
     return F

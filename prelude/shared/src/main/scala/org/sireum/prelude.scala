@@ -2661,6 +2661,8 @@ package org.sireum
 
   @pure def fromC(c: C): String = $
 
+  @pure def fromHexC(c: C): String = $
+
   @pure def fromZ(n: Z): String = $
 
   @pure def fromZ8(n: Z8): String = $

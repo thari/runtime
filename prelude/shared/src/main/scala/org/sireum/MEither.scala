@@ -27,4 +27,6 @@
 package org.sireum
 
 @datatype class MEither[L, R](leftOpt: MOption[L],
-                              rightOpt: MOption[R])
+                              rightOpt: MOption[R]) {
+  l""" invariant leftOpt.nonEmpty || rightOpt.nonEmpty """
+}

@@ -50,7 +50,7 @@ class JsonTest extends SireumSpec {
 
   *(parseTopObject(oPrettyParse(oPrettyParse(oString))) == oJson)
 
-  def oPrettyParse(s: Predef.String): Predef.String = _JsonSt.stObject(parseTopObject(s)).render.value
+  def oPrettyParse(s: Predef.String): Predef.String = Json.printAst(_JsonAst.Binding, parseTopObject(s)).render.value
 
   def parseTopObject(s: Predef.String): JObject =
     Json.parseAst(_JsonAst.Binding, _2String(s)) match {
@@ -73,9 +73,9 @@ class JsonTest extends SireumSpec {
   def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber().value)
 
   def parse[T](s: Predef.String, f: Json.Parser => T): T = {
-    val json = Json.Parser(String.toValues(_2String(s)), 0, None())
-    val r = f(json)
-    assert(json.input.size == json.offset)
+    val parser = Json.Parser(String.toValues(_2String(s)), 0, None())
+    val r = f(parser)
+    assert(parser.atEOF)
     r
   }
 }

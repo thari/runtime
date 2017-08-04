@@ -30,16 +30,6 @@ import SZOps._
 
 object Json {
 
-  @enum object ValueKind {
-    'String
-    'Number
-    'Object
-    'Array
-    'True
-    'False
-    'Null
-  }
-
   @sig trait JsonAstBinding[V] {
     @pure def toObject(fields: ISZ[(String, V)]): V
 
@@ -68,14 +58,355 @@ object Json {
 
   @datatype class ErrorMsg(line: Z, column: Z, message: String)
 
+  @enum object ValueKind {
+    'String
+    'Number
+    'Object
+    'Array
+    'True
+    'False
+    'Null
+  }
+
+  object Printer {
+    val trueSt: ST = st"true"
+    val falseSt: ST = st"false"
+    val nullSt: ST = st"null"
+
+    @pure def printB(b: B): ST = {
+      if (b) {
+        return trueSt
+      } else {
+        return falseSt
+      }
+    }
+
+    @pure def printC(c: C): ST = {
+      return printString(String.fromC(c))
+    }
+
+    @pure def printZ(n: Z): ST = {
+      return printNumber(String.fromZ(n))
+    }
+
+    @pure def printZ8(n: Z8): ST = {
+      return printNumber(String.fromZ8(n))
+    }
+
+    @pure def printZ16(n: Z16): ST = {
+      return printNumber(String.fromZ16(n))
+    }
+
+    @pure def printZ32(n: Z32): ST = {
+      return printNumber(String.fromZ32(n))
+    }
+
+    @pure def printZ64(n: Z64): ST = {
+      return printNumber(String.fromZ64(n))
+    }
+
+    @pure def printN(n: N): ST = {
+      return printNumber(String.fromN(n))
+    }
+
+    @pure def printN8(n: N8): ST = {
+      return printNumber(String.fromN8(n))
+    }
+
+    @pure def printN16(n: N16): ST = {
+      return printNumber(String.fromN16(n))
+    }
+
+    @pure def printN32(n: N32): ST = {
+      return printNumber(String.fromN32(n))
+    }
+
+    @pure def printN64(n: N64): ST = {
+      return printNumber(String.fromN64(n))
+    }
+
+    @pure def printS8(n: S8): ST = {
+      return printNumber(String.fromS8(n))
+    }
+
+    @pure def printS16(n: S16): ST = {
+      return printNumber(String.fromS16(n))
+    }
+
+    @pure def printS32(n: S32): ST = {
+      return printNumber(String.fromS32(n))
+    }
+
+    @pure def printS64(n: S64): ST = {
+      return printNumber(String.fromS64(n))
+    }
+
+    @pure def printU8(n: U8): ST = {
+      return printNumber(String.fromU8(n))
+    }
+
+    @pure def printU16(n: U16): ST = {
+      return printNumber(String.fromU16(n))
+    }
+
+    @pure def printU64(n: U64): ST = {
+      return printNumber(String.fromU64(n))
+    }
+
+    @pure def printF32(n: F32): ST = {
+      return printNumber(String.fromF32(n))
+    }
+
+    @pure def printF64(n: F64): ST = {
+      return printNumber(String.fromF64(n))
+    }
+
+    @pure def printR(n: R): ST = {
+      return printNumber(String.fromR(n))
+    }
+
+    @pure def printISZ[T](isSimple: B, s: IS[Z, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISZ8[T](isSimple: B, s: IS[Z8, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISZ16[T](isSimple: B, s: IS[Z16, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISZ32[T](isSimple: B, s: IS[Z32, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISZ64[T](isSimple: B, s: IS[Z64, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISN[T](isSimple: B, s: IS[N, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISN8[T](isSimple: B, s: IS[N8, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISN16[T](isSimple: B, s: IS[N16, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISN32[T](isSimple: B, s: IS[N32, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISN64[T](isSimple: B, s: IS[N64, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISS8[T](isSimple: B, s: IS[S8, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISS16[T](isSimple: B, s: IS[S16, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISS32[T](isSimple: B, s: IS[S32, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISS64[T](isSimple: B, s: IS[S64, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISU8[T](isSimple: B, s: IS[U8, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISU16[T](isSimple: B, s: IS[U16, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISU32[T](isSimple: B, s: IS[U32, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printISU64[T](isSimple: B, s: IS[U64, T], f: T => ST): ST = {
+      return printIS(isSimple, s.map(f))
+    }
+
+    @pure def printMSZ[T](isSimple: B, s: MS[Z, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSZ8[T](isSimple: B, s: MS[Z8, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSZ16[T](isSimple: B, s: MS[Z16, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSZ32[T](isSimple: B, s: MS[Z32, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSZ64[T](isSimple: B, s: MS[Z64, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSN[T](isSimple: B, s: MS[N, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSN8[T](isSimple: B, s: MS[N8, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSN16[T](isSimple: B, s: MS[N16, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSN32[T](isSimple: B, s: MS[N32, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSN64[T](isSimple: B, s: MS[N64, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSS8[T](isSimple: B, s: MS[S8, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSS16[T](isSimple: B, s: MS[S16, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSS32[T](isSimple: B, s: MS[S32, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSS64[T](isSimple: B, s: MS[S64, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSU8[T](isSimple: B, s: MS[U8, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSU16[T](isSimple: B, s: MS[U16, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSU32[T](isSimple: B, s: MS[U32, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printMSU64[T](isSimple: B, s: MS[U64, T], f: T => ST): ST = {
+      return printMS(isSimple, s.map(f))
+    }
+
+    @pure def printOption[T](o: Option[T], f: T => ST): ST = {
+      o match {
+        case Some(t) => return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
+        case _ => return printObject(ISZ(("type", printString("None"))))
+      }
+    }
+
+    @pure def printMOption[T](o: MOption[T], f: T => ST): ST = {
+      o match {
+        case MSome(t) => return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
+        case _ => return printObject(ISZ(("type", printString("None"))))
+      }
+    }
+
+    @pure def printEither[L, R](o: Either[L, R], f0: L => ST, f1: R => ST): ST = {
+      o match {
+        case Either(Some(l), _) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
+        case Either(_, Some(r)) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
+        case _ => assume(F); return nullSt
+      }
+    }
+
+    @pure def printMEither[L, R](o: MEither[L, R], f0: L => ST, f1: R => ST): ST = {
+      o match {
+        case MEither(MSome(l), _) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
+        case MEither(_, MSome(r)) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
+        case _ => assume(F); return nullSt
+      }
+    }
+
+    @pure def printString(s: String): ST = {
+      var r = ISZ[C]()
+      for (c <- String.toValues(s)) {
+        c match {
+          case '"' => r = r :+ '\\' :+ '\"'
+          case '\\' => r = r :+ '\\' :+ '\\'
+          case '/' => r = r :+ '\\' :+ '/'
+          case '\b' => r = r :+ '\\' :+ 'b'
+          case '\f' => r = r :+ '\\' :+ 'f'
+          case '\n' => r = r :+ '\\' :+ 'n'
+          case '\r' => r = r :+ '\\' :+ 'r'
+          case '\t' => r = r :+ '\\' :+ 't'
+          case _ if '\u0020' <= c && c < '\u00FF' && c != '\u007f' => r = r :+ c
+          case _ =>
+            r = r :+ '\\' :+ 'u'
+            r = r ++ String.toValues(String.fromHexC(c))
+        }
+      }
+      return st""""${String.fromValues(r)}""""
+    }
+
+    @pure def printConstant(s: String): ST = {
+      s match {
+        case "true" => return trueSt
+        case "false" => return falseSt
+        case "null" => return nullSt
+      }
+    }
+
+    @pure def printNumber(s: String): ST = {
+      return st"$s"
+    }
+
+    @pure def printObject(fields: ISZ[(String, ST)]): ST = {
+      val fs: ISZ[ST] = for (p <- fields) yield st""""${p._1}" : ${p._2}"""
+      return st"{ ${(fs, ",\n")} }"
+    }
+
+    @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
+      if (isSimple) {
+        return st"[${(elements, ", ")}]"
+      } else {
+        return st"[${(elements, ",\n")}]"
+      }
+    }
+
+    @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
+      if (isSimple) {
+        return st"[${(elements, ", ")}]"
+      } else {
+        return st"[${(elements, ",\n")}]"
+      }
+    }
+  }
+
   @record class Parser(input: ISZ[C],
                        var offset: Z,
                        var errorOpt: Option[ErrorMsg]) {
 
     val optionTypes: ISZ[String] = ISZ("Some", "None")
-    val moptionTypes: ISZ[String] = ISZ("MSome", "MNone")
+    val eitherType: ISZ[String] = ISZ("Or")
     val typeKey: ISZ[String] = ISZ("type")
+    val iKey: ISZ[String] = ISZ("i")
     val valueKey: ISZ[String] = ISZ("value")
+
+    def atEOF(): B = {
+      return input.size == offset
+    }
 
     def parseB(): B = {
       errorIfEof(offset)
@@ -350,7 +681,12 @@ object Json {
       var e = f()
       var r = IS[Z8, T](e)
       var continue = parseArrayNext()
+      val max = Z8.toZ(Z8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z8 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -365,7 +701,12 @@ object Json {
       var e = f()
       var r = IS[Z16, T](e)
       var continue = parseArrayNext()
+      val max = Z16.toZ(Z16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z16 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -380,7 +721,12 @@ object Json {
       var e = f()
       var r = IS[Z32, T](e)
       var continue = parseArrayNext()
+      val max = Z32.toZ(Z32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z32 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -395,7 +741,12 @@ object Json {
       var e = f()
       var r = IS[Z64, T](e)
       var continue = parseArrayNext()
+      val max = Z64.toZ(Z64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z64 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -425,7 +776,12 @@ object Json {
       var e = f()
       var r = IS[N8, T](e)
       var continue = parseArrayNext()
+      val max = N8.toZ(N8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N8 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -440,7 +796,12 @@ object Json {
       var e = f()
       var r = IS[N16, T](e)
       var continue = parseArrayNext()
+      val max = N16.toZ(N16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N16 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -455,7 +816,12 @@ object Json {
       var e = f()
       var r = IS[N32, T](e)
       var continue = parseArrayNext()
+      val max = N32.toZ(N32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N32 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -470,7 +836,12 @@ object Json {
       var e = f()
       var r = IS[N64, T](e)
       var continue = parseArrayNext()
+      val max = N64.toZ(N64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N64 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -485,7 +856,12 @@ object Json {
       var e = f()
       var r = IS[S8, T](e)
       var continue = parseArrayNext()
+      val max = S8.toZ(S8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S8 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -500,7 +876,12 @@ object Json {
       var e = f()
       var r = IS[S16, T](e)
       var continue = parseArrayNext()
+      val max = S16.toZ(S16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S16 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -515,7 +896,12 @@ object Json {
       var e = f()
       var r = IS[S32, T](e)
       var continue = parseArrayNext()
+      val max = S32.toZ(S32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S32 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -530,7 +916,12 @@ object Json {
       var e = f()
       var r = IS[S64, T](e)
       var continue = parseArrayNext()
+      val max = S64.toZ(S64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S64 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -545,7 +936,12 @@ object Json {
       var e = f()
       var r = IS[U8, T](e)
       var continue = parseArrayNext()
+      val max = U8.toZ(U8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U8 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -560,7 +956,12 @@ object Json {
       var e = f()
       var r = IS[U16, T](e)
       var continue = parseArrayNext()
+      val max = U16.toZ(U16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U16 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -575,7 +976,12 @@ object Json {
       var e = f()
       var r = IS[U32, T](e)
       var continue = parseArrayNext()
+      val max = U32.toZ(U32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U32 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -590,7 +996,12 @@ object Json {
       var e = f()
       var r = IS[U64, T](e)
       var continue = parseArrayNext()
+      val max = U64.toZ(U64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U64 index.")
+          return IS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -620,7 +1031,12 @@ object Json {
       var e = f()
       var r = MS[Z8, T](e)
       var continue = parseArrayNext()
+      val max = Z8.toZ(Z8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z8 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -635,7 +1051,12 @@ object Json {
       var e = f()
       var r = MS[Z16, T](e)
       var continue = parseArrayNext()
+      val max = Z16.toZ(Z16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z16 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -650,7 +1071,12 @@ object Json {
       var e = f()
       var r = MS[Z32, T](e)
       var continue = parseArrayNext()
+      val max = Z32.toZ(Z32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z32 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -665,7 +1091,12 @@ object Json {
       var e = f()
       var r = MS[Z64, T](e)
       var continue = parseArrayNext()
+      val max = Z64.toZ(Z64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for Z64 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -695,7 +1126,12 @@ object Json {
       var e = f()
       var r = MS[N8, T](e)
       var continue = parseArrayNext()
+      val max = N8.toZ(N8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N8 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -710,7 +1146,12 @@ object Json {
       var e = f()
       var r = MS[N16, T](e)
       var continue = parseArrayNext()
+      val max = N16.toZ(N16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N16 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -725,7 +1166,12 @@ object Json {
       var e = f()
       var r = MS[N32, T](e)
       var continue = parseArrayNext()
+      val max = N32.toZ(N32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N32 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -740,7 +1186,12 @@ object Json {
       var e = f()
       var r = MS[N64, T](e)
       var continue = parseArrayNext()
+      val max = N64.toZ(N64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for N64 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -755,7 +1206,12 @@ object Json {
       var e = f()
       var r = MS[S8, T](e)
       var continue = parseArrayNext()
+      val max = S8.toZ(S8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S8 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -770,7 +1226,12 @@ object Json {
       var e = f()
       var r = MS[S16, T](e)
       var continue = parseArrayNext()
+      val max = S16.toZ(S16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S16 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -785,7 +1246,12 @@ object Json {
       var e = f()
       var r = MS[S32, T](e)
       var continue = parseArrayNext()
+      val max = S32.toZ(S32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S32 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -800,7 +1266,12 @@ object Json {
       var e = f()
       var r = MS[S64, T](e)
       var continue = parseArrayNext()
+      val max = S64.toZ(S64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for S64 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -815,7 +1286,12 @@ object Json {
       var e = f()
       var r = MS[U8, T](e)
       var continue = parseArrayNext()
+      val max = U8.toZ(U8.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U8 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -830,7 +1306,12 @@ object Json {
       var e = f()
       var r = MS[U16, T](e)
       var continue = parseArrayNext()
+      val max = U16.toZ(U16.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U16 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -845,7 +1326,12 @@ object Json {
       var e = f()
       var r = MS[U32, T](e)
       var continue = parseArrayNext()
+      val max = U32.toZ(U32.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U32 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -860,7 +1346,12 @@ object Json {
       var e = f()
       var r = MS[U64, T](e)
       var continue = parseArrayNext()
+      val max = U64.toZ(U64.Max)
       while (continue) {
+        if (r.size > max) {
+          parseException(offset, "Exceeded maximum elements for U64 index.")
+          return MS()
+        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -874,19 +1365,59 @@ object Json {
         case "Some" =>
           parseObjectKey(valueKey)
           val v = f()
+          parseObjectNext()
           return Some(v)
-        case "None" => return None()
+        case "None" =>
+          parseObjectNext()
+          return None()
       }
     }
 
     def parseMOption[T](f: () => T): MOption[T] = {
-      val tpe = parseObjectType(moptionTypes)
+      val tpe = parseObjectType(optionTypes)
       tpe match {
-        case "MSome" =>
+        case "Some" =>
           parseObjectKey(valueKey)
           val v = f()
+          parseObjectNext()
           return MSome(v)
-        case "MNone" => return MNone()
+        case "None" =>
+          parseObjectNext()
+          return MNone()
+      }
+    }
+
+    def parseEither[L, R](f0: () => L, f1: () => R): Either[L, R] = {
+      parseObjectType(eitherType)
+      parseObjectKey(iKey)
+      val i = parseZ()
+      parseObjectKey(valueKey)
+      i match {
+        case 0 =>
+          val l = f0()
+          parseObjectNext()
+          return Either(Some(l), None())
+        case 1 =>
+          val r = f1()
+          parseObjectNext()
+          return Either(None(), Some(r))
+      }
+    }
+
+    def parseMEither[L, R](f0: () => L, f1: () => R): MEither[L, R] = {
+      parseObjectType(eitherType)
+      parseObjectKey(iKey)
+      val i = parseZ()
+      parseObjectKey(valueKey)
+      i match {
+        case 0 =>
+          val l = f0()
+          parseObjectNext()
+          return MEither(MSome(l), MNone())
+        case 1 =>
+          val r = f1()
+          parseObjectNext()
+          return MEither(MNone(), MSome(r))
       }
     }
 
@@ -1349,11 +1880,38 @@ object Json {
     parser.errorOpt match {
       case Some(_) => return Either(None(), parser.errorOpt)
       case _ =>
-        if (parser.offset != parser.input.size) {
+        if (!parser.atEOF) {
           val p = parser.computeLineColumn(parser.offset)
           return Either(None(), Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${parser.input(parser.offset)}' found")))
         }
         return Either(Some(r), None())
     }
+  }
+
+  def printAst[V](binding: JsonAstBinding[V], v: V): ST = {
+    @pure def isSimple(o: V): B = {
+      binding.kind(o) match {
+        case ValueKind.Object => return F
+        case ValueKind.Array => return F
+        case _ => return T
+      }
+    }
+
+    @pure def printValue(o: V): ST = {
+      binding.kind(o) match {
+        case ValueKind.String => return Printer.printString(binding.fromString(o))
+        case ValueKind.Number => return Printer.printNumber(binding.fromNumber(o))
+        case ValueKind.Object =>
+          return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
+        case ValueKind.Array =>
+          val es = binding.fromArray(o)
+          return Printer.printIS(SOps(es).forall(isSimple), es.map(printValue))
+        case ValueKind.True => return Printer.trueSt
+        case ValueKind.False => return Printer.falseSt
+        case ValueKind.Null => return Printer.nullSt
+      }
+    }
+
+    return printValue(v)
   }
 }

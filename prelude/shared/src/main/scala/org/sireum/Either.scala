@@ -27,4 +27,6 @@
 package org.sireum
 
 @datatype class Either[L, R](leftOpt: Option[L],
-                             rightOpt: Option[R])
+                             rightOpt: Option[R]) {
+  l""" invariant leftOpt.nonEmpty || rightOpt.nonEmpty """
+}
