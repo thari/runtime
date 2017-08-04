@@ -56,7 +56,7 @@ class JsonTest extends SireumSpec {
 
   def parseValue(s: Predef.String): JValue = parse(s, _.parseValue())
 
-  def parseString(s: Predef.String): Predef.String = parse(s, _.parseString())
+  def parseString(s: Predef.String): Predef.String = parse(s, _.parsePredefString())
 
   def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber())
 
