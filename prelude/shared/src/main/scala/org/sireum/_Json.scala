@@ -275,252 +275,252 @@ trait _JsonParser {
   final def parseISZ[T](f: () => T): IS[Z, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS[Z, T](values.reverse: _*)
   }
 
   final def parseISZ8[T](f: () => T): IS[Z8, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISZ16[T](f: () => T): IS[Z16, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISZ32[T](f: () => T): IS[Z32, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISZ64[T](f: () => T): IS[Z64, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISN[T](f: () => T): IS[N, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISN8[T](f: () => T): IS[N8, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISN16[T](f: () => T): IS[N16, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISN32[T](f: () => T): IS[N32, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISN64[T](f: () => T): IS[N64, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISS8[T](f: () => T): IS[S8, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISS16[T](f: () => T): IS[S16, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISS32[T](f: () => T): IS[S32, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISS64[T](f: () => T): IS[S64, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISU8[T](f: () => T): IS[U8, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISU16[T](f: () => T): IS[U16, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISU32[T](f: () => T): IS[U32, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseISU64[T](f: () => T): IS[U64, T] = {
     if (!parseArrayBegin()) return IS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     IS(values.reverse: _*)
   }
 
   final def parseMSZ[T](f: () => T): MS[Z, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS[Z, T](values.reverse: _*)
   }
 
   final def parseMSZ8[T](f: () => T): MS[Z8, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSZ16[T](f: () => T): MS[Z16, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSZ32[T](f: () => T): MS[Z32, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSZ64[T](f: () => T): MS[Z64, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSN[T](f: () => T): MS[N, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSN8[T](f: () => T): MS[N8, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSN16[T](f: () => T): MS[N16, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSN32[T](f: () => T): MS[N32, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSN64[T](f: () => T): MS[N64, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSS8[T](f: () => T): MS[S8, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSS16[T](f: () => T): MS[S16, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSS32[T](f: () => T): MS[S32, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSS64[T](f: () => T): MS[S64, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSU8[T](f: () => T): MS[U8, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSU16[T](f: () => T): MS[U16, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSU32[T](f: () => T): MS[U32, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
   final def parseMSU64[T](f: () => T): MS[U64, T] = {
     if (!parseArrayBegin()) return MS()
     var values = List[T](f())
-    while (parseArrayEnd()) values ::= f()
+    while (parseArrayNext()) values ::= f()
     MS(values.reverse: _*)
   }
 
@@ -596,7 +596,7 @@ trait _JsonParser {
             return JObject()
           case _ =>
             var fields = List[JField](JField(parseObjectKey(), parseValue()))
-            while (parseObjectEnd()) fields ::= JField(parseObjectKey(), parseValue())
+            while (parseObjectNext()) fields ::= JField(parseObjectKey(), parseValue())
             JObject(fields.reverse.toArray)
         }
       case c => throw ParseException(offset, s"Expected '{', but '$c' found.")
@@ -616,7 +616,7 @@ trait _JsonParser {
             return JArray()
           case _ =>
             var values = List[JValue](parseValue())
-            while (parseArrayEnd()) values ::= parseValue()
+            while (parseArrayNext()) values ::= parseValue()
             JArray(values.reverse.toArray)
         }
       case c => throw ParseException(offset, s"Expected '[', but '$c' found.")
@@ -654,7 +654,7 @@ trait _JsonParser {
             case _ => throw ParseException(i, s"Expected '${expectedTypes.dropRight(1).map(k => s"'$k'").mkString(", ")}', or '${expectedTypes.last}' , but '$value' found.")
           }
         }
-        parseObjectEnd()
+        parseObjectNext()
         value
       case c => throw ParseException(offset, s"Expected '{', but '$c' found.")
     }
@@ -797,7 +797,7 @@ trait _JsonParser {
     }
   }
 
-  def parseObjectEnd(): Boolean = {
+  def parseObjectNext(): Boolean = {
     parseWhitespace()
     errorIfEof()
     input.charAt(offset) match {
@@ -831,7 +831,7 @@ trait _JsonParser {
     }
   }
 
-  def parseArrayEnd(): Boolean = {
+  def parseArrayNext(): Boolean = {
     parseWhitespace()
     errorIfEof()
     input.charAt(offset) match {
