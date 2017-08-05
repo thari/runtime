@@ -42,7 +42,7 @@ class MemoizeTest extends SireumRuntimeSpec {
     val end = System.currentTimeMillis()
     foo(4)
     val end2 = System.currentTimeMillis()
-    println(end - start, " > ", end2 - end)
+    //println(end - start, " > ", end2 - end)
     end - start > end2 - end
   }
 }

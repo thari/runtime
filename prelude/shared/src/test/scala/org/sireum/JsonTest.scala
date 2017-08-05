@@ -75,7 +75,8 @@ class JsonTest extends SireumSpec {
   def parse[T](s: Predef.String, f: Json.Parser => T): T = {
     val parser = Json.Parser(String.toValues(_2String(s)), 0, None())
     val r = f(parser)
-    assert(parser.atEOF)
+    parser.eof()
+    assert(parser.errorOpt.isEmpty)
     r
   }
 }

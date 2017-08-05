@@ -394,18 +394,29 @@ object Json {
     }
   }
 
+  object Parser {
+    @pure def create(input: String): Parser = {
+      return Parser(String.toValues(input), 0, None())
+    }
+  }
+
   @record class Parser(input: ISZ[C],
                        var offset: Z,
                        var errorOpt: Option[ErrorMsg]) {
 
-    val optionTypes: ISZ[String] = ISZ("Some", "None")
-    val eitherType: ISZ[String] = ISZ("Or")
-    val typeKey: ISZ[String] = ISZ("type")
-    val iKey: ISZ[String] = ISZ("i")
-    val valueKey: ISZ[String] = ISZ("value")
+    val typesOption: ISZ[String] = ISZ("Some", "None")
 
-    def atEOF(): B = {
-      return input.size == offset
+    def eof(): B = {
+      if (input.size != offset) {
+        if (errorOpt.nonEmpty) {
+          return F
+        }
+        val p = computeLineColumn(offset)
+        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input(offset)}' found."))
+        return F
+      } else {
+        return T
+      }
     }
 
     def parseB(): B = {
@@ -1360,10 +1371,10 @@ object Json {
     }
 
     def parseOption[T](f: () => T): Option[T] = {
-      val tpe = parseObjectType(optionTypes)
+      val tpe = parseObjectTypes(typesOption)
       tpe match {
         case "Some" =>
-          parseObjectKey(valueKey)
+          parseObjectKey("value")
           val v = f()
           parseObjectNext()
           return Some(v)
@@ -1374,10 +1385,10 @@ object Json {
     }
 
     def parseMOption[T](f: () => T): MOption[T] = {
-      val tpe = parseObjectType(optionTypes)
+      val tpe = parseObjectTypes(typesOption)
       tpe match {
         case "Some" =>
-          parseObjectKey(valueKey)
+          parseObjectKey("value")
           val v = f()
           parseObjectNext()
           return MSome(v)
@@ -1388,10 +1399,10 @@ object Json {
     }
 
     def parseEither[L, R](f0: () => L, f1: () => R): Either[L, R] = {
-      parseObjectType(eitherType)
-      parseObjectKey(iKey)
+      parseObjectType("Or")
+      parseObjectKey("i")
       val i = parseZ()
-      parseObjectKey(valueKey)
+      parseObjectKey("value")
       i match {
         case 0 =>
           val l = f0()
@@ -1405,10 +1416,10 @@ object Json {
     }
 
     def parseMEither[L, R](f0: () => L, f1: () => R): MEither[L, R] = {
-      parseObjectType(eitherType)
-      parseObjectKey(iKey)
+      parseObjectType("Or")
+      parseObjectKey("i")
       val i = parseZ()
-      parseObjectKey(valueKey)
+      parseObjectKey("value")
       i match {
         case 0 =>
           val l = f0()
@@ -1456,9 +1467,20 @@ object Json {
       }
     }
 
-    def parseObjectType(expectedTypes: ISZ[String]): String = {
+    def parseObjectType(expectedType: String): String = {
       parseObjectBegin()
-      parseObjectKey(typeKey)
+      parseObjectKey("type")
+      val i = offset + 1
+      val value = parseString()
+      if (value != expectedType) {
+        parseException(i, s"Expected '${expectedType}', but '$value' found.")
+      }
+      return value
+    }
+
+    def parseObjectTypes(expectedTypes: ISZ[String]): String = {
+      parseObjectBegin()
+      parseObjectKey("type")
       val i = offset + 1
       val value = parseString()
       if (expectedTypes.nonEmpty && !SOps(expectedTypes).contains(value)) {
@@ -1471,7 +1493,27 @@ object Json {
       return value
     }
 
-    def parseObjectKey(expectedKeys: ISZ[String]): String = {
+    def parseObjectKey(expectedKey: String): String = {
+      errorIfEof(offset)
+      val i = offset + 1
+      val key = parseString()
+      if (key != expectedKey) {
+        parseException(i, s"Expected '${expectedKey}', but '$key' found.")
+      }
+      parseWhitespace()
+      errorIfEof(offset)
+      at(offset) match {
+        case ':' =>
+          offset = offset + 1
+          parseWhitespace()
+          return key
+        case c =>
+          parseException(offset, s"Expected ':', but '$c' found.")
+          return ""
+      }
+    }
+
+    def parseObjectKeys(expectedKeys: ISZ[String]): String = {
       errorIfEof(offset)
       val i = offset + 1
       val key = parseString()
@@ -1801,7 +1843,8 @@ object Json {
   }
 
   def parseAst[V](binding: JsonAstBinding[V], input: String): Either[V, ErrorMsg] = {
-    val parser = Parser(String.toValues(input), 0, None())
+    val parser = Parser.create(input)
+    val emptyKeys = ISZ[String]()
 
     def parseString(): V = {
       val s = parser.parseString()
@@ -1849,13 +1892,12 @@ object Json {
       if (!continue) {
         return binding.toObject(ISZ())
       }
-      val keys = ISZ[String]()
-      var key = parser.parseObjectKey(keys)
+      var key = parser.parseObjectKeys(emptyKeys)
       var value = parseValue()
       var fields = ISZ[(String, V)]((key, value))
       continue = parser.parseObjectNext()
       while (continue) {
-        key = parser.parseObjectKey(keys)
+        key = parser.parseObjectKeys(emptyKeys)
         value = parseValue()
         fields = fields :+ ((key, value))
         continue = parser.parseObjectNext()
@@ -1877,14 +1919,10 @@ object Json {
     }
 
     val r = parseValue()
+    parser.eof()
     parser.errorOpt match {
       case Some(_) => return Either(None(), parser.errorOpt)
-      case _ =>
-        if (!parser.atEOF) {
-          val p = parser.computeLineColumn(parser.offset)
-          return Either(None(), Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${parser.input(parser.offset)}' found")))
-        }
-        return Either(Some(r), None())
+      case _ => return Either(Some(r), None())
     }
   }
 
