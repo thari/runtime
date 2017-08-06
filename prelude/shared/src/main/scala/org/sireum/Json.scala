@@ -149,6 +149,10 @@ object Json {
       return printNumber(String.fromU16(n))
     }
 
+    @pure def printU32(n: U32): ST = {
+      return printNumber(String.fromU32(n))
+    }
+
     @pure def printU64(n: U64): ST = {
       return printNumber(String.fromU64(n))
     }
