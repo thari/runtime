@@ -1,10 +1,10 @@
 package org.sireum
 
-import org.sireum.test.SireumSpec
+import org.sireum.test.SireumRuntimeSpec
 
 import scalajson.ast.unsafe._
 
-class JsonTest extends SireumSpec {
+class JsonTest extends SireumRuntimeSpec {
 
   *(parseString("\"a\\rbc\"") == "a\rbc")
 
