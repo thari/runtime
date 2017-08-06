@@ -378,7 +378,9 @@ object Json {
 
     @pure def printObject(fields: ISZ[(String, ST)]): ST = {
       val fs: ISZ[ST] = for (p <- fields) yield st""""${p._1}" : ${p._2}"""
-      return st"{ ${(fs, ",\n")} }"
+      return st"""{
+                 |  ${(fs, ",\n")}
+                 |}"""
     }
 
     @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
@@ -409,6 +411,13 @@ object Json {
                        var errorOpt: Option[ErrorMsg]) {
 
     val typesOption: ISZ[String] = ISZ("Some", "None")
+
+    def errorMessage: String = {
+      errorOpt match {
+        case Some(e) => return s"[${e.line}, ${e.column}] ${e.message}"
+        case _ => return ""
+      }
+    }
 
     def eof(): B = {
       if (input.size != offset) {
@@ -1383,7 +1392,6 @@ object Json {
           parseObjectNext()
           return Some(v)
         case "None" =>
-          parseObjectNext()
           return None()
       }
     }
@@ -1397,7 +1405,6 @@ object Json {
           parseObjectNext()
           return MSome(v)
         case "None" =>
-          parseObjectNext()
           return MNone()
       }
     }
@@ -1476,6 +1483,7 @@ object Json {
       parseObjectKey("type")
       val i = offset + 1
       val value = parseString()
+      parseObjectNext()
       if (value != expectedType) {
         parseException(i, s"Expected '${expectedType}', but '$value' found.")
       }
@@ -1487,6 +1495,7 @@ object Json {
       parseObjectKey("type")
       val i = offset + 1
       val value = parseString()
+      parseObjectNext()
       if (expectedTypes.nonEmpty && !SOps(expectedTypes).contains(value)) {
         expectedTypes.size match {
           case 1 => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")

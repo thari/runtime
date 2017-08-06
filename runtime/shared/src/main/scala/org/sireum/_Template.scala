@@ -133,21 +133,27 @@ object _Template {
         arg match {
           case Any(vs, sep) =>
             if (vs.nonEmpty) {
+              val oldIndent2 = indent
+              indent = sb.length - sb.lastIndexOf('\n') - 1
               trimPartBegin = appendAny(vs.head)
               for (i <- 1 until vs.length) {
                 trimPartBegin = 0
                 append(sep)
                 appendAny(vs(i))
+                indent = oldIndent2
               }
             } else {
               trimPartBegin = trimNlPart()
             }
           case Templ(ts, sep) =>
             if (ts.nonEmpty) {
+              val oldIndent2 = indent
+              indent = sb.length - sb.lastIndexOf('\n') - 1
               rec(ts.head)
               for (i <- 1 until ts.length) {
                 append(sep)
                 rec(ts(i))
+                indent = oldIndent2
               }
             } else {
               trimPartBegin = trimNlPart()
@@ -159,7 +165,6 @@ object _Template {
         else appendPart(part)
         i += 1
       }
-      indent = oldIndent
     }
 
     rec(t)

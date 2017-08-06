@@ -408,6 +408,11 @@ package object sireum {
     }
   }
 
+  def halt(msg: Any): Nothing = {
+    assume(assumption = false, msg.toString)
+    throw new Error
+  }
+
   import scala.language.implicitConversions
 
   final implicit class _Slang(val sc: StringContext) extends AnyVal {
