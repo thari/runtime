@@ -35,21 +35,43 @@ object _Template {
 
   final case class Templ(args: scala.Seq[ST], sep: Predef.String = "") extends Arg
 
-  def render(t: ST): String = {
-    val sb = new StringBuilder
-    var indent = 0
+  def isWs(c: Char): Boolean = c match {
+    case ' ' | '\r' | '\n' | '\t' => true
+    case _ => false
+  }
 
-    def trim(includeNewLine: Boolean = false): Unit = {
-      val i = sb.lastIndexOf(System.lineSeparator)
-      if (i >= 0 && (i + 1 until sb.length).forall(sb.charAt(_).isWhitespace))
-        sb.setLength(if (includeNewLine) i else i + System.lineSeparator.length)
+  def render(t: ST, isCompact: Boolean): String = {
+    val sb = new java.lang.StringBuilder
+    var indent = 0
+    var lastWs = false
+
+    def appendChar(c: Char): Unit = {
+      if (isCompact) {
+        if (!isWs(c)) {
+          sb.append(c)
+          lastWs = false
+        } else if (!lastWs) {
+          sb.append(' ')
+          lastWs = true
+        }
+      } else sb.append(c)
     }
 
-    def appendIndent(): Unit = for (i <- 0 until indent) sb.append(' ')
+    def appendString(s: Predef.String): Unit = if (isCompact) for (i <- 0 until s.length) appendChar(s(i)) else sb.append(s)
+
+    def trim(includeNewLine: Boolean = false): Unit = {
+      if (!isCompact) {
+        val i = sb.lastIndexOf(System.lineSeparator)
+        if (i >= 0 && (i + 1 until sb.length).forall(j => isWs(sb.charAt(j))))
+          sb.setLength(if (includeNewLine) i else i + System.lineSeparator.length)
+      }
+    }
+
+    def appendIndent(): Unit = if (isCompact) appendChar(' ') else for (i <- 0 until indent) sb.append(' ')
 
     def appendLineSep(): Unit = {
       trim()
-      sb.append(System.lineSeparator)
+      if (isCompact) appendChar(' ') else sb.append(System.lineSeparator)
     }
 
     def appendPart(s: Predef.String): Unit = {
@@ -63,9 +85,13 @@ object _Template {
         } else if (tkn != "\r") {
           val stripped = if (hasLine) {
             val i = tkn.indexOf("|")
-            if (i >= 0 && tkn.substring(0, i).forall(_.isWhitespace)) tkn.substring(i + 1) else tkn
+            if (i >= 0 && tkn.substring(0, i).forall(isWs)) tkn.substring(i + 1) else tkn
           } else tkn
-          sb.append(stripped)
+          if (isCompact && stripped.length > 0 && lastWs && isWs(stripped.head))
+            sb.append(stripped, 1, stripped.length)
+          else sb.append(stripped)
+          if (stripped.length > 0)
+            lastWs = isWs(stripped.last)
           n = stripped.length
         }
       }
@@ -108,17 +134,19 @@ object _Template {
 
     def rec(t: ST): Unit = {
       val oldIndent = indent
-      val parts = t.parts
+      val parts = if (isCompact) t.compactParts else t.parts
       appendPart(parts.head)
       var i = 1
+
       def trimNlPart(): Int = {
         val part = parts(i)
         val j = part.indexOf(System.lineSeparator)
-        if (j >= 0 && (0 until j).forall(part(_).isWhitespace)) {
+        if (j >= 0 && (0 until j).forall(k => isWs(part(k)))) {
           trim(includeNewLine = true)
           j
         } else 0
       }
+
       def appendAny(o: scala.Any): Int = {
         o match {
           case Some(v: ST) => rec(v)
@@ -128,32 +156,27 @@ object _Template {
         }
         0
       }
+
       for (arg <- t.args) {
         var trimPartBegin = 0
         arg match {
           case Any(vs, sep) =>
             if (vs.nonEmpty) {
-              val oldIndent2 = indent
-              indent = sb.length - sb.lastIndexOf('\n') - 1
               trimPartBegin = appendAny(vs.head)
               for (i <- 1 until vs.length) {
                 trimPartBegin = 0
                 append(sep)
                 appendAny(vs(i))
-                indent = oldIndent2
               }
             } else {
               trimPartBegin = trimNlPart()
             }
           case Templ(ts, sep) =>
             if (ts.nonEmpty) {
-              val oldIndent2 = indent
-              indent = sb.length - sb.lastIndexOf('\n') - 1
               rec(ts.head)
               for (i <- 1 until ts.length) {
                 append(sep)
                 rec(ts(i))
-                indent = oldIndent2
               }
             } else {
               trimPartBegin = trimNlPart()
@@ -165,6 +188,7 @@ object _Template {
         else appendPart(part)
         i += 1
       }
+      indent = oldIndent
     }
 
     rec(t)
@@ -179,9 +203,38 @@ import _Template._
 final case class _Template(parts: scala.Seq[Predef.String],
                            args: scala.Seq[Arg],
                            source: Predef.String) extends _Immutable {
+  lazy val compactParts: scala.Seq[Predef.String] = {
+    for (part <- parts) yield {
+      val sb = new StringBuilder(part.length)
+      var lastWs = false
+      for (c <- part) {
+        if (isWs(c)) {
+          if (c == '\n') {
+            if (lastWs) {
+              sb.setCharAt(sb.length - 1, '\n')
+            } else {
+              sb.append('\n')
+            }
+            lastWs = true
+          } else if (!lastWs) {
+            sb.append(' ')
+            lastWs = true
+          }
+        } else {
+          sb.append(c)
+          lastWs = false
+        }
+      }
+      val r = sb.toString
+      r
+    }
+  }
+
   def hash: Z = _Z(hashCode)
 
-  def render: String = _Template.render(this)
+  def render: String = _Template.render(this, isCompact = false)
+
+  def renderCompact: String = _Template.render(this, isCompact = true)
 
   override def toString(): java.lang.String = source
 }

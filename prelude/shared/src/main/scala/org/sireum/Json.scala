@@ -387,7 +387,9 @@ object Json {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {
-        return st"[${(elements, ",\n")}]"
+        return st"""[
+                   |  ${(elements, ",\n")}
+                   |]"""
       }
     }
 
@@ -395,7 +397,9 @@ object Json {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {
-        return st"[${(elements, ",\n")}]"
+        return st"""[
+                   |  ${(elements, ",\n")}
+                   |]"""
       }
     }
   }
