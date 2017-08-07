@@ -38,6 +38,7 @@ object _macro {
 import _macro._
 
 class _macro(val c: scala.reflect.macros.blackbox.Context) {
+
   import c.universe._
 
   def $Impl[T]: c.Expr[T] = {
@@ -99,6 +100,7 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
     def args(n: Int): List[c.Tree] =
       (for (i <- 1 to n) yield
         Apply(Ident(TermName("__assign")), List(Select(arg, TermName(s"_$i"))))).toList
+
     //println(showRaw(arg))
     val r =
       if (arg.tpe <:< c.typeOf[_Mutable]) q"__assign($arg)"
@@ -240,11 +242,20 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
       //println(showCode(r))
       r
     }
+
     //println(showRaw(c.prefix.tree))
     //println(showCode(c.prefix.tree))
-    val parts = c.prefix.tree match {
-      case q"org.sireum.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
-      case q"sireum.this.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+    val pos = c.prefix.tree.pos
+    val isSingle =
+      if (pos.source.content.length >= pos.start + 5)
+        pos.source.content.subSequence(pos.start, pos.start + 5).toString != "st\"\"\""
+      else true
+    val parts = {
+      val parts = c.prefix.tree match {
+        case q"org.sireum.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+        case q"sireum.this.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+      }
+      if (isSingle) parts.map(p => q"StringContext.treatEscapes($p)") else parts
     }
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>
@@ -258,7 +269,6 @@ class _macro(val c: scala.reflect.macros.blackbox.Context) {
       case _ =>
         processArg(arg, Literal(Constant("")))
     }
-    val pos = c.prefix.tree.pos
     val source = if (pos.isRange) {
       val text = pos.source.content
       val sb = new StringBuilder
