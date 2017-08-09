@@ -27,18 +27,64 @@ package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
 
-class MSTest extends SireumRuntimeSpec {
-  "S[Z8, B]" - {
+import ISZOps._
+import ISZBOps._
+
+class STest extends SireumRuntimeSpec {
+  "MS[Z8, B]" - {
+
     * {
-      val s1 = collection._MS[Z8, B](true, true)
-      val s2 = collection._MS.create[Z8, B](z8"2", true)
+      val s1 = collection._MS[Z8, B](T, T)
+      val s2 = collection._MS.create[Z8, B](z8"2", T)
       s1(0) == s2(0) && s1(1) == s2(1)
     }
+
     * {
-      val s1 = collection._MS[Z8, B](false, true)
-      val s2 = collection._MS.create[Z8, B](z8"2", true)
+      val s1 = collection._MS[Z8, B](F, T)
+      val s2 = collection._MS.create[Z8, B](z8"2", T)
       s2(z8"0") = false
       s1 == s2
+    }
+
+  }
+
+  "IS[U8, B]" - {
+
+    * {
+      val s1 = collection._MS[U8, B](T, T)
+      val s2 = collection._MS.create[U8, B](u8"2", T)
+      s1(0) == s2(0) && s1(1) == s2(1)
+    }
+
+    * {
+      val s1 = collection._MS[U8, B](F, T)
+      val s2 = collection._MS.create[U8, B](u8"2", T)
+      s2(z8"0") = F
+      s1 == s2
+    }
+
+  }
+
+  "ISZOps" - {
+    val s = ISZ[Z](Z.random, Z.random, Z.random, Z.random)
+
+    *(ISZOps(s).contains(s(2)))
+
+    *(ISZOps(s :+ 1).forall(_ >= 1))
+
+    *(ISZOps(s :+ 2).exists(_ == 2))
+
+    *(ISZOps(s) :+ 3 == s :+ 3)
+
+    *(1 +: ISZOps(s) == 1 +: s)
+
+    *(ISZOps(s) ++ s == s ++ s)
+
+    *(ISZOps(s).toMS == MSZ(s.elements: _*))
+
+    * {
+      s == ISZOps(ISZOps(s).chunk(2)).
+        foldLeft((r: ISZ[Z], t: ISZ[Z]) => r ++ t, ISZ[Z]())
     }
   }
 }
