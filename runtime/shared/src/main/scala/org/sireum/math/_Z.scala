@@ -26,6 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
+import org.sireum.ops.ZOps_Ext
 import org.sireum.{_Jsonable, _Range}
 
 object _Z {
@@ -62,269 +63,130 @@ object _Z {
 }
 
 sealed trait _Z extends Comparable[_Z] with _Jsonable {
-  def unary_- : Z
 
-  def +(other: Z): Z
+  @inline final def unary_- : Z = ZOps_Ext.unary_-(this)
 
-  def -(other: Z): Z
+  @inline final def +(other: Z): Z = ZOps_Ext.+(this, other)
 
-  def *(other: Z): Z
+  @inline final def -(other: Z): Z = ZOps_Ext.-(this, other)
 
-  def /(other: Z): Z
+  @inline final def *(other: Z): Z = ZOps_Ext.*(this, other)
 
-  def %(other: Z): Z
+  @inline final def /(other: Z): Z = ZOps_Ext./(this, other)
 
-  def >(other: Z): B
+  @inline final def %(other: Z): Z = ZOps_Ext.%(this, other)
 
-  def >=(other: Z): B
+  @inline final def >(other: Z): B = ZOps_Ext.>(this, other)
 
-  def <(other: Z): B
+  @inline final def >=(other: Z): B = ZOps_Ext.>=(this, other)
 
-  def <=(other: Z): B
+  @inline final def <(other: Z): B = ZOps_Ext.<(this, other)
 
-  final def until(hi: Z): _Range[Z] = new _Range(this, i => i < hi, (n, m) => n + m, 1)
+  @inline final def <=(other: Z): B = ZOps_Ext.<=(this, other)
 
-  final def to(hi: Z): _Range[Z] = new _Range(this, i => i <= hi, (n, m) => n + m, 1)
+  @inline final def until(hi: Z): _Range[Z] = new _Range(this, i => i < hi, (n, m) => n + m, 1)
 
-  final def +(other: Int): Z = this + _Z(other)
+  @inline final def to(hi: Z): _Range[Z] = new _Range(this, i => i <= hi, (n, m) => n + m, 1)
 
-  final def -(other: Int): Z = this - _Z(other)
+  @inline final def +(other: Int): Z = this + _ZLong(other)
 
-  final def *(other: Int): Z = this * _Z(other)
+  @inline final def -(other: Int): Z = this - _ZLong(other)
 
-  final def /(other: Int): Z = this / _Z(other)
+  @inline final def *(other: Int): Z = this * _ZLong(other)
 
-  final def %(other: Int): Z = this % _Z(other)
+  @inline final def /(other: Int): Z = this / _ZLong(other)
 
-  final def <(other: Int): B = this < _Z(other)
+  @inline final def %(other: Int): Z = this % _ZLong(other)
 
-  final def <=(other: Int): B = this <= _Z(other)
+  @inline final def <(other: Int): B = this < _ZLong(other)
 
-  final def >(other: Int): B = this > _Z(other)
+  @inline final def <=(other: Int): B = this <= _ZLong(other)
 
-  final def >=(other: Int): B = this >= _Z(other)
+  @inline final def >(other: Int): B = this > _ZLong(other)
 
-  final def +(other: Long): Z = this + _Z(other)
+  @inline final def >=(other: Int): B = this >= _ZLong(other)
 
-  final def -(other: Long): Z = this - _Z(other)
+  @inline final def +(other: Long): Z = this + _ZLong(other)
 
-  final def *(other: Long): Z = this * _Z(other)
+  @inline final def -(other: Long): Z = this - _ZLong(other)
 
-  final def /(other: Long): Z = this / _Z(other)
+  @inline final def *(other: Long): Z = this * _ZLong(other)
 
-  final def %(other: Long): Z = this % _Z(other)
+  @inline final def /(other: Long): Z = this / _ZLong(other)
 
-  final def <(other: Long): B = this < _Z(other)
+  @inline final def %(other: Long): Z = this % _ZLong(other)
 
-  final def <=(other: Long): B = this <= _Z(other)
+  @inline final def <(other: Long): B = this < _ZLong(other)
 
-  final def >(other: Long): B = this > _Z(other)
+  @inline final def <=(other: Long): B = this <= _ZLong(other)
 
-  final def >=(other: Long): B = this >= _Z(other)
+  @inline final def >(other: Long): B = this > _ZLong(other)
+
+  @inline final def >=(other: Long): B = this >= _ZLong(other)
+
+  @inline final def hash: Z = ZOps_Ext.hash(this)
+
+  @inline final def isEqual(other: Z): B = ZOps_Ext.isEqual(this, other)
+
+  @inline final override def hashCode: Int = hash.toInt
+
+  @inline final def string: String = ZOps_Ext.string(this)
+
+  final override def equals(other: Any): Boolean = other match {
+    case other: Z => ZOps_Ext.isEqual(this, other).value
+    case other: Byte => ZOps_Ext.isEqual(this, _ZLong(other.toLong))
+    case other: Char => ZOps_Ext.isEqual(this, _ZLong(other.toLong))
+    case other: Short => ZOps_Ext.isEqual(this, _ZLong(other.toLong))
+    case other: Int => ZOps_Ext.isEqual(this, _ZLong(other.toLong))
+    case other: Long => ZOps_Ext.isEqual(this, _ZLong(other.toLong))
+    case other: java.math.BigInteger => ZOps_Ext.isEqual(this, BigInt(other))
+    case other: BigInt => ZOps_Ext.isEqual(this, other)
+    case _ => false
+  }
+
+  final override def compareTo(other: Z): Int = (this, other) match {
+    case (_ZLong(n1), _ZLong(n2)) => n1.compareTo(n2)
+    case _ => this.toBigInt.compareTo(other.toBigInt)
+  }
+
+  private[sireum] final def toByte: Byte = this match {
+    case _ZLong(n) => n.toByte
+    case _ZBigInt(n) => n.toByte
+  }
+
+  private[sireum] final def toShort: Short = this match {
+    case _ZLong(n) => n.toShort
+    case _ZBigInt(n) => n.toShort
+  }
+
+  final def toInt: Int = this match {
+    case _ZLong(n) => n.toInt
+    case _ZBigInt(n) => n.toInt
+  }
+
+  private[sireum] final def toLong: Long = this match {
+    case _ZLong(n) => n
+    case _ZBigInt(n) => n.toLong
+  }
+
+  private[sireum] final def toBigInt: BigInt = this match {
+    case _ZLong(n) => BigInt(n)
+    case _ZBigInt(n) => n
+  }
+
+  @inline final override def toString: Predef.String = this match {
+    case _ZLong(n) => n.toString
+    case _ => toBigInt.toString
+  }
 
   final def toZ: Z = this
-
-  final def hash: Z = hashCode
-
-  final def isEqual(other: Z): B = this == other
-
-  override def hashCode: Int = ???
-
-  override def equals(other: Any): Boolean = ???
-
-  private[sireum] def toByte: Byte
-
-  private[sireum] def toShort: Short
-
-  def toInt: Int
-
-  private[sireum] def toLong: Long
-
-  private[sireum] def toBigInt: BigInt
 }
 
-private[sireum] final case class _ZLong(value: Long) extends _Z {
-  override def unary_- : Z =
-    if (value == Long.MinValue) -upgrade else _Z(-value)
-
-  override def +(other: Z): Z = other match {
-    case _ZLong(n) =>
-      val r = value + n
-      if (((value ^ r) & (n ^ r)) < 0L) upgrade + other
-      else _ZLong(r)
-    case _ => upgrade + other
-  }
-
-  override def -(other: Z): Z = other match {
-    case _ZLong(n) =>
-      val r = value - n
-      if (((value ^ r) & (n ^ r)) < 0L) upgrade - other
-      else _ZLong(r)
-    case _ => upgrade - other
-  }
-
-  override def *(other: Z): Z = other match {
-    case _ZLong(n) =>
-      val r = value * n
-      if (r == 0) return _Z.zero
-      if (n > value) {
-        if (((n == -1) && (value == Long.MinValue)) || (r / n != value))
-          return upgrade * other
-      } else {
-        if (((value == -1) && (n == Long.MinValue)) || (r / value != n))
-          return upgrade * other
-      }
-      _ZLong(r)
-    case _ => upgrade * other
-  }
-
-  override def /(other: Z): Z = other match {
-    case _ZLong(n) =>
-      val r = value / n
-      if ((value == Long.MinValue) && (n == -1)) upgrade / other
-      else _ZLong(r)
-    case _ => upgrade / other
-  }
-
-  override def %(other: Z): Z = upgrade % other
-
-  override def hashCode: Int = value.hashCode
-
-  override def equals(other: Any): Boolean = other match {
-    case _ZLong(n) => value == n
-    case _ZBigInt(n) => BigInt(value) == n
-    case other: Byte => value == other.toLong
-    case other: Char => value == other.toLong
-    case other: Short => value == other.toLong
-    case other: Int => value == other.toLong
-    case other: Long => value == other
-    case other: java.math.BigInteger => BigInt(value) == BigInt(other)
-    case other: BigInt => BigInt(value) == other
-    case _ => false
-  }
-
-  override def compareTo(other: Z): Int = other match {
-    case _ZLong(n) => value.compareTo(n)
-    case _ => upgrade.compareTo(other)
-  }
-
-  override def >(other: Z): B = other match {
-    case _ZLong(n) => value > n
-    case _ => upgrade > other
-  }
-
-  override def >=(other: Z): B = other match {
-    case _ZLong(n) => value >= n
-    case _ => upgrade >= other
-  }
-
-  override def <(other: Z): B = other match {
-    case _ZLong(n) => value < n
-    case _ => upgrade < other
-  }
-
-  override def <=(other: Z): B = other match {
-    case _ZLong(n) => value <= n
-    case _ => upgrade <= other
-  }
-
-  override def toString: Predef.String = value.toString
-
-  private def upgrade: _ZBigInt = _ZBigInt(BigInt(value))
-
-  private[sireum] override def toByte: Byte = value.toByte
-
-  private[sireum] override def toShort: Short = value.toShort
-
-  override def toInt: Int = value.toInt
-
-  private[sireum] override def toLong: Long = value.toLong
-
-  private[sireum] def toBigInt: BigInt = BigInt(value)
-}
+private[sireum] final case class _ZLong(value: Long) extends _Z
 
 private[sireum] final case class _ZBigInt(value: BigInt) extends _Z {
-  def unary_- : Z = _ZBigInt(-value)
-
-  def +(other: Z): Z = other match {
-    case _ZLong(n) => _ZBigInt(value + BigInt(n))
-    case _ZBigInt(n) => _ZBigInt(value + n)
-  }
-
-  def -(other: Z): Z = (other match {
-    case _ZLong(n) => _ZBigInt(value - BigInt(n))
-    case _ZBigInt(n) => _ZBigInt(value - n)
-  }).pack
-
-  def *(other: Z): Z = other match {
-    case _ZLong(n) => _ZBigInt(value * BigInt(n))
-    case _ZBigInt(n) => _ZBigInt(value * n)
-  }
-
-  def /(other: Z): Z = (other match {
-    case _ZLong(n) => _ZBigInt(value / BigInt(n))
-    case _ZBigInt(n) => _ZBigInt(value / n)
-  }).pack
-
-  def %(other: Z): Z = (other match {
-    case _ZLong(n) => _ZBigInt(value % BigInt(n))
-    case _ZBigInt(n) => _ZBigInt(value % n)
-  }).pack
-
-  override lazy val hashCode: Int = value.hashCode
-
-  override def equals(other: Any): Boolean = other match {
-    case other: _ZLong => value == BigInt(other.value)
-    case _ZBigInt(n) => value == n
-    case other: Byte => value == BigInt(other)
-    case other: Char => value == BigInt(other)
-    case other: Short => value == BigInt(other)
-    case other: Int => value == BigInt(other)
-    case other: Long => value == BigInt(other)
-    case other: java.math.BigInteger => value == BigInt(other)
-    case other: BigInt => value == other
-    case _ => false
-  }
-
-  override def compareTo(other: Z): Int = other match {
-    case _ZLong(n) => value.compareTo(BigInt(n))
-    case _ZBigInt(n) => value.compareTo(n)
-  }
-
-  def <(other: Z): B = other match {
-    case _ZLong(n) => value < BigInt(n)
-    case _ZBigInt(n) => value < n
-  }
-
-  def <=(other: Z): B = other match {
-    case _ZLong(n) => value <= BigInt(n)
-    case _ZBigInt(n) => value <= n
-  }
-
-  def >(other: Z): B = other match {
-    case _ZLong(n) => value > BigInt(n)
-    case _ZBigInt(n) => value > n
-  }
-
-  def >=(other: Z): B = other match {
-    case _ZLong(n) => value >= BigInt(n)
-    case _ZBigInt(n) => value >= n
-  }
-
-  override def toString: Predef.String = value.toString
-
-  private[math] def pack: Z =
+  private[sireum] def pack: Z =
     if ((value.compareTo(_Z.longMin) >= 0) && (value.compareTo(_Z.longMax) <= 0))
       _ZLong(value.longValue)
     else this
-
-  private[sireum] override def toByte: Byte = value.toByte
-
-  private[sireum] override def toShort: Short = value.toShort
-
-  override def toInt: Int = value.toInt
-
-  private[sireum] override def toLong: Long = value.toLong
-
-  private[sireum] def toBigInt: BigInt = value
 }

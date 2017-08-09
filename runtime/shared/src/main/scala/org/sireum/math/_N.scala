@@ -26,6 +26,7 @@
 package org.sireum.math
 
 import org.sireum._Type.Alias._
+import org.sireum.ops.NOps_Ext
 import org.sireum.{_Jsonable, _Range}
 
 object _N {
@@ -63,31 +64,33 @@ object _N {
 }
 
 final class _N(val value: Z) extends AnyVal with _Jsonable {
-  def +(other: N): N = _N(value + other.value)
+  @inline def +(other: N): N = NOps_Ext.+(this, other)
 
-  def -(other: N): N = _N(value - other.value)
+  @inline def -(other: N): N = NOps_Ext.-(this, other)
 
-  def *(other: N): N = _N(value * other.value)
+  @inline def *(other: N): N = NOps_Ext.*(this, other)
 
-  def /(other: N): N = _N(value / other.value)
+  @inline def /(other: N): N = NOps_Ext./(this, other)
 
-  def %(other: N): N = _N(value % other.value)
+  @inline def %(other: N): N = NOps_Ext.%(this, other)
 
-  def >(other: N): B = value > other.value
+  @inline def >(other: N): B = NOps_Ext.>(this, other)
 
-  def >=(other: N): B = value >= other.value
+  @inline def >=(other: N): B = NOps_Ext.>=(this, other)
 
-  def <(other: N): B = value < other.value
+  @inline def <(other: N): B = NOps_Ext.<(this, other)
 
-  def <=(other: N): B = value <= other.value
+  @inline def <=(other: N): B = NOps_Ext.<=(this, other)
 
   def until(hi: N): _Range[N] = new _Range(this, i => i < hi, (n, m) => n + m, _N.one)
 
   def to(hi: N): _Range[N] = new _Range(this, i => i <= hi, (n, m) => n + m, _N.one)
 
-  def hash: Z = hashCode
+  @inline def hash: Z = NOps_Ext.hash(this)
 
-  def isEqual(other: N): B = this == other
+  @inline def isEqual(other: N): B = NOps_Ext.isEqual(this, other)
 
-  override def toString: Predef.String = value.toString
+  @inline def string: String = NOps_Ext.string(this)
+
+  @inline override def toString: Predef.String = value.toString
 }

@@ -38,5 +38,6 @@ final class _B(val value: Boolean) extends AnyVal with _Jsonable {
   def unary_~ : T = BO_Ext.unary_~(this)
   def hash: Z = BO_Ext.hash(this)
   def isEqual(other: T): T = BO_Ext.isEqual(this, other)
-  override def toString: Predef.String = BO_Ext.toString(this)
+  def string: String = BO_Ext.string(this)
+  override def toString: Predef.String = if (value) "T" else "F"
 }

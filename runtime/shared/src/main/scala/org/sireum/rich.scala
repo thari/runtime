@@ -52,7 +52,7 @@ object rich {
   def translateClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
     val q"..$mods class $tname[..$tparams] ..$ctorMods (...$paramss) extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (mods.nonEmpty || ctorMods.nonEmpty || paramss.isEmpty || paramss.size > 1 || paramss.head.isEmpty ||
-      estats.nonEmpty || ctorcalls.size > 1 || !param.name.isInstanceOf[Name.Anonymous])
+      estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @rich classes have to be of the form '@rich class <id>(...) ... extends ... { ... }'.")
     val tVars = tparams.map { tp =>
       val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
@@ -110,22 +110,27 @@ object rich {
       val apply =
         if (tparams.isEmpty) q"def apply(...$paramss): $tpe = new $ctorName(..$varNames)"
         else q"def apply[..$tparams](...$paramss): $tpe = new $ctorName(..$varNames)"
-      ctorcalls.headOption match {
-        case Some(ctor"$_[..$atpesnel]()") if paramss.nonEmpty && paramss.head.nonEmpty =>
-          val argType = if (atpesnel.size > 1) t"(..$atpesnel)" else atpesnel.head
-          val impClass = {
-            val (result, impParam) =
-              if (varTypes.size > 1)
-                (q"lazy val result: $tpe = apply(..${varTypes.indices.map(i => q"arg.${Term.Name(s"_${i + 1}")}")})",
-                  param"arg: (..$varTypes)")
-              else (q"lazy val result: $tpe = apply(arg)", param"arg: ${varTypes.head}")
-            if (tparams.nonEmpty)
-              q"""implicit final class ${Type.Name(tname.value + "_F")}[..$tparams]($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
-            else
-              q"""implicit final class ${Type.Name(tname.value + "_F")}($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
-          }
-          q"""object ${Term.Name(tname.value)} { ..${Vector(impClass, apply)} }"""
-        case _ => q"object ${Term.Name(tname.value)} { $apply }"
+      if (ctorcalls.isEmpty) q"object ${Term.Name(tname.value)} { $apply }"
+      else {
+        val impClasses: Vector[Option[Stat]] = for (ctorcall <- ctorcalls.toVector) yield ctorcall match {
+          case ctor"$ref[..$atpesnel]()" if paramss.nonEmpty && paramss.head.nonEmpty =>
+            val argType = if (atpesnel.size > 1) t"(..$atpesnel)" else atpesnel.head
+            val impClass = {
+              val (result, impParam) =
+                if (varTypes.size > 1)
+                  (q"lazy val result: $tpe = apply(..${varTypes.indices.map(i => q"arg.${Term.Name(s"_${i + 1}")}")})",
+                    param"arg: (..$varTypes)")
+                else (q"lazy val result: $tpe = apply(arg)", param"arg: ${varTypes.head}")
+              val ctorname = ref.syntax.replaceAllLiterally(".", "_")
+              if (tparams.nonEmpty)
+                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}[..$tparams]($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
+              else
+                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}($impParam) extends org.sireum._RichF[$argType, $tpe] { $result }"""
+            }
+            Some(impClass)
+          case _ => None
+        }
+        q"""object ${Term.Name(tname.value)} { ..${impClasses.flatten :+ apply} }"""
       }
     }
     Term.Block(Vector(classDef, objectDef))
