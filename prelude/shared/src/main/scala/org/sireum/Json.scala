@@ -26,7 +26,7 @@
 
 package org.sireum
 
-import SZOps._
+import ISZOps._
 
 object Json {
 

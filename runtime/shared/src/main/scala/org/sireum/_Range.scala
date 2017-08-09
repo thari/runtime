@@ -35,4 +35,7 @@ class _Range[I](init: I, cond: I => Boolean, add: (I, I) => I, step: I) {
   }
 
   def by(n: I): _Range[I] = new _Range(init, cond, add, n)
+
+  def withFilter(filter: I => B): _Range[I] =
+    new _Range(init, (i: I) => cond(i) && filter(i), add, step)
 }

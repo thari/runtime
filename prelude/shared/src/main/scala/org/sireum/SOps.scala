@@ -27,32 +27,66 @@
 package org.sireum
 
 @rich trait SOps[I, T] {
+
+  @pure def :+(e: T): IS[I, T]
+
+  @pure def +:(e: T): IS[I, T]
+
+  @pure def ++(other: IS[I, T]): IS[I, T]
+
+  @pure def chunk(size: I): IS[Z, IS[I, T]]
+
   @pure def contains(e: T): B
+
+  @pure def drop(size: I): IS[I, T]
+
+  @pure def dropRight(size: I): IS[I, T]
+
+  @pure def exists(p: T => B): B
+
+  @pure def first: T
 
   @pure def forall(p: T => B): B
 
-  @pure def exists(p: T => B): B
+  @pure def foldLeft[R](f: (R, T) => R, init: R): R
+
+  @pure def foldRight[R](f: (R, T) => R, init: R): R
+
+  @pure def indexOf(e: T): Z
+
+  @pure def insert(i: Z, e: T): IS[Z, T]
+
+  @pure def last: T
+
+  @pure def laxIndexOf(e: T): Z
+
+  @pure def laxSlice(from: Z, til: Z): IS[Z, T]
+
+  @pure def map[U](f: T => U): IS[I, U]
+
+  @pure def remove(i: Z): IS[Z, T]
+
+  @pure def slice(from: Z, til: Z): IS[Z, T]
+
+  @pure def sortWith(lt: (T, T) => B): IS[I, T]
+
+  @pure def tail: IS[Z, T]
+
+  @pure def take(size: I): IS[I, T]
+
+  @pure def takeRight(size: Z): IS[Z, T]
+
+  @pure def toMS: MS[I, T]
+
 }
 
-@rich class SZOps[T](value: IS[Z, T]) extends SOps[Z, T] {
-  @pure def contains(e: T): B = {
-    for (v <- value if e == v) {
-      return T
-    }
-    return F
-  }
+@rich trait SBOps[I] {
 
-  @pure def forall(p: T => B): B = {
-    for (e <- value if !p(e)) {
-      return F
-    }
-    return T
-  }
+  @pure def toU8: U8
 
-  @pure def exists(p: T => B): B = {
-    for (e <- value if p(e)) {
-      return T
-    }
-    return F
-  }
+  @pure def toU16: U16
+
+  @pure def toU32: U32
+
+  @pure def toU64: U64
 }
