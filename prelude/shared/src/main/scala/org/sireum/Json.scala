@@ -26,7 +26,8 @@
 
 package org.sireum
 
-import ISZOps._
+import org.sireum.ops._
+import org.sireum.ops.ISZOps._
 
 object Json {
 
@@ -1500,7 +1501,7 @@ object Json {
       val i = offset + 1
       val value = parseString()
       parseObjectNext()
-      if (expectedTypes.nonEmpty && !SOps(expectedTypes).contains(value)) {
+      if (expectedTypes.nonEmpty && !SO(expectedTypes).contains(value)) {
         expectedTypes.size match {
           case 1 => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")
           case 2 => parseException(i, s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
@@ -1534,7 +1535,7 @@ object Json {
       errorIfEof(offset)
       val i = offset + 1
       val key = parseString()
-      if (expectedKeys.nonEmpty && !SOps(expectedKeys).contains(key)) {
+      if (expectedKeys.nonEmpty && !SO(expectedKeys).contains(key)) {
         expectedKeys.size match {
           case 1 => parseException(i, s"Expected '${expectedKeys(0)}', but '$key' found.")
           case 2 => parseException(i, s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
@@ -1960,7 +1961,7 @@ object Json {
           return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(SOps(es).forall(isSimple), es.map(printValue))
+          return Printer.printIS(SO(es).forall(isSimple), es.map(printValue))
         case ValueKind.True => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
         case ValueKind.Null => return Printer.nullSt

@@ -27,8 +27,9 @@ package org.sireum
 
 import org.sireum.test.SireumRuntimeSpec
 
-import ISZOps._
-import ISZBOps._
+import org.sireum.ops._
+import org.sireum.ops.ISZOps._
+import org.sireum.ops.ISZBOps._
 
 class STest extends SireumRuntimeSpec {
   "MS[Z8, B]" - {

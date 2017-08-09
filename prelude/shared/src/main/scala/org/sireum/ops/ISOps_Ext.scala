@@ -23,7 +23,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.ops
+
+import org.sireum._
 
 object ISOps_Ext {
   @pure def toMS[I, T](s: IS[I, T]): MS[I, T] = {

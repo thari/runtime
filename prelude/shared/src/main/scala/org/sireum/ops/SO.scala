@@ -28,7 +28,7 @@ package org.sireum.ops
 
 import org.sireum._
 
-@rich trait SOps[I, T] {
+@rich trait SO[I, T] {
 
   @pure def :+(e: T): IS[I, T]
 
@@ -60,8 +60,6 @@ import org.sireum._
 
   @pure def last: T
 
-  @pure def laxIndexOf(e: T): Z
-
   @pure def laxSlice(from: Z, til: Z): IS[Z, T]
 
   @pure def map[U](f: T => U): IS[I, U]
@@ -82,7 +80,7 @@ import org.sireum._
 
 }
 
-@rich trait SBOps[I] {
+@rich trait SBO[I] {
 
   @pure def toU8: U8
 

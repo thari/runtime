@@ -24,9 +24,11 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.ops
 
-object ISZOps {
+import org.sireum._
+
+object ISZO {
   @spec def foldLeftSpec[T, R](s: IS[Z, T], f: (R, T) => R, init: R, i: Z): R =
     l""" = base:  init,                                      if i ≡ 0
          = rec:   f(foldLeftSpec(s, f, init, i - 1), s(i)),  if 0 < i ∧ i < s.size """
@@ -66,7 +68,7 @@ object ISZOps {
   @spec def isPermutation[T](s1: IS[Z, T], s2: IS[Z, T]): B = l""" = isPermutationRec(s1, s2) """
 }
 
-@rich class ISZOps[T](s: IS[Z, T]) extends SOps[Z, T] {
+@rich class ISZOps[T](s: IS[Z, T]) extends SO[Z, T] {
 
   @pure def :+(e: T): IS[Z, T] = {
     l""" ensures result.size ≡ s.size + 1
@@ -190,14 +192,6 @@ object ISZOps {
     return r
   }
 
-  @pure def indexOf(e: T): Z = {
-    l""" requires ∃i: [0, s.size) s(i) ≡ e
-         ensures  0 ≤ result
-                  result < s.size
-                  (∀j: [0, result) s(j) ≠ e) → s(result) ≡ e """
-    return laxIndexOf(e)
-  }
-
   @pure def insert(i: Z, e: T): IS[Z, T] = {
     l""" requires 0 ≤ i
                   i <= s.size
@@ -215,7 +209,7 @@ object ISZOps {
     return s(s.size - 1)
   }
 
-  @pure def laxIndexOf(e: T): Z = {
+  @pure def indexOf(e: T): Z = {
     l""" ensures (0 ≤ result ∧ result < s.size) → s(result) ≡ e
                  (result ≡ s.size) ≡ (∀i: [0, s.size) s(i) ≠ e)
                  ∃i: [0, s.size) s(i) ≡ e ∧ (∀j: [0, i) s(j) ≠ e) → result ≡ i
@@ -228,9 +222,9 @@ object ISZOps {
   }
 
   @pure def laxSlice(from: Z, til: Z): IS[Z, T] = {
-    l""" ensures if (til > from) result.size ≡ ZOps(til).min(s.size) - ZOps(0).max(from)
+    l""" ensures if (til > from) result.size ≡ NO(til).min(s.size) - NO(0).max(from)
                    else result.size ≡ 0
-                 ∀i: [i, result.size) result(i) ≡ s(ZOps(0).max(from) + i)               """
+                 ∀i: [i, result.size) result(i) ≡ s(NO(0).max(from) + i)               """
 
     var r = IS[Z, T]()
     for (i <- from until til if 0 <= i && i < s.size) {
@@ -572,7 +566,7 @@ object ISZBOps {
   }
 }
 
-@rich class ISZBOps(s: IS[Z, B]) extends SBOps[Z] {
+@rich class ISZBOps(s: IS[Z, B]) extends SBO[Z] {
 
   @pure def toU8: U8 = {
     l""" requires s.size ≡ 8
