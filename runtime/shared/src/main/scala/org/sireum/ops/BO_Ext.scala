@@ -27,15 +27,15 @@ package org.sireum.ops
 
 import org.sireum._
 
-object BOps_Ext {
+object BO_Ext {
   @inline final def &(b1: B, b2: B): B = _2B(b1.value & b2.value)
   @inline final def |(b1: B, b2: B): B = _2B(b1.value | b2.value)
   @inline final def |^(b1: B, b2: B): B = _2B(b1.value ^ b2.value)
   @inline final def &&(b1: B, b2: => B): B = _2B(b1.value && b2.value)
   @inline final def ||(b1: B, b2: => B): B = _2B(b1.value || b2.value)
-  @inline final def isEqual(b1: B, b2: B): B = _2B(b1.value == b2.value)
   @inline final def unary_!(b: B): B = _2B(!b.value)
   @inline final def unary_~(b: B): B = _2B(!b.value)
   @inline final def hash(b: B): Z = _Z(b.hashCode)
+  @inline final def isEqual(b1: B, b2: B): B = _2B(b1.value == b2.value)
   @inline final def toString(b: B): Predef.String = b.value.toString
 }
