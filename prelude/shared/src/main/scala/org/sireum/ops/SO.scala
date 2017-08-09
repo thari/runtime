@@ -24,7 +24,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.ops
+
+import org.sireum._
 
 @rich trait SOps[I, T] {
 
