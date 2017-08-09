@@ -59,7 +59,8 @@ class ext extends scala.annotation.StaticAnnotation {
             }
             val params = if (paramss.isEmpty) List() else paramss.head.map {
               case param"..$_ $paramname: ${atpeopt: Option[Type.Arg]} = $_" => atpeopt match {
-                case Some(targ"${tpe: Type}") => arg"${Term.Name(paramname.value)}"
+                case Some(targ"${_: Type}") => arg"${Term.Name(paramname.value)}"
+                case Some(_: Type.Arg.ByName) => arg"${Term.Name(paramname.value)}"
                 case _ => abort(paramname.pos, "Unsupported Slang @ext object method parameter form.")
               }
             }

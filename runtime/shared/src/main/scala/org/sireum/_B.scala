@@ -29,14 +29,14 @@ import org.sireum.ops._
 
 final class _B(val value: Boolean) extends AnyVal with _Jsonable {
   private type T = B
-  def &(other: T): T = BOps_Ext.&(this, other)
-  def |(other: T): T = BOps_Ext.|(this, other)
-  def |^(other: T): T = BOps_Ext.|^(this, other)
-  def &&(other: => T): T = BOps_Ext.&&(this, other)
-  def ||(other: => T): T = BOps_Ext.||(this, other)
-  def isEqual(other: T): T = BOps_Ext.isEqual(this, other)
-  def unary_! : T = BOps_Ext.unary_!(this)
-  def unary_~ : T = BOps_Ext.unary_~(this)
-  def hash: Z = BOps_Ext.hash(this)
-  override def toString: Predef.String = BOps_Ext.toString(this)
+  def &(other: T): T = BO_Ext.&(this, other)
+  def |(other: T): T = BO_Ext.|(this, other)
+  def |^(other: T): T = BO_Ext.|^(this, other)
+  def &&(other: => T): T = BO_Ext.&&(this, other)
+  def ||(other: => T): T = BO_Ext.||(this, other)
+  def unary_! : T = BO_Ext.unary_!(this)
+  def unary_~ : T = BO_Ext.unary_~(this)
+  def hash: Z = BO_Ext.hash(this)
+  def isEqual(other: T): T = BO_Ext.isEqual(this, other)
+  override def toString: Predef.String = BO_Ext.toString(this)
 }

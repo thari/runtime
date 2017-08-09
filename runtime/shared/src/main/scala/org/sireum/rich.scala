@@ -76,7 +76,7 @@ object rich {
     val dollar = Term.Name("$").structure
     val newStats = for (stat <- stats) yield stat match {
       case q"..$mods def $_[..$_](...$_): $_ = $_" if mods.exists { case mod"@spec" => true; case _ => false } => stat
-      case q"..$mods def $name[..$tparams](...$paramss): ${tpeopt: Option[Type]} = $expr" =>
+      case q"..$_ def $name[..$tparams](...$paramss): ${tpeopt: Option[Type]} = $expr" =>
         val isExt = if (expr.structure == dollar) true else expr match {
           case Term.Apply(Term.Select(Term.Apply(Term.Name("StringContext"), _), Term.Name("lDef")), _) => true
           case expr: Term.Interpolate if expr.prefix.value == "lDef" => true
@@ -93,7 +93,8 @@ object rich {
           }
           val params = if (paramss.isEmpty) List() else paramss.head.map {
             case param"..$_ $paramname: ${atpeopt: Option[Type.Arg]} = $_" => atpeopt match {
-              case Some(targ"${tpe: Type}") => arg"${Term.Name(paramname.value)}"
+              case Some(targ"${_: Type}") => arg"${Term.Name(paramname.value)}"
+              case Some(_: Type.Arg.ByName) => arg"${Term.Name(paramname.value)}"
               case _ => abort(paramname.pos, "Unsupported Slang @rich class extension method parameter form.")
             }
           }
