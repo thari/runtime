@@ -242,7 +242,7 @@ final class F32(val value: Float) extends AnyVal with FloatingPoint {
 
   def SignificandBitWidth: Z = 24
 
-  def DecimalBitWidth: Z = 7
+  def ExponentBitWidth: Z = 7
 
   def <(other: FloatingPoint): B = ???
 
@@ -276,9 +276,9 @@ final class F64(val value: Double) extends AnyVal with FloatingPoint {
 
   def BitWidth: Z = 64
 
-  def SignificandBitWidth: Z = 24
+  def SignificandBitWidth: Z = 53
 
-  def DecimalBitWidth: Z = 7
+  def ExponentBitWidth: Z = 10
 
   def hash: Z = value.hashCode
 
