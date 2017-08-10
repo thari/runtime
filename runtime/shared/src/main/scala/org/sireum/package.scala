@@ -399,7 +399,7 @@ package object sireum {
 
   val pat = _Helper.Pat
 
-  def _assign[T](arg: T): T = macro _macro._assignImpl
+  def $assign[T](arg: T): T = macro _macro._assignImpl
 
   def __assign[T](arg: T): T = {
     arg match {

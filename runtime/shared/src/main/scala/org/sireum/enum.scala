@@ -59,17 +59,18 @@ class enum extends scala.annotation.StaticAnnotation {
         var elements = Vector[Term.Name]()
         var i = 0
         for (stat <- stats) {
-          stat match {
-            case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) =>
-              val tname = Term.Name(sym)
-              val ostats = Vector(
-                q"def ordinal: org.sireum.Z = org.sireum._Z(${Lit.Int(i)})",
-                q"def name: org.sireum.String = org.sireum._2String(${Lit.String(sym)})"
-              )
-              decls :+= q"final case object $tname extends Value { ..$ostats }"
-              elements :+= tname
-            case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.syntax}")
+          val sym = stat match {
+            case Lit.Symbol(sym) => sym.name
+            case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) => sym
+            case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.structure}")
           }
+          val tname = Term.Name(sym)
+          val ostats = Vector(
+            q"def ordinal: org.sireum.Z = org.sireum._Z(${Lit.Int(i)})",
+            q"def name: org.sireum.String = org.sireum._2String(${Lit.String(sym)})"
+          )
+          decls :+= q"final case object $tname extends Value { ..$ostats }"
+          elements :+= tname
           i += 1
         }
         decls ++= Vector(
