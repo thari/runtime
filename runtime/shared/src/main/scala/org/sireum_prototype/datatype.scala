@@ -63,7 +63,7 @@ object datatype {
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
     val (hasHash, hasEquals) = helper.hasHashEquals(tpe, stats)
-    val clone = q"override def clone: $tpe = this"
+    val clone = q"override def $$clone: $tpe = this"
     val ctorName = Ctor.Name(tname.value)
     if (paramss.nonEmpty && paramss.head.nonEmpty) {
       var cparams: Vector[Term.Param] = Vector()
