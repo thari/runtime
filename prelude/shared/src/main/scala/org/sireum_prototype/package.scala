@@ -28,15 +28,16 @@ package org
 package object sireum_prototype extends $internal.PackageTrait {
 
   import language.experimental.macros
-  import org.sireum_prototype.$internal.Macro
 
-  final implicit class _Slang(val sc: StringContext) extends AnyVal {
+  import $internal.Macro
 
-    def l[T](args: Any*): T = throw new NotImplementedError
+  final implicit class $Slang(val sc: StringContext) extends AnyVal {
+
+    def l[T](args: Any*): T = halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")
 
     def lUnit(args: Any*): Unit = {}
 
-    def lDef[T](args: Any*): T = throw new NotImplementedError
+    def lDef[T](args: Any*): T = halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")
 
     def st(args: Any*): ST = macro Macro.st
   }

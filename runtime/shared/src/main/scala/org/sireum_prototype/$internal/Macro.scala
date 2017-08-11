@@ -38,14 +38,14 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   import c.universe._
 
   def $Impl[T]: c.Expr[T] = {
-    c.Expr[T](q"???")
+    c.Expr[T](q"""halt("Slang '$$' should have been erased by the Sireum Scala compiler plugin.")""")
   }
 
 
   def $assignImpl(arg: c.Tree): c.Tree = {
     def args(n: Int): List[c.Tree] =
       (for (i <- 1 to n) yield
-        Apply(Ident(TermName("__assign")), List(Select(arg, TermName(s"_$i"))))).toList
+        Apply(Ident(TermName("$$assign")), List(Select(arg, TermName(s"_$i"))))).toList
 
     //println(showRaw(arg))
     val r =
@@ -200,8 +200,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       else true
     val parts = {
       val parts = c.prefix.tree match {
-        case q"org.sireum_prototype.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
-        case q"sireum_prototype.this.`package`._Slang(scala.StringContext.apply(..$ps))" => ps
+        case q"org.sireum_prototype.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
+        case q"sireum_prototype.this.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
       }
       if (isSingle) parts.map(p => q"StringContext.treatEscapes($p)") else parts
     }
@@ -218,7 +218,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     }
     val source = if (pos.isRange) {
       val text = pos.source.content
-      val sb = new StringBuilder
+      val sb = new java.lang.StringBuilder
       for (_ <- 0 until pos.column - 1) sb.append(' ')
       for (i <- pos.start until pos.end) {
         sb.append(text(i))
