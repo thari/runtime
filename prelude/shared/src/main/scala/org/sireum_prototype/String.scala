@@ -34,14 +34,14 @@ object String {
 
 }
 
-final class String(val value: Predef.String) extends AnyVal with Equal[String] {
+final class String(val value: Predef.String) extends AnyVal with Immutable {
 
-  def hash: Z = value.hashCode
+  @inline @pure def hash: Z = value.hashCode
 
-  def isEqual(other: String): B = value == other.value
+  @inline @pure def isEqual(other: Immutable): B = this == other
 
-  def string: String = this
+  @inline @pure def string: String = this
 
-  override def toString: Predef.String = value
+  @inline override def toString: Predef.String = value
 
 }

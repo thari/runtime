@@ -49,7 +49,7 @@ object datatype {
         List(q"override def equals(o: scala.Any): scala.Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }")
       } else List()
     val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-    q"sealed trait $tname[..$tparams] extends Datatype[$tpe] with ..$ctorcalls { $param => ..${ hash ++ equals ++ stats } }"
+    q"sealed trait $tname[..$tparams] extends Datatype with ..$ctorcalls { $param => ..${ hash ++ equals ++ stats } }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -113,30 +113,33 @@ object datatype {
             q"override def equals(o: scala.Any): scala.Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }"
           }
         val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: $tpe): B = this == other")
+        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: Immutable): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
         val toString = {
-          var appends = applyArgs.map(arg => q"sb.append($arg.string)")
+          var appends = applyArgs.map(arg => q"sb.append($arg.toString)")
           appends =
             if (appends.isEmpty) appends
             else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
-          q"""override def toString: java.lang.String = {
+          Vector(
+            q"""override def toString: java.lang.String = {
                     val sb = new java.lang.StringBuilder
                     sb.append(${Lit.String(tname.value)})
                     sb.append('(')
                     ..$appends
                     sb.append(')')
                     sb.toString
-                  }"""
+                  }""",
+            q"override def string: String = toString"
+          )
         }
-        val content = {
-          var fields = List[Term.Arg](q"(${Lit.String("type")}, ${Lit.String(tname.value)})")
-          for (x <- applyArgs) {
-            fields ::= q"(${Lit.String(x.value)}, $x)"
-          }
-          q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
-        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Datatype[$tpe] with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, content, clone, apply, toString) ++ stats} }"
+//        val content = {
+//          var fields = List[Term.Arg](q"(${Lit.String("type")}, ${Lit.String(tname.value)})")
+//          for (x <- applyArgs) {
+//            fields ::= q"(${Lit.String(x.value)}, $x)"
+//          }
+//          q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
+//        }
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -186,13 +189,13 @@ object datatype {
             q"override def equals(o: scala.Any): scala.Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }"
           }
         val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: $tpe): B = this == other")
+        val isEqual = if (hasEquals) List() else List(q"def isEqual(other: Immutable): B = this == other")
         val toString = {
           val r = tname.value + "()"
-          q"""override def toString: java.lang.String = ${Lit.String(r)}"""
+          Vector(q"""override def toString: java.lang.String = ${Lit.String(r)}""", q"override def string: String = toString")
         }
-        val content = q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends {} with Datatype[$tpe] with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, content, clone, toString) ++ stats} }"
+        //val content = q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
+        q"final class $tname[..$tparams](...$paramss) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

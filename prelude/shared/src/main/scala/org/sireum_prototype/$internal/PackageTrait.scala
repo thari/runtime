@@ -29,14 +29,12 @@ import org.sireum_prototype.{Mutable, Immutable}
 
 trait PackageTrait {
 
-  type Nothing = scala.Nothing
-
-  val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
+  private val $topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
   def $clone[T](o: T): T = o match {
     case o: Immutable => o.$clone.asInstanceOf[T]
     case o: Mutable => o.$clone.asInstanceOf[T]
-    case _ => halt(topValueError)
+    case _ => halt($topValueError)
   }
 
   def halt(msg: Any): Nothing = {
@@ -54,7 +52,7 @@ trait PackageTrait {
     arg match {
       case x: Mutable => (if (x.owned) x.$clone.owned = true else x.owned = true).asInstanceOf[T]
       case _: Immutable => arg
-      case _ => halt(topValueError)
+      case _ => halt($topValueError)
     }
   }
 

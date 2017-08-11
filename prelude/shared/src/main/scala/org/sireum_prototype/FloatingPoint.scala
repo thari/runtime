@@ -72,10 +72,7 @@ final class F32(val value: Float) extends AnyVal with FloatingPoint {
 
   def hash: Z = value.hashCode
 
-  def isEqual(other: FloatingPoint): B = other match {
-    case other: F32 => value == other.value
-    case _ => ???
-  }
+  def isEqual(other: Immutable): B = this == other
 
   def string: String = java.lang.Float.toString(value)
 }
@@ -116,10 +113,7 @@ final class F64(val value: Double) extends AnyVal with FloatingPoint {
 
   def %(other: FloatingPoint): FloatingPoint = ???
 
-  def isEqual(other: FloatingPoint): B = other match {
-    case other: F64 => value == other.value
-    case _ => ???
-  }
+  def isEqual(other: Immutable): B = this == other
 
   def string: String = java.lang.Double.toString(value)
 

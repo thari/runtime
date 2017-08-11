@@ -25,30 +25,39 @@
 
 package org.sireum_prototype
 
+import spire.math.Real
 
-final class R extends Number[R] {
+object R {
 
-  def <(other: R): B = ???
+  import scala.language.implicitConversions
 
-  def <=(other: R): B = ???
+  implicit def $2R(r: Real): R = new R(r)
 
-  def >(other: R): B = ???
+}
 
-  def >=(other: R): B = ???
+final class R(val value: Real) extends AnyVal with Number[R] {
 
-  def +(other: R): R = ???
+  @inline @pure def <(other: R): B = value.compare(other.value) < 0
 
-  def -(other: R): R = ???
+  @inline @pure def <=(other: R): B = value.compare(other.value) <= 0
 
-  def *(other: R): R = ???
+  @inline @pure def >(other: R): B = value.compare(other.value) > 0
 
-  def /(other: R): R = ???
+  @inline @pure def >=(other: R): B = value.compare(other.value) >= 0
 
-  def %(other: R): R = ???
+  @inline @pure def +(other: R): R = value + other.value
 
-  def hash: Z = ???
+  @inline @pure def -(other: R): R = value - other.value
 
-  def isEqual(other: R): B = ???
+  @inline @pure def *(other: R): R = value * other.value
 
-  def string: String = ???
+  @inline @pure def /(other: R): R = value / other.value
+
+  @inline @pure def %(other: R): R = value % other.value
+
+  @inline @pure def hash: Z = value.hashCode
+
+  @inline @pure def isEqual(other: Immutable): B = this == other
+
+  @inline @pure def string: String = value.toString
 }

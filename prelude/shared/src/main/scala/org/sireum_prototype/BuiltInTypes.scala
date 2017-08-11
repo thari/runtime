@@ -27,26 +27,17 @@
 package org.sireum_prototype
 
 
-@ext trait Nothing
-
-
 @ext trait Immutable {
 
-  @pure def string: String
-
-}
-
-
-@ext trait Equal[E <: Equal[E]] extends Immutable {
-
-  @pure def isEqual(other: E): B
+  @pure def isEqual(other: Immutable): B
 
   @pure def hash: Z
 
+  @pure def string: String
 }
 
 
-@ext trait Ordered[O <: Ordered[O]] extends Equal[O] {
+@ext trait Ordered[O <: Ordered[O]] extends Immutable {
 
   @pure def <(other: O): B
 
@@ -73,7 +64,7 @@ package org.sireum_prototype
 }
 
 
-@ext trait B extends Equal[B] {
+@ext trait B extends Immutable {
 
   @pure def &(other: B): B
 
@@ -109,6 +100,8 @@ package org.sireum_prototype
 
   @pure def BitWidth: Z
 
+  @pure def unary_- : Z
+
   @pure def >>(other: Z): Z
 
   @pure def >>>(other: Z): Z
@@ -143,17 +136,17 @@ package org.sireum_prototype
 @ext trait R extends Number[R]
 
 
-@ext trait String extends Equal[String]
+@ext trait String extends Immutable
 
 
-@ext trait IS[I <: Integral[I], V <: Immutable] extends Equal[IS[I, V]] {
+@ext trait IS[I <: Integral[I], V <: Immutable] extends Immutable {
 
   @pure def size: Z
 
 }
 
 
-@ext trait Datatype[O <: Datatype[O]] extends Equal[O]
+@ext trait Datatype extends Immutable
 
 
 @ext trait Sig extends Immutable
@@ -170,19 +163,13 @@ package org.sireum_prototype
 
   @pure def string: String
 
-}
-
-
-@ext trait MEqual[E <: MEqual[E]] extends Mutable {
-
-  @pure def isEqual(other: E): B
+  @pure def isEqual(other: Mutable): B
 
   @pure def hash: Z
-
 }
 
 
-@ext trait MOrdered[O <: MOrdered[O]] extends MEqual[O] {
+@ext trait MOrdered[O <: MOrdered[O]] extends Mutable {
 
   @pure def <(other: O): B
 
@@ -195,12 +182,12 @@ package org.sireum_prototype
 }
 
 
-@ext trait MS[I <: Integral[I], V] extends MEqual[MS[I, V]] {
+@ext trait MS[I <: Integral[I], V] extends Mutable {
   @pure def size: Z
 }
 
 
-@ext trait Record[O <: Record[O]] extends MEqual[O]
+@ext trait Record extends Mutable
 
 
 @ext trait MSig extends Mutable

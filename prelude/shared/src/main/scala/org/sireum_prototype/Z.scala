@@ -28,48 +28,249 @@ package org.sireum_prototype
 
 object Z {
 
+  type Index = Int
+
+  val zero: Z = Long(0)
+  val one: Z = Long(1)
+  val mone: Z = Long(-1)
+
+  val longMin = scala.BigInt(scala.Long.MinValue)
+  val longMax = scala.BigInt(scala.Long.MaxValue)
+
+  private[sireum_prototype] sealed trait MP extends Z {
+
+    final def BitWidthOpt: Option[Z] = None()
+
+    final def MinOpt: Option[Z] = None()
+
+    final def MaxOpt: Option[Z] = None()
+
+    final def Min: Z = halt("Unsupported Z operation 'Min'.")
+
+    final def Max: Z = halt("Unsupported Z operation 'Max'.")
+
+    final def BitWidth: Z = halt("Unsupported Z operation 'BitWidth'.")
+
+    final def increase: Z = this + one
+
+    final def decrease: Z = this - one
+
+    final def >>(other: Z): Z = halt("Unsupported Z operation '>>'.")
+
+    final def >>>(other: Z): Z = halt("Unsupported Z operation '>>>'.")
+
+    final def <<(other: Z): Z = halt("Unsupported Z operation '<<'.")
+
+    final def &(other: Z): Z = halt("Unsupported Z operation '&'.")
+
+    final def |(other: Z): Z = halt("Unsupported Z operation '|'.")
+
+    final def |^(other: Z): Z = halt("Unsupported Z operation '|^'.")
+
+    final def unary_~(): B = halt("Unsupported Z operation '~'.")
+
+  }
+
+  private[sireum_prototype] final case class Long(value: scala.Long) extends MP {
+
+    def toIndex: Z.Index = {
+      assume(Int.MinValue <= value && value <= Int.MaxValue)
+      value.toInt
+    }
+
+    def toBigInt: scala.BigInt = scala.BigInt(value)
+
+    def string: String = value.toString
+
+    override def hashCode: Int = value.toInt
+
+  }
+
+  private[sireum_prototype] final case class BigInt(value: scala.BigInt) extends MP {
+    def toIndex: Z.Index = {
+      assume(Int.MinValue <= value && value <= Int.MaxValue)
+      value.toInt
+    }
+
+    def toBigInt: scala.BigInt = value
+
+    def string: String = value.toString
+
+    def pack: Z =
+      if ((value.compareTo(Z.longMin) >= 0) &&
+        (value.compareTo(Z.longMax) <= 0)) Long(value.longValue)
+      else this
+
+    override def hashCode: Int = value.toInt
+  }
+
+  @inline def unary_-(n: Z): Z = {
+    n match {
+      case Long(m) =>
+        if (m != scala.Long.MinValue)
+          return Long(-m)
+      case _ =>
+    }
+    BigInt(-n.toBigInt)
+  }
+
+  @inline def +(n: Z, other: Z): Z = {
+    (n, other) match {
+      case (Long(n1), Long(n2)) =>
+        val r = n1 + n2
+        if (((n1 ^ r) & (n2 ^ r)) >= 0L)
+          return Long(r)
+      case _ =>
+    }
+    BigInt(n.toBigInt + other.toBigInt)
+  }
+
+  @inline def -(n: Z, other: Z): Z = {
+    (n, other) match {
+      case (Long(n1), Long(n2)) =>
+        val r = n1 - n2
+        if (((n1 ^ r) & (n2 ^ r)) >= 0L)
+          return Long(r)
+      case _ =>
+    }
+    BigInt(n.toBigInt - other.toBigInt).pack
+  }
+
+  @inline def *(n: Z, other: Z): Z = {
+    (n, other) match {
+      case (Long(n1), Long(n2)) =>
+        val r = n1 * n2
+        if (r == 0) return Z.zero
+        var upgrade = false
+        if (n2 > n1) {
+          if (((n2 == -1) && (n1 == scala.Long.MinValue)) || (r / n2 != n1))
+            upgrade = true
+        } else {
+          if (((n1 == -1) && (n2 == scala.Long.MinValue)) || (r / n1 != n2))
+            upgrade = true
+        }
+        if (!upgrade) return Long(r)
+      case _ =>
+    }
+    BigInt(n.toBigInt * other.toBigInt)
+  }
+
+  @inline def /(n: Z, other: Z): Z = {
+    (n, other) match {
+      case (Long(n1), Long(n2)) =>
+        val r = n1 / n2
+        if (!((n1 == scala.Long.MinValue) && (n2 == -1)))
+          return Long(r)
+      case _ =>
+    }
+    BigInt(n.toBigInt / other.toBigInt).pack
+  }
+
+  @inline def %(n: Z, other: Z): Z =
+    BigInt(n.toBigInt % other.toBigInt).pack
+
+  @inline def >(n: Z, other: Z): B = (n, other) match {
+    case (Long(n1), Long(n2)) => n1 > n2
+    case _ => n.toBigInt > other.toBigInt
+  }
+
+  @inline def >=(n: Z, other: Z): B = (n, other) match {
+    case (Long(n1), Long(n2)) => n1 >= n2
+    case _ => n.toBigInt >= other.toBigInt
+  }
+
+  @inline def <(n: Z, other: Z): B = (n, other) match {
+    case (Long(n1), Long(n2)) => n1 < n2
+    case _ => n.toBigInt < other.toBigInt
+  }
+
+  @inline def <=(n: Z, other: Z): B = (n, other) match {
+    case (Long(n1), Long(n2)) => n1 <= n2
+    case _ => n.toBigInt <= other.toBigInt
+  }
+
+  @inline def isEqual(n: Z, other: Z): B = (n, other) match {
+    case (n: Long, other: Long) => n.value == other.value
+    case _ => n.toBigInt == other.toBigInt
+  }
+
+  @inline def string(n: Z): String = n.toString
+
+
   import scala.language.implicitConversions
 
-  @inline implicit def $2Z(n: Int): Z = ???
+  @inline implicit def $2Z(n: scala.Int): Z = Long(n)
 
-  @inline implicit def $2lZ(n: Long): Z = ???
+  @inline implicit def $2lZ(n: scala.Long): Z = Long(n)
 
-  @inline implicit def $2BIZ(n: BigInt): Z = ???
+  @inline implicit def $2BIZ(n: scala.BigInt): Z = BigInt(n).pack
 
-  @inline implicit def $2JBIZ(n: java.math.BigInteger): Z = ???
+  @inline implicit def $2JBIZ(n: java.math.BigInteger): Z = scala.BigInt(n)
 
 }
 
 sealed trait Z extends Number[Z] {
 
-  def BitWidthOpt: Option[Z] = ???
+  @pure def BitWidthOpt: Option[Z]
 
-  def MinOpt: Option[Z] = ???
+  @pure def MinOpt: Option[Z]
 
-  def MaxOpt: Option[Z] = ???
+  @pure def MaxOpt: Option[Z]
 
-  def Min: Z = ???
+  @pure def Min: Z
 
-  def Max: Z = ???
+  @pure def Max: Z
 
-  def BitWidth: Z = ???
+  @pure def BitWidth: Z
 
-  def >>(other: Z): Z = ???
+  @inline @pure final def unary_- : Z = Z.unary_-(this)
 
-  def >>>(other: Z): Z = ???
+  @inline @pure final def +(other: Z): Z = Z.+(this, other)
 
-  def <<(other: Z): Z = ???
+  @inline @pure final def -(other: Z): Z = Z.-(this, other)
 
-  def &(other: Z): Z = ???
+  @inline @pure final def *(other: Z): Z = Z.*(this, other)
 
-  def |(other: Z): Z = ???
+  @inline @pure final def /(other: Z): Z = Z./(this, other)
 
-  def |^(other: Z): Z = ???
+  @inline @pure final def %(other: Z): Z = Z.%(this, other)
 
-  def unary_~(): B = ???
+  @inline @pure final def >(other: Z): B = Z.>(this, other)
 
-  def increase: Z = ???
+  @inline @pure final def >=(other: Z): B = Z.>=(this, other)
 
-  def decrease: Z = ???
+  @inline @pure final def <(other: Z): B = Z.<(this, other)
 
+  @inline @pure final def <=(other: Z): B = Z.<=(this, other)
+
+  @pure def increase: Z
+
+  @pure def decrease: Z
+
+  @pure def >>(other: Z): Z
+
+  @pure def >>>(other: Z): Z
+
+  @pure def <<(other: Z): Z
+
+  @pure def &(other: Z): Z
+
+  @pure def |(other: Z): Z
+
+  @pure def |^(other: Z): Z
+
+  @pure def unary_~(): B
+
+  @pure def toIndex: Z.Index
+
+  final def isEqual(other: Immutable): B = this == other
+
+  final def hash: Z = hashCode
+
+  private[sireum_prototype] def toBigInt: scala.BigInt
+
+  final override def equals(other: Any): Boolean = other match {
+    case other: Z => Z.isEqual(this, other)
+    case _ => false
+  }
 }

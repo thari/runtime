@@ -28,7 +28,7 @@ package org.sireum_prototype
 import org.sireum_prototype.$internal.MSMarker
 
 
-trait MS[I <: Integral[I], V] extends MEqual[MS[I, V]] with MSMarker {
+trait MS[I <: Integral[I], V] extends Mutable with MSMarker {
   private var isOwned: Boolean = false
 
   def owned: Boolean = isOwned

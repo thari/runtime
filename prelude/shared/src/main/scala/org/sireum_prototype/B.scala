@@ -36,26 +36,28 @@ object B {
 
 }
 
-sealed trait B extends Equal[B] {
+sealed trait B extends Immutable {
 
-  def &(other: B): B
+  @pure def &(other: B): B
 
-  def |(other: B): B
+  @pure def |(other: B): B
 
-  def |^(other: B): B
+  @pure def |^(other: B): B
 
-  def &&(other: => B): B
+  @pure def &&(other: => B): B
 
-  def ||(other: => B): B
+  @pure def ||(other: => B): B
 
-  def unary_!(): B
+  @pure def unary_!(): B
 
-  def unary_~(): B
+  @pure def unary_~(): B
+
+  @pure final def isEqual(other: Immutable): B = this == other
 
   final override def equals(other: Any): Boolean = other match {
-    case b: Boolean => isEqual(b)
+    case b: Boolean => isEqual(b: B)
     case b: B => isEqual(b)
-    case b: java.lang.Boolean => isEqual(b.booleanValue)
+    case b: java.lang.Boolean => isEqual(b.booleanValue: B)
   }
 
 }
@@ -66,23 +68,21 @@ case object T extends B {
 
   final override val hashCode: Int = true.hashCode
 
-  @inline final def &(other: B): B = other
+  @pure final def &(other: B): B = other
 
-  @inline final def |(other: B): B = T
+  @pure final def |(other: B): B = T
 
-  @inline final def |^(other: B): B = !other
+  @pure final def |^(other: B): B = !other
 
-  @inline final def &&(other: => B): B = other
+  @pure final def &&(other: => B): B = other
 
-  @inline final def ||(other: => B): B = T
+  @pure final def ||(other: => B): B = T
 
-  @inline final def unary_!(): B = F
+  @pure final def unary_!(): B = F
 
-  @inline final def unary_~(): B = F
+  @pure final def unary_~(): B = F
 
-  @inline final def hash: Z = ???
-
-  @inline final def isEqual(other: B): B = other == T
+  @pure final def hash: Z = hashCode
 
 }
 
@@ -92,22 +92,21 @@ case object F extends B {
 
   final override val hashCode: Int = false.hashCode
 
-  @inline final def &(other: B): B = F
+  @pure final def &(other: B): B = F
 
-  @inline final def |(other: B): B = other
+  @pure final def |(other: B): B = other
 
-  @inline final def |^(other: B): B = other
+  @pure final def |^(other: B): B = other
 
-  @inline final def &&(other: => B): B = F
+  @pure final def &&(other: => B): B = F
 
-  @inline final def ||(other: => B): B = other
+  @pure final def ||(other: => B): B = other
 
-  @inline final def unary_!(): B = T
+  @pure final def unary_!(): B = T
 
-  @inline final def unary_~(): B = T
+  @pure final def unary_~(): B = T
 
-  @inline final def hash: Z = ???
+  @pure final def hash: Z = hashCode
 
-  @inline final def isEqual(other: B): B = other == F
 }
 
