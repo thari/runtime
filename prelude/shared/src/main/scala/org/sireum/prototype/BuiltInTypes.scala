@@ -134,7 +134,7 @@ import org.sireum.ext
 
   def SignificandBitWidth: Z
 
-  def DecimalBitWidth: Z
+  def ExponentBitWidth: Z
 
 }
 

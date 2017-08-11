@@ -232,7 +232,7 @@ sealed trait FloatingPoint extends Any with Number[FloatingPoint] {
 
   def SignificandBitWidth: Z
 
-  def DecimalBitWidth: Z
+  def ExponentBitWidth: Z
 
 }
 
