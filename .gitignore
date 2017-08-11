@@ -17,3 +17,5 @@ project-dependency.dot
 .project
 .classpath
 .settings
+Scratch.scala
+scratch.sc

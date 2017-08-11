@@ -23,28 +23,32 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.prototype
+package org.sireum_prototype
+
+import org.sireum_prototype.$internal._
 
 import scala.language.implicitConversions
 
 
-trait Value extends Any {
+trait Immutable extends Any with Clonable {
+
   def string: String
+
+  def $clone: Any = this
 }
 
-trait Mutable extends Any with Value
 
-trait Immutable extends Any with Value
-
-trait Equal[E <: Equal[E]] extends Any {
+trait Equal[E <: Equal[E]] extends Any with Immutable {
 
   def isEqual(other: E): B
 
   def hash: Z
 
+  override def $clone: E = this.asInstanceOf[E]
 }
 
-trait Ordered[O <: Ordered[O]] extends Any {
+
+trait Ordered[O <: Ordered[O]] extends Any with Equal[O] {
 
   def <(other: O): B
 
@@ -56,7 +60,8 @@ trait Ordered[O <: Ordered[O]] extends Any {
 
 }
 
-trait Number[N <: Number[N]] extends Any with Immutable with Equal[N] with Ordered[N] {
+
+trait Number[N <: Number[N]] extends Any with Ordered[N] {
 
   def +(other: N): N
 
@@ -70,7 +75,14 @@ trait Number[N <: Number[N]] extends Any with Immutable with Equal[N] with Order
 
 }
 
-trait Index[I <: Index[I]] extends Any with Number[I]
+
+trait Integral[I <: Integral[I]] extends Any with Number[I] {
+
+  def increase: I
+
+  def decrease: I
+
+}
 
 
 object B {
@@ -81,7 +93,7 @@ object B {
 
 }
 
-sealed trait B extends Immutable with Equal[B] {
+sealed trait B extends Equal[B] {
 
   def &(other: B): B
 
@@ -104,7 +116,6 @@ sealed trait B extends Immutable with Equal[B] {
   }
 
 }
-
 
 case object T extends B {
 
@@ -131,7 +142,6 @@ case object T extends B {
   @inline final def isEqual(other: B): B = other == T
 
 }
-
 
 case object F extends B {
 
@@ -167,7 +177,7 @@ object C {
 
 }
 
-final class C(val value: Char) extends AnyVal with Immutable with Equal[C] with Ordered[C] {
+final class C(val value: Char) extends AnyVal with Ordered[C] {
 
   @inline def <(other: C): B = value < other.value
 
@@ -186,7 +196,6 @@ final class C(val value: Char) extends AnyVal with Immutable with Equal[C] with 
 }
 
 
-
 object Z {
 
   @inline implicit def _2Z(n: Int): Z = ???
@@ -195,7 +204,7 @@ object Z {
 
 }
 
-sealed trait Z extends Index[Z] {
+sealed trait Z extends Integral[Z] {
 
   def BitWidthOpt: Option[Z] = ???
 
@@ -223,10 +232,14 @@ sealed trait Z extends Index[Z] {
 
   def unary_~(): B = ???
 
+  def increase: Z = ???
+
+  def decrease: Z = ???
+
 }
 
 
-sealed trait FloatingPoint extends Any with Number[FloatingPoint] {
+private[sireum_prototype] sealed trait FloatingPoint extends Any with Number[FloatingPoint] {
 
   def BitWidth: Z
 
@@ -342,36 +355,92 @@ object String {
 
   implicit def _2String(s: Predef.String): String = new String(s)
 
-  implicit def _4String(s: String): Predef.String = s.value
-
 }
 
-final class String(val value: Predef.String) extends AnyVal with Immutable with Equal[String] {
+final class String(val value: Predef.String) extends AnyVal with Equal[String] {
 
   def hash: Z = value.hashCode
 
-  def isEqual(other: String): B = ???
+  def isEqual(other: String): B = value == other.value
 
-  def string: String = ???
+  def string: String = this
 
-}
-
-sealed trait IS[I <: Index[I], V <: Immutable] extends Immutable {
+  override def toString: Predef.String = value
 
 }
 
-sealed trait MS[I <: Index[I], V <: Value] extends Mutable {
+
+sealed trait IS[I <: Integral[I], V <: Immutable] extends Immutable with ISMarker {
+
+  def size: Z
 
 }
 
-trait Datatype[O <: Datatype[O]] extends Immutable with Equal[O] {
+
+trait Datatype[O <: Datatype[O]] extends Equal[O] with DatatypeMarker
+
+
+trait Rich extends Immutable
+
+
+trait Sig extends Immutable
+
+
+
+trait Mutable extends Any with MutableMarker {
+
+  def string: String
 
 }
 
-trait Record[O <: Datatype[O]] extends Mutable with Equal[O] {
+
+trait MEqual[E <: MEqual[E]] extends Any with Mutable {
+
+  def isEqual(other: E): B
+
+  def hash: Z
 
 }
 
-trait Rich {
+
+trait MOrdered[O <: MOrdered[O]] extends Any with MEqual[O] {
+
+  def <(other: O): B
+
+  def <=(other: O): B
+
+  def >(other: O): B
+
+  def >=(other: O): B
 
 }
+
+
+trait MS[I <: Integral[I], V] extends MEqual[MS[I, V]] with MSMarker {
+  private var isOwned: Boolean = false
+
+  def owned: Boolean = isOwned
+  def owned_=(b: Boolean): this.type = {
+    isOwned = b
+    this
+  }
+
+  def size: Z
+}
+
+
+trait Record[O <: Record[O]] extends MEqual[O] {
+  private var isOwned: Boolean = false
+
+  def owned: Boolean = isOwned
+  def owned_=(b: Boolean): this.type = {
+    isOwned = b
+    this
+  }
+
+  def $clone: O
+
+}
+
+
+trait MSig extends Mutable
