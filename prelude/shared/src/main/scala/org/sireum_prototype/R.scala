@@ -25,108 +25,30 @@
 
 package org.sireum_prototype
 
-import org.sireum_prototype.$internal._
 
-import scala.language.implicitConversions
+final class R extends Number[R] {
 
+  def <(other: R): B = ???
 
-trait Immutable extends Any with Clonable {
+  def <=(other: R): B = ???
 
-  def string: String
+  def >(other: R): B = ???
 
-  def $clone: Any = this
+  def >=(other: R): B = ???
+
+  def +(other: R): R = ???
+
+  def -(other: R): R = ???
+
+  def *(other: R): R = ???
+
+  def /(other: R): R = ???
+
+  def %(other: R): R = ???
+
+  def hash: Z = ???
+
+  def isEqual(other: R): B = ???
+
+  def string: String = ???
 }
-
-
-trait Equal[E <: Equal[E]] extends Any with Immutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
-
-  override def $clone: E = this.asInstanceOf[E]
-}
-
-
-trait Ordered[O <: Ordered[O]] extends Any with Equal[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Number[N <: Number[N]] extends Any with Ordered[N] {
-
-  def +(other: N): N
-
-  def -(other: N): N
-
-  def *(other: N): N
-
-  def /(other: N): N
-
-  def %(other: N): N
-
-}
-
-
-trait Datatype[O <: Datatype[O]] extends Equal[O] with DatatypeMarker
-
-
-trait Rich extends Immutable
-
-
-trait Sig extends Immutable
-
-
-
-trait Mutable extends Any with MutableMarker {
-
-  def string: String
-
-}
-
-
-trait MEqual[E <: MEqual[E]] extends Any with Mutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
-
-}
-
-
-trait MOrdered[O <: MOrdered[O]] extends Any with MEqual[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Record[O <: Record[O]] extends MEqual[O] {
-  private var isOwned: Boolean = false
-
-  def owned: Boolean = isOwned
-  def owned_=(b: Boolean): this.type = {
-    isOwned = b
-    this
-  }
-
-  def $clone: O
-
-}
-
-
-trait MSig extends Mutable

@@ -73,14 +73,6 @@ package org.sireum_prototype
 }
 
 
-@ext trait Integral[I <: Integral[I]] extends Number[I] {
-
-  @pure def increase: I
-
-  @pure def decrease: I
-}
-
-
 @ext trait B extends Equal[B] {
 
   @pure def &(other: B): B
@@ -103,7 +95,7 @@ package org.sireum_prototype
 @ext trait C extends Ordered[C]
 
 
-@ext trait Z extends Integral[Z] {
+@ext trait Z extends Number[Z] {
 
   @pure def BitWidthOpt: Option[Z]
 
@@ -130,6 +122,10 @@ package org.sireum_prototype
   @pure def |^(other: Z): Z
 
   @pure def unary_~(): B
+
+  @pure def increase: Z
+
+  @pure def decrease: Z
 }
 
 

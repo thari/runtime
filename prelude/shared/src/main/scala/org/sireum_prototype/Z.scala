@@ -25,108 +25,51 @@
 
 package org.sireum_prototype
 
-import org.sireum_prototype.$internal._
 
-import scala.language.implicitConversions
+object Z {
 
+  import scala.language.implicitConversions
 
-trait Immutable extends Any with Clonable {
+  @inline implicit def $2Z(n: Int): Z = ???
 
-  def string: String
+  @inline implicit def $2lZ(n: Long): Z = ???
 
-  def $clone: Any = this
-}
+  @inline implicit def $2BIZ(n: BigInt): Z = ???
 
-
-trait Equal[E <: Equal[E]] extends Any with Immutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
-
-  override def $clone: E = this.asInstanceOf[E]
-}
-
-
-trait Ordered[O <: Ordered[O]] extends Any with Equal[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
+  @inline implicit def $2JBIZ(n: java.math.BigInteger): Z = ???
 
 }
 
+sealed trait Z extends Number[Z] {
 
-trait Number[N <: Number[N]] extends Any with Ordered[N] {
+  def BitWidthOpt: Option[Z] = ???
 
-  def +(other: N): N
+  def MinOpt: Option[Z] = ???
 
-  def -(other: N): N
+  def MaxOpt: Option[Z] = ???
 
-  def *(other: N): N
+  def Min: Z = ???
 
-  def /(other: N): N
+  def Max: Z = ???
 
-  def %(other: N): N
+  def BitWidth: Z = ???
 
-}
+  def >>(other: Z): Z = ???
 
+  def >>>(other: Z): Z = ???
 
-trait Datatype[O <: Datatype[O]] extends Equal[O] with DatatypeMarker
+  def <<(other: Z): Z = ???
 
+  def &(other: Z): Z = ???
 
-trait Rich extends Immutable
+  def |(other: Z): Z = ???
 
+  def |^(other: Z): Z = ???
 
-trait Sig extends Immutable
+  def unary_~(): B = ???
 
+  def increase: Z = ???
 
-
-trait Mutable extends Any with MutableMarker {
-
-  def string: String
-
-}
-
-
-trait MEqual[E <: MEqual[E]] extends Any with Mutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
+  def decrease: Z = ???
 
 }
-
-
-trait MOrdered[O <: MOrdered[O]] extends Any with MEqual[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Record[O <: Record[O]] extends MEqual[O] {
-  private var isOwned: Boolean = false
-
-  def owned: Boolean = isOwned
-  def owned_=(b: Boolean): this.type = {
-    isOwned = b
-    this
-  }
-
-  def $clone: O
-
-}
-
-
-trait MSig extends Mutable

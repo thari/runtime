@@ -25,108 +25,29 @@
 
 package org.sireum_prototype
 
-import org.sireum_prototype.$internal._
 
-import scala.language.implicitConversions
+object C {
 
+  import scala.language.implicitConversions
 
-trait Immutable extends Any with Clonable {
-
-  def string: String
-
-  def $clone: Any = this
-}
-
-
-trait Equal[E <: Equal[E]] extends Any with Immutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
-
-  override def $clone: E = this.asInstanceOf[E]
-}
-
-
-trait Ordered[O <: Ordered[O]] extends Any with Equal[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
+  @inline implicit def $2C(c: Char): C = new C(c)
 
 }
 
+final class C(val value: Char) extends AnyVal with Ordered[C] {
 
-trait Number[N <: Number[N]] extends Any with Ordered[N] {
+  @inline def <(other: C): B = value < other.value
 
-  def +(other: N): N
+  @inline def <=(other: C): B = value <= other.value
 
-  def -(other: N): N
+  @inline def >(other: C): B = value > other.value
 
-  def *(other: N): N
+  @inline def >=(other: C): B = value >= other.value
 
-  def /(other: N): N
+  @inline def hash: Z = value.hashCode
 
-  def %(other: N): N
+  @inline def isEqual(other: C): B = value == other.value
 
-}
-
-
-trait Datatype[O <: Datatype[O]] extends Equal[O] with DatatypeMarker
-
-
-trait Rich extends Immutable
-
-
-trait Sig extends Immutable
-
-
-
-trait Mutable extends Any with MutableMarker {
-
-  def string: String
+  @inline def string: String = new String(value.toString)
 
 }
-
-
-trait MEqual[E <: MEqual[E]] extends Any with Mutable {
-
-  def isEqual(other: E): B
-
-  def hash: Z
-
-}
-
-
-trait MOrdered[O <: MOrdered[O]] extends Any with MEqual[O] {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Record[O <: Record[O]] extends MEqual[O] {
-  private var isOwned: Boolean = false
-
-  def owned: Boolean = isOwned
-  def owned_=(b: Boolean): this.type = {
-    isOwned = b
-    this
-  }
-
-  def $clone: O
-
-}
-
-
-trait MSig extends Mutable
