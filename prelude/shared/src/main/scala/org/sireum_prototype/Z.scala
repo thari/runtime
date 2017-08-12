@@ -30,20 +30,54 @@ object Z {
 
   type Index = scala.Int
 
-  val zero: Z = Long(0)
-  val one: Z = Long(1)
-  val mone: Z = Long(-1)
-
   val longMin = scala.BigInt(scala.Long.MinValue)
   val longMax = scala.BigInt(scala.Long.MaxValue)
 
   private[sireum_prototype] object MP {
+
+    val zero: Z = MP.Long(0)
+    val one: Z = MP.Long(1)
+    val mone: Z = MP.Long(-1)
+
+    private[sireum_prototype] final case class Long(value: scala.Long) extends MP {
+
+      def toIndex: Z.Index = {
+        assume(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
+        value.toInt
+      }
+
+      def toBigInt: scala.BigInt = scala.BigInt(value)
+
+      def string: String = value.toString
+
+      override def hashCode: scala.Int = value.toInt
+
+    }
+
+    private[sireum_prototype] final case class BigInt(value: scala.BigInt) extends MP {
+      def toIndex: Z.Index = {
+        assume(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
+        value.toInt
+      }
+
+      def toBigInt: scala.BigInt = value
+
+      def string: String = value.toString
+
+      def pack: Z =
+        if ((value.compareTo(Z.longMin) >= 0) &&
+          (value.compareTo(Z.longMax) <= 0)) Long(value.longValue)
+        else this
+
+      override def hashCode: scala.Int = value.toInt
+    }
+
     @inline def unary_-(n: Z): Z = {
       n match {
         case Long(m) =>
           if (m != scala.Long.MinValue)
             return Long(-m)
-        case _ =>
+        case _: MP =>
       }
       BigInt(-n.toBigInt)
     }
@@ -54,7 +88,8 @@ object Z {
           val r = n1 + n2
           if (((n1 ^ r) & (n2 ^ r)) >= 0L)
             return Long(r)
-        case _ =>
+        case (_: MP, _: MP) =>
+        case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
       }
       BigInt(n.toBigInt + other.toBigInt)
     }
@@ -65,7 +100,8 @@ object Z {
           val r = n1 - n2
           if (((n1 ^ r) & (n2 ^ r)) >= 0L)
             return Long(r)
-        case _ =>
+        case (_: MP, _: MP) =>
+        case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
       }
       BigInt(n.toBigInt - other.toBigInt).pack
     }
@@ -74,7 +110,7 @@ object Z {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 * n2
-          if (r == 0) return Z.zero
+          if (r == 0) return zero
           var upgrade = false
           if (n2 > n1) {
             if (((n2 == -1) && (n1 == scala.Long.MinValue)) || (r / n2 != n1))
@@ -84,7 +120,8 @@ object Z {
               upgrade = true
           }
           if (!upgrade) return Long(r)
-        case _ =>
+        case (_: MP, _: MP) =>
+        case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
       }
       BigInt(n.toBigInt * other.toBigInt)
     }
@@ -95,7 +132,8 @@ object Z {
           val r = n1 / n2
           if (!((n1 == scala.Long.MinValue) && (n2 == -1)))
             return Long(r)
-        case _ =>
+        case (_: MP, _: MP) =>
+        case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
       }
       BigInt(n.toBigInt / other.toBigInt).pack
     }
@@ -105,27 +143,32 @@ object Z {
 
     @inline def >(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 > n2
-      case _ => n.toBigInt > other.toBigInt
+      case (_: MP, _: MP) => n.toBigInt > other.toBigInt
+      case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
     }
 
     @inline def >=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 >= n2
-      case _ => n.toBigInt >= other.toBigInt
+      case (_: MP, _: MP) => n.toBigInt >= other.toBigInt
+      case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
     }
 
     @inline def <(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 < n2
-      case _ => n.toBigInt < other.toBigInt
+      case (_: MP, _: MP) => n.toBigInt < other.toBigInt
+      case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
     }
 
     @inline def <=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 <= n2
-      case _ => n.toBigInt <= other.toBigInt
+      case (_: MP, _: MP) => n.toBigInt <= other.toBigInt
+      case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
     }
 
     @inline def isEqual(n: Z, other: Z): B = (n, other) match {
       case (n: Long, other: Long) => n.value == other.value
-      case _ => n.toBigInt == other.toBigInt
+      case (_: MP, _: MP) => n.toBigInt == other.toBigInt
+      case _ => halt(s"Unsupported Z operation '+' with ${other.getClass.getSimpleName}")
     }
 
     @inline def string(n: Z): String = n.toString
@@ -134,13 +177,15 @@ object Z {
 
   private[sireum_prototype] sealed trait MP extends Z {
 
-    final def isBitVector: B = F
+    final def isBitVector: scala.Boolean = false
 
-    final def isIndex: B = F
+    final def isSigned: scala.Boolean = false
 
-    final def hasMin: B = F
+    final def isIndex: scala.Boolean = false
 
-    final def hasMax: B = F
+    final def hasMin: scala.Boolean = false
+
+    final def hasMax: scala.Boolean = false
 
     final def Min: Z = halt("Unsupported Z operation 'Min'.")
 
@@ -148,7 +193,7 @@ object Z {
 
     final def BitWidth: Z = halt("Unsupported Z operation 'BitWidth'.")
 
-    @pure final def unary_- : Z = MP.unary_-(this)
+    @pure final def unary_-(): Z = MP.unary_-(this)
 
     @pure final def +(other: Z): Z = MP.+(this, other)
 
@@ -168,9 +213,9 @@ object Z {
 
     @pure final def <=(other: Z): B = MP.<=(this, other)
 
-    final def increase: Z = this + one
+    final def increase: Z = this + MP.one
 
-    final def decrease: Z = this - one
+    final def decrease: Z = this - MP.one
 
     final def >>(other: Z): Z = halt("Unsupported Z operation '>>'.")
 
@@ -193,61 +238,29 @@ object Z {
 
   }
 
-  private[sireum_prototype] final case class Long(value: scala.Long) extends MP {
-
-    def toIndex: Z.Index = {
-      assume(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
-      value.toInt
-    }
-
-    def toBigInt: scala.BigInt = scala.BigInt(value)
-
-    def string: String = value.toString
-
-    override def hashCode: scala.Int = value.toInt
-
-  }
-
-  private[sireum_prototype] final case class BigInt(value: scala.BigInt) extends MP {
-    def toIndex: Z.Index = {
-      assume(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
-      value.toInt
-    }
-
-    def toBigInt: scala.BigInt = value
-
-    def string: String = value.toString
-
-    def pack: Z =
-      if ((value.compareTo(Z.longMin) >= 0) &&
-        (value.compareTo(Z.longMax) <= 0)) Long(value.longValue)
-      else this
-
-    override def hashCode: scala.Int = value.toInt
-  }
-
-
   import scala.language.implicitConversions
 
-  @inline implicit def $2Z(n: scala.Int): Z = Long(n)
+  @inline implicit def $2Z(n: scala.Int): Z = MP.Long(n)
 
-  @inline implicit def $2lZ(n: scala.Long): Z = Long(n)
+  @inline implicit def $2lZ(n: scala.Long): Z = MP.Long(n)
 
-  @inline implicit def $2BIZ(n: scala.BigInt): Z = BigInt(n).pack
+  @inline implicit def $2BIZ(n: scala.BigInt): Z = MP.BigInt(n).pack
 
   @inline implicit def $2JBIZ(n: java.math.BigInteger): Z = scala.BigInt(n)
 
 }
 
-sealed trait Z extends Number[Z] {
+trait Z extends Any with Number[Z] {
 
-  @pure def isBitVector: B
+  @pure def isBitVector: scala.Boolean
 
-  @pure def isIndex: B
+  @pure def isSigned: scala.Boolean
 
-  @pure def hasMin: B
+  @pure def isIndex: scala.Boolean
 
-  @pure def hasMax: B
+  @pure def hasMin: scala.Boolean
+
+  @pure def hasMax: scala.Boolean
 
   @pure def Min: Z
 
