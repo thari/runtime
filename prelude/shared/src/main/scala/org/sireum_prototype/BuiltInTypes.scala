@@ -102,7 +102,7 @@ package org.sireum_prototype
 
   @pure def |^(other: Z): Z
 
-  @pure def unary_~(): B
+  @pure def unary_~(): Z
 
   @pure def increase: Z
 
