@@ -110,7 +110,13 @@ package org.sireum_prototype
 }
 
 
-@ext trait FloatingPoint extends Number[FloatingPoint]
+@ext trait FloatingPoint[F <: FloatingPoint[F]] extends Number[F]
+
+
+@ext trait F32 extends FloatingPoint[F32]
+
+
+@ext trait F64 extends FloatingPoint[F64]
 
 
 @ext trait R extends Number[R]

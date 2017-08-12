@@ -26,7 +26,7 @@
 package org.sireum_prototype
 
 
-private[sireum_prototype] sealed trait FloatingPoint extends Any with Number[FloatingPoint] {
+private[sireum_prototype] sealed trait FloatingPoint[F <: FloatingPoint[F]] extends Any with Number[F] {
 
   def BitWidth: Z
 
@@ -44,7 +44,7 @@ object F32 {
 
 }
 
-final class F32(val value: Float) extends AnyVal with FloatingPoint {
+final class F32(val value: Float) extends AnyVal with FloatingPoint[F32] {
 
   def BitWidth: Z = 32
 
@@ -52,23 +52,23 @@ final class F32(val value: Float) extends AnyVal with FloatingPoint {
 
   def ExponentBitWidth: Z = 7
 
-  def <(other: FloatingPoint): B = ???
+  def <(other: F32): B = value < other.value
 
-  def <=(other: FloatingPoint): B = ???
+  def <=(other: F32): B = value <= other.value
 
-  def >(other: FloatingPoint): B = ???
+  def >(other: F32): B = value > other.value
 
-  def >=(other: FloatingPoint): B = ???
+  def >=(other: F32): B = value >= other.value
 
-  def +(other: FloatingPoint): FloatingPoint = ???
+  def +(other: F32): F32 = value + other.value
 
-  def -(other: FloatingPoint): FloatingPoint = ???
+  def -(other: F32): F32 = value - other.value
 
-  def *(other: FloatingPoint): FloatingPoint = ???
+  def *(other: F32): F32 = value * other.value
 
-  def /(other: FloatingPoint): FloatingPoint = ???
+  def /(other: F32): F32 = value / other.value
 
-  def %(other: FloatingPoint): FloatingPoint = ???
+  def %(other: F32): F32 = value % other.value
 
   def hash: Z = value.hashCode
 
@@ -85,7 +85,7 @@ object F64 {
 
 }
 
-final class F64(val value: Double) extends AnyVal with FloatingPoint {
+final class F64(val value: Double) extends AnyVal with FloatingPoint[F64] {
 
   def BitWidth: Z = 64
 
@@ -95,23 +95,23 @@ final class F64(val value: Double) extends AnyVal with FloatingPoint {
 
   def hash: Z = value.hashCode
 
-  def <(other: FloatingPoint): B = ???
+  def <(other: F64): B = value < other.value
 
-  def <=(other: FloatingPoint): B = ???
+  def <=(other: F64): B = value <= other.value
 
-  def >(other: FloatingPoint): B = ???
+  def >(other: F64): B = value > other.value
 
-  def >=(other: FloatingPoint): B = ???
+  def >=(other: F64): B = value >= other.value
 
-  def +(other: FloatingPoint): FloatingPoint = ???
+  def +(other: F64): F64 = value + other.value
 
-  def -(other: FloatingPoint): FloatingPoint = ???
+  def -(other: F64): F64 = value - other.value
 
-  def *(other: FloatingPoint): FloatingPoint = ???
+  def *(other: F64): F64 = value * other.value
 
-  def /(other: FloatingPoint): FloatingPoint = ???
+  def /(other: F64): F64 = value / other.value
 
-  def %(other: FloatingPoint): FloatingPoint = ???
+  def %(other: F64): F64 = value % other.value
 
   def isEqual(other: Immutable): B = this == other
 
