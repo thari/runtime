@@ -27,19 +27,26 @@ package org.sireum_prototype
 
 import scala.meta._
 
-class index(min: Option[BigInt], max: Option[BigInt]) extends scala.annotation.StaticAnnotation {
+class index(min: Option[BigInt],
+            max: Option[BigInt],
+            bits: Int = 0) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
       case tree: Defn.Type if helper.isZ(tree) =>
         val q"new index(..$args)" = this
         var min: Term = null
         var max: Term = null
+        var bits = 0
         for (arg <- args) {
           arg match {
             case arg"min = ${exp: Term}" => min = exp
             case arg"max = ${exp: Term}" => max = exp
-            case arg: Term => if (min == null) max = arg else min = arg
-            case _ => abort(tree.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
+            case arg"bits = ${Lit.Int(n)}" =>
+              n match {
+                case 8 | 16 | 32 | 64 => bits = n
+                case _ => abort(arg.pos, s"Invalid Slang @index bits argument: ${arg.syntax} (only 8, 16, 32, or 64 are currently supported)")
+              }
+            case _ => abort(tree.pos, s"Invalid Slang @index argument: ${arg.syntax}")
           }
         }
         val result = tree

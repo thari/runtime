@@ -27,7 +27,7 @@ package org.sireum_prototype
 
 import org.sireum_prototype.$internal.ISMarker
 
-sealed trait IS[I <: Integral[I], V <: Immutable] extends Immutable with ISMarker {
+sealed trait IS[I <: Z, V <: Immutable] extends Immutable with ISMarker {
 
   def size: Z
 

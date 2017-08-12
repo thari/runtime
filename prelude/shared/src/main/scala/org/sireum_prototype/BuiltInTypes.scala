@@ -119,7 +119,7 @@ package org.sireum_prototype
 @ext trait String extends Immutable
 
 
-@ext trait IS[I <: Integral[I], V <: Immutable] extends Immutable {
+@ext trait IS[I <: Z, V <: Immutable] extends Immutable {
 
   @pure def size: Z
 
@@ -162,7 +162,7 @@ package org.sireum_prototype
 }
 
 
-@ext trait MS[I <: Integral[I], V] extends Mutable {
+@ext trait MS[I <: Z, V] extends Mutable {
   @pure def size: Z
 }
 
