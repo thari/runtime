@@ -144,7 +144,7 @@ final class rich extends scala.annotation.StaticAnnotation {
       case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => rich.translateTrait(t, o)
       case tree: Defn.Class => rich.translateClass(tree,  q"object ${Term.Name(tree.name.value)} {}")
       case Term.Block(Seq(t: Defn.Class, o: Defn.Object)) => rich.translateClass(t, o)
-      case _ => abort(s"Invalid Slang @rich on: ${tree.syntax}.")
+      case _ => abort(tree.pos, s"Invalid Slang @rich on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

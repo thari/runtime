@@ -256,8 +256,7 @@ class record extends scala.annotation.StaticAnnotation {
       case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](record.transformTrait(t), o))
       case tree: Defn.Class => record.transformClass(tree, q"object ${Term.Name(tree.name.value)} {}")
       case Term.Block(Seq(t: Defn.Class, o: Defn.Object)) => record.transformClass(t, o)
-      case _ =>
-        abort(s"Invalid Slang @record on: ${tree.syntax}.")
+      case _ => abort(tree.pos, s"Invalid Slang @record on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

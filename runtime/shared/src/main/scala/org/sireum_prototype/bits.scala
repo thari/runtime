@@ -27,26 +27,31 @@ package org.sireum_prototype
 
 import scala.meta._
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object sig {
-
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @sig traits have to be of the form '@sig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Immutable with ..$ctorcalls { $param => ..$stats }"
-  }
-}
-
-class sig extends scala.annotation.StaticAnnotation {
+class bits(signed: Boolean, width: Int) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => sig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](sig.transformTrait(t), o))
-      case _ =>
-        abort(tree.pos, s"Invalid Slang @sig on: ${tree.syntax}.")
+    tree match {
+      case tree: Defn.Type if helper.isZ(tree) =>
+        val q"new bits(..$args)" = this
+        var width: Int = 0
+        var signed: Boolean = false
+        for (arg <- args) {
+          arg match {
+            case arg"signed = ${Term.Name("F")}" => signed = false
+            case arg"signed = ${Term.Name("T")}" => signed = true
+            case arg"signed = ${Lit.Boolean(b)}" => signed = b
+            case arg"width = ${Lit.Int(n)}" =>
+              n match {
+                case 8 | 16 | 32 | 64 =>
+                case _ => abort(arg.pos, s"Invalid Slang @bits width argument: ${arg.syntax} (only 8, 16, 32, or 64 are currently supported)")
+              }
+              width = n
+            case _ => abort(arg.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
+          }
+        }
+        val result = tree
+        //println(result)
+        result
+      case _ => abort(tree.pos, s"Invalid Slang @bits on: ${tree.syntax}")
     }
-    //println(result.syntax)
-    result
   }
 }

@@ -43,8 +43,7 @@ class msig extends scala.annotation.StaticAnnotation {
     val result: Stat = tree match {
       case tree: Defn.Trait => msig.transformTrait(tree)
       case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](msig.transformTrait(t), o))
-      case _ =>
-        abort(s"Invalid Slang @msig on: ${tree.syntax}.")
+      case _ => abort(tree.pos, s"Invalid Slang @msig on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

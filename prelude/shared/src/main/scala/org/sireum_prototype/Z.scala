@@ -39,11 +39,13 @@ object Z {
 
   private[sireum_prototype] sealed trait MP extends Z {
 
-    final def BitWidthOpt: Option[Z] = None()
+    final def isBitVector: B = F
 
-    final def MinOpt: Option[Z] = None()
+    final def isIndex: B = F
 
-    final def MaxOpt: Option[Z] = None()
+    final def hasMin: B = F
+
+    final def hasMax: B = F
 
     final def Min: Z = halt("Unsupported Z operation 'Min'.")
 
@@ -211,11 +213,13 @@ object Z {
 
 sealed trait Z extends Number[Z] {
 
-  @pure def BitWidthOpt: Option[Z]
+  @pure def isBitVector: B
 
-  @pure def MinOpt: Option[Z]
+  @pure def isIndex: B
 
-  @pure def MaxOpt: Option[Z]
+  @pure def hasMin: B
+
+  @pure def hasMax: B
 
   @pure def Min: Z
 

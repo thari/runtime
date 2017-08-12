@@ -88,18 +88,6 @@ package org.sireum_prototype
 
 @ext trait Z extends Number[Z] {
 
-  @pure def BitWidthOpt: Option[Z]
-
-  @pure def MinOpt: Option[Z]
-
-  @pure def MaxOpt: Option[Z]
-
-  @pure def Min: Z
-
-  @pure def Max: Z
-
-  @pure def BitWidth: Z
-
   @pure def unary_- : Z
 
   @pure def >>(other: Z): Z
@@ -122,15 +110,7 @@ package org.sireum_prototype
 }
 
 
-@ext trait FloatingPoint extends Number[FloatingPoint] {
-
-  @pure def BitWidth: Z
-
-  @pure def SignificandBitWidth: Z
-
-  @pure def ExponentBitWidth: Z
-
-}
+@ext trait FloatingPoint extends Number[FloatingPoint]
 
 
 @ext trait R extends Number[R]

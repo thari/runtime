@@ -28,17 +28,17 @@ package org.sireum_prototype
 import scala.meta._
 
 final class memoize extends scala.annotation.StaticAnnotation {
-  inline def apply(stat: Any): Any = meta {
-    val result: Stat = stat match {
+  inline def apply(tree: Any): Any = meta {
+    val result: Stat = tree match {
       case q"..$mods def $name[..$tparams](...$paramss): ${tpeopt: Option[Type]} = $expr" =>
         if (paramss.size > 1)
-          abort(stat.pos, s"Slang @memoize methods should only have a list of parameters (instead of several lists of parameters).")
+          abort(tree.pos, s"Slang @memoize methods should only have a list of parameters (instead of several lists of parameters).")
         if (paramss.size < 1)
-          abort(stat.pos, s"Slang @memoize methods should only have a list of parameters (instead of none).")
+          abort(tree.pos, s"Slang @memoize methods should only have a list of parameters (instead of none).")
         if (paramss.head.isEmpty)
-          abort(stat.pos, s"Slang @memoize methods should only have at least a parameter.")
+          abort(tree.pos, s"Slang @memoize methods should only have at least a parameter.")
         if (tpeopt.isEmpty)
-          abort(stat.pos, s"Slang @memoize methods should be explicitly typed.")
+          abort(tree.pos, s"Slang @memoize methods should be explicitly typed.")
         val returnType = tpeopt.get
         var allParamTypes = Vector[Type]()
         var paramTypes = Vector[Type]()
@@ -86,7 +86,7 @@ final class memoize extends scala.annotation.StaticAnnotation {
         Defn.Val(List(Mod.Lazy()), List[Pat](Pat.Var.Term(name)), Some(fnType),
           q"{ ..${List(cacheVar, newStat, q"$newName _")} }")
       case _ =>
-        abort(s"Invalid Slang @memoize on: ${stat.syntax}.")
+        abort(tree.pos, s"Invalid Slang @memoize on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

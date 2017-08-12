@@ -64,4 +64,12 @@ trait PackageTrait {
     def update(args: Any*): Unit = macro Macro.pat
   }
 
+  import language.implicitConversions
+
+  implicit def $2BigIntOpt(n: scala.Int): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
+
+  implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
+
+  implicit def $2BigIntOpt(n: org.sireum_prototype.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+
 }

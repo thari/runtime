@@ -154,7 +154,7 @@ class ext extends scala.annotation.StaticAnnotation {
       case tree: Defn.Trait => ext.transformTrait(tree)
       case tree: Defn.Object => ext.transformObject(tree)
       case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @ext cannot used on a trait with a companion object.")
-      case _ => abort(s"Slang @ext can only be used on an object or a trait.")
+      case _ => abort(tree.pos, s"Slang @ext can only be used on an object or a trait.")
     }
     //println(result.syntax)
     result
@@ -166,7 +166,7 @@ class mext extends scala.annotation.StaticAnnotation {
     val result: Stat = tree match {
       case tree: Defn.Trait => ext.transformTrait(tree)
       case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @mext cannot used on a trait with a companion object.")
-      case _ => abort(s"Slang @mext can only be used on a trait.")
+      case _ => abort(tree.pos, s"Slang @mext can only be used on a trait.")
     }
     //println(result.syntax)
     result

@@ -79,7 +79,7 @@ class enum extends scala.annotation.StaticAnnotation {
 //          q"val elements: ISZ[Value] = ISZ[Value](..$elements)"
         )
         q"object $name extends {} with Enum { type Type = Value; ..$decls }"
-      case _ => abort("Slang @enum can only be used on an object.")
+      case _ => abort(tree.pos, "Slang @enum can only be used on an object.")
     }
     //println(result.syntax)
     result

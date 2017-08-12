@@ -27,26 +27,25 @@ package org.sireum_prototype
 
 import scala.meta._
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object sig {
-
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @sig traits have to be of the form '@sig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Immutable with ..$ctorcalls { $param => ..$stats }"
-  }
-}
-
-class sig extends scala.annotation.StaticAnnotation {
+class index(min: Option[BigInt], max: Option[BigInt]) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => sig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](sig.transformTrait(t), o))
-      case _ =>
-        abort(tree.pos, s"Invalid Slang @sig on: ${tree.syntax}.")
+    tree match {
+      case tree: Defn.Type if helper.isZ(tree) =>
+        val q"new index(..$args)" = this
+        var min: Term = null
+        var max: Term = null
+        for (arg <- args) {
+          arg match {
+            case arg"min = ${exp: Term}" => min = exp
+            case arg"max = ${exp: Term}" => max = exp
+            case arg: Term => if (min == null) max = arg else min = arg
+            case _ => abort(tree.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
+          }
+        }
+        val result = tree
+        //println(result)
+        result
+      case _ => abort(tree.pos, s"Invalid Slang @index on: ${tree.syntax}")
     }
-    //println(result.syntax)
-    result
   }
 }

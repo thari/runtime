@@ -44,6 +44,17 @@ object helper {
     }
     (hasHash, hasEquals)
   }
+
+  def isZ(tree: Defn.Type): Boolean = tree.body match {
+    case Type.Name("Z") if tree.tparams.isEmpty => true
+    case _ => false
+  }
+
+  def sIndexValue(tree: Defn.Type): Option[(Boolean, Type, Type)] = tree.body match {
+    case t"IS[$index, $value]" => Some((true, index, value))
+    case t"MS[$index, $value]" => Some((true, index, value))
+    case _ => None
+  }
 }
 
 final class helper extends scala.annotation.StaticAnnotation
