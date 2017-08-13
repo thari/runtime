@@ -29,9 +29,19 @@ import spire.math.Real
 
 object R {
 
+  def unapply(r: R): scala.Option[scala.Double] =
+    if (r.value == Real(r.value.toDouble)) scala.Some(r.value.toDouble)
+    else scala.None
+
+  def apply(s: String): R = Real(s.value)
+
+  def apply(f: scala.Float): R = Real(f)
+
+  def apply(d: scala.Double): R = Real(d)
+
   import scala.language.implicitConversions
 
-  implicit def $2R(r: Real): R = new R(r)
+  implicit def apply(r: Real): R = new R(r)
 
 }
 

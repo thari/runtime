@@ -29,7 +29,7 @@ import spire.math._
 
 object Z {
 
-  type Index = scala.Int
+  type Index = MP
 
   val longMin = scala.BigInt(scala.Long.MinValue)
   val longMax = scala.BigInt(scala.Long.MaxValue)
@@ -42,12 +42,13 @@ object Z {
 
     private[sireum_prototype] final case class Long(value: scala.Long) extends MP {
 
-      def toIndex: Z.Index = {
-        assert(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
-        value.toInt
-      }
+      override def toBigInt: scala.BigInt = scala.BigInt(value)
 
-      def toBigInt: scala.BigInt = scala.BigInt(value)
+      override def toIntOpt: scala.Option[scala.Int] =
+        if (scala.Int.MinValue <= value && value <= scala.Int.MaxValue) scala.Some(value.toInt)
+        else scala.None
+
+      override def toLongOpt: scala.Option[scala.Long] = scala.Some(value)
 
       override def toString: Predef.String = value.toString
 
@@ -56,16 +57,20 @@ object Z {
     }
 
     private[sireum_prototype] final case class BigInt(value: scala.BigInt) extends MP {
-      def toIndex: Z.Index = {
-        assert(scala.Int.MinValue <= value && value <= scala.Int.MaxValue)
-        value.toInt
-      }
 
-      def toBigInt: scala.BigInt = value
+      override def toBigInt: scala.BigInt = value
+
+      override def toIntOpt: scala.Option[scala.Int] =
+        if (scala.Int.MinValue <= value && value <= scala.Int.MaxValue) scala.Some(value.toInt)
+        else scala.None
+
+      override def toLongOpt: scala.Option[scala.Long] =
+        if (scala.Long.MinValue <= value && value <= scala.Long.MaxValue) scala.Some(value.toLong)
+        else scala.None
 
       override def toString: Predef.String = value.toString
 
-      def pack: Z =
+      def pack: MP =
         if ((value.compareTo(Z.longMin) >= 0) &&
           (value.compareTo(Z.longMax) <= 0)) Long(value.longValue)
         else this
@@ -200,6 +205,8 @@ object Z {
 
     final def BitWidth: Int = halt("Unsupported Z operation 'BitWidth'.")
 
+    final def toIndex: Z.Index = this
+
     final def unary_- : Z = MP.unary_-(this)
 
     final def +(other: Z): Z = MP.+(this, other)
@@ -248,6 +255,10 @@ object Z {
       case other: java.math.BigInteger => MP.isEqual(this, other)
       case _ => false
     }
+
+    def toIntOpt: scala.Option[scala.Int]
+
+    def toLongOpt: scala.Option[scala.Long]
 
   }
 
@@ -614,19 +625,11 @@ object Z {
 
       final override def toBigInt: scala.BigInt = scala.BigInt(value)
 
-      final override def toIndex: Z.Index = {
-        if (isIndex) {
-          val index =
-            if (Min > 0) toBigInt - Min.toBigInt
-            else if (Min < 0) toBigInt + Min.toBigInt
-            else toBigInt
-          assert(0 <= value && value <= Int.MaxValue)
-          index.toInt
-        } else {
-          assert(0 <= value && value <= Int.MaxValue)
-          value.toInt
-        }
-      }
+      final override def toIndex: Z.Index = MP.BigInt(if (isIndex) {
+        if (Min > 0) toBigInt - Min.toBigInt
+        else if (Min < 0) toBigInt + Min.toBigInt
+        else toBigInt
+      } else scala.BigInt(value)).pack
 
     }
 
@@ -642,15 +645,36 @@ object Z {
 
   }
 
+  object Long {
+    def unapply(n: Z): scala.Option[scala.Long] = n match {
+      case n: MP => n.toLongOpt
+      case _ => scala.None
+    }
+  }
+
+  object String {
+    def unapply(n: Z): scala.Option[Predef.String] = n match {
+      case n: MP => scala.Some(n.toString)
+      case _ => scala.None
+    }
+  }
+
+  def unapply(n: Z): scala.Option[scala.Int] = n match {
+    case n: MP => n.toIntOpt
+    case _ => scala.None
+  }
+
+  def apply(n: String): Z = Z(n.value)
+
   import scala.language.implicitConversions
 
-  @inline implicit def $2Z(n: scala.Int): Z = MP.Long(n)
+  @inline implicit def apply(n: scala.Int): Z = MP.Long(n)
 
-  @inline implicit def $2lZ(n: scala.Long): Z = MP.Long(n)
+  @inline implicit def apply(n: scala.Long): Z = MP.Long(n)
 
-  @inline implicit def $2BIZ(n: scala.BigInt): Z = MP.BigInt(n).pack
+  @inline implicit def apply(n: scala.BigInt): Z = MP.BigInt(n).pack
 
-  @inline implicit def $2JBIZ(n: java.math.BigInteger): Z = scala.BigInt(n)
+  @inline implicit def apply(n: java.math.BigInteger): Z = scala.BigInt(n)
 
 }
 

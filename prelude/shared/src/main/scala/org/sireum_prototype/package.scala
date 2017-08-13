@@ -39,6 +39,11 @@ package object sireum_prototype extends $internal.PackageTrait {
 
     def lDef[T](args: Any*): T = halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")
 
+    def z(args: Any*): Z = {
+      assume(args.isEmpty && sc.parts.size == 1)
+      Z(sc.parts.head)
+    }
+
     def st(args: Any*): ST = macro Macro.st
   }
 

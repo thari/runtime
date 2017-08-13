@@ -37,29 +37,41 @@ object bits {
     val ctorName = Ctor.Name(name)
     Term.Block(List(
       q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
-                @inline def BitWidth: scala.Int = ${Lit.Int(width)}
-                @inline def Min: Z = $min
-                @inline def Max: Z = $max
-                @inline def isIndex: scala.Boolean = ${Lit.Boolean(index)}
-                @inline def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
-                def make(v: scala.Long): $typeName = {
-                  assert(Min <= v && v <= Max)
-                  $termName(v)
-                }
-              }""",
+            @inline def BitWidth: scala.Int = ${Lit.Int(width)}
+            @inline def Min: $typeName = $termName.Min
+            @inline def Max: $typeName = $termName.Max
+            @inline def isIndex: scala.Boolean = ${Lit.Boolean(index)}
+            @inline def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
+            def make(v: scala.Long): $typeName = $termName(v)
+          }""",
       q"""object $termName {
-                val Min: Z = $min
-                val Max: Z = $max
-                def apply(value: scala.Long): $typeName = {
-                  assert(Min <= value && value <= Max)
-                  new $ctorName(value)
-                }
-                def apply(value: Predef.String): $typeName = {
-                  val v = scala.BigInt(value)
-                  assert(Min <= v && v <= Max)
-                  new $ctorName(v.toLong)
-                }
-              }"""
+            val Min: $typeName = new $ctorName($min)
+            val Max: $typeName = new $ctorName($max)
+            def apply(value: scala.Int): $typeName = {
+              val v: Z = scala.BigInt(value)
+              assert(Min.toBigInt <= v && v <= Max.toBigInt, s"$$v is not in [$$Min, $$Max]")
+              new $ctorName(value)
+            }
+            def apply(value: scala.Long): $typeName = {
+              val v = scala.BigInt(value)
+              assert(Min.toBigInt <= v && v <= Max.toBigInt, s"$$v is not in [$$Min, $$Max]")
+              new $ctorName(value)
+            }
+            def apply(value: String): $typeName = {
+              val v = scala.BigInt(value.value)
+              assert(Min.toBigInt <= v && v <= Max.toBigInt, s"$$v is not in [$$Min, $$Max]")
+              new $ctorName(v.toLong)
+            }
+            def unapply(n: $typeName): scala.Option[scala.Int] =
+              if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toInt)
+              else scala.None
+            object Long {
+              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.value)
+            }
+            object String {
+              def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.value.toString)
+            }
+          }"""
     ))
   }
 }

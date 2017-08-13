@@ -28,13 +28,15 @@ package org.sireum_prototype
 
 object C {
 
+  def unapply(c: C): scala.Option[scala.Char] = scala.Some(c.value)
+
   import scala.language.implicitConversions
 
-  @inline implicit def $2C(c: Char): C = new C(c)
+  @inline implicit def apply(c: scala.Char): C = new C(c)
 
 }
 
-final class C(val value: Char) extends AnyVal with Ordered[C] {
+final class C(val value: scala.Char) extends AnyVal with Ordered[C] {
 
   @inline def <(other: C): B = value < other.value
 

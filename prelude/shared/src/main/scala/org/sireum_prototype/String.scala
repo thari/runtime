@@ -28,9 +28,11 @@ package org.sireum_prototype
 
 object String {
 
+  def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
+
   import scala.language.implicitConversions
 
-  implicit def $2String(s: Predef.String): String = new String(s)
+  implicit def apply(s: Predef.String): String = new String(s)
 
 }
 

@@ -31,9 +31,11 @@ object B {
   val T = new B(true)
   val F = new B(false)
 
+  def unapply(b: B): scala.Option[scala.Boolean] = scala.Some(b.value)
+
   import scala.language.implicitConversions
 
-  @inline implicit def $2B(b: Boolean): B = if (b) T else F
+  @inline implicit def apply(b: Boolean): B = if (b) T else F
 
   @inline implicit def $4B(b: B): Boolean = b.value
 

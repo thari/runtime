@@ -38,13 +38,15 @@ private[sireum_prototype] sealed trait FloatingPoint[F <: FloatingPoint[F]] exte
 
 object F32 {
 
+  def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
+
   import scala.language.implicitConversions
 
-  implicit def $2F32(f: Float): F32 = new F32(f)
+  implicit def apply(f: scala.Float): F32 = new F32(f)
 
 }
 
-final class F32(val value: Float) extends AnyVal with FloatingPoint[F32] {
+final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] {
 
   def BitWidth: Z = 32
 
@@ -79,13 +81,15 @@ final class F32(val value: Float) extends AnyVal with FloatingPoint[F32] {
 
 object F64 {
 
+  def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)
+
   import scala.language.implicitConversions
 
-  implicit def $2F64(d: Double): F64 = new F64(d)
+  implicit def apply(d: scala.Double): F64 = new F64(d)
 
 }
 
-final class F64(val value: Double) extends AnyVal with FloatingPoint[F64] {
+final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] {
 
   def BitWidth: Z = 64
 
