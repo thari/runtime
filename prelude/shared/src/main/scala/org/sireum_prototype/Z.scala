@@ -34,11 +34,11 @@ object Z {
   val longMin = scala.BigInt(scala.Long.MinValue)
   val longMax = scala.BigInt(scala.Long.MaxValue)
 
-  private[sireum_prototype] object MP {
+  object MP {
 
-    val zero: Z = MP.Long(0)
-    val one: Z = MP.Long(1)
-    val mone: Z = MP.Long(-1)
+    val zero: MP = MP.Long(0)
+    val one: MP = MP.Long(1)
+    val mone: MP = MP.Long(-1)
 
     private[sireum_prototype] final case class Long(value: scala.Long) extends MP {
 
@@ -81,7 +81,7 @@ object Z {
     @inline def unsupported(op: Predef.String, other: Z): Nothing =
       halt(s"Unsupported Z operation '$op' with ${other.getClass.getSimpleName}")
 
-    @inline def unary_-(n: Z): Z = {
+    @inline def unary_-(n: Z): MP = {
       n match {
         case Long(m) =>
           if (m != scala.Long.MinValue)
@@ -91,7 +91,7 @@ object Z {
       BigInt(-n.toBigInt)
     }
 
-    @inline def +(n: Z, other: Z): Z = {
+    @inline def +(n: Z, other: Z): MP = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 + n2
@@ -103,7 +103,7 @@ object Z {
       BigInt(n.toBigInt + other.toBigInt)
     }
 
-    @inline def -(n: Z, other: Z): Z = {
+    @inline def -(n: Z, other: Z): MP = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 - n2
@@ -115,7 +115,7 @@ object Z {
       BigInt(n.toBigInt - other.toBigInt).pack
     }
 
-    @inline def *(n: Z, other: Z): Z = {
+    @inline def *(n: Z, other: Z): MP = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 * n2
@@ -135,7 +135,7 @@ object Z {
       BigInt(n.toBigInt * other.toBigInt)
     }
 
-    @inline def /(n: Z, other: Z): Z = {
+    @inline def /(n: Z, other: Z): MP = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 / n2
@@ -147,7 +147,7 @@ object Z {
       BigInt(n.toBigInt / other.toBigInt).pack
     }
 
-    @inline def %(n: Z, other: Z): Z = {
+    @inline def %(n: Z, other: Z): MP = {
       (n, other) match {
         case (_: MP, _: MP) =>
         case _ => unsupported("%", other)
@@ -185,9 +185,19 @@ object Z {
       case _ => unsupported("==", other)
     }
 
+    @inline def apply(n: scala.Int): MP = new MP.Long(n)
+
+    @inline def apply(n: scala.Long): MP = new MP.Long(n)
+
+    @inline def apply(n: scala.BigInt): MP = new MP.BigInt(n).pack
+
+    @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
+
+    @inline def apply(s: String): MP = MP(scala.BigInt(s.value))
+
   }
 
-  private[sireum_prototype] sealed trait MP extends Z {
+  sealed trait MP extends Z {
 
     final val isBitVector: scala.Boolean = false
 
@@ -207,17 +217,17 @@ object Z {
 
     final def toIndex: Z.Index = this
 
-    final def unary_- : Z = MP.unary_-(this)
+    final def unary_- : MP = MP.unary_-(this)
 
-    final def +(other: Z): Z = MP.+(this, other)
+    final def +(other: Z): MP = MP.+(this, other)
 
-    final def -(other: Z): Z = MP.-(this, other)
+    final def -(other: Z): MP = MP.-(this, other)
 
-    final def *(other: Z): Z = MP.*(this, other)
+    final def *(other: Z): MP = MP.*(this, other)
 
-    final def /(other: Z): Z = MP./(this, other)
+    final def /(other: Z): MP = MP./(this, other)
 
-    final def %(other: Z): Z = MP.%(this, other)
+    final def %(other: Z): MP = MP.%(this, other)
 
     final def >(other: Z): B = MP.>(this, other)
 
@@ -227,23 +237,23 @@ object Z {
 
     final def <=(other: Z): B = MP.<=(this, other)
 
-    final def increase: Z = this + MP.one
+    final def increase: MP = this + MP.one
 
-    final def decrease: Z = this - MP.one
+    final def decrease: MP = this - MP.one
 
-    final def >>(other: Z): Z = halt("Unsupported Z operation '>>'.")
+    final def >>(other: Z): MP = halt("Unsupported Z operation '>>'.")
 
-    final def >>>(other: Z): Z = halt("Unsupported Z operation '>>>'.")
+    final def >>>(other: Z): MP = halt("Unsupported Z operation '>>>'.")
 
-    final def <<(other: Z): Z = halt("Unsupported Z operation '<<'.")
+    final def <<(other: Z): MP = halt("Unsupported Z operation '<<'.")
 
-    final def &(other: Z): Z = halt("Unsupported Z operation '&'.")
+    final def &(other: Z): MP = halt("Unsupported Z operation '&'.")
 
-    final def |(other: Z): Z = halt("Unsupported Z operation '|'.")
+    final def |(other: Z): MP = halt("Unsupported Z operation '|'.")
 
-    final def |^(other: Z): Z = halt("Unsupported Z operation '|^'.")
+    final def |^(other: Z): MP = halt("Unsupported Z operation '|^'.")
 
-    final def unary_~ : Z = halt("Unsupported Z operation '~'.")
+    final def unary_~ : MP = halt("Unsupported Z operation '~'.")
 
     final override def equals(other: scala.Any): scala.Boolean = other match {
       case other: MP => MP.isEqual(this, other)
@@ -269,6 +279,10 @@ object Z {
       def value: scala.Long
 
       def make(value: scala.Long): T
+
+      def Min: T
+
+      def Max: T
 
       @inline private final def toByte: scala.Byte = value.toByte
 
@@ -625,23 +639,133 @@ object Z {
 
       final override def toBigInt: scala.BigInt = scala.BigInt(value)
 
-      final override def toIndex: Z.Index = MP.BigInt(if (isIndex) {
-        if (Min > 0) toBigInt - Min.toBigInt
-        else if (Min < 0) toBigInt + Min.toBigInt
-        else toBigInt
-      } else scala.BigInt(value)).pack
+      final override def toIndex: Z.Index =
+        if (isIndex)
+          if (Min > 0) MP(toBigInt - Min.toBigInt)
+          else if (Min < 0) MP(toBigInt + Min.toBigInt)
+          else MP(value)
+        else MP(value)
 
     }
 
   }
 
-  trait BV extends Any with Z {
+  private[sireum_prototype] trait BV extends Any with Z {
 
     final def isBitVector: scala.Boolean = true
 
     final def hasMin: scala.Boolean = true
 
     final def hasMax: scala.Boolean = true
+
+  }
+
+  trait Range[T <: Range[T]] extends Any with Z {
+
+    def value: MP
+
+    def make(n: MP): T
+
+    def Min: T
+
+    def Max: T
+
+    @inline final def isBitVector: scala.Boolean = false
+
+    @inline final def BitWidth: Int = unsupported("BitWidth")
+
+    @inline final def unary_- : T = make(-value)
+
+    @inline final def +(other: Z): T = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("+", other)
+        make(value + other.value)
+      case _ => unsupported("+", other)
+    }
+
+    @inline final def -(other: Z): T = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("-", other)
+        make(value - other.value)
+      case _ => unsupported("-", other)
+    }
+
+    @inline final def *(other: Z): T = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("*", other)
+        make(value * other.value)
+      case _ => unsupported("*", other)
+    }
+
+    @inline final def /(other: Z): T = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("/", other)
+        make(value / other.value)
+      case _ => unsupported("/", other)
+    }
+
+    @inline final def %(other: Z): T = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("%", other)
+        make(value / other.value)
+      case _ => unsupported("%", other)
+    }
+
+    @inline final def <(other: Z): B = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("<", other)
+        value < other.value
+      case _ => unsupported("<", other)
+    }
+
+    @inline final def <=(other: Z): B = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported("<=", other)
+        value <= other.value
+      case _ => unsupported("<=", other)
+    }
+
+    @inline final def >(other: Z): B = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported(">", other)
+        value > other.value
+      case _ => unsupported(">", other)
+    }
+
+    @inline final def >=(other: Z): B = other match {
+      case other: Range[_] =>
+        if (!isEqType(other)) unsupported(">=", other)
+        value > other.value
+      case _ => unsupported(">=", other)
+    }
+
+    @inline final def decrease: T = make(value + MP.one)
+
+    @inline final def increase: T = make(value - MP.one)
+
+    @inline final override def toBigInt: BigInt = value.toBigInt
+
+    @inline final def >>(other: Z): T = unsupported(">>")
+
+    @inline final def >>>(other: Z): T = unsupported(">>>")
+
+    @inline final def <<(other: Z): T = unsupported("<<")
+
+    @inline final def &(other: Z): T = unsupported("&")
+
+    @inline final def |(other: Z): T = unsupported("|")
+
+    @inline final def |^(other: Z): T = unsupported("|^")
+
+    @inline final def unary_~ : Z = unsupported("~")
+
+    @inline final override def toString: Predef.String = value.toString
+
+    @inline private final def unsupported(op: Predef.String): Nothing =
+      halt(s"Unsupported ${getClass.getSimpleName} operation '$op'.")
+
+    @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+      halt(s"Unsupported ${getClass.getSimpleName} operation '$op' with '${other.getClass.getSimpleName}'.")
 
   }
 
@@ -664,15 +788,15 @@ object Z {
     case _ => scala.None
   }
 
-  def apply(n: String): Z = Z(n.value)
+  def apply(n: String): Z = scala.BigInt(n.value)
 
   import scala.language.implicitConversions
 
-  @inline implicit def apply(n: scala.Int): Z = MP.Long(n)
+  @inline implicit def apply(n: scala.Int): Z = MP(n)
 
-  @inline implicit def apply(n: scala.Long): Z = MP.Long(n)
+  @inline implicit def apply(n: scala.Long): Z = MP(n)
 
-  @inline implicit def apply(n: scala.BigInt): Z = MP.BigInt(n).pack
+  @inline implicit def apply(n: scala.BigInt): Z = MP(n)
 
   @inline implicit def apply(n: java.math.BigInteger): Z = scala.BigInt(n)
 
@@ -694,9 +818,9 @@ trait Z extends Any with Number[Z] {
 
   def Max: Z
 
-  def BitWidth: Int
+  def BitWidth: scala.Int
 
-  def isEqType(other: Z): Boolean = {
+  final def isEqType(other: Z): Boolean = {
     if (isSigned != other.isSigned) return false
     if (isIndex != other.isIndex) return false
     if (isBitVector != other.isBitVector) return false
