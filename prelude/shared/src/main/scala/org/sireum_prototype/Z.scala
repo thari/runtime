@@ -759,6 +759,13 @@ object Z {
 
     @inline final def unary_~ : Z = unsupported("~")
 
+    @inline final def toIndex: Z.Index =
+      if (isIndex) {
+        if (Min > 0) value - Min.value
+        else if (Min < 0) value + Min.value
+        else value
+      } else value
+
     @inline final override def toString: Predef.String = value.toString
 
     @inline private final def unsupported(op: Predef.String): Nothing =
@@ -767,6 +774,13 @@ object Z {
     @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
       halt(s"Unsupported ${getClass.getSimpleName} operation '$op' with '${other.getClass.getSimpleName}'.")
 
+  }
+
+  object Int {
+    def unapply(n: Z): scala.Option[scala.Int] = n match {
+      case n: MP => n.toIntOpt
+      case _ => scala.None
+    }
   }
 
   object Long {
@@ -781,11 +795,6 @@ object Z {
       case n: MP => scala.Some(n.toString)
       case _ => scala.None
     }
-  }
-
-  def unapply(n: Z): scala.Option[scala.Int] = n match {
-    case n: MP => n.toIntOpt
-    case _ => scala.None
   }
 
   def apply(n: String): Z = scala.BigInt(n.value)

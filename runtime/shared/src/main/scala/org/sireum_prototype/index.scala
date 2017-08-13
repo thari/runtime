@@ -60,7 +60,7 @@ class index(min: Option[BigInt],
               abort(tree.pos, s"Invalid Slang @index bitvector range: ${tree.syntax}"))
             bits.q(signed, width, index = true, tname.value)
           }
-          else tree
+          else range.q(index = true, Some(min), Some(max), tname.value)
         //println(result)
         result
       case _ => abort(tree.pos, s"Invalid Slang @index on: ${tree.syntax}")
