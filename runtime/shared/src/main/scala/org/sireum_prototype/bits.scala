@@ -27,10 +27,47 @@ package org.sireum_prototype
 
 import scala.meta._
 
+object bits {
+  def q(signed: Boolean, width: Int, index: Boolean, name: String): Term.Block = {
+    val (min, max) =
+      if (signed) (Lit.Long((BigInt(-2).pow(width - 1) + 1).toLong), Lit.Long((BigInt(2).pow(width - 1) - 1).toLong))
+      else (Lit.Long(0l), Lit.Long((BigInt(2).pow(width) - 1).toLong))
+    val typeName = Type.Name(name)
+    val termName = Term.Name(name)
+    val ctorName = Ctor.Name(name)
+    Term.Block(List(
+      q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
+                @inline def BitWidth: scala.Int = ${Lit.Int(width)}
+                @inline def Min: Z = $min
+                @inline def Max: Z = $max
+                @inline def isIndex: scala.Boolean = ${Lit.Boolean(index)}
+                @inline def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
+                def make(v: scala.Long): $typeName = {
+                  assert(Min <= v && v <= Max)
+                  $termName(v)
+                }
+              }""",
+      q"""object $termName {
+                val Min: Z = $min
+                val Max: Z = $max
+                def apply(value: scala.Long): $typeName = {
+                  assert(Min <= value && value <= Max)
+                  new $ctorName(value)
+                }
+                def apply(value: Predef.String): $typeName = {
+                  val v = scala.BigInt(value)
+                  assert(Min <= v && v <= Max)
+                  new $ctorName(v.toLong)
+                }
+              }"""
+    ))
+  }
+}
+
 class bits(signed: Boolean, width: Int) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
-      case tree: Defn.Type if helper.isZ(tree) =>
+      case q"class $tname" =>
         val q"new bits(..$args)" = this
         var width: Int = 0
         var signed: Boolean = false
@@ -48,10 +85,10 @@ class bits(signed: Boolean, width: Int) extends scala.annotation.StaticAnnotatio
             case _ => abort(arg.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
           }
         }
-        val result = tree
+        val result = bits.q(signed, width, index = false, tname.value)
         //println(result)
         result
-      case _ => abort(tree.pos, s"Invalid Slang @bits on: ${tree.syntax}")
+      case _ => abort(tree.pos, s"Invalid Slang @bits on: ${tree.structure}")
     }
   }
 }

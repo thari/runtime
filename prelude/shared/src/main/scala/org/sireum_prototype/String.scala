@@ -36,11 +36,11 @@ object String {
 
 final class String(val value: Predef.String) extends AnyVal with Immutable {
 
-  @inline @pure def hash: Z = value.hashCode
+  @inline def hash: Z = value.hashCode
 
-  @inline @pure def isEqual(other: Immutable): B = this == other
+  @inline def isEqual(other: Immutable): B = this == other
 
-  @inline @pure def string: String = this
+  @inline def string: String = this
 
   @inline override def toString: Predef.String = value
 

@@ -31,8 +31,8 @@ trait PackageTrait {
 
   private val $topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
-  val T = new org.sireum_prototype.B(true)
-  val F = new org.sireum_prototype.B(false)
+  val T: org.sireum_prototype.B = true
+  val F: org.sireum_prototype.B = false
 
   def $clone[T](o: T): T = o match {
     case o: Immutable => o.$clone.asInstanceOf[T]

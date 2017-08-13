@@ -29,27 +29,38 @@ import scala.meta._
 
 class index(min: Option[BigInt],
             max: Option[BigInt],
-            bits: Int = 0) extends scala.annotation.StaticAnnotation {
+            bits: Boolean = false) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
-      case tree: Defn.Type if helper.isZ(tree) =>
+      case q"class $tname" =>
         val q"new index(..$args)" = this
-        var min: Term = null
-        var max: Term = null
-        var bits = 0
+        var min: BigInt = 0
+        var max: BigInt = 0
+        var isBitVector = false
         for (arg <- args) {
           arg match {
-            case arg"min = ${exp: Term}" => min = exp
-            case arg"max = ${exp: Term}" => max = exp
-            case arg"bits = ${Lit.Int(n)}" =>
-              n match {
-                case 8 | 16 | 32 | 64 => bits = n
-                case _ => abort(arg.pos, s"Invalid Slang @index bits argument: ${arg.syntax} (only 8, 16, 32, or 64 are currently supported)")
+            case arg"min = $exp" =>
+              helper.extractInt(exp) match {
+                case Some(n) => min = n
+                case _ => abort(exp.pos, s"Invalid Slang @index min argument: ${arg.syntax}")
               }
+            case arg"max = $exp" =>
+              helper.extractInt(exp) match {
+                case Some(n) => max = n
+                case _ => abort(exp.pos, s"Invalid Slang @index max argument: ${arg.syntax}")
+              }
+            case arg"bits = ${Lit.Boolean(b)}" => isBitVector = b
             case _ => abort(tree.pos, s"Invalid Slang @index argument: ${arg.syntax}")
           }
         }
-        val result = tree
+        if (max < min) abort(tree.pos, s"Invalid Slang @index range (max < min): ${tree.syntax}")
+        val result =
+          if (isBitVector) {
+            val (signed, width) = helper.bits(min, max).getOrElse(
+              abort(tree.pos, s"Invalid Slang @index bitvector range: ${tree.syntax}"))
+            bits.q(signed, width, index = true, tname.value)
+          }
+          else tree
         //println(result)
         result
       case _ => abort(tree.pos, s"Invalid Slang @index on: ${tree.syntax}")

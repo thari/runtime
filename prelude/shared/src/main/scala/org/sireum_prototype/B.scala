@@ -28,6 +28,9 @@ package org.sireum_prototype
 
 object B {
 
+  val T = new B(true)
+  val F = new B(false)
+
   import scala.language.implicitConversions
 
   @inline implicit def $2B(b: Boolean): B = if (b) T else F
@@ -38,25 +41,25 @@ object B {
 
 final class B(val value: Boolean) extends AnyVal with Immutable {
 
-  @inline @pure def &(other: B): B = value & other.value
+  @inline def &(other: B): B = value & other.value
 
-  @inline @pure def |(other: B): B = value | other.value
+  @inline def |(other: B): B = value | other.value
 
-  @inline @pure def |^(other: B): B = value ^ other.value
+  @inline def |^(other: B): B = value ^ other.value
 
-  @inline @pure def &&(other: => B): B = value && other.value
+  @inline def &&(other: => B): B = value && other.value
 
-  @inline @pure def ||(other: => B): B = value && other.value
+  @inline def ||(other: => B): B = value && other.value
 
-  @inline @pure def unary_!(): B = !value
+  @inline def unary_! : B = !value
 
-  @inline @pure def unary_~(): B = !value
+  @inline def unary_~ : B = !value
 
-  @inline @pure def hash: Z = hashCode
+  @inline def hash: Z = hashCode
 
-  @inline @pure def isEqual(other: Immutable): B = this == other
+  @inline def isEqual(other: Immutable): B = this == other
 
-  @inline @pure def string: String = toString
+  @inline def string: String = toString
 
   @inline override def toString: Predef.String = value.toString
 

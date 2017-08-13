@@ -36,18 +36,20 @@ object C {
 
 final class C(val value: Char) extends AnyVal with Ordered[C] {
 
-  @inline @pure def <(other: C): B = value < other.value
+  @inline def <(other: C): B = value < other.value
 
-  @inline @pure def <=(other: C): B = value <= other.value
+  @inline def <=(other: C): B = value <= other.value
 
-  @inline @pure def >(other: C): B = value > other.value
+  @inline def >(other: C): B = value > other.value
 
-  @inline @pure def >=(other: C): B = value >= other.value
+  @inline def >=(other: C): B = value >= other.value
 
-  @inline @pure def hash: Z = value.hashCode
+  @inline def hash: Z = value.hashCode
 
-  @inline @pure def isEqual(other: Immutable): B = this == other
+  @inline def isEqual(other: Immutable): B = this == other
 
-  @inline @pure def string: String = new String(value.toString)
+  @inline def string: String = toString
+
+  @inline override def toString: Predef.String = value.toString
 
 }

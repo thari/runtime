@@ -25,6 +25,8 @@
 
 package org.sireum_prototype
 
+import spire.math._
+
 import scala.meta._
 
 object helper {
@@ -45,16 +47,49 @@ object helper {
     (hasHash, hasEquals)
   }
 
-  def isZ(tree: Defn.Type): Boolean = tree.body match {
-    case Type.Name("Z") if tree.tparams.isEmpty => true
-    case _ => false
-  }
-
   def sIndexValue(tree: Defn.Type): Option[(Boolean, Type, Type)] = tree.body match {
     case t"IS[$index, $value]" => Some((true, index, value))
     case t"MS[$index, $value]" => Some((true, index, value))
     case _ => None
   }
+
+  def extractInt(tree: Any): Option[BigInt] = tree match {
+    case Lit.Int(n) => Some(n)
+    case Lit.Long(n) => Some(n)
+    case tree: Term.Interpolate if tree.prefix.value == "z" && tree.args.isEmpty && tree.parts.size == 1 =>
+      tree.parts.head match {
+        case Lit.String(s) => try Some(BigInt(s)) catch { case _: Throwable => None }
+        case _ => None
+      }
+    case _ => None
+  }
+
+  def isUByte(n: BigInt): Boolean = UByte.MinValue.toBigInt <= n && n <= UByte.MaxValue.toBigInt
+
+  def isByte(n: BigInt): Boolean = Byte.MinValue.toInt <= n && n <= Byte.MaxValue.toInt
+
+  def isUShort(n: BigInt): Boolean = UShort.MinValue.toBigInt <= n && n <= UShort.MaxValue.toBigInt
+
+  def isShort(n: BigInt): Boolean = Short.MinValue.toInt <= n && n <= Short.MaxValue.toInt
+
+  def isUInt(n: BigInt): Boolean = UInt.MinValue.toBigInt <= n && n <= UInt.MaxValue.toBigInt
+
+  def isInt(n: BigInt): Boolean = Int.MinValue <= n && n <= Int.MaxValue
+
+  def isULong(n: BigInt): Boolean = ULong.MinValue.toBigInt <= n && n <= ULong.MaxValue.toBigInt
+
+  def isLong(n: BigInt): Boolean = Long.MinValue <= n && n <= Long.MaxValue
+
+  def bits(min: BigInt, max: BigInt): Option[(Boolean, Int)] =
+    if (isUByte(min) && isUByte(max)) Some((false, 8))
+    else if (isByte(min) && isByte(max)) Some((true, 8))
+    else if (isUShort(min) && isUShort(max)) Some((false, 16))
+    else if (isShort(min) && isShort(max)) Some((true, 16))
+    else if (isUInt(min) && isUInt(max)) Some((false, 32))
+    else if (isInt(min) && isInt(max)) Some((true, 32))
+    else if (isULong(min) && isULong(max)) Some((false, 64))
+    else if (isLong(min) && isLong(max)) Some((true, 64))
+    else None
 }
 
 final class helper extends scala.annotation.StaticAnnotation

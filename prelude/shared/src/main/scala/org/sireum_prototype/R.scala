@@ -37,27 +37,29 @@ object R {
 
 final class R(val value: Real) extends AnyVal with Number[R] {
 
-  @inline @pure def <(other: R): B = value.compare(other.value) < 0
+  @inline def <(other: R): B = value.compare(other.value) < 0
 
-  @inline @pure def <=(other: R): B = value.compare(other.value) <= 0
+  @inline def <=(other: R): B = value.compare(other.value) <= 0
 
-  @inline @pure def >(other: R): B = value.compare(other.value) > 0
+  @inline def >(other: R): B = value.compare(other.value) > 0
 
-  @inline @pure def >=(other: R): B = value.compare(other.value) >= 0
+  @inline def >=(other: R): B = value.compare(other.value) >= 0
 
-  @inline @pure def +(other: R): R = value + other.value
+  @inline def +(other: R): R = value + other.value
 
-  @inline @pure def -(other: R): R = value - other.value
+  @inline def -(other: R): R = value - other.value
 
-  @inline @pure def *(other: R): R = value * other.value
+  @inline def *(other: R): R = value * other.value
 
-  @inline @pure def /(other: R): R = value / other.value
+  @inline def /(other: R): R = value / other.value
 
-  @inline @pure def %(other: R): R = value % other.value
+  @inline def %(other: R): R = value % other.value
 
-  @inline @pure def hash: Z = value.hashCode
+  @inline def hash: Z = value.hashCode
 
-  @inline @pure def isEqual(other: Immutable): B = this == other
+  @inline def isEqual(other: Immutable): B = this == other
 
-  @inline @pure def string: String = value.toString
+  @inline def string: String = toString
+
+  @inline override def toString: Predef.String = value.toString
 }

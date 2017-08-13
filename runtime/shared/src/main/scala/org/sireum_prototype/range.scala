@@ -31,7 +31,7 @@ class range(min: Option[BigInt] = None,
             max: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
-      case tree: Defn.Type if helper.isZ(tree) =>
+      case q"class $tname" =>
         val q"new range(..$args)" = this
         var min: Option[Term] = None
         var max: Option[Term] = None

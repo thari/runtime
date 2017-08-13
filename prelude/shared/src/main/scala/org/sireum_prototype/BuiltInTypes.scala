@@ -76,9 +76,9 @@ package org.sireum_prototype
 
   @pure def ||(other: => B): B
 
-  @pure def unary_!(): B
+  @pure def unary_! : B
 
-  @pure def unary_~(): B
+  @pure def unary_~ : B
 
 }
 
@@ -102,7 +102,7 @@ package org.sireum_prototype
 
   @pure def |^(other: Z): Z
 
-  @pure def unary_~(): Z
+  @pure def unary_~ : Z
 
   @pure def increase: Z
 
@@ -142,7 +142,6 @@ package org.sireum_prototype
 
 
 @ext trait ST extends Immutable
-
 
 
 @ext trait Mutable {
