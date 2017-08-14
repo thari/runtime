@@ -185,11 +185,11 @@ object Z {
       case _ => unsupported("==", other)
     }
 
-    @inline def apply(n: scala.Int): MP = new MP.Long(n)
+    @inline def apply(n: scala.Int): MP = MP.Long(n)
 
-    @inline def apply(n: scala.Long): MP = new MP.Long(n)
+    @inline def apply(n: scala.Long): MP = MP.Long(n)
 
-    @inline def apply(n: scala.BigInt): MP = new MP.BigInt(n).pack
+    @inline def apply(n: scala.BigInt): MP = MP.BigInt(n).pack
 
     @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
 
@@ -323,7 +323,7 @@ object Z {
       @inline private final def makeInt(value: scala.Int): T = if (isSigned) make(value.toLong) else make(UInt(value).toLong)
 
       @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
-        halt(s"Unsupported ${name} operation '$op' with ${other.name}")
+        halt(s"Unsupported $name operation '$op' with ${other.name}")
 
       final def unary_- : T =
         if (isSigned) BitWidth match {
@@ -639,17 +639,27 @@ object Z {
         case 64 => toULong.toString
       }
 
-      final override def toBigInt: scala.BigInt = scala.BigInt(value)
+      final override def toBigInt: scala.BigInt = if (isSigned) BitWidth match {
+        case 8 => scala.BigInt(toByte)
+        case 16 => scala.BigInt(toShort)
+        case 32 => scala.BigInt(toInt)
+        case 64 => scala.BigInt(toLong)
+      } else BitWidth match {
+        case 8 => toUByte.toBigInt
+        case 16 => toUShort.toBigInt
+        case 32 => toUInt.toBigInt
+        case 64 => toULong.toBigInt
+      }
 
-      final override def toIndex: Z.Index =
-        if (isIndex)
-          if (Min > 0) MP(toBigInt - Min.toBigInt)
-          else if (Min < 0) MP(toBigInt + Min.toBigInt)
-          else MP(value)
-        else MP(value)
-
+      final override def toIndex: Z.Index = {
+        if (isIndex) {
+          val min = Min.toBigInt
+          if (min > 0) return MP(toBigInt + min)
+          else if (min < 0) return MP(toBigInt - min)
+        }
+        MP(toBigInt)
+      }
     }
-
   }
 
   private[sireum_prototype] trait BV extends Any with Z {
@@ -763,8 +773,9 @@ object Z {
 
     @inline final def toIndex: Z.Index =
       if (isIndex) {
-        if (Min > 0) value - Min.value
-        else if (Min < 0) value + Min.value
+        val min = Min.value
+        if (min > 0) value + min
+        else if (min < 0) value - min
         else value
       } else value
 
@@ -780,19 +791,24 @@ object Z {
 
   def apply(n: String): Z = scala.BigInt(n.value)
 
-  def unapply(n: Z): scala.Option[scala.Int] = n match {
-    case n: MP => n.toIntOpt
-    case _ => scala.None
+  object Int {
+    @inline def apply(n: scala.Int): Z = MP(n)
+    def unapply(n: Z): scala.Option[scala.Int] = n match {
+      case n: MP => n.toIntOpt
+      case _ => scala.None
+    }
   }
 
   object Long {
+    @inline def apply(n: scala.Long): Z = MP(n)
     def unapply(n: Z): scala.Option[scala.Long] = n match {
       case n: MP => n.toLongOpt
       case _ => scala.None
     }
   }
 
-  object String {
+  object BigInt {
+    @inline def apply(n: scala.BigInt): Z = MP(n)
     def unapply(n: Z): scala.Option[Predef.String] = n match {
       case n: MP => scala.Some(n.toString)
       case _ => scala.None
@@ -801,11 +817,11 @@ object Z {
 
   import scala.language.implicitConversions
 
-  @inline implicit def apply(n: scala.Int): Z = MP(n)
+  @inline implicit def apply(n: scala.Int): Z = Int(n)
 
-  @inline implicit def apply(n: scala.Long): Z = MP(n)
+  @inline implicit def apply(n: scala.Long): Z = Long(n)
 
-  @inline implicit def apply(n: scala.BigInt): Z = MP(n)
+  @inline implicit def apply(n: scala.BigInt): Z = BigInt(n)
 
   @inline implicit def apply(n: java.math.BigInteger): Z = scala.BigInt(n)
 

@@ -50,6 +50,8 @@ class index(min: Option[BigInt],
                 case _ => abort(exp.pos, s"Invalid Slang @index max argument: ${arg.syntax}")
               }
             case arg"bits = ${Lit.Boolean(b)}" => isBitVector = b
+            case arg"bits = ${Term.Name("T")}" => isBitVector = true
+            case arg"bits = ${Term.Name("F")}" => isBitVector = false
             case _ => abort(tree.pos, s"Invalid Slang @index argument: ${arg.syntax}")
           }
         }
