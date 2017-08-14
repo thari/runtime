@@ -37,12 +37,34 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   import c.universe._
 
-  def $Impl[T]: c.Expr[T] = {
-    c.Expr[T](q"""halt("Slang '$$' should have been erased by the Sireum Scala compiler plugin.")""")
+  def l[T](args: c.Expr[Any]*): c.Expr[T] =
+    c.Expr[T]( q"""halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")""")
+
+  def lUnit(args: c.Expr[Any]*): c.Expr[Unit] = c.Expr[Unit](q"{}")
+
+  def lDef[T](args: c.Expr[Any]*): c.Expr[T] =
+    c.Expr[T]( q"""halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")""")
+
+  def $[T]: c.Expr[T] = c.Expr[T]( q"""halt("Slang '$$' should have been erased by the Sireum Scala compiler plugin.")""")
+
+  def extractParts: Seq[c.Tree] = c.prefix.tree match {
+    case q"org.sireum_prototype.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
+    case q"sireum_prototype.this.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
   }
 
+  def zApply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang z\"...\" should not contain $$ arguments.")
+    q"Z(${parts.head})"
+  }
 
-  def $assignImpl(arg: c.Tree): c.Tree = {
+  def rApply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang r\"...\" should not contain $$ arguments.")
+    q"R(${parts.head})"
+  }
+
+  def $assign(arg: c.Tree): c.Tree = {
     def args(n: Int): List[c.Tree] =
       (for (i <- 1 to n) yield
         Apply(Ident(TermName("$$assign")), List(Select(arg, TermName(s"_$i"))))).toList
@@ -199,11 +221,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
         pos.source.content.subSequence(pos.start, pos.start + 5).toString != "st\"\"\""
       else true
     val parts = {
-      val parts = c.prefix.tree match {
-        case q"org.sireum_prototype.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
-        case q"sireum_prototype.this.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
-      }
-      if (isSingle) parts.map(p => q"StringContext.treatEscapes($p)") else parts
+      val ps = extractParts
+      if (isSingle) ps.map(p => q"StringContext.treatEscapes($p)") else ps
     }
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>

@@ -778,11 +778,11 @@ object Z {
 
   }
 
-  object Int {
-    def unapply(n: Z): scala.Option[scala.Int] = n match {
-      case n: MP => n.toIntOpt
-      case _ => scala.None
-    }
+  def apply(n: String): Z = scala.BigInt(n.value)
+
+  def unapply(n: Z): scala.Option[scala.Int] = n match {
+    case n: MP => n.toIntOpt
+    case _ => scala.None
   }
 
   object Long {
@@ -798,8 +798,6 @@ object Z {
       case _ => scala.None
     }
   }
-
-  def apply(n: String): Z = scala.BigInt(n.value)
 
   import scala.language.implicitConversions
 

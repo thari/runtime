@@ -47,9 +47,9 @@ trait PackageTrait {
 
   import language.experimental.macros
 
-  def $[T]: T = macro Macro.$Impl[T]
+  def $[T]: T = macro Macro.$[T]
 
-  def $assign[T](arg: T): T = macro Macro.$assignImpl
+  def $assign[T](arg: T): T = macro Macro.$assign
 
   def $$assign[T](arg: T): T = {
     arg match {

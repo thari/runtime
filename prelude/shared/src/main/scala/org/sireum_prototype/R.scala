@@ -29,9 +29,7 @@ import spire.math.Real
 
 object R {
 
-  def unapply(r: R): scala.Option[scala.Double] =
-    if (r.value == Real(r.value.toDouble)) scala.Some(r.value.toDouble)
-    else scala.None
+  def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)
 
   def apply(s: String): R = Real(s.value)
 

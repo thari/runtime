@@ -31,17 +31,28 @@ package object sireum_prototype extends $internal.PackageTrait {
 
   import $internal.Macro
 
-  final implicit class $Slang(val sc: StringContext) extends AnyVal {
+  final implicit class $Slang(val sc: StringContext) {
 
-    def l[T](args: Any*): T = halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")
+    def l[T](args: Any*): T = macro Macro.l[T]
 
-    def lUnit(args: Any*): Unit = {}
+    def lUnit(args: Any*): Unit = macro Macro.lUnit
 
-    def lDef[T](args: Any*): T = halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")
+    def lDef[T](args: Any*): T = macro Macro.lDef[T]
 
-    def z(args: Any*): Z = {
-      assume(args.isEmpty && sc.parts.size == 1)
-      Z(sc.parts.head)
+    object z {
+      def apply(args: Any*): Z = macro Macro.zApply
+      def unapply(n: Z): scala.Boolean = {
+        assume(n.isInstanceOf[Z.MP] && sc.parts.size == 1)
+        n == Z(sc.parts.head)
+      }
+    }
+
+    object r {
+      def apply(args: Any*): R = macro Macro.rApply
+      def unapply(n: R): scala.Boolean = {
+        assume(sc.parts.size == 1)
+        n == R(sc.parts.head)
+      }
     }
 
     def st(args: Any*): ST = macro Macro.st
