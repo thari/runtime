@@ -35,8 +35,10 @@ object bits {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
     val ctorName = Ctor.Name(name)
+    val nameStr = Lit.String(name)
     Term.Block(List(
       q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
+            @inline def name: Predef.String = $termName.name
             @inline def BitWidth: scala.Int = $termName.BitWidth
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
@@ -45,6 +47,7 @@ object bits {
             def make(v: scala.Long): $typeName = $termName(v)
           }""",
       q"""object $termName {
+            val name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
             val Min: $typeName = new $ctorName($min)
             val Max: $typeName = new $ctorName($max)
@@ -56,6 +59,7 @@ object bits {
             def apply(value: scala.Long): $typeName =
               new $ctorName(value)
             def apply(value: String): $typeName = new $ctorName(value.value.toLong)
+            def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.value))
             object Int {
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toInt)

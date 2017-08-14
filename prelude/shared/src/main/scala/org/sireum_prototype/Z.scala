@@ -79,7 +79,7 @@ object Z {
     }
 
     @inline def unsupported(op: Predef.String, other: Z): Nothing =
-      halt(s"Unsupported Z operation '$op' with ${other.getClass.getSimpleName}")
+      halt(s"Unsupported Z operation '$op' with ${other.name}")
 
     @inline def unary_-(n: Z): MP = {
       n match {
@@ -198,6 +198,8 @@ object Z {
   }
 
   sealed trait MP extends Z {
+
+    final val name: Predef.String = "Z"
 
     final val isBitVector: scala.Boolean = false
 
@@ -321,7 +323,7 @@ object Z {
       @inline private final def makeInt(value: scala.Int): T = if (isSigned) make(value.toLong) else make(UInt(value).toLong)
 
       @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
-        halt(s"Unsupported ${getClass.getSimpleName} operation '$op' with ${other.getClass.getSimpleName}")
+        halt(s"Unsupported ${name} operation '$op' with ${other.name}")
 
       final def unary_- : T =
         if (isSigned) BitWidth match {
@@ -497,7 +499,7 @@ object Z {
             case 16 => makeShort(toShort >> other.toShort)
             case 32 => make(toInt >> other.toInt)
             case 64 => make(toLong >> other.toLong)
-          } else halt(s"Unsupported '>>' operation on an unsigned value of '${getClass.getSimpleName}'.")
+          } else halt(s"Unsupported '>>' operation on an unsigned value of '$name'.")
         case _ => unsupported(">>", other)
       }
 
@@ -769,10 +771,10 @@ object Z {
     @inline final override def toString: Predef.String = value.toString
 
     @inline private final def unsupported(op: Predef.String): Nothing =
-      halt(s"Unsupported ${getClass.getSimpleName} operation '$op'.")
+      halt(s"Unsupported $name operation '$op'.")
 
     @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
-      halt(s"Unsupported ${getClass.getSimpleName} operation '$op' with '${other.getClass.getSimpleName}'.")
+      halt(s"Unsupported $name operation '$op' with '${other.name}'.")
 
   }
 
@@ -812,6 +814,8 @@ object Z {
 }
 
 trait Z extends Any with Number[Z] {
+
+  def name: Predef.String
 
   def isBitVector: scala.Boolean
 

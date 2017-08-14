@@ -35,6 +35,7 @@ object range {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
     val ctorName = Ctor.Name(name)
+    val nameStr = Lit.String(name)
     val signed = minOpt.forall(_ < 0)
     def min = Lit.String(minOpt.map(_.toString).getOrElse("0"))
     def max = Lit.String(maxOpt.map(_.toString).getOrElse("0"))
@@ -44,6 +45,7 @@ object range {
     val maxErrorMessage = Lit.String(s" is greater than $name.Max (${max.value})")
     Term.Block(List(
       q"""final class $typeName(val value: Z.MP) extends AnyVal with Z.Range[$typeName] {
+            @inline def name: Predef.String = $termName.name
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
             @inline def isIndex: scala.Boolean = $termName.isIndex
@@ -53,6 +55,7 @@ object range {
             def make(v: Z.MP): $typeName = $termName(v)
           }""",
       q"""object $termName {
+            val name: Predef.String = $nameStr
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
             def isIndex: scala.Boolean = ${Lit.Boolean(index)}
@@ -77,8 +80,9 @@ object range {
               case value: Z.MP =>
                 check(value.toBigInt)
                 new $ctorName(value)
-              case _ => halt(s"Unsupported $${getClass.getSimpleName.dropRight(1)} creation from $${value.getClass.getSimpleName}.")
+              case _ => halt(s"Unsupported $$name creation from $${value.name}.")
             }
+            def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
             object Int {
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
