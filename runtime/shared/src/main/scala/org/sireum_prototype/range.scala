@@ -29,36 +29,40 @@ import scala.meta._
 
 
 object range {
-  def q(index: Boolean, minOpt: Option[BigInt], maxOpt: Option[BigInt], name: String): Term.Block = {
+  def q(index: BigInt, minOpt: Option[BigInt], maxOpt: Option[BigInt], name: String): Term.Block = {
     def unsupported(op: Predef.String) = Lit.String(s"Unsupported $name operation '$op'")
-    assert(!index || minOpt.nonEmpty)
+
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
+    val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val nameStr = Lit.String(name)
     val signed = minOpt.forall(_ < 0)
+
     def min = Lit.String(minOpt.map(_.toString).getOrElse("0"))
+
     def max = Lit.String(maxOpt.map(_.toString).getOrElse("0"))
+
     val minUnsupported = unsupported("Min")
     val maxUnsupported = unsupported("Max")
     val minErrorMessage = Lit.String(s" is less than $name.Min (${min.value})")
     val maxErrorMessage = Lit.String(s" is greater than $name.Max (${max.value})")
     Term.Block(List(
       q"""final class $typeName(val value: Z.MP) extends AnyVal with Z.Range[$typeName] {
-            @inline def name: Predef.String = $termName.name
+            @inline def Name: Predef.String = $termName.Name
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
-            @inline def isIndex: scala.Boolean = $termName.isIndex
+            @inline def Index: $typeName = $termName.Index
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def hasMin: scala.Boolean = $termName.hasMin
             @inline def hasMax: scala.Boolean = $termName.hasMax
             def make(v: Z.MP): $typeName = $termName(v)
           }""",
       q"""object $termName {
-            val name: Predef.String = $nameStr
+            val Name: Predef.String = $nameStr
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
-            def isIndex: scala.Boolean = ${Lit.Boolean(index)}
+            val Index: $typeName = new $ctorName(Z.MP(${Lit.String(index.toString)}))
             def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             def hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
             def hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
@@ -67,57 +71,90 @@ object range {
               if (hasMax) assert(v <= Max.toBigInt, v + $maxErrorMessage)
               v
             }
-            def apply(value: scala.Int): $typeName = {
-              check(scala.BigInt(value))
-              new $ctorName(Z.MP(value))
-            }
-            def apply(value: scala.Long): $typeName = {
-              check(scala.BigInt(value))
-              new $ctorName(Z.MP(value))
-            }
-            def apply(value: String): $typeName = new $ctorName(Z.MP(check(scala.BigInt(value.value))))
             def apply(value: Z): $typeName = value match {
-              case value: Z.MP =>
-                check(value.toBigInt)
-                new $ctorName(value)
-              case _ => halt(s"Unsupported $$name creation from $${value.name}.")
+              case value: Z.MP => value
+              case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
             object Int {
+              def apply(value: scala.Int): $typeName = {
+                check(scala.BigInt(value))
+                new $ctorName(Z.MP(value))
+              }
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
                 else scala.None
             }
             object Long {
+              def apply(value: scala.Long): $typeName = {
+                check(scala.BigInt(value))
+                new $ctorName(Z.MP(value))
+              }
               def unapply(n: $typeName): scala.Option[scala.Long] =
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
             object String {
-              def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.value.toString)
+              def apply(value: Predef.String): $typeName = BigInt(scala.BigInt(value.value))
+              def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.toBigInt.toString)
             }
+            object BigInt {
+              def apply(value: scala.BigInt): $typeName = new $ctorName(Z.MP(check(value)))
+              def unapply(n: $typeName): scala.Option[scala.BigInt]= scala.Some(n.toBigInt)
+            }
+            implicit class $$Slang(val sc: StringContext) {
+              object $lowerTermName {
+                def apply(args: Any*): $typeName = {
+                  assume(args.isEmpty && sc.parts.length == 1)
+                  String(sc.parts.head)
+                }
+                def unapply(n: $typeName): scala.Boolean = {
+                  assume(sc.parts.length == 1)
+                  n == String(sc.parts.head)
+                }
+              }
+            }
+            import scala.language.implicitConversions
+            def apply(value: Z.MP): $typeName = BigInt(value.toBigInt)
           }"""
     ))
   }
 }
 
 class range(min: Option[BigInt] = None,
-            max: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
+            max: Option[BigInt] = None,
+            index: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
       case q"class $tname" =>
         val q"new range(..$args)" = this
         var minOpt: Option[BigInt] = None
         var maxOpt: Option[BigInt] = None
+        var index: BigInt = 0
         for (arg <- args) {
           arg match {
             case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
             case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
-            case _ => abort(arg.pos, s"Invalid Slang @range argument: ${arg.syntax}")
+            case arg"index = ${exp: Term}" =>
+              helper.extractInt(exp) match {
+                case Some(n) => index = n
+                case _ =>
+              }
+            case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} argument: ${arg.syntax}")
           }
         }
-        if (minOpt.isEmpty && maxOpt.isEmpty) abort(tree.pos, s"Slang @range should have either a minimum, a maximum, or both.")
-        val result = range.q(index = false, minOpt, maxOpt, tname.value)
+        def checkIndexMin(n: BigInt): Unit = if (index < n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be less than its minimum ($n).")
+        def checkIndexMax(n: BigInt): Unit = if (index > n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be greater than its maximum ($n).")
+        (minOpt, maxOpt) match {
+          case (Some(n), Some(m)) =>
+            if (n > m) abort(tree.pos, s"Slang @range ${tname.value}'s min ($n) should not be greater than its max ($m).")
+            checkIndexMin(n)
+            checkIndexMax(m)
+          case (Some(n), _) => checkIndexMin(n)
+          case (_, Some(m)) => checkIndexMax(m)
+          case _ => abort(tree.pos, s"Slang @range ${tname.value} should have either a minimum, a maximum, or both.")
+        }
+        val result = range.q(index, minOpt, maxOpt, tname.value)
         //println(result)
         result
       case _ => abort(tree.pos, s"Invalid Slang @range on: ${tree.syntax}")

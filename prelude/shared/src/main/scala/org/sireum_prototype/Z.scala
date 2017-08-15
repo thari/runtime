@@ -79,7 +79,7 @@ object Z {
     }
 
     @inline def unsupported(op: Predef.String, other: Z): Nothing =
-      halt(s"Unsupported Z operation '$op' with ${other.name}")
+      halt(s"Unsupported Z operation '$op' with ${other.Name}")
 
     @inline def unary_-(n: Z): MP = {
       n match {
@@ -199,13 +199,13 @@ object Z {
 
   sealed trait MP extends Z {
 
-    final val name: Predef.String = "Z"
+    final val Name: Predef.String = "Z"
 
     final val isBitVector: scala.Boolean = false
 
     final val isSigned: scala.Boolean = false
 
-    final val isIndex: scala.Boolean = false
+    final val Index: MP = MP.zero
 
     final val hasMin: scala.Boolean = false
 
@@ -264,7 +264,7 @@ object Z {
       case other: scala.BigInt => MP.isEqual(this, other)
       case other: java.lang.Integer => MP.isEqual(this, other.intValue)
       case other: java.lang.Long => MP.isEqual(this, other.longValue)
-      case other: java.math.BigInteger => MP.isEqual(this, other)
+      case other: java.math.BigInteger => MP.isEqual(this, scala.BigInt(other))
       case _ => false
     }
 
@@ -285,6 +285,8 @@ object Z {
       def Min: T
 
       def Max: T
+
+      def Index: T
 
       @inline private final def toByte: scala.Byte = value.toByte
 
@@ -323,7 +325,7 @@ object Z {
       @inline private final def makeInt(value: scala.Int): T = if (isSigned) make(value.toLong) else make(UInt(value).toLong)
 
       @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
-        halt(s"Unsupported $name operation '$op' with ${other.name}")
+        halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
         if (isSigned) BitWidth match {
@@ -499,7 +501,7 @@ object Z {
             case 16 => makeShort(toShort >> other.toShort)
             case 32 => make(toInt >> other.toInt)
             case 64 => make(toLong >> other.toLong)
-          } else halt(s"Unsupported '>>' operation on an unsigned value of '$name'.")
+          } else halt(s"Unsupported '>>' operation on an unsigned value of '$Name'.")
         case _ => unsupported(">>", other)
       }
 
@@ -652,12 +654,10 @@ object Z {
       }
 
       final override def toIndex: Z.Index = {
-        if (isIndex) {
-          val min = Min.toBigInt
-          if (min > 0) return MP(toBigInt + min)
-          else if (min < 0) return MP(toBigInt - min)
-        }
-        MP(toBigInt)
+        val index = Index.toBigInt
+        if (index > 0) MP(toBigInt + index)
+        else if (index < 0) MP(toBigInt - index)
+        else MP(toBigInt)
       }
     }
   }
@@ -681,6 +681,8 @@ object Z {
     def Min: T
 
     def Max: T
+
+    def Index: T
 
     @inline final def isBitVector: scala.Boolean = false
 
@@ -771,21 +773,20 @@ object Z {
 
     @inline final def unary_~ : Z = unsupported("~")
 
-    @inline final def toIndex: Z.Index =
-      if (isIndex) {
-        val min = Min.value
-        if (min > 0) value + min
-        else if (min < 0) value - min
-        else value
-      } else value
+    @inline final def toIndex: Z.Index = {
+      val index = Index.value
+      if (index > 0) value + index
+      else if (index < 0) value - index
+      else value
+    }
 
     @inline final override def toString: Predef.String = value.toString
 
     @inline private final def unsupported(op: Predef.String): Nothing =
-      halt(s"Unsupported $name operation '$op'.")
+      halt(s"Unsupported $Name operation '$op'.")
 
     @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
-      halt(s"Unsupported $name operation '$op' with '${other.name}'.")
+      halt(s"Unsupported $Name operation '$op' with '${other.Name}'.")
 
   }
 
@@ -807,10 +808,18 @@ object Z {
     }
   }
 
-  object BigInt {
-    @inline def apply(n: scala.BigInt): Z = MP(n)
+  object String {
+    @inline def apply(s: Predef.String): Z = MP(s)
     def unapply(n: Z): scala.Option[Predef.String] = n match {
       case n: MP => scala.Some(n.toString)
+      case _ => scala.None
+    }
+  }
+
+  object BigInt {
+    @inline def apply(n: scala.BigInt): Z = MP(n)
+    def unapply(n: Z): scala.Option[scala.BigInt] = n match {
+      case n: MP => scala.Some(n.toBigInt)
       case _ => scala.None
     }
   }
@@ -823,19 +832,17 @@ object Z {
 
   @inline implicit def apply(n: scala.BigInt): Z = BigInt(n)
 
-  @inline implicit def apply(n: java.math.BigInteger): Z = scala.BigInt(n)
-
 }
 
 trait Z extends Any with Number[Z] {
 
-  def name: Predef.String
+  def Name: Predef.String
 
   def isBitVector: scala.Boolean
 
   def isSigned: scala.Boolean
 
-  def isIndex: scala.Boolean
+  def Index: Z
 
   def hasMin: scala.Boolean
 
@@ -847,17 +854,7 @@ trait Z extends Any with Number[Z] {
 
   def BitWidth: scala.Int
 
-  final def isEqType(other: Z): Boolean = {
-    if (isSigned != other.isSigned) return false
-    if (isIndex != other.isIndex) return false
-    if (isBitVector != other.isBitVector) return false
-    if (hasMin != other.hasMin) return false
-    if (hasMax != other.hasMax) return false
-    if (isBitVector && (BitWidth != other.BitWidth)) return false
-    if (hasMin && (Min != other.Min)) return false
-    if (hasMax && (Max != other.Max)) return false
-    true
-  }
+  final def isEqType(other: Z): Boolean = Name == other.Name
 
   def increase: Z
 

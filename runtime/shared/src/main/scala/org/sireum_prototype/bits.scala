@@ -28,66 +28,105 @@ package org.sireum_prototype
 import scala.meta._
 
 object bits {
-  def q(signed: Boolean, width: Int, index: Boolean, name: String): Term.Block = {
-    val (min, max) =
-      if (signed) (Lit.Long((BigInt(-2).pow(width - 1) + 1).toLong), Lit.Long((BigInt(2).pow(width - 1) - 1).toLong))
-      else (Lit.Long(0l), Lit.Long((BigInt(2).pow(width) - 1).toLong))
+  def q(signed: Boolean, width: Int, min: Long, max: Long, index: Long, name: String): Term.Block = {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
+    val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val nameStr = Lit.String(name)
     Term.Block(List(
       q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
-            @inline def name: Predef.String = $termName.name
+            @inline def Name: Predef.String = $termName.Name
             @inline def BitWidth: scala.Int = $termName.BitWidth
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
-            @inline def isIndex: scala.Boolean = $termName.isIndex
+            @inline def Index: $typeName = $termName.Index
             @inline def isSigned: scala.Boolean = $termName.isSigned
             def make(v: scala.Long): $typeName = $termName(v)
           }""",
       q"""object $termName {
-            val name: Predef.String = $nameStr
+            val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
-            val Min: $typeName = new $ctorName($min)
-            val Max: $typeName = new $ctorName($max)
-            val isIndex: scala.Boolean = ${Lit.Boolean(index)}
+            val Min: $typeName = new $ctorName(${Lit.Long(min)})
+            val Max: $typeName = new $ctorName(${Lit.Long(max)})
+            val Index: $typeName = new $ctorName(${Lit.Long(index)})
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
-            def apply(value: scala.Int): $typeName =
-              if (!isSigned && BitWidth == 64) new $ctorName(value & 0xffffffffL)
-              else new $ctorName(value)
-            def apply(value: scala.Long): $typeName =
-              new $ctorName(value)
-            def apply(value: String): $typeName = new $ctorName(value.value.toLong)
-            def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.value))
+            def apply(value: Z): $typeName = value match {
+              case value: Z.MP => value
+              case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
+            }
+            def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.toBigInt))
             object Int {
-              def unapply(n: $typeName): scala.Option[scala.Int] =
-                if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toInt)
-                else scala.None
+              def apply(n: scala.Int): $typeName = new $ctorName(n)
+              def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(v.toBigInt.toInt)
             }
             object Long {
-              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.value)
+              def apply(n: scala.Long): $typeName = new $ctorName(n)
+              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(v.value)
             }
             object String {
-              def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.value.toString)
+              def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(s))
+              def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
+            object BigInt {
+              def apply(n: scala.BigInt): $typeName = if (isSigned) BitWidth match {
+                case 8 => new $ctorName(n.toByte)
+                case 16 => new $ctorName(n.toShort)
+                case 32 => new $ctorName(n.toInt)
+                case 64 => new $ctorName(n.toLong)
+              } else BitWidth match {
+                case 8 => new $ctorName(spire.math.UByte(n.toByte).toLong)
+                case 16 => new $ctorName(spire.math.UShort(n.toShort).toLong)
+                case 32 => new $ctorName(spire.math.UShort(n.toInt).toLong)
+                case 64 => new $ctorName(n.toLong)
+              }
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }
+            implicit class $$Slang(val sc: StringContext) {
+              object $lowerTermName {
+                def apply(args: Any*): $typeName = {
+                  assume(args.isEmpty && sc.parts.length == 1)
+                  String(sc.parts.head)
+                }
+                def unapply(n: $typeName): scala.Boolean = {
+                  assume(sc.parts.length == 1)
+                  n == String(sc.parts.head)
+                }
+              }
+            }
+            import scala.language.implicitConversions
+            def apply(value: Z.MP): $typeName = BigInt(value.toBigInt)
           }"""
     ))
   }
 }
 
-class bits(signed: Boolean, width: Int) extends scala.annotation.StaticAnnotation {
+class bits(signed: Boolean,
+           width: Int,
+           min: Option[BigInt] = None,
+           max: Option[BigInt] = None,
+           index: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
       case q"class $tname" =>
         val q"new bits(..$args)" = this
         var width: Int = 0
         var signed: Boolean = false
+        var index: BigInt = 0
+        var minOpt: Option[BigInt] = None
+        var maxOpt: Option[BigInt] = None
         for (arg <- args) {
           arg match {
             case arg"signed = ${Term.Name("F")}" => signed = false
             case arg"signed = ${Term.Name("T")}" => signed = true
             case arg"signed = ${Lit.Boolean(b)}" => signed = b
+            case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
+            case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
+            case arg"index = ${exp: Term}" =>
+              helper.extractInt(exp) match {
+                case Some(n) => index = n
+                case _ =>
+              }
             case arg"width = ${Lit.Int(n)}" =>
               n match {
                 case 8 | 16 | 32 | 64 =>
@@ -97,7 +136,18 @@ class bits(signed: Boolean, width: Int) extends scala.annotation.StaticAnnotatio
             case _ => abort(arg.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
           }
         }
-        val result = bits.q(signed, width, index = false, tname.value)
+        val (wMin, wMax) =
+          if (signed) (BigInt(-2).pow(width - 1) + 1, BigInt(2).pow(width - 1) - 1)
+          else (BigInt(0), BigInt(2).pow(width) - 1)
+        val min = minOpt.getOrElse(wMin)
+        val max = maxOpt.getOrElse(wMax)
+        if (min > max) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be greater than its max ($max).")
+        val signedString = if (signed) "signed" else "unsigned"
+        if (min < wMin) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be less than its $signedString bit-width minimum ($wMin).")
+        if (max > wMax) abort(tree.pos, s"Slang @bits ${tname.value}'s max ($max) should not be greater than its $signedString bit-width maximum ($wMax).")
+        if (index < min) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its min ($min).")
+        if (index > max) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its max ($max).")
+        val result = bits.q(signed, width, min.toLong, max.toLong, index.toLong, tname.value)
         //println(result)
         result
       case _ => abort(tree.pos, s"Invalid Slang @bits on: ${tree.structure}")
