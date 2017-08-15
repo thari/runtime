@@ -64,6 +64,13 @@ object helper {
     case _ => None
   }
 
+  def extractBoolean(tree: Any): Option[Boolean] = tree match {
+    case Lit.Boolean(b) => Some(b)
+    case Term.Name("T") => Some(true)
+    case Term.Name("F") => Some(false)
+    case _ => None
+  }
+
   def isUByte(n: BigInt): Boolean = UByte.MinValue.toBigInt <= n && n <= UByte.MaxValue.toBigInt
 
   def isByte(n: BigInt): Boolean = Byte.MinValue.toInt <= n && n <= Byte.MaxValue.toInt

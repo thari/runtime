@@ -28,12 +28,14 @@ package org.sireum_prototype
 import scala.meta._
 
 object bits {
-  def q(signed: Boolean, width: Int, min: Long, max: Long, index: Long, name: String): Term.Block = {
+  def q(signed: Boolean, width: Int, wrapped: Boolean, min: BigInt, max: BigInt, index: Long, name: String): Term.Block = {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
     val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val nameStr = Lit.String(name)
+    val minErrorMessage = Lit.String(s" is less than $name.Min ($min)")
+    val maxErrorMessage = Lit.String(s" is greater than $name.Max ($max)")
     Term.Block(List(
       q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
             @inline def Name: Predef.String = $termName.Name
@@ -42,26 +44,37 @@ object bits {
             @inline def Max: $typeName = $termName.Max
             @inline def Index: $typeName = $termName.Index
             @inline def isSigned: scala.Boolean = $termName.isSigned
+            @inline def isWrapped: scala.Boolean = $termName.isWrapped
             def make(v: scala.Long): $typeName = $termName(v)
           }""",
       q"""object $termName {
             val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
-            val Min: $typeName = new $ctorName(${Lit.Long(min)})
-            val Max: $typeName = new $ctorName(${Lit.Long(max)})
+            val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
+            val Max: $typeName = new $ctorName(${Lit.Long(max.toLong)})
             val Index: $typeName = new $ctorName(${Lit.Long(index)})
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
+            val isWrapped: scala.Boolean = ${Lit.Boolean(wrapped)}
             def apply(value: Z): $typeName = value match {
               case value: Z.MP => value
               case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.toBigInt))
             object Int {
-              def apply(n: scala.Int): $typeName = new $ctorName(n)
+              def apply(n: scala.Int): $typeName = Long(n)
               def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(v.toBigInt.toInt)
             }
             object Long {
-              def apply(n: scala.Long): $typeName = new $ctorName(n)
+              def apply(n: scala.Long): $typeName =
+                if (isWrapped) new $ctorName(n)
+                else {
+                  val v = if (BitWidth == 64 && !isSigned) Z.BigInt(spire.math.ULong(n).toBigInt) else Z(n)
+                  val min = Z(Min.toBigInt)
+                  val max = Z(Max.toBigInt)
+                  assert(min <= v, v + $minErrorMessage)
+                  assert(v <= max, v + $maxErrorMessage)
+                  new $ctorName(n)
+                }
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(v.value)
             }
             object String {
@@ -70,15 +83,15 @@ object bits {
             }
             object BigInt {
               def apply(n: scala.BigInt): $typeName = if (isSigned) BitWidth match {
-                case 8 => new $ctorName(n.toByte)
-                case 16 => new $ctorName(n.toShort)
-                case 32 => new $ctorName(n.toInt)
-                case 64 => new $ctorName(n.toLong)
+                case 8 => Long(n.toByte)
+                case 16 => Long(n.toShort)
+                case 32 => Long(n.toInt)
+                case 64 => Long(n.toLong)
               } else BitWidth match {
-                case 8 => new $ctorName(spire.math.UByte(n.toByte).toLong)
-                case 16 => new $ctorName(spire.math.UShort(n.toShort).toLong)
-                case 32 => new $ctorName(spire.math.UShort(n.toInt).toLong)
-                case 64 => new $ctorName(n.toLong)
+                case 8 => Long(spire.math.UByte(n.toByte).toLong)
+                case 16 => Long(spire.math.UShort(n.toShort).toLong)
+                case 32 => Long(spire.math.UShort(n.toInt).toLong)
+                case 64 => Long(n.toLong)
               }
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }
@@ -117,15 +130,10 @@ class bits(signed: Boolean,
         var maxOpt: Option[BigInt] = None
         for (arg <- args) {
           arg match {
-            case arg"signed = ${Term.Name("F")}" => signed = false
-            case arg"signed = ${Term.Name("T")}" => signed = true
-            case arg"signed = ${Lit.Boolean(b)}" => signed = b
-            case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
-            case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
-            case arg"index = ${exp: Term}" =>
-              helper.extractInt(exp) match {
-                case Some(n) => index = n
-                case _ =>
+            case arg"signed = ${exp: Term}" =>
+              helper.extractBoolean(exp) match {
+                case Some(b) => signed = b
+                case _ => abort(arg.pos, s"Invalid Slang @bits signed argument: ${arg.syntax}")
               }
             case arg"width = ${Lit.Int(n)}" =>
               n match {
@@ -133,6 +141,13 @@ class bits(signed: Boolean,
                 case _ => abort(arg.pos, s"Invalid Slang @bits width argument: ${arg.syntax} (only 8, 16, 32, or 64 are currently supported)")
               }
               width = n
+            case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
+            case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
+            case arg"index = ${exp: Term}" =>
+              helper.extractInt(exp) match {
+                case Some(n) => index = n
+                case _ =>
+              }
             case _ => abort(arg.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
           }
         }
@@ -147,7 +162,8 @@ class bits(signed: Boolean,
         if (max > wMax) abort(tree.pos, s"Slang @bits ${tname.value}'s max ($max) should not be greater than its $signedString bit-width maximum ($wMax).")
         if (index < min) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its min ($min).")
         if (index > max) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its max ($max).")
-        val result = bits.q(signed, width, min.toLong, max.toLong, index.toLong, tname.value)
+        val wrapped = min == wMin && max == wMax
+        val result = bits.q(signed, width, wrapped, min, max, index.toLong, tname.value)
         //println(result)
         result
       case _ => abort(tree.pos, s"Invalid Slang @bits on: ${tree.structure}")
