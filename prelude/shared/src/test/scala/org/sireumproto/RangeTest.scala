@@ -36,7 +36,7 @@ import scala.util.{Failure, Success, Try}
 
 class RangeTest extends SireumRuntimeSpec {
 
-  val numOfRandomTests = 16
+  val numOfRandomTests = 64
 
   "N" - {
 
@@ -113,7 +113,8 @@ class RangeTest extends SireumRuntimeSpec {
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
-        val m = rand()
+        var m = rand()
+        while (m == 0 && (op == "/" || op == "%")) m = rand()
         *(s"$n $op $m")(Try(op1(One10i(n))(One10i(m)).toBigInt.toInt) match {
           case Success(r) => r == op2(n)(m)
           case Failure(_) =>

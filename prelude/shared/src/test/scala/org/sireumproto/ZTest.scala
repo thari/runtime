@@ -32,7 +32,7 @@ import scala.util.{Failure, Success, Try}
 
 class ZTest extends SireumRuntimeSpec {
 
-  val numOfRandomTests = 16
+  val numOfRandomTests = 64
 
   val x: Z = Z.random
 

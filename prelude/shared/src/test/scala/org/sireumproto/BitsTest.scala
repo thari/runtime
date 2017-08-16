@@ -34,7 +34,7 @@ import scala.util.{Failure, Success, Try}
 
 class BitsTest extends SireumRuntimeSpec {
 
-  val numOfRandomTests = 16
+  val numOfRandomTests = 64
 
   "U16" - {
 
@@ -198,14 +198,14 @@ class BitsTest extends SireumRuntimeSpec {
     }
 
     val random = new java.util.Random
-    def rand(): Short = (random.nextInt(Short.MaxValue + 3) - 2).toShort
+    def rand(): Short = (random.nextInt(16 + 3) - 2).toShort
 
     for ((op, op1, op2) <- List[(Predef.String, S16_m2 => Z => S16_m2, Short => Short => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
         var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = random.nextInt.toShort
+        while (m == 0 && (op == "/" || op == "%")) m = rand()
         *(s"$n $op $m") {
           val br = op2(n)(m).toShort.toInt
           Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {

@@ -136,9 +136,9 @@ object range {
               val n = Z.random
               new $ctorName(if (n < Min.value) Min.value + n else n)
             }
-            private def check(v: scala.BigInt): scala.BigInt = {
-              if (hasMin) assert(Min.toBigInt <= v, v + $minErrorMessage)
-              if (hasMax) assert(v <= Max.toBigInt, v + $maxErrorMessage)
+            private def check(v: Z.MP): Z.MP = {
+              if (hasMin) assert(Min.value <= v, v + $minErrorMessage)
+              if (hasMax) assert(v <= Max.value, v + $maxErrorMessage)
               v
             }
             def apply(n: Z): $typeName = n match {
@@ -147,30 +147,24 @@ object range {
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
             object Int {
-              def apply(n: scala.Int): $typeName = {
-                check(scala.BigInt(n))
-                new $ctorName(Z.MP(n))
-              }
+              def apply(n: scala.Int): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
                 else scala.None
             }
             object Long {
-              def apply(n: scala.Long): $typeName = {
-                check(scala.BigInt(n))
-                new $ctorName(Z.MP(n))
-              }
+              def apply(n: scala.Long): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Long] =
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
             object String {
               def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
-              def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.toBigInt.toString)
+              def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
             object BigInt {
-              def apply(n: scala.BigInt): $typeName = new $ctorName(Z.MP(check(n)))
-              def unapply(n: $typeName): scala.Option[scala.BigInt]= scala.Some(n.toBigInt)
+              def apply(n: scala.BigInt): $typeName = new $ctorName(check(Z.MP(n)))
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }
             implicit class $scTypeName(val sc: StringContext) {
               object $lowerTermName {
@@ -185,7 +179,7 @@ object range {
               }
             }
             import scala.language.implicitConversions
-            def apply(value: Z.MP): $typeName = BigInt(value.toBigInt)
+            def apply(value: Z.MP): $typeName = new $ctorName(check(value))
           }"""
     ))
   }

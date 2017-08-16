@@ -291,6 +291,8 @@ object Z {
 
       def isZeroIndex: scala.Boolean
 
+      def isWrapped: scala.Boolean
+
       @inline private final def toByte: scala.Byte = value.toByte
 
       @inline private final def toShort: scala.Short = value.toShort
@@ -313,6 +315,28 @@ object Z {
 
       @inline private final def make(value: scala.Int): T = make(value.toLong)
 
+      @inline private final def make(value: MP): T = {
+        assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
+        assert(value <= Max.toMP, s"$value should not be greater than $Name.Max ($Max)")
+        make(value match {
+          case MP.Long(n) => n
+          case MP.BigInt(n) => n.toLong
+        })
+      }
+
+      private def toMP: MP =
+        if (isSigned) BitWidth match {
+          case 8 => MP(toByte)
+          case 16 => MP(toShort)
+          case 32 => MP(toInt)
+          case 64 => MP(toLong)
+        } else BitWidth match {
+          case 8 => MP(toUByte.toInt)
+          case 16 => MP(toUShort.toInt)
+          case 32 => MP(toUInt.toLong)
+          case 64 => MP(toULong.toBigInt)
+        }
+
       @inline private final def umake(value: UByte): T = make(value.toLong)
 
       @inline private final def umake(value: UShort): T = make(value.toLong)
@@ -331,7 +355,8 @@ object Z {
         halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
-        if (isSigned) BitWidth match {
+        if (!isWrapped) make(-toMP)
+        else if (isSigned) BitWidth match {
           case 8 => makeByte(-toByte)
           case 16 => makeShort(-toShort)
           case 32 => makeInt(-toInt)
@@ -346,7 +371,8 @@ object Z {
       final def +(other: Z): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("+", other)
-          if (isSigned) BitWidth match {
+          if (!isWrapped) make(toMP + other.toMP)
+          else if (isSigned) BitWidth match {
             case 8 => makeByte(toByte + other.toByte)
             case 16 => makeShort(toShort + other.toShort)
             case 32 => make(toInt + other.toInt)
@@ -363,7 +389,8 @@ object Z {
       final def -(other: Z): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("-", other)
-          if (isSigned) BitWidth match {
+          if (!isWrapped) make(toMP - other.toMP)
+          else if (isSigned) BitWidth match {
             case 8 => makeByte(toByte - other.toByte)
             case 16 => makeShort(toShort - other.toShort)
             case 32 => make(toInt - other.toInt)
@@ -380,7 +407,8 @@ object Z {
       final def *(other: Z): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("*", other)
-          if (isSigned) BitWidth match {
+          if (!isWrapped) make(toMP * other.toMP)
+          else if (isSigned) BitWidth match {
             case 8 => makeByte(toByte * other.toByte)
             case 16 => makeShort(toShort * other.toShort)
             case 32 => make(toInt * other.toInt)
@@ -397,7 +425,8 @@ object Z {
       final def /(other: Z): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("/", other)
-          if (isSigned) BitWidth match {
+          if (!isWrapped) make(toMP / other.toMP)
+          else if (isSigned) BitWidth match {
             case 8 => makeByte(toByte / other.toByte)
             case 16 => makeShort(toShort / other.toShort)
             case 32 => make(toInt / other.toInt)
@@ -414,7 +443,8 @@ object Z {
       final def %(other: Z): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("%", other)
-          if (isSigned) BitWidth match {
+          if (!isWrapped) make(toMP % other.toMP)
+          else if (isSigned) BitWidth match {
             case 8 => makeByte(toByte % other.toByte)
             case 16 => makeShort(toShort % other.toShort)
             case 32 => make(toInt % other.toInt)
@@ -657,7 +687,7 @@ object Z {
       }
 
       final override def toIndex: Z.Index =
-        if (isZeroIndex) MP(toBigInt) else MP(toBigInt) - MP(Index.toBigInt)
+        if (isZeroIndex) toMP else toMP - Index.toMP
     }
   }
 
