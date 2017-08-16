@@ -32,7 +32,7 @@ import scala.util.{Failure, Success, Try}
 
 @bits(signed = F, width = 16) class U16
 
-@bits(signed = T, width = 16, min = -2, index = -1) class S16_m2_m1
+@bits(signed = T, width = 16, min = -2, index = true) class S16_m2_m1
 
 class BitsTest extends SireumRuntimeSpec {
 
@@ -118,7 +118,7 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(S16_m2_m1.BitWidth == 16)
 
-    *(S16_m2_m1.Index == s16_m2_m1"-1")
+    *(S16_m2_m1.Index == s16_m2_m1"-2")
 
     *(S16_m2_m1.Min == s16_m2_m1"-2")
 
@@ -128,7 +128,7 @@ class BitsTest extends SireumRuntimeSpec {
 
     val x = s16_m2_m1"14"
 
-    *(x.toIndex == z"15")
+    *(x.toIndex == z"16")
 
     *(x.isSigned)
 
@@ -136,7 +136,7 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(x.BitWidth == 16)
 
-    *(x.Index == s16_m2_m1"-1")
+    *(x.Index == s16_m2_m1"-2")
 
     *(x.Min == s16_m2_m1"-2")
 

@@ -31,14 +31,14 @@ class bits(signed: Boolean,
            width: Int,
            min: Option[BigInt] = None,
            max: Option[BigInt] = None,
-           index: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
+           index: Boolean = false) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
       case q"class $tname" =>
         val q"new bits(..$args)" = this
-        var width: Int = 0
-        var signed: Boolean = false
-        var index: BigInt = 0
+        var width = 0
+        var signed = false
+        var indexB = false
         var minOpt: Option[BigInt] = None
         var maxOpt: Option[BigInt] = None
         for (arg <- args) {
@@ -57,9 +57,9 @@ class bits(signed: Boolean,
             case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
             case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
             case arg"index = ${exp: Term}" =>
-              helper.extractInt(exp) match {
-                case Some(n) => index = n
-                case _ =>
+              helper.extractBoolean(exp) match {
+                case Some(b) => indexB = b
+                case _ => abort(arg.pos, s"Invalid Slang @bits index argument: ${arg.syntax}")
               }
             case _ => abort(arg.pos, s"Invalid Slang @bits argument: ${arg.syntax}")
           }
@@ -67,14 +67,16 @@ class bits(signed: Boolean,
         val (wMin, wMax) =
           if (signed) (BigInt(-2).pow(width - 1) + 1, BigInt(2).pow(width - 1) - 1)
           else (BigInt(0), BigInt(2).pow(width) - 1)
+        if (indexB && minOpt.isEmpty) abort(tree.pos, s"Slang @bits ${tname.value}'s min should specified when index is enabled.")
         val min = minOpt.getOrElse(wMin)
         val max = maxOpt.getOrElse(wMax)
+        val index = min
         if (min > max) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be greater than its max ($max).")
         val signedString = if (signed) "signed" else "unsigned"
         if (min < wMin) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be less than its $signedString bit-width minimum ($wMin).")
         if (max > wMax) abort(tree.pos, s"Slang @bits ${tname.value}'s max ($max) should not be greater than its $signedString bit-width maximum ($wMax).")
-        if (index < min) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its min ($min).")
-        if (index > max) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its max ($max).")
+        //if (index < min) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its min ($min).")
+        //if (index > max) abort(tree.pos, s"Slang @bits ${tname.value}'s index ($index) should not be less than its max ($max).")
         val wrapped = min == wMin && max == wMax
         val result = bits.q(signed, width, wrapped, min, max, index.toLong, tname.value)
         //println(result)

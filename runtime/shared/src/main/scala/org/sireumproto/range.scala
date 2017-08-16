@@ -29,35 +29,40 @@ import scala.meta._
 
 class range(min: Option[BigInt] = None,
             max: Option[BigInt] = None,
-            index: Option[BigInt] = None) extends scala.annotation.StaticAnnotation {
+            index: Boolean = false) extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     tree match {
       case q"class $tname" =>
         val q"new range(..$args)" = this
         var minOpt: Option[BigInt] = None
         var maxOpt: Option[BigInt] = None
-        var index: BigInt = 0
+        var indexB = false
         for (arg <- args) {
           arg match {
             case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
             case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
             case arg"index = ${exp: Term}" =>
-              helper.extractInt(exp) match {
-                case Some(n) => index = n
+              helper.extractBoolean(exp) match {
+                case Some(b) => indexB = b
                 case _ =>
               }
             case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} argument: ${arg.syntax}")
           }
         }
-        def checkIndexMin(n: BigInt): Unit = if (index < n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be less than its minimum ($n).")
-        def checkIndexMax(n: BigInt): Unit = if (index > n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be greater than its maximum ($n).")
-        (minOpt, maxOpt) match {
+        //def checkIndexMin(n: BigInt): Unit = if (index < n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be less than its minimum ($n).")
+        //def checkIndexMax(n: BigInt): Unit = if (index > n) abort(tree.pos, s"Slang @range ${tname.value}'s index ($index) should not be greater than its maximum ($n).")
+        val index = (minOpt, maxOpt) match {
           case (Some(n), Some(m)) =>
             if (n > m) abort(tree.pos, s"Slang @range ${tname.value}'s min ($n) should not be greater than its max ($m).")
-            checkIndexMin(n)
-            checkIndexMax(m)
-          case (Some(n), _) => checkIndexMin(n)
-          case (_, Some(m)) => checkIndexMax(m)
+            //checkIndexMin(n)
+            //checkIndexMax(m)
+            n
+          case (Some(n), _) =>
+            //checkIndexMin(n)
+            n
+          case (_, Some(_)) if indexB =>
+            //checkIndexMax(m)
+            abort(tree.pos, s"Slang @range ${tname.value}'s min should specified when index is enabled.")
           case _ => abort(tree.pos, s"Slang @range ${tname.value} should have either a minimum, a maximum, or both.")
         }
         val result = range.q(index, minOpt, maxOpt, tname.value)
