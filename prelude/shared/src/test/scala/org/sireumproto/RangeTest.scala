@@ -38,11 +38,29 @@ class RangeTest extends SireumRuntimeSpec {
 
   val numOfRandomTests = 16
 
+  "N" - {
+
+    *(N.hasMin)
+
+    *(!N.hasMax)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random")(N.random >= N(0))
+    }
+
+  }
+
   "One10i" - {
 
     import One10i._
 
     *(!One10i.isSigned)
+
+    *(!One10i.isBitVector)
+
+    *(One10i.hasMin)
+
+    *(One10i.hasMax)
 
     *(One10i.Index == one10i"1")
 
@@ -58,6 +76,12 @@ class RangeTest extends SireumRuntimeSpec {
 
     *(!x.isSigned)
 
+    *(!x.isBitVector)
+
+    *(x.hasMin)
+
+    *(x.hasMax)
+
     *(x.Index == one10i"1")
 
     *(x.Min == one10i"1")
@@ -71,6 +95,15 @@ class RangeTest extends SireumRuntimeSpec {
     *(x - one10i"9" == One10i.Min)
 
     *(x.decrease.increase == x)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random"){
+        val v = One10i.random
+        val r = One10i.Min <= v && v <= One10i.Max
+        if (!r) println(s"One10i.random = $v")
+        r
+      }
+    }
 
     val random = new java.util.Random
 
@@ -106,7 +139,11 @@ class RangeTest extends SireumRuntimeSpec {
 
     *(M1_16.isSigned)
 
-    println(M1_16.Index)
+    *(!M1_16.isBitVector)
+
+    *(M1_16.hasMin)
+
+    *(M1_16.hasMax)
 
     *(M1_16.Index == m1_16"0")
 
@@ -135,6 +172,13 @@ class RangeTest extends SireumRuntimeSpec {
     *(x - m1_16"11" == M1_16.Min)
 
     *(x.decrease.increase == x)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random"){
+        val v = M1_16.random
+        M1_16.Min <= v && v <= M1_16.Max
+      }
+    }
 
     val random = new java.util.Random
 

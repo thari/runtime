@@ -42,6 +42,12 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(!U16.isSigned)
 
+    *(U16.isBitVector)
+
+    *(U16.hasMin)
+
+    *(U16.hasMax)
+
     *(U16.isWrapped)
 
     *(U16.BitWidth == 16)
@@ -60,6 +66,12 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(!x.isSigned)
 
+    *(x.isBitVector)
+
+    *(x.hasMin)
+
+    *(x.hasMax)
+
     *(x.isWrapped)
 
     *(x.BitWidth == 16)
@@ -77,6 +89,13 @@ class BitsTest extends SireumRuntimeSpec {
     *(x - u16"15" == U16.Max)
 
     *(x + U16.Max == x.decrease)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random"){
+        val v = U16.random
+        U16.Min <= v && v <= U16.Max
+      }
+    }
 
     val random = new java.util.Random
     def rand(): Short = random.nextInt.toShort
@@ -123,6 +142,12 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(S16_m2.isSigned)
 
+    *(S16_m2.isBitVector)
+
+    *(S16_m2.hasMin)
+
+    *(S16_m2.hasMax)
+
     *(!S16_m2.isWrapped)
 
     *(S16_m2.BitWidth == 16)
@@ -141,6 +166,12 @@ class BitsTest extends SireumRuntimeSpec {
 
     *(x.isSigned)
 
+    *(x.isBitVector)
+
+    *(x.hasMin)
+
+    *(x.hasMax)
+
     *(!x.isWrapped)
 
     *(x.BitWidth == 16)
@@ -158,6 +189,13 @@ class BitsTest extends SireumRuntimeSpec {
     *(x - s16_m2"15" == s16_m2"-1")
 
     *(Try(x + S16_m2.Max).isFailure)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random"){
+        val v = S16_m2.random
+        S16_m2.Min <= v && v <= S16_m2.Max
+      }
+    }
 
     val random = new java.util.Random
     def rand(): Short = (random.nextInt(Short.MaxValue + 3) - 2).toShort

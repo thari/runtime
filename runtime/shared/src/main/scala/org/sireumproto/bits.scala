@@ -119,9 +119,18 @@ object bits {
             val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
             val Max: $typeName = new $ctorName(${Lit.Long(max.toLong)})
             val Index: $typeName = new $ctorName(${Lit.Long(index)})
-            def isZeroIndex: scala.Boolean = $isZeroIndex
+            val isZeroIndex: scala.Boolean = $isZeroIndex
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             val isWrapped: scala.Boolean = ${Lit.Boolean(wrapped)}
+            val isBitVector: scala.Boolean = true
+            val hasMin: scala.Boolean = true
+            val hasMax: scala.Boolean = true
+            def random: $typeName = {
+              val zMin = Z(Min.toBigInt)
+              val d = Z(Max.toBigInt) - zMin + Z.MP.one
+              val n = Z.random % d
+              new $ctorName((n + zMin).toBigInt.toLong)
+            }
             def apply(value: Z): $typeName = value match {
               case value: Z.MP => BigInt(value.toBigInt)
               case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")

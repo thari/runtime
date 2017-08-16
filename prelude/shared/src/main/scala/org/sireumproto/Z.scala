@@ -149,6 +149,7 @@ object Z {
 
     @inline def %(n: Z, other: Z): MP = {
       (n, other) match {
+        case (Long(n1), Long(n2)) => return Long(n1 % n2)
         case (_: MP, _: MP) =>
         case _ => unsupported("%", other)
       }
@@ -203,7 +204,7 @@ object Z {
 
     final val isBitVector: scala.Boolean = false
 
-    final val isSigned: scala.Boolean = false
+    final val isSigned: scala.Boolean = true
 
     final val Index: MP = MP.zero
 
@@ -817,6 +818,11 @@ object Z {
       case n: MP => scala.Some(n.toBigInt)
       case _ => scala.None
     }
+  }
+
+  def random: MP = {
+    val r = new scala.util.Random()
+    MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
 
   import scala.language.implicitConversions

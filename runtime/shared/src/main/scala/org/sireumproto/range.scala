@@ -120,10 +120,22 @@ object range {
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
             val Index: $typeName = new $ctorName(Z.MP(${Lit.String(index.toString)}))
-            def isZeroIndex: scala.Boolean = $isZeroIndex
-            def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
-            def hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
-            def hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
+            val isZeroIndex: scala.Boolean = $isZeroIndex
+            val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
+            val isBitVector: scala.Boolean = false
+            val hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
+            val hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
+            def random: $typeName = if (hasMax && hasMin) {
+              val d = Max.value - Min.value + Z.MP.one
+              val n = Z.random % d
+              new $ctorName(n + Min.value)
+            } else if (hasMax) {
+              val n = Z.random
+              new $ctorName(if (n > Max.value) Max.value - n else n)
+            } else {
+              val n = Z.random
+              new $ctorName(if (n < Min.value) Min.value + n else n)
+            }
             private def check(v: scala.BigInt): scala.BigInt = {
               if (hasMin) assert(Min.toBigInt <= v, v + $minErrorMessage)
               if (hasMax) assert(v <= Max.toBigInt, v + $maxErrorMessage)
