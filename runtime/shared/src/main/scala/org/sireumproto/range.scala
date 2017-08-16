@@ -56,10 +56,10 @@ class range(min: Option[BigInt] = None,
             if (n > m) abort(tree.pos, s"Slang @range ${tname.value}'s min ($n) should not be greater than its max ($m).")
             //checkIndexMin(n)
             //checkIndexMax(m)
-            n
+            if (indexB) n else BigInt(0)
           case (Some(n), _) =>
             //checkIndexMin(n)
-            n
+            if (indexB) n else BigInt(0)
           case (_, Some(_)) if indexB =>
             //checkIndexMax(m)
             abort(tree.pos, s"Slang @range ${tname.value}'s min should specified when index is enabled.")

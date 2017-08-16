@@ -73,6 +73,7 @@ class RangeTest extends SireumRuntimeSpec {
     *(x.decrease.increase == x)
 
     val random = new java.util.Random
+
     def rand(): Int = random.nextInt(10) + 1
 
     for ((op, op1, op2) <- List[(Predef.String, One10i => Z => One10i, Int => Int => Int)](
@@ -99,11 +100,13 @@ class RangeTest extends SireumRuntimeSpec {
     }
   }
 
-  "One10i" - {
+  "M1_16" - {
 
     import M1_16._
 
-    *(!M1_16.isSigned)
+    *(M1_16.isSigned)
+
+    println(M1_16.Index)
 
     *(M1_16.Index == m1_16"0")
 
@@ -115,9 +118,9 @@ class RangeTest extends SireumRuntimeSpec {
 
     val x = m1_16"10"
 
-    *(x.toIndex == z"11")
+    *(x.toIndex == z"10")
 
-    *(!x.isSigned)
+    *(x.isSigned)
 
     *(x.Index == m1_16"0")
 
@@ -134,13 +137,15 @@ class RangeTest extends SireumRuntimeSpec {
     *(x.decrease.increase == x)
 
     val random = new java.util.Random
+
     def rand(): Int = random.nextInt(18) - 1
 
     for ((op, op1, op2) <- List[(Predef.String, M1_16 => Z => M1_16, Int => Int => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
-        val m = rand()
+        var m = rand()
+        while (m == 0 && (op == "/" || op == "%")) m = rand()
         *(s"$n $op $m")(Try(op1(M1_16(n))(M1_16(m)).toBigInt.toInt) match {
           case Success(r) => r == op2(n)(m)
           case Failure(_) =>
