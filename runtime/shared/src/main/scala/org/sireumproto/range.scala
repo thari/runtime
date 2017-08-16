@@ -89,6 +89,8 @@ object range {
 
     def max = Lit.String(maxOpt.map(_.toString).getOrElse("0"))
 
+    val isZeroIndex = Lit.Boolean(index == 0)
+
     val minUnsupported = unsupported("Min")
     val maxUnsupported = unsupported("Max")
     val minErrorMessage = Lit.String(s" is less than $name.Min (${min.value})")
@@ -99,6 +101,7 @@ object range {
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
             @inline def Index: $typeName = $termName.Index
+            @inline def isZeroIndex: scala.Boolean = $termName.isZeroIndex
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def hasMin: scala.Boolean = $termName.hasMin
             @inline def hasMax: scala.Boolean = $termName.hasMax
@@ -109,6 +112,7 @@ object range {
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
             val Index: $typeName = new $ctorName(Z.MP(${Lit.String(index.toString)}))
+            def isZeroIndex: scala.Boolean = $isZeroIndex
             def isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             def hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
             def hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
@@ -118,7 +122,7 @@ object range {
               v
             }
             def apply(value: Z): $typeName = value match {
-              case value: Z.MP => value
+              case value: Z.MP => new $ctorName(value)
               case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
@@ -141,7 +145,7 @@ object range {
                 else scala.None
             }
             object String {
-              def apply(value: Predef.String): $typeName = BigInt(scala.BigInt(value.value))
+              def apply(value: Predef.String): $typeName = BigInt(scala.BigInt(value))
               def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.toBigInt.toString)
             }
             object BigInt {

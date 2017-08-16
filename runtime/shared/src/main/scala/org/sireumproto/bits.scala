@@ -94,6 +94,7 @@ object bits {
     val ctorName = Ctor.Name(name)
     val scTypeName = Type.Name(name + "$Slang")
     val nameStr = Lit.String(name)
+    val isZeroIndex = Lit.Boolean(index == 0)
     val minErrorMessage = Lit.String(s" is less than $name.Min ($min)")
     val maxErrorMessage = Lit.String(s" is greater than $name.Max ($max)")
     Term.Block(List(
@@ -103,6 +104,7 @@ object bits {
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
             @inline def Index: $typeName = $termName.Index
+            @inline def isZeroIndex: scala.Boolean = $termName.isZeroIndex
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def isWrapped: scala.Boolean = $termName.isWrapped
             def make(v: scala.Long): $typeName = $termName(v)
@@ -113,6 +115,7 @@ object bits {
             val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
             val Max: $typeName = new $ctorName(${Lit.Long(max.toLong)})
             val Index: $typeName = new $ctorName(${Lit.Long(index)})
+            def isZeroIndex: scala.Boolean = $isZeroIndex
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             val isWrapped: scala.Boolean = ${Lit.Boolean(wrapped)}
             def apply(value: Z): $typeName = value match {

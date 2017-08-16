@@ -288,6 +288,8 @@ object Z {
 
       def Index: T
 
+      def isZeroIndex: scala.Boolean
+
       @inline private final def toByte: scala.Byte = value.toByte
 
       @inline private final def toShort: scala.Short = value.toShort
@@ -653,12 +655,8 @@ object Z {
         case 64 => toULong.toBigInt
       }
 
-      final override def toIndex: Z.Index = {
-        val index = Index.toBigInt
-        if (index > 0) MP(toBigInt + index)
-        else if (index < 0) MP(toBigInt - index)
-        else MP(toBigInt)
-      }
+      final override def toIndex: Z.Index =
+        if (isZeroIndex) MP(toBigInt) else MP(toBigInt) - MP(Index.toBigInt)
     }
   }
 
@@ -683,6 +681,8 @@ object Z {
     def Max: T
 
     def Index: T
+
+    def isZeroIndex: scala.Boolean
 
     @inline final def isBitVector: scala.Boolean = false
 
@@ -721,7 +721,7 @@ object Z {
     @inline final def %(other: Z): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("%", other)
-        make(value / other.value)
+        make(value % other.value)
       case _ => unsupported("%", other)
     }
 
@@ -749,13 +749,13 @@ object Z {
     @inline final def >=(other: Z): B = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported(">=", other)
-        value > other.value
+        value >= other.value
       case _ => unsupported(">=", other)
     }
 
-    @inline final def decrease: T = make(value + MP.one)
+    @inline final def decrease: T = make(value - MP.one)
 
-    @inline final def increase: T = make(value - MP.one)
+    @inline final def increase: T = make(value + MP.one)
 
     @inline final override def toBigInt: BigInt = value.toBigInt
 
@@ -773,12 +773,7 @@ object Z {
 
     @inline final def unary_~ : Z = unsupported("~")
 
-    @inline final def toIndex: Z.Index = {
-      val index = Index.value
-      if (index > 0) value + index
-      else if (index < 0) value - index
-      else value
-    }
+    @inline final def toIndex: Z.Index = if (isZeroIndex) value else value - Index.value
 
     @inline final override def toString: Predef.String = value.toString
 
