@@ -39,12 +39,20 @@ class range(min: Option[BigInt] = None,
         var indexB = false
         for (arg <- args) {
           arg match {
-            case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
-            case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
+            case arg"min = ${exp: Term}" =>
+              helper.extractInt(exp) match {
+                case Some(n) => minOpt = scala.Some(n)
+                case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} min argument: ${arg.syntax}")
+              }
+            case arg"max = ${exp: Term}" =>
+              helper.extractInt(exp) match {
+                case Some(n) => maxOpt = scala.Some(n)
+                case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} max argument: ${arg.syntax}")
+              }
             case arg"index = ${exp: Term}" =>
               helper.extractBoolean(exp) match {
                 case Some(b) => indexB = b
-                case _ =>
+                case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} index argument: ${arg.syntax}")
               }
             case _ => abort(arg.pos, s"Invalid Slang @range ${tname.value} argument: ${arg.syntax}")
           }
@@ -60,9 +68,9 @@ class range(min: Option[BigInt] = None,
           case (Some(n), _) =>
             //checkIndexMin(n)
             if (indexB) n else BigInt(0)
-          case (_, Some(_)) if indexB =>
+          case (_, Some(_)) =>
             //checkIndexMax(m)
-            abort(tree.pos, s"Slang @range ${tname.value}'s min should specified when index is enabled.")
+            if (indexB) abort(tree.pos, s"Slang @range ${tname.value}'s min should specified when index is enabled.") else BigInt(0)
           case _ => abort(tree.pos, s"Slang @range ${tname.value} should have either a minimum, a maximum, or both.")
         }
         val result = range.q(index, minOpt, maxOpt, tname.value)
@@ -121,35 +129,35 @@ object range {
               if (hasMax) assert(v <= Max.toBigInt, v + $maxErrorMessage)
               v
             }
-            def apply(value: Z): $typeName = value match {
-              case value: Z.MP => new $ctorName(value)
-              case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
+            def apply(n: Z): $typeName = n match {
+              case n: Z.MP => new $ctorName(n)
+              case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
             object Int {
-              def apply(value: scala.Int): $typeName = {
-                check(scala.BigInt(value))
-                new $ctorName(Z.MP(value))
+              def apply(n: scala.Int): $typeName = {
+                check(scala.BigInt(n))
+                new $ctorName(Z.MP(n))
               }
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
                 else scala.None
             }
             object Long {
-              def apply(value: scala.Long): $typeName = {
-                check(scala.BigInt(value))
-                new $ctorName(Z.MP(value))
+              def apply(n: scala.Long): $typeName = {
+                check(scala.BigInt(n))
+                new $ctorName(Z.MP(n))
               }
               def unapply(n: $typeName): scala.Option[scala.Long] =
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
             object String {
-              def apply(value: Predef.String): $typeName = BigInt(scala.BigInt(value))
+              def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
               def unapply(n: $typeName): scala.Option[Predef.String]= scala.Some(n.toBigInt.toString)
             }
             object BigInt {
-              def apply(value: scala.BigInt): $typeName = new $ctorName(Z.MP(check(value)))
+              def apply(n: scala.BigInt): $typeName = new $ctorName(Z.MP(check(n)))
               def unapply(n: $typeName): scala.Option[scala.BigInt]= scala.Some(n.toBigInt)
             }
             implicit class $scTypeName(val sc: StringContext) {

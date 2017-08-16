@@ -28,6 +28,7 @@ package org.sireumproto
 import spire.math._
 
 import scala.meta._
+import scala.meta.Term.{Apply, Select}
 
 object helper {
   def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
@@ -56,9 +57,11 @@ object helper {
   def extractInt(tree: Any): Option[BigInt] = tree match {
     case Lit.Int(n) => Some(n)
     case Lit.Long(n) => Some(n)
+    case Apply(Select(Apply(Term.Name("StringContext"), Seq(Lit.String(s))), Term.Name("z")), Seq()) =>
+      try Some(BigInt(normNum(s))) catch { case _: Throwable => None }
     case tree: Term.Interpolate if tree.prefix.value == "z" && tree.args.isEmpty && tree.parts.size == 1 =>
       tree.parts.head match {
-        case Lit.String(s) => try Some(BigInt(s)) catch { case _: Throwable => None }
+        case Lit.String(s) => try Some(BigInt(normNum(s))) catch { case _: Throwable => None }
         case _ => None
       }
     case _ => None
@@ -97,6 +100,15 @@ object helper {
     else if (isULong(min) && isULong(max)) Some((false, 64))
     else if (isLong(min) && isLong(max)) Some((true, 64))
     else None
+
+  def normNum(s: Predef.String): Predef.String = {
+    val sb = new java.lang.StringBuilder(s.length)
+    for (c <- s) c match {
+      case ',' | ' ' | '_' =>
+      case _ => sb.append(c)
+    }
+    sb.toString
+  }
 }
 
 final class helper extends scala.annotation.StaticAnnotation

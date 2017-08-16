@@ -30,8 +30,6 @@ import spire.math._
 
 import scala.util.{Failure, Success, Try}
 
-@bits(signed = F, width = 16) class U16
-
 @bits(signed = T, width = 16, min = -2, index = true) class S16_m2
 
 class BitsTest extends SireumRuntimeSpec {

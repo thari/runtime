@@ -174,5 +174,38 @@ package org.sireumproto
 
 @ext trait Record extends Mutable
 
-
 @ext trait MSig extends Mutable
+
+@range(min = -128, max = 127) class Z8
+
+@range(min = -32768, max = 32767) class Z16
+
+@range(min = -2147483648, max = 2147483647) class Z32
+
+@range(min = -9223372036854775808l, max = 9223372036854775807l) class Z64
+
+@range(min = 0) class N
+
+@range(min = 0, max = 255) class N8
+
+@range(min = 0, max = 65535) class N16
+
+@range(min = 0, max = 4294967295l) class N32
+
+@range(min = 0, max = z"18,446,744,073,709,551,617") class N64
+
+@bits(signed = T, width = 8) class S8
+
+@bits(signed = F, width = 8) class U8
+
+@bits(signed = T, width = 16) class S16
+
+@bits(signed = F, width = 16) class U16
+
+@bits(signed = T, width = 32) class S32
+
+@bits(signed = F, width = 32) class U32
+
+@bits(signed = T, width = 64) class S64
+
+@bits(signed = F, width = 64) class U64

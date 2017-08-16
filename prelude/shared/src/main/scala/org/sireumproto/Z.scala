@@ -193,7 +193,7 @@ object Z {
 
     @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
 
-    @inline def apply(s: String): MP = MP(scala.BigInt(s.value))
+    @inline def apply(s: String): MP = MP(scala.BigInt(helper.normNum(s.value)))
 
   }
 

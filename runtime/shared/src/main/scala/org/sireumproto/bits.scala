@@ -41,6 +41,10 @@ class bits(signed: Boolean,
         var indexB = false
         var minOpt: Option[BigInt] = None
         var maxOpt: Option[BigInt] = None
+        val bi8 = scala.BigInt(8)
+        val bi16 = scala.BigInt(16)
+        val bi32 = scala.BigInt(32)
+        val bi64 = scala.BigInt(64)
         for (arg <- args) {
           arg match {
             case arg"signed = ${exp: Term}" =>
@@ -48,12 +52,12 @@ class bits(signed: Boolean,
                 case Some(b) => signed = b
                 case _ => abort(arg.pos, s"Invalid Slang @bits signed argument: ${arg.syntax}")
               }
-            case arg"width = ${Lit.Int(n)}" =>
-              n match {
-                case 8 | 16 | 32 | 64 =>
+            case arg"width = ${exp: Term}" =>
+              val nOpt = helper.extractInt(exp)
+              nOpt match {
+                case Some(`bi8`) | Some(`bi16`) | Some(`bi32`) | Some(`bi64`) => width = nOpt.get.toInt
                 case _ => abort(arg.pos, s"Invalid Slang @bits width argument: ${arg.syntax} (only 8, 16, 32, or 64 are currently supported)")
               }
-              width = n
             case arg"min = ${exp: Term}" => minOpt = helper.extractInt(exp)
             case arg"max = ${exp: Term}" => maxOpt = helper.extractInt(exp)
             case arg"index = ${exp: Term}" =>
@@ -141,7 +145,7 @@ object bits {
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.value)
             }
             object String {
-              def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(s))
+              def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
             object BigInt {
