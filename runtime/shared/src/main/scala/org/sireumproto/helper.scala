@@ -111,7 +111,12 @@ object helper {
   }
 
   def zCompanionName(name: Predef.String): Pat.Var.Term = Pat.Var.Term(Term.Name(s"$$${name}Companion"))
+
   def scName(name: Predef.String): Type.Name = Type.Name(name + "$Slang")
+
+  def iSName(name: Predef.String): (Term.Name, Type.Name) = (Term.Name("IS" + name), Type.Name("IS" + name))
+
+  def mSName(name: Predef.String): (Term.Name, Type.Name) = (Term.Name("MS" + name), Type.Name("MS" + name))
 
 }
 

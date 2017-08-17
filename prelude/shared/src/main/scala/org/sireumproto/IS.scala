@@ -47,10 +47,7 @@ object IS {
 
     lazy val hash: Z = elements.hashCode
 
-    def isEqual(other: Immutable): B = other match {
-      case other: IS[_, _] => elements == other.elements
-      case _ => F
-    }
+    def isEqual(other: Immutable): B = this == other
 
     override def equals(other: scala.Any): scala.Boolean =
       if (this eq other.asInstanceOf[scala.AnyRef]) true
@@ -85,6 +82,9 @@ object IS {
     for (i <- array.indices) array(i) = args(i)
     new Array[I, V](companion, array, args.length)
   }
+
+  def create[I <: Z, V <: Immutable](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = ???
+
 }
 
 sealed trait IS[I <: Z, V <: Immutable] extends Immutable with ISMarker {

@@ -25,9 +25,12 @@
 
 package org.sireumproto.$internal
 
-import org.sireumproto.{Mutable, Immutable}
+import org.sireumproto.{$ZCompanion, Immutable, Mutable, Z, IS, MS}
 
 trait PackageTrait {
+
+  type ISZ[T <: Immutable] = IS[Z, T]
+  type MSZ[T] = MS[Z, T]
 
   private val $topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
@@ -43,6 +46,16 @@ trait PackageTrait {
   def halt(msg: Any): Nothing = {
     assume(assumption = false, msg.toString)
     throw new Error
+  }
+
+  object ISZ {
+    def apply[V <: Immutable](args: V*): ISZ[V] = IS[Z, V](args: _*)
+    def create[V <: Immutable](size: Z, default: V): ISZ[V] = IS.create[Z, V](size, default)
+  }
+
+  object MSZ {
+    def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
+    def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
   }
 
   import language.experimental.macros
@@ -74,5 +87,7 @@ trait PackageTrait {
   implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
 
   implicit def $2BigIntOpt(n: org.sireumproto.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+
+  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
 
 }

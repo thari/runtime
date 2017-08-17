@@ -57,6 +57,4 @@ package object sireumproto extends $internal.PackageTrait {
 
     def st(args: Any*): ST = macro Macro.st
   }
-
-  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
 }

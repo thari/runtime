@@ -88,6 +88,8 @@ object range {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
     val iTermName = helper.zCompanionName(name)
+    val (isTermName, isTypeName) = helper.iSName(name)
+    val (msTermName, msTypeName) = helper.mSName(name)
     val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val nameStr = Lit.String(name)
@@ -117,6 +119,8 @@ object range {
             def make(v: Z.MP): $typeName = $termName(v)
           }""",
       q"""object $termName extends $$ZCompanion[$typeName] {
+            type $isTypeName[T <: Immutable] = IS[$typeName, T]
+            type $msTypeName[T] = MS[$typeName, T]
             val Name: Predef.String = $nameStr
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
@@ -167,6 +171,14 @@ object range {
             object BigInt extends $$ZCompanionBigInt[$typeName] {
               def apply(n: scala.BigInt): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }
+            object $isTermName {
+              def apply[V <: Immutable](args: V*): $isTypeName[V] = IS[$typeName, V](args: _*)
+              def create[V <: Immutable](size: Z, default: V): $isTypeName[V] = IS.create[$typeName, V](size, default)
+            }
+            object $msTermName {
+              def apply[V](args: V*): $msTypeName[V] = MS[$typeName, V](args: _*)
+              def create[V](size: Z, default: V): $msTypeName[V] = MS.create[$typeName, V](size, default)
             }
             implicit class $scTypeName(val sc: StringContext) {
               object $lowerTermName {

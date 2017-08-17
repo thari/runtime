@@ -95,6 +95,8 @@ object bits {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
     val iTermName = helper.zCompanionName(name)
+    val (isTermName, isTypeName) = helper.iSName(name)
+    val (msTermName, msTypeName) = helper.mSName(name)
     val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val scTypeName = helper.scName(name)
@@ -115,6 +117,8 @@ object bits {
             def make(v: scala.Long): $typeName = $termName(v)
           }""",
       q"""object $termName extends $$ZCompanion[$typeName] {
+            type $isTypeName[T <: Immutable] = IS[$typeName, T]
+            type $msTypeName[T] = MS[$typeName, T]
             val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
             val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
@@ -171,6 +175,14 @@ object bits {
                 case 64 => Long(n.toLong)
               }
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }
+            object $isTermName {
+              def apply[V <: Immutable](args: V*): $isTypeName[V] = IS[$typeName, V](args: _*)
+              def create[V <: Immutable](size: Z, default: V): $isTypeName[V] = IS.create[$typeName, V](size, default)
+            }
+            object $msTermName {
+              def apply[V](args: V*): $msTypeName[V] = MS[$typeName, V](args: _*)
+              def create[V](size: Z, default: V): $msTypeName[V] = MS.create[$typeName, V](size, default)
             }
             implicit class $scTypeName(val sc: StringContext) {
               object $lowerTermName {

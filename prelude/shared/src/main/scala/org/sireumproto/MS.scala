@@ -27,6 +27,14 @@ package org.sireumproto
 
 import org.sireumproto.$internal.MSMarker
 
+object MS {
+
+  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = ???
+
+  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = ???
+
+}
+
 trait MS[I <: Z, V] extends Mutable with MSMarker {
   private var isOwned: Boolean = false
 
