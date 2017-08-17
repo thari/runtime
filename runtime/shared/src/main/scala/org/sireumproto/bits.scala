@@ -94,9 +94,10 @@ object bits {
   def q(signed: Boolean, width: Int, wrapped: Boolean, min: BigInt, max: BigInt, index: Long, name: String): Term.Block = {
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
+    val iTermName = helper.zCompanionName(name)
     val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
-    val scTypeName = Type.Name(name + "$Slang")
+    val scTypeName = helper.scName(name)
     val nameStr = Lit.String(name)
     val isZeroIndex = Lit.Boolean(index == 0)
     val minErrorMessage = Lit.String(s" is less than $name.Min ($min)")
@@ -113,7 +114,7 @@ object bits {
             @inline def isWrapped: scala.Boolean = $termName.isWrapped
             def make(v: scala.Long): $typeName = $termName(v)
           }""",
-      q"""object $termName {
+      q"""object $termName extends $$ZCompanion[$typeName] {
             val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
             val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
@@ -136,11 +137,11 @@ object bits {
               case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.toBigInt))
-            object Int {
+            object Int extends $$ZCompanionInt[$typeName] {
               def apply(n: scala.Int): $typeName = Long(n)
               def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toBigInt.toInt)
             }
-            object Long {
+            object Long extends $$ZCompanionLong[$typeName] {
               def apply(n: scala.Long): $typeName =
                 if (isWrapped) new $ctorName(n)
                 else {
@@ -153,11 +154,11 @@ object bits {
                 }
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.value)
             }
-            object String {
+            object String extends $$ZCompanionString[$typeName] {
               def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
-            object BigInt {
+            object BigInt extends $$ZCompanionBigInt[$typeName] {
               def apply(n: scala.BigInt): $typeName = if (isSigned) BitWidth match {
                 case 8 => Long(n.toByte)
                 case 16 => Long(n.toShort)
@@ -184,7 +185,7 @@ object bits {
               }
             }
             import scala.language.implicitConversions
-            def apply(value: Z.MP): $typeName = BigInt(value.toBigInt)
+            implicit val $iTermName: $$ZCompanion[$typeName] = this
           }"""
     ))
   }

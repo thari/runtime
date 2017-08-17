@@ -109,6 +109,10 @@ object helper {
     }
     sb.toString
   }
+
+  def zCompanionName(name: Predef.String): Pat.Var.Term = Pat.Var.Term(Term.Name(s"$$${name}Companion"))
+  def scName(name: Predef.String): Type.Name = Type.Name(name + "$Slang")
+
 }
 
 final class helper extends scala.annotation.StaticAnnotation

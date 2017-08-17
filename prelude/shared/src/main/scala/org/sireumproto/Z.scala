@@ -27,7 +27,7 @@ package org.sireumproto
 
 import spire.math._
 
-object Z {
+object Z extends $ZCompanion[Z] {
 
   type Index = MP
 
@@ -200,23 +200,25 @@ object Z {
 
   sealed trait MP extends Z {
 
-    final val Name: Predef.String = "Z"
+    final def Name: Predef.String = Z.Name
 
-    final val isBitVector: scala.Boolean = false
+    final def isBitVector: scala.Boolean = Z.isBitVector
 
-    final val isSigned: scala.Boolean = true
+    final def isSigned: scala.Boolean = Z.isSigned
 
-    final val Index: MP = MP.zero
+    final def Index: MP = Z.Index
 
-    final val hasMin: scala.Boolean = false
+    final def isZeroIndex: scala.Boolean = Z.isZeroIndex
 
-    final val hasMax: scala.Boolean = false
+    final def hasMin: scala.Boolean = Z.hasMin
 
-    final def Min: Z = halt("Unsupported Z operation 'Min'.")
+    final def hasMax: scala.Boolean = Z.hasMax
 
-    final def Max: Z = halt("Unsupported Z operation 'Max'.")
+    final def Min: Z = Z.Min
 
-    final def BitWidth: Int = halt("Unsupported Z operation 'BitWidth'.")
+    final def Max: Z = Z.Max
+
+    final def BitWidth: Int = Z.BitWidth
 
     final def toIndex: Z.Index = this
 
@@ -268,6 +270,8 @@ object Z {
       case other: java.math.BigInteger => MP.isEqual(this, scala.BigInt(other))
       case _ => false
     }
+
+    final def toMP: Z.MP = this
 
     def toIntOpt: scala.Option[scala.Int]
 
@@ -323,19 +327,6 @@ object Z {
           case MP.BigInt(n) => n.toLong
         })
       }
-
-      private def toMP: MP =
-        if (isSigned) BitWidth match {
-          case 8 => MP(toByte)
-          case 16 => MP(toShort)
-          case 32 => MP(toInt)
-          case 64 => MP(toLong)
-        } else BitWidth match {
-          case 8 => MP(toUByte.toInt)
-          case 16 => MP(toUShort.toInt)
-          case 32 => MP(toUInt.toLong)
-          case 64 => MP(toULong.toBigInt)
-        }
 
       @inline private final def umake(value: UByte): T = make(value.toLong)
 
@@ -686,9 +677,23 @@ object Z {
         case 64 => toULong.toBigInt
       }
 
+      final override def toMP: MP =
+        if (isSigned) BitWidth match {
+          case 8 => MP(toByte)
+          case 16 => MP(toShort)
+          case 32 => MP(toInt)
+          case 64 => MP(toLong)
+        } else BitWidth match {
+          case 8 => MP(toUByte.toInt)
+          case 16 => MP(toUShort.toInt)
+          case 32 => MP(toUInt.toLong)
+          case 64 => MP(toULong.toBigInt)
+        }
+
       final override def toIndex: Z.Index =
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
+
   }
 
   private[sireumproto] trait BV extends Any with Z {
@@ -718,6 +723,8 @@ object Z {
     @inline final def isBitVector: scala.Boolean = false
 
     @inline final def BitWidth: Int = unsupported("BitWidth")
+
+    @inline final def toMP: MP = value
 
     @inline final def unary_- : T = make(-value)
 
@@ -818,37 +825,61 @@ object Z {
 
   def apply(n: String): Z = scala.BigInt(n.value)
 
-  object Int {
+  object Int extends $ZCompanionInt[Z] {
     @inline def apply(n: scala.Int): Z = MP(n)
+
     def unapply(n: Z): scala.Option[scala.Int] = n match {
       case n: MP => n.toIntOpt
       case _ => scala.None
     }
   }
 
-  object Long {
+  object Long extends $ZCompanionLong[Z] {
     @inline def apply(n: scala.Long): Z = MP(n)
+
     def unapply(n: Z): scala.Option[scala.Long] = n match {
       case n: MP => n.toLongOpt
       case _ => scala.None
     }
   }
 
-  object String {
+  object String extends $ZCompanionString[Z] {
     @inline def apply(s: Predef.String): Z = MP(s)
+
     def unapply(n: Z): scala.Option[Predef.String] = n match {
       case n: MP => scala.Some(n.toString)
       case _ => scala.None
     }
   }
 
-  object BigInt {
+  object BigInt extends $ZCompanionBigInt[Z] {
     @inline def apply(n: scala.BigInt): Z = MP(n)
+
     def unapply(n: Z): scala.Option[scala.BigInt] = n match {
       case n: MP => scala.Some(n.toBigInt)
       case _ => scala.None
     }
   }
+
+  val Name: Predef.String = "Z"
+
+  val isBitVector: scala.Boolean = false
+
+  val isSigned: scala.Boolean = true
+
+  val isZeroIndex: scala.Boolean = true
+
+  val Index: MP = MP.zero
+
+  val hasMin: scala.Boolean = false
+
+  val hasMax: scala.Boolean = false
+
+  def Min: Z = halt(s"Unsupported $Name operation 'Min'")
+
+  def Max: Z = halt(s"Unsupported $Name operation 'Max'")
+
+  def BitWidth: scala.Int = halt(s"Unsupported $Name operation 'BitWidth'")
 
   def random: MP = {
     val r = new scala.util.Random()
@@ -865,6 +896,64 @@ object Z {
 
 }
 
+trait $ZCompanion[T <: Z] {
+
+  def Name: Predef.String
+
+  def isBitVector: scala.Boolean
+
+  def isSigned: scala.Boolean
+
+  def isZeroIndex: scala.Boolean
+
+  def Index: T
+
+  def hasMin: scala.Boolean
+
+  def hasMax: scala.Boolean
+
+  def Min: T
+
+  def Max: T
+
+  def BitWidth: scala.Int
+
+  def random: T
+
+  def Int: $ZCompanionInt[T]
+
+  def Long: $ZCompanionLong[T]
+
+  def String: $ZCompanionString[T]
+
+  def BigInt: $ZCompanionBigInt[T]
+
+}
+
+trait $ZCompanionInt[T <: Z] {
+  def apply(n: scala.Int): T
+
+  def unapply(n: T): scala.Option[scala.Int]
+}
+
+trait $ZCompanionLong[T <: Z] {
+  def apply(n: scala.Long): T
+
+  def unapply(n: T): scala.Option[scala.Long]
+}
+
+trait $ZCompanionString[T <: Z] {
+  def apply(s: Predef.String): T
+
+  def unapply(n: T): scala.Option[Predef.String]
+}
+
+trait $ZCompanionBigInt[T <: Z] {
+  def apply(s: scala.BigInt): T
+
+  def unapply(n: T): scala.Option[scala.BigInt]
+}
+
 trait Z extends Any with Number[Z] {
 
   def Name: Predef.String
@@ -872,6 +961,8 @@ trait Z extends Any with Number[Z] {
   def isBitVector: scala.Boolean
 
   def isSigned: scala.Boolean
+
+  def isZeroIndex: scala.Boolean
 
   def Index: Z
 
@@ -916,4 +1007,6 @@ trait Z extends Any with Number[Z] {
   final override def string: String = toString
 
   def toBigInt: scala.BigInt
+
+  def toMP: Z.MP
 }

@@ -29,16 +29,31 @@ import org.sireumproto.$internal.ISMarker
 
 object IS {
 
-  final class Gen[I <: Z, V <: Immutable](array: Array[Any], length: Int) extends IS[I, V] {
-    def apply(index: I): V = array(index.toIndex.toBigInt.toInt).asInstanceOf[V]
-    def size: Z = length
+  final class Array[I <: Z, V <: Immutable](companion: $ZCompanion[I],
+                                            array: scala.Array[scala.Any],
+                                            length: scala.Int) extends IS[I, V] {
+
+    def size: I =
+      if (companion.isZeroIndex) companion.Int(length)
+      else halt(s"Operation 'size' can only be used on zero-indexed IS.")
+
+    def apply(index: I): V = {
+      val i = index.toIndex.toMP
+      assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+      array(i.toIntOpt.get).asInstanceOf[V]
+    }
+
     def elements: scala.Seq[V] = array.slice(0, length).map(_.asInstanceOf[V])
+
     lazy val hash: Z = elements.hashCode
+
     def isEqual(other: Immutable): B = other match {
       case other: IS[_, _] => elements == other.elements
       case _ => F
     }
+
     def string: String = toString
+
     override def toString: Predef.String = {
       val sb = new java.lang.StringBuilder
       sb.append('[')
@@ -52,19 +67,22 @@ object IS {
       sb.append(']')
       sb.toString
     }
+
   }
 
-  def apply[I <: Z, V <: Immutable](args: V*): IS[I, V] =
-    new Gen[I, V](Array(args: _*), args.length)
+  def apply[I <: Z, V <: Immutable](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+    val array = new scala.Array[scala.Any](args.length)
+    for (i <- array.indices) array(i) = args(i)
+    new Array[I, V](companion, array, args.length)
+  }
 }
 
 sealed trait IS[I <: Z, V <: Immutable] extends Immutable with ISMarker {
 
   def apply(index: I): V
 
-  def size: Z
+  def size: I
 
   def elements: scala.Seq[V]
 
 }
-

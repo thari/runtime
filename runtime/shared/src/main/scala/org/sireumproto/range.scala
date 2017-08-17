@@ -87,11 +87,12 @@ object range {
 
     val typeName = Type.Name(name)
     val termName = Term.Name(name)
+    val iTermName = helper.zCompanionName(name)
     val lowerTermName = Term.Name(name.toLowerCase)
     val ctorName = Ctor.Name(name)
     val nameStr = Lit.String(name)
     val signed = minOpt.forall(_ < 0)
-    val scTypeName = Type.Name(name + "$Slang")
+    val scTypeName = helper.scName(name)
 
     def min = Lit.String(minOpt.map(_.toString).getOrElse("0"))
 
@@ -115,7 +116,7 @@ object range {
             @inline def hasMax: scala.Boolean = $termName.hasMax
             def make(v: Z.MP): $typeName = $termName(v)
           }""",
-      q"""object $termName {
+      q"""object $termName extends $$ZCompanion[$typeName] {
             val Name: Predef.String = $nameStr
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
@@ -125,6 +126,7 @@ object range {
             val isBitVector: scala.Boolean = false
             val hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
             val hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
+            def BitWidth: scala.Int = halt(s"Unsupported $$Name operation 'BitWidth'")
             def random: $typeName = if (hasMax && hasMin) {
               val d = Max.value - Min.value + Z.MP.one
               val n = Z.random % d
@@ -146,23 +148,23 @@ object range {
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
-            object Int {
+            object Int extends $$ZCompanionInt[$typeName] {
               def apply(n: scala.Int): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
                 else scala.None
             }
-            object Long {
+            object Long extends $$ZCompanionLong[$typeName] {
               def apply(n: scala.Long): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Long] =
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
-            object String {
+            object String extends $$ZCompanionString[$typeName] {
               def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
-            object BigInt {
+            object BigInt extends $$ZCompanionBigInt[$typeName] {
               def apply(n: scala.BigInt): $typeName = new $ctorName(check(Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }
@@ -179,7 +181,7 @@ object range {
               }
             }
             import scala.language.implicitConversions
-            def apply(value: Z.MP): $typeName = new $ctorName(check(value))
+            implicit val $iTermName: $$ZCompanion[$typeName] = this
           }"""
     ))
   }
