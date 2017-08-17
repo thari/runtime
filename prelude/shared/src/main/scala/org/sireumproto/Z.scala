@@ -261,7 +261,7 @@ object Z extends $ZCompanion[Z] {
     final def unary_~ : MP = halt("Unsupported Z operation '~'.")
 
     final override def equals(other: scala.Any): scala.Boolean = other match {
-      case other: MP => MP.isEqual(this, other)
+      case other: MP => if (this eq other) true else MP.isEqual(this, other)
       case other: scala.Int => MP.isEqual(this, other)
       case other: scala.Long => MP.isEqual(this, other)
       case other: scala.BigInt => MP.isEqual(this, other)

@@ -29,7 +29,7 @@ import org.sireumproto.$internal.ISMarker
 
 object IS {
 
-  final class Array[I <: Z, V <: Immutable](companion: $ZCompanion[I],
+  final class Array[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
                                             array: scala.Array[scala.Any],
                                             length: scala.Int) extends IS[I, V] {
 
@@ -51,6 +51,16 @@ object IS {
       case other: IS[_, _] => elements == other.elements
       case _ => F
     }
+
+    override def equals(other: scala.Any): scala.Boolean =
+      if (this eq other.asInstanceOf[scala.AnyRef]) true
+      else other match {
+        case other: IS.Array[_, _] =>
+          if (companion ne other.companion) return false
+          if (size.toMP != other.size.toMP) return false
+          elements == other.elements
+        case _ => false
+      }
 
     def string: String = toString
 
