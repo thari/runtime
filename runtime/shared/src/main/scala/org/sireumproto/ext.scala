@@ -29,6 +29,7 @@ import scala.meta._
 
 object ext {
 
+  val extSuffix = "_Ext"
   val typeExtSuffix = "$Ext"
 
   def transformObject(o: Defn.Object): Defn.Object = {
@@ -36,7 +37,7 @@ object ext {
     val dollar = Term.Name("$").structure
     if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort(s"Invalid @ext form on an object; it has to be of the form '@ext object ${name.value} { ... }'.")
-    val extName = Term.Name(name.value + "_Ext")
+    val extName = Term.Name(name.value + extSuffix)
     val newStats = for (stat <- stats) yield stat match {
       case q"..$mods val ..$patsnel: ${tpeopt: Option[Type]} = $$" =>
         if (mods.nonEmpty || patsnel.size != 1 || !patsnel.head.isInstanceOf[Pat.Var.Term] || tpeopt.isEmpty)

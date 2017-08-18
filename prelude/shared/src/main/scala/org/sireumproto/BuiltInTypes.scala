@@ -127,7 +127,31 @@ package org.sireumproto
 
 @ext trait IS[I <: Z, V <: Immutable] extends Immutable {
 
-  @pure def size: Z
+  @pure def isEmpty: B
+
+  @pure def nonEmpty: B
+
+  @pure def :+(e: V): IS[I, V]
+
+  @pure def +:(e: V): IS[I, V]
+
+  @pure def ++(other: IS[I, V]): IS[I, V]
+
+  @pure def --(other: IS[I, V]): IS[I, V]
+
+  @pure def -(e: V): IS[I, V]
+
+  @pure def indices: IS[Z, I]
+
+  @pure def map[V2 <: Immutable](f: V => V2): IS[I, V2]
+
+  @pure def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2]
+
+  @pure def withFilter(p: V => B): IS[I, V]
+
+  @pure def foreach(p: V => Unit): Unit
+
+  @pure def size: I
 
 }
 

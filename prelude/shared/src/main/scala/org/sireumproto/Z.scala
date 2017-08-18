@@ -881,8 +881,8 @@ object Z extends $ZCompanion[Z] {
 
   def BitWidth: scala.Int = halt(s"Unsupported $Name operation 'BitWidth'")
 
-  def random: MP = {
-    val r = new scala.util.Random()
+  def random(seed: Z): MP = {
+    val r = new scala.util.Random((seed.toMP % Z.MP(ULong(-1).toBigInt + 1)).toLongOpt.get)
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
 
@@ -918,7 +918,7 @@ trait $ZCompanion[T <: Z] {
 
   def BitWidth: scala.Int
 
-  def random: T
+  def random(seed: Z): T
 
   def Int: $ZCompanionInt[T]
 
