@@ -27,7 +27,7 @@ package org.sireumproto
 
 import org.sireum.test.SireumRuntimeSpec
 import spire.math._
-
+import org.scalatest.Matchers._
 import scala.util.{Failure, Success, Try}
 
 @bits(signed = T, width = 16, min = -2, index = true) class S16_m2
@@ -35,6 +35,100 @@ import scala.util.{Failure, Success, Try}
 class BitsTest extends SireumRuntimeSpec {
 
   val numOfRandomTests = 64
+
+  "S8" - {
+
+    import S8._
+
+    *(S8.isSigned)
+
+    *(S8.isBitVector)
+
+    *(S8.hasMin)
+
+    *(S8.hasMax)
+
+    *(S8.isWrapped)
+
+    *(S8.BitWidth == 8)
+
+    *(S8.Index == s8"0")
+
+    *(S8.Min == s8"-128")
+
+    *(S8.Max == s8"127")
+
+    *(S8.Name == "S8")
+
+    val x = s8"-114"
+
+    *(x.toIndex == z"-114")
+
+    *(x.isSigned)
+
+    *(x.isBitVector)
+
+    *(x.hasMin)
+
+    *(x.hasMax)
+
+    *(x.isWrapped)
+
+    *(x.BitWidth == 8)
+
+    *(x.Index == s8"0")
+
+    *(x.Min == s8"-128")
+
+    *(x.Max == s8"127")
+
+    *(x.Name == "S8")
+
+    *(x.value == -114)
+
+    *(x - s8"15" == S8.Max)
+
+    *(x + S8.Min * s8"-2" == x)
+
+    for (_ <- 0 until numOfRandomTests) {
+      *("random"){
+        val v = S8.random
+        S8.Min <= v && v <= S8.Max
+      }
+    }
+
+    val random = new java.util.Random
+    def rand(): Byte = random.nextInt.toByte
+
+    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => S8, Byte => Byte => Int)](
+      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
+      for (_ <- 0 until numOfRandomTests) {
+        val n = rand()
+        var m = rand()
+        while (m == 0 && (op == "/" || op == "%")) m = rand()
+        *(s"$n $op $m")(op1(S8(n))(S8(m)).toBigInt == scala.BigInt(op2(n)(m).toByte))
+      }
+    }
+
+    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => S8, Byte => Int => Int)](
+      (">>", _.>>, _.>>), (">>>", _.>>>, _.>>>), ("<<", _.<<, _.<<))) {
+      for (_ <- 0 until numOfRandomTests) {
+        val n = rand()
+        val m = rand()
+        *(s"$n $op $m")(op1(S8(n))(S8(m)).toBigInt == scala.BigInt(op2(n)(m.toInt).toByte))
+      }
+    }
+
+    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => B, Byte => Byte => scala.Boolean)](
+      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
+      for (_ <- 0 until numOfRandomTests) {
+        val n = rand()
+        val m = rand()
+        *(s"$n $op $m")(op1(S8(n))(S8(m)).value == op2(n)(m))
+      }
+    }
+
+  }
 
   "U16" - {
 

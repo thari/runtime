@@ -69,12 +69,12 @@ class bits(signed: Boolean,
           }
         }
         val (wMin, wMax) =
-          if (signed) (BigInt(-2).pow(width - 1) + 1, BigInt(2).pow(width - 1) - 1)
+          if (signed) (BigInt(-2).pow(width - 1), BigInt(2).pow(width - 1) - 1)
           else (BigInt(0), BigInt(2).pow(width) - 1)
         if (indexB && minOpt.isEmpty) abort(tree.pos, s"Slang @bits ${tname.value}'s min should specified when index is enabled.")
         val min = minOpt.getOrElse(wMin)
         val max = maxOpt.getOrElse(wMax)
-        val index = min
+        val index = if (indexB) min else BigInt(0)
         if (min > max) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be greater than its max ($max).")
         val signedString = if (signed) "signed" else "unsigned"
         if (min < wMin) abort(tree.pos, s"Slang @bits ${tname.value}'s min ($min) should not be less than its $signedString bit-width minimum ($wMin).")
@@ -104,8 +104,163 @@ object bits {
     val isZeroIndex = Lit.Boolean(index == 0)
     val minErrorMessage = Lit.String(s" is less than $name.Min ($min)")
     val maxErrorMessage = Lit.String(s" is greater than $name.Max ($max)")
+    val (valueTypeName, bvType, minLit, maxLit, indexLit, randomSeed, apply, intObject, longObject, bigIntObject) = width match {
+      case 8 => (
+        t"scala.Byte",
+        ctor"Z.BV.Byte[$typeName]",
+        q"(${Lit.Int(min.toInt)}).toByte",
+        q"(${Lit.Int(max.toInt)}).toByte",
+        q"(${Lit.Int(index.toInt)}).toByte",
+        q"new $ctorName((n + zMin).toBigInt.toByte)",
+        q"""def apply(n: Z): $typeName = n match {
+              case n: Z.MP.Long =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toByte)
+              case n: Z.MP.BigInt =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toByte)
+              case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
+            }""",
+        q"""object Int extends $$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toMP.toIntOpt.get)
+            }""",
+        q"""object Long extends $$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLongOpt.get)
+            }""",
+        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }"""
+      )
+      case 16 => (
+        t"scala.Short",
+        ctor"Z.BV.Short[$typeName]",
+        q"(${Lit.Int(min.toInt)}).toShort",
+        q"(${Lit.Int(max.toInt)}).toShort",
+        q"(${Lit.Int(index.toInt)}).toShort",
+        q"new $ctorName((n + zMin).toBigInt.toShort)",
+        q"""def apply(n: Z): $typeName = n match {
+              case n: Z.MP.Long =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toShort)
+              case n: Z.MP.BigInt =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toShort)
+              case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
+            }""",
+        q"""object Int extends $$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toMP.toIntOpt.get)
+            }""",
+        q"""object Long extends $$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLongOpt.get)
+            }""",
+        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }"""
+      )
+      case 32 => (
+        t"scala.Int",
+        ctor"Z.BV.Int[$typeName]",
+        Lit.Int(min.toInt),
+        Lit.Int(max.toInt),
+        Lit.Int(index.toInt),
+        q"new $ctorName((n + zMin).toBigInt.toInt)",
+        q"""def apply(n: Z): $typeName = n match {
+              case n: Z.MP.Long =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toInt)
+              case n: Z.MP.BigInt =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toInt)
+              case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
+            }""",
+        q"""object Int extends $$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Int] = {
+                val v = n.toMP
+                if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) scala.Some(v.toIntOpt.get)
+                else scala.None
+              }
+            }""",
+        q"""object Long extends $$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLongOpt.get)
+            }""",
+        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }"""
+      )
+      case 64 => (
+        t"scala.Long",
+        ctor"Z.BV.Long[$typeName]",
+        Lit.Long(min.toLong),
+        Lit.Long(max.toLong),
+        Lit.Long(index),
+        q"new $ctorName((n + zMin).toBigInt.toLong)",
+        q"""def apply(n: Z): $typeName = n match {
+              case n: Z.MP.Long =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value)
+              case n: Z.MP.BigInt =>
+                if (!isWrapped) {
+                  assert(Min.toMP <= n, n + $minErrorMessage)
+                  assert(n <= Max.toMP, n + $maxErrorMessage)
+                }
+                new $ctorName(n.value.toLong)
+              case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
+            }""",
+        q"""object Int extends $$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Int] = {
+                val v = n.toMP
+                if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) scala.Some(v.toIntOpt.get)
+                else scala.None
+              }
+            }""",
+        q"""object Long extends $$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.Long] = {
+                val v = n.toMP
+                if (scala.Long.MinValue <= v && v <= scala.Long.MaxValue) scala.Some(v.toLongOpt.get)
+                else scala.None
+              }
+            }""",
+        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toLong) else $termName(Z.MP(n))
+              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
+            }"""
+      )
+    }
+
     Term.Block(List(
-      q"""final class $typeName(val value: scala.Long) extends AnyVal with Z.BV.Long[$typeName] {
+      q"""final class $typeName(val value: $valueTypeName) extends AnyVal with $bvType {
             @inline def Name: Predef.String = $termName.Name
             @inline def BitWidth: scala.Int = $termName.BitWidth
             @inline def Min: $typeName = $termName.Min
@@ -114,16 +269,16 @@ object bits {
             @inline def isZeroIndex: scala.Boolean = $termName.isZeroIndex
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def isWrapped: scala.Boolean = $termName.isWrapped
-            def make(v: scala.Long): $typeName = $termName(v)
+            def make(v: $valueTypeName): $typeName = $termName(v)
           }""",
       q"""object $termName extends $$ZCompanion[$typeName] {
             type $isTypeName[T <: Immutable] = IS[$typeName, T]
             type $msTypeName[T] = MS[$typeName, T]
             val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
-            val Min: $typeName = new $ctorName(${Lit.Long(min.toLong)})
-            val Max: $typeName = new $ctorName(${Lit.Long(max.toLong)})
-            val Index: $typeName = new $ctorName(${Lit.Long(index)})
+            val Min: $typeName = new $ctorName($minLit)
+            val Max: $typeName = new $ctorName($maxLit)
+            val Index: $typeName = new $ctorName($indexLit)
             val isZeroIndex: scala.Boolean = $isZeroIndex
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             val isWrapped: scala.Boolean = ${Lit.Boolean(wrapped)}
@@ -135,48 +290,17 @@ object bits {
               val zMin = Z(Min.toBigInt)
               val d = Z(Max.toBigInt) - zMin + Z.MP.one
               val n = Z.randomSeed(seed) % d
-              new $ctorName((n + zMin).toBigInt.toLong)
+              $randomSeed
             }
-            def apply(value: Z): $typeName = value match {
-              case value: Z.MP => BigInt(value.toBigInt)
-              case _ => halt(s"Unsupported $$Name creation from $${value.Name}.")
-            }
-            def unapply(n: $typeName): scala.Option[Z] = scala.Some(Z.MP(n.toBigInt))
-            object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = Long(n)
-              def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toBigInt.toInt)
-            }
-            object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName =
-                if (isWrapped) new $ctorName(n)
-                else {
-                  val v = if (BitWidth == 64 && !isSigned) Z.BigInt(spire.math.ULong(n).toBigInt) else Z(n)
-                  val min = Z(Min.toBigInt)
-                  val max = Z(Max.toBigInt)
-                  assert(min <= v, v + $minErrorMessage)
-                  assert(v <= max, v + $maxErrorMessage)
-                  new $ctorName(n)
-                }
-              def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.value)
-            }
+            $apply;
+            def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.toMP);
+            $intObject;
+            $longObject;
             object String extends $$ZCompanionString[$typeName] {
               def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
-            }
-            object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = if (isSigned) BitWidth match {
-                case 8 => Long(n.toByte)
-                case 16 => Long(n.toShort)
-                case 32 => Long(n.toInt)
-                case 64 => Long(n.toLong)
-              } else BitWidth match {
-                case 8 => Long(spire.math.UByte(n.toByte).toLong)
-                case 16 => Long(spire.math.UShort(n.toShort).toLong)
-                case 32 => Long(spire.math.UShort(n.toInt).toLong)
-                case 64 => Long(n.toLong)
-              }
-              def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
-            }
+            };
+            $bigIntObject;
             object $isTermName {
               def apply[V <: Immutable](args: V*): $isTypeName[V] = IS[$typeName, V](args: _*)
               def create[V <: Immutable](size: Z, default: V): $isTypeName[V] = IS.create[$typeName, V](size, default)

@@ -46,4 +46,6 @@ final class String(val value: Predef.String) extends AnyVal with Immutable {
 
   @inline override def toString: Predef.String = value
 
+  def stripPrefix(prefix: Predef.String): Predef.String = value.stripPrefix(prefix)
+
 }
