@@ -92,7 +92,7 @@ class BitsTest extends SireumRuntimeSpec {
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
-        val v = U16.random(System.currentTimeMillis)
+        val v = U16.random
         U16.Min <= v && v <= U16.Max
       }
     }
@@ -192,7 +192,7 @@ class BitsTest extends SireumRuntimeSpec {
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
-        val v = S16_m2.random(System.currentTimeMillis)
+        val v = S16_m2.random
         S16_m2.Min <= v && v <= S16_m2.Max
       }
     }

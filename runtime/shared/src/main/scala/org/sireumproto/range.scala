@@ -131,15 +131,16 @@ object range {
             val hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
             val hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
             def BitWidth: scala.Int = halt(s"Unsupported $$Name operation 'BitWidth'")
-            def random(seed: Z): $typeName = if (hasMax && hasMin) {
+            def random: $typeName = randomSeed(System.currentTimeMillis)
+            def randomSeed(seed: Z): $typeName = if (hasMax && hasMin) {
               val d = Max.value - Min.value + Z.MP.one
-              val n = Z.random(seed) % d
+              val n = Z.randomSeed(seed) % d
               new $ctorName(n + Min.value)
             } else if (hasMax) {
-              val n = Z.random(seed)
+              val n = Z.randomSeed(seed)
               new $ctorName(if (n > Max.value) Max.value - n else n)
             } else {
-              val n = Z.random(seed)
+              val n = Z.randomSeed(seed)
               new $ctorName(if (n < Min.value) Min.value + n else n)
             }
             private def check(v: Z.MP): Z.MP = {

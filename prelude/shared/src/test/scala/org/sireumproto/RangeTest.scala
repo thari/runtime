@@ -45,7 +45,7 @@ class RangeTest extends SireumRuntimeSpec {
     *(!N.hasMax)
 
     for (_ <- 0 until numOfRandomTests) {
-      *("random")(N.random(System.currentTimeMillis) >= N(0))
+      *("random")(N.random >= N(0))
     }
 
   }
@@ -98,7 +98,7 @@ class RangeTest extends SireumRuntimeSpec {
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
-        val v = One10i.random(System.currentTimeMillis)
+        val v = One10i.random
         val r = One10i.Min <= v && v <= One10i.Max
         if (!r) println(s"One10i.random = $v")
         r
@@ -176,7 +176,7 @@ class RangeTest extends SireumRuntimeSpec {
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
-        val v = M1_16.random(System.currentTimeMillis)
+        val v = M1_16.random
         M1_16.Min <= v && v <= M1_16.Max
       }
     }

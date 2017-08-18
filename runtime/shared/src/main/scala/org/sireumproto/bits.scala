@@ -130,10 +130,11 @@ object bits {
             val isBitVector: scala.Boolean = true
             val hasMin: scala.Boolean = true
             val hasMax: scala.Boolean = true
-            def random(seed: Z): $typeName = {
+            def random: $typeName = randomSeed(System.currentTimeMillis)
+            def randomSeed(seed: Z): $typeName = {
               val zMin = Z(Min.toBigInt)
               val d = Z(Max.toBigInt) - zMin + Z.MP.one
-              val n = Z.random(seed) % d
+              val n = Z.randomSeed(seed) % d
               new $ctorName((n + zMin).toBigInt.toLong)
             }
             def apply(value: Z): $typeName = value match {

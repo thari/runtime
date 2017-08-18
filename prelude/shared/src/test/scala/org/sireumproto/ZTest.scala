@@ -34,7 +34,7 @@ class ZTest extends SireumRuntimeSpec {
 
   val numOfRandomTests = 64
 
-  val x: Z = Z.random(System.currentTimeMillis)
+  val x: Z = Z.random
 
   *(x.toIndex == x)
 
@@ -54,7 +54,7 @@ class ZTest extends SireumRuntimeSpec {
 
   val random = new java.util.Random
 
-  def rand(): scala.BigInt = Z.random(System.currentTimeMillis).toBigInt
+  def rand(): scala.BigInt = Z.random.toBigInt
 
   for ((op, op1, op2) <- List[(Predef.String, Z => Z => Z, scala.BigInt => scala.BigInt => scala.BigInt)](
     ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
