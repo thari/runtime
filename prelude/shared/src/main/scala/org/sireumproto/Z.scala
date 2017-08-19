@@ -1180,7 +1180,12 @@ object Z extends $ZCompanion[Z] {
 
   }
 
-  def apply(n: String): Z = scala.BigInt(n.value)
+  def apply(n: Z): Z = n match {
+    case n: Z.MP => n
+    case _ => halt(s"Unsupported Z creation from ${n.Name}.")
+  }
+
+  def apply(s: String): Z = scala.BigInt(s.value)
 
   object Int extends $ZCompanionInt[Z] {
     @inline def apply(n: scala.Int): Z = MP(n)
@@ -1288,6 +1293,8 @@ trait $ZCompanion[T <: Z] {
   def String: $ZCompanionString[T]
 
   def BigInt: $ZCompanionBigInt[T]
+
+  def apply(n: Z): T
 
 }
 

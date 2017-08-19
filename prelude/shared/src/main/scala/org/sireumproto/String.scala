@@ -25,10 +25,30 @@
 
 package org.sireumproto
 
-
 object String {
 
+  object Boxer extends $internal.Boxer {
+    def box[T](o: scala.Any): T = (o: @unchecked) match {
+      case o: Predef.String => String(o).asInstanceOf[T]
+    }
+
+    def unbox(o: scala.Any): scala.Any = (o: @unchecked) match {
+      case o: String => o.value
+    }
+  }
+
   def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
+
+  def escape(o: scala.Any): Predef.String = {
+    o match {
+      case o: String => helper.escape(o.value)
+      case o: C => val s = helper.escape(o.toString); '\'' + s.substring(1, s.length - 1) + '\''
+      case o: F32 => o.toString + "f"
+      case o: R => "r\"" + o + '"'
+      case o: Z =>  o.Name.toLowerCase + '"' + o + '"'
+      case _ => o.toString
+    }
+  }
 
   import scala.language.implicitConversions
 
@@ -36,7 +56,7 @@ object String {
 
 }
 
-final class String(val value: Predef.String) extends AnyVal with Immutable {
+final class String(val value: Predef.String) extends AnyVal with Immutable with $internal.HasBoxer {
 
   @inline def hash: Z = value.hashCode
 
@@ -47,5 +67,7 @@ final class String(val value: Predef.String) extends AnyVal with Immutable {
   @inline override def toString: Predef.String = value
 
   def stripPrefix(prefix: Predef.String): Predef.String = value.stripPrefix(prefix)
+
+  def boxer: $internal.Boxer = String.Boxer
 
 }

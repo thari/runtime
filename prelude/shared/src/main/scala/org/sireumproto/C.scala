@@ -28,6 +28,16 @@ package org.sireumproto
 
 object C {
 
+  object Boxer extends $internal.Boxer {
+    def box[T](o: scala.Any): T = (o: @unchecked) match {
+      case o: scala.Char => C(o).asInstanceOf[T]
+    }
+
+    def unbox(o: scala.Any): scala.Any = (o: @unchecked) match {
+      case o: C => o.value
+    }
+  }
+
   def unapply(c: C): scala.Option[scala.Char] = scala.Some(c.value)
 
   import scala.language.implicitConversions
@@ -36,7 +46,7 @@ object C {
 
 }
 
-final class C(val value: scala.Char) extends AnyVal with Ordered[C] {
+final class C(val value: scala.Char) extends AnyVal with Ordered[C] with $internal.HasBoxer {
 
   @inline def <(other: C): B = value < other.value
 
@@ -53,5 +63,7 @@ final class C(val value: scala.Char) extends AnyVal with Ordered[C] {
   @inline def string: String = toString
 
   @inline override def toString: Predef.String = value.toString
+
+  def boxer: $internal.Boxer = C.Boxer
 
 }

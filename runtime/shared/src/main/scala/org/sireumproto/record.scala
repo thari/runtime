@@ -147,7 +147,7 @@ object record {
         val isEqual = if (hasEqual) List() else List(q"def isEqual(other: Mutable): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..${applyArgs.map(arg => q"$$assign($arg)")})"
         val toString = {
-          var appends = applyArgs.map(arg => q"sb.append($arg.toString)")
+          var appends = applyArgs.map(arg => q"sb.append(String.escape($arg))")
           appends =
             if (appends.isEmpty) appends
             else appends.head +: appends.tail.flatMap(a => Vector( q"""sb.append(", ")""", a))

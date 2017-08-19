@@ -25,82 +25,142 @@
 
 package org.sireumproto
 
-import org.sireumproto.$internal.ISMarker
+import org.sireumproto.$internal.{Boxer, ISMarker}
 
 object IS {
 
-  final val MaxArraySizeInt: scala.Int = Int.MaxValue - 8
+  def checkSize[I <: Z](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+    assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
+    assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
+  }
 
-  def MaxArraySize: Z.MP = Z.MP(MaxArraySizeInt)
-
-  final class Array[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
-                                            array: scala.Array[scala.Any],
-                                            length: scala.Int) extends IS[I, V] {
-
-    def isEmpty: B = length == 0
-
-    def nonEmpty: B = length != 0
-
-    def :+(e: V): IS[I, V] = if (isEmpty) IS[I, V](e)(companion) else {
-      checkSize(sizeMP.increase)
-      val newLength = length + 1
-      val a = copy(array, length, newLength, 0)
-      a(length) = e
-      new Array[I, V](companion, a, newLength)
+  def apply[I <: Z, V <: Immutable](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+    checkSize(Z.MP(args.length))(companion)
+    val boxer = Boxer.boxerSeq(args)
+    val length = Z.MP(args.length)
+    val a = boxer.create(length)
+    var i = Z.MP.zero
+    for (arg <- args) {
+      boxer.store(a, i, arg)
+      i = i.increase
     }
+    IS[I, V](companion, a, length, boxer)
+  }
 
-    def +:(e: V): IS[I, V] = if (isEmpty) IS[I, V](e)(companion) else {
-      checkSize(sizeMP.increase)
-      val newLength = length + 1
-      val a = copy(array, length, newLength, 1)
-      a(0) = e
-      new Array[I, V](companion, a, newLength)
-    }
-
-    def ++(other: IS[I, V]): IS[I, V] = if (isEmpty) other else {
-      if (other.sizeMP == Z.MP.zero) return this
-      val newSize = sizeMP + other.sizeMP
-      checkSize(newSize)
-      val newLength = newSize.toIntOpt.get
-      val a = copy(array, length, newLength, 0)
-      var j = companion.Index
-      for (i <- length until newLength) {
-        a(i) = other(j)
-        j = j.increase.asInstanceOf[I]
+  def create[I <: Z, V <: Immutable](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
+    case size: Z.MP =>
+      checkSize(size)(companion)
+      val length = size
+      val boxer = Boxer.boxer(default)
+      val a = boxer.create(length)
+      var i = Z.MP.zero
+      while (i < length) {
+        boxer.store(a, i, default)
+        i = i.increase
       }
-      new Array[I, V](companion, a, newLength)
-    }
+      IS[I, V](companion, a, length, boxer)
+    case _ => halt("Slang IS operation 'create' requires size of exactly type 'Z'.")
+  }
 
-    def --(other: IS[I, V]): IS[I, V] = if (isEmpty) this else {
-      if (other.sizeMP == Z.MP.zero) return this
+  def apply[I <: Z, V <: Immutable](companion: $ZCompanion[I],
+                                    data: scala.AnyRef,
+                                    length: Z.MP,
+                                    boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
+
+}
+
+final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
+                                       val data: scala.AnyRef,
+                                       val length: Z.MP,
+                                       val boxer: Boxer) extends Immutable with ISMarker {
+
+  def isEmpty: B = length == Z.MP.zero
+
+  def nonEmpty: B = length != Z.MP.zero
+
+  def :+(e: V): IS[I, V] = if (isEmpty) IS[I, V](e)(companion) else {
+    val newLength = length.increase
+    IS.checkSize(newLength)
+    val a = boxer.clone(data, length, newLength, Z.MP.zero)
+    boxer.store(a, length, e)
+    IS[I, V](companion, a, newLength, boxer)
+  }
+
+  def +:(e: V): IS[I, V] = if (isEmpty) IS[I, V](e)(companion) else {
+    val newLength = length.increase
+    IS.checkSize(newLength)
+    val a = boxer.clone(data, length, newLength, Z.MP.one)
+    boxer.store(a, Z.MP.zero, e)
+    IS[I, V](companion, a, newLength, boxer)
+  }
+
+  def ++(other: IS[I, V]): IS[I, V] = if (isEmpty) other else {
+    if (other.length == Z.MP.zero) return this
+    val newLength = length + other.length
+    IS.checkSize(newLength)
+    val a = boxer.clone(data, length, newLength, Z.MP.zero)
+    var i = length
+    var j = Z.MP.zero
+    while (i < newLength) {
+      boxer.store(a, i, boxer.lookup(other.data, j))
+      i = i.increase
+      j = j.increase
+    }
+    IS[I, V](companion, a, newLength, boxer)
+  }
+
+  def --(other: IS[I, V]): IS[I, V] =
+    if (isEmpty || other.length == Z.MP.zero) this else {
       val otherElements = other.elements
       var sm = elements.withFilter(_ == otherElements.head)
-      for (e <- other.elements.tail) sm = sm.withFilter(_ == e)
-      val a = sm.map(identity).toArray[scala.Any]
-      new Array[I, V](companion, a, a.length)
-    }
-
-    def -(e: V): IS[I, V] = if (isEmpty) this else withFilter(_ == e)
-
-    def indices: IS[Z, I] = {
-      val a = new scala.Array[scala.Any](length)
-      var j = companion.Index
-      for (i <- 0 until length) {
-        a(i) = j
-        j = j.increase.asInstanceOf[I]
+      for (e <- other.elements.tail) {
+        sm = sm.withFilter(_ == e)
       }
-      new Array[Z, I]($ZCompanion, a, length)
-    }
-
-    def map[V2 <: Immutable](f: V => V2): IS[I, V2] = if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
-      val a = copy(array, length, length, 0)
-      for (i <- 0 until length) {
-        a(i) = f(a(i).asInstanceOf[V])
+      val s = sm.map(identity)
+      val newLength = Z.MP(s.size)
+      val a = boxer.create(newLength)
+      var i = Z.MP.zero
+      for (e <- s) {
+        boxer.store(a, i, e)
+        i = i.increase
       }
-      new Array[I, V2](companion, a, length)
+      IS[I, V](companion, a, newLength, boxer)
     }
 
-    def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2] = if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
+  def -(e: V): IS[I, V] = if (isEmpty) this else withFilter(_ == e)
+
+  def indices: IS[Z, I] = {
+    var j = companion.Index
+    val indexBoxer = Boxer.boxer(j)
+    val a = indexBoxer.create(length)
+    var i = Z.MP.zero
+    while (i < length) {
+      indexBoxer.store(a, i, j)
+      i = i.increase
+      j = j.increase.asInstanceOf[I]
+    }
+    IS[Z, I]($ZCompanion, a, length, indexBoxer)
+  }
+
+  def map[V2 <: Immutable](f: V => V2): IS[I, V2] =
+    if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
+      var a: AnyRef = null
+      var boxer2: Boxer = null
+      var i = Z.MP.zero
+      while (i < length) {
+        val v2 = f(boxer.lookup(a, i))
+        if (boxer2 == null) {
+          boxer2 = Boxer.boxer(v2)
+          a = boxer2.clone(data, length, length, Z.MP.zero)
+        }
+        boxer2.store(a, i, v2)
+        i = i.increase
+      }
+      IS[I, V2](companion, a, length, boxer)
+    }
+
+  def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2] =
+    if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
       val es = elements
       var r = f(es.head)
       for (e <- es.tail) {
@@ -109,132 +169,61 @@ object IS {
       r
     }
 
-    def withFilter(p: V => B): IS[I, V] = {
-      val a = elements.withFilter(e => p(e).value).map(identity).toArray[scala.Any]
-      new Array[I, V](companion, a, a.length)
+  def withFilter(p: V => B): IS[I, V] = {
+    val s = elements.withFilter(e => p(e).value).map(identity)
+    val newLength = Z.MP(s.length)
+    val a = boxer.create(newLength)
+    var i = Z.MP.zero
+    for (e <- s) {
+      boxer.store(a, i, e)
+      i = i.increase
     }
-
-    def foreach(f: V => Unit): Unit = {
-      for (i <- 0 until length) {
-        f(array(i).asInstanceOf[V])
-      }
-    }
-
-    def size: I =
-      if (companion.isZeroIndex) companion.Int(length)
-      else halt(s"Operation 'size' can only be used on zero-indexed IS.")
-
-    def sizeMP: Z.MP = Z.MP(length)
-
-    def apply(index: I): V = {
-      val i = index.toIndex.toMP
-      assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
-      array(i.toIntOpt.get).asInstanceOf[V]
-    }
-
-    def elements: scala.Seq[V] = array.slice(0, length).map(_.asInstanceOf[V])
-
-    lazy val hash: Z = elements.hashCode
-
-    def isEqual(other: Immutable): B = this == other
-
-    override def equals(other: scala.Any): scala.Boolean =
-      if (this eq other.asInstanceOf[scala.AnyRef]) true
-      else other match {
-        case other: IS.Array[_, _] =>
-          if (companion ne other.companion) return false
-          if (size.toMP != other.size.toMP) return false
-          elements == other.elements
-        case _ => false
-      }
-
-    def string: String = toString
-
-    override def toString: Predef.String = {
-      val sb = new java.lang.StringBuilder
-      sb.append('[')
-      if (length > 0) {
-        sb.append(array(0).toString)
-        for (i <- 1 until length) {
-          sb.append(", ")
-          sb.append(array(i).toString)
-        }
-      }
-      sb.append(']')
-      sb.toString
-    }
-
+    IS[I, V](companion, a, newLength, boxer)
   }
 
-  def copy(a: scala.Array[scala.Any], length: scala.Int, newLength: scala.Int, offset: scala.Int): scala.Array[scala.Any] = {
-    if (a.length <= newLength) {
-      val r = new scala.Array[scala.Any](a.length)
-      System.arraycopy(a, 0, r, offset, length)
-      r
-    } else {
-      val r = new scala.Array[scala.Any]((newLength * 3 / 2).min(MaxArraySizeInt))
-      System.arraycopy(a, 0, r, offset, length)
-      r
+  def foreach(f: V => Unit): Unit = {
+    var i = Z.MP.zero
+    while (i < length) {
+      f(boxer.lookup(data, i))
+      i = i.increase
     }
   }
 
-  def checkSize[I <: Z](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
-    assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
-    assert(size <= MaxArraySize, s"Slang IS currently only supports size up to $MaxArraySize.")
-    assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
+  def size: I =
+    if (companion.isZeroIndex) companion(length)
+    else halt(s"Operation 'size' can only be used on zero-indexed IS.")
+
+  def apply(index: I): V = {
+    val i = index.toIndex
+    assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    boxer.lookup(data, i)
   }
 
-  def apply[I <: Z, V <: Immutable](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
-    checkSize(Z.MP(args.length))(companion)
-    val array = new scala.Array[scala.Any](args.length)
-    for (i <- array.indices) array(i) = args(i)
-    new Array[I, V](companion, array, args.length)
+  def elements: scala.Seq[V] = {
+    var r = scala.Vector[V]()
+    var i = Z.MP.zero
+    while (i < length) {
+      r = r :+ boxer.lookup[V](data, i)
+      i = i.increase
+    }
+    r
   }
 
-  def create[I <: Z, V <: Immutable](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
-    case size: Z.MP =>
-      checkSize(size)(companion)
-      val length = size.toIntOpt.get
-      val array = new scala.Array[scala.Any](length)
-      for (i <- 0 until length) array(i) = default
-      new Array[I, V](companion, array, length)
-    case _ => halt("Slang IS operation 'create' requires size of exactly type 'Z'.")
-  }
+  lazy val hash: Z = elements.hashCode
 
-}
+  def isEqual(other: Immutable): B = this == other
 
-sealed trait IS[I <: Z, V <: Immutable] extends Immutable with ISMarker {
+  override def equals(other: scala.Any): scala.Boolean =
+    if (this eq other.asInstanceOf[scala.AnyRef]) true
+    else other match {
+      case other: IS[_, _] =>
+        if (companion ne other.companion) return false
+        if (length != other.length) return false
+        elements == other.elements
+      case _ => false
+    }
 
-  def isEmpty: B
+  def string: String = toString
 
-  def nonEmpty: B
-
-  def :+(e: V): IS[I, V]
-
-  def +:(e: V): IS[I, V]
-
-  def ++(other: IS[I, V]): IS[I, V]
-
-  def --(other: IS[I, V]): IS[I, V]
-
-  def -(e: V): IS[I, V]
-
-  def indices: IS[Z, I]
-
-  def map[V2 <: Immutable](f: V => V2): IS[I, V2]
-
-  def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2]
-
-  def withFilter(p: V => B): IS[I, V]
-
-  def foreach(p: V => Unit): Unit
-
-  def size: I
-
-  def apply(index: I): V
-
-  def sizeMP: Z.MP
-
-  def elements: scala.Seq[V]
-
+  override def toString: Predef.String = boxer.toString(data, length)
 }

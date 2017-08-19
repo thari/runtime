@@ -110,6 +110,11 @@ object helper {
     sb.toString
   }
 
+  def escape(raw: Predef.String): Predef.String = {
+    import scala.reflect.runtime.universe._
+    Literal(Constant(raw)).toString
+  }
+
   def zCompanionName(name: Predef.String): Pat.Var.Term = Pat.Var.Term(Term.Name(s"$$${name}Companion"))
 
   def scName(name: Predef.String): Type.Name = Type.Name(name + "$Slang")
