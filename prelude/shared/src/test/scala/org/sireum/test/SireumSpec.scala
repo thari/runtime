@@ -45,7 +45,7 @@ object SireumSpec {
         }
         val expectedSeq = expected.map(org.sireumproto.String.escape).mkString(", ")
         val resultSeq = result.map(org.sireumproto.String.escape).mkString(", ")
-        assert(r, s"\nExpected:  [$expectedSeq] (of ${expected.getClass.getTypeName}),\nbut found: [$resultSeq] (of ${result.getClass.getTypeName})")
+        assert(r, s"\nExpected:  [$expectedSeq] (of ${expected.getClass.getName}),\nbut found: [$resultSeq] (of ${result.getClass.getName})")
         r
       case _ =>
         val r = result == expected

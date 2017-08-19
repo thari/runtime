@@ -115,7 +115,7 @@ object datatype {
         val isEqual = if (hasEquals) List() else List(q"def isEqual(other: Immutable): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..$applyArgs)"
         val toString = {
-          var appends = applyArgs.map(arg => q"sb.append(String.escape($arg))")
+          var appends = applyArgs.map(arg => q"sb.append(org.sireumproto.String.escape($arg))")
           appends =
             if (appends.isEmpty) appends
             else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))

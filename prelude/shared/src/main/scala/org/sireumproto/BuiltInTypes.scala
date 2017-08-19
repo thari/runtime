@@ -107,6 +107,10 @@ package org.sireumproto
   @pure def increase: Z
 
   @pure def decrease: Z
+
+  @pure def to(n: Z): ZRange
+
+  @pure def until(n: Z): ZRange
 }
 
 
@@ -141,7 +145,7 @@ package org.sireumproto
 
   @pure def -(e: V): IS[I, V]
 
-  @pure def indices: IS[Z, I]
+  @pure def indices: ZRange
 
   @pure def map[V2 <: Immutable](f: V => V2): IS[I, V2]
 
@@ -199,6 +203,85 @@ package org.sireumproto
 @ext trait Record extends Mutable
 
 @ext trait MSig extends Mutable
+
+@datatype class ZRange(init: Z,
+                       to: Z,
+                       @pure cond: Z => B,
+                       @pure step: (B, Z) => Z,
+                       isReverse: B) {
+
+  def foreach(f: Z => Unit): Unit = {
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+  }
+
+  @pure def map[V <: Immutable](f: Z => V): ISZ[V] = {
+    var r = ISZ[V]()
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          r = r :+ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          r = r :+ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+    r
+  }
+
+  @pure def flatMap[V <: Immutable](f: Z => ISZ[V]): ISZ[V] = {
+    var r = ISZ[V]()
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          r = r ++ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          r = r ++ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+    r
+  }
+
+  @pure def by(n: Z): ZRange = ZRange(init, to, cond, (r: B, i: Z) => if (r) i - n else i + n, isReverse)
+
+  @pure def withFilter(@pure filter: Z => B): ZRange =
+    ZRange(init, to, (i: Z) => cond(i) && filter(i), step, isReverse)
+
+  @pure def reverse: ZRange = ZRange(init, to, cond, step, !isReverse)
+
+}
 
 @range(min = -128, max = 127) class Z8
 

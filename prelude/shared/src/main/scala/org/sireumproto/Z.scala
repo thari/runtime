@@ -282,6 +282,7 @@ object Z extends $ZCompanion[Z] {
   }
 
   object Boxer {
+
     trait Byte extends $internal.Boxer {
       def box[T](o: scala.Any): T = o match {
         case o: scala.Byte => make(o).asInstanceOf[T]
@@ -389,6 +390,7 @@ object Z extends $ZCompanion[Z] {
         case o: MP.BigInt => o.value
       }
     }
+
   }
 
   object BV {
@@ -1489,4 +1491,8 @@ trait Z extends Any with Number[Z] {
   def toBigInt: scala.BigInt
 
   def toMP: Z.MP
+
+  def to(n: Z): ZRange = ZRange(this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+
+  def until(n: Z): ZRange = ZRange(this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
 }
