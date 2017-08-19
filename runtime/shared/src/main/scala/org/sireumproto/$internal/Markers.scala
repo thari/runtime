@@ -25,6 +25,10 @@
 
 package org.sireumproto.$internal
 
+trait ImmutableMarker extends Any with Clonable {
+  def $clone: ImmutableMarker = this
+}
+
 trait MutableMarker extends Any with Clonable {
   def owned: Boolean
   def owned_=(b: Boolean): MutableMarker

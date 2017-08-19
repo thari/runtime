@@ -25,12 +25,16 @@
 
 package org.sireumproto
 
+import org.sireumproto.$internal.{ImmutableMarker, MutableMarker}
 import spire.math._
 
 import scala.meta._
 import scala.meta.Term.{Apply, Select}
 
 object helper {
+
+  private val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
+
   def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
     var hasEquals = false
     var hasHash = false
@@ -48,6 +52,34 @@ object helper {
     (hasHash, hasEquals)
   }
 
+  def halt(msg: Any): Nothing = {
+    assume(assumption = false, msg.toString)
+    throw new Error
+  }
+
+  def clone[T](o: T): T = o match {
+    case o: ImmutableMarker => o.$clone.asInstanceOf[T]
+    case o: MutableMarker => o.$clone.asInstanceOf[T]
+    case _ => halt(topValueError)
+  }
+
+  def cloneAssign[T](o: T): T = o match {
+    case o: ImmutableMarker => o.$clone.asInstanceOf[T]
+    case o: MutableMarker => assign[T](o.$clone)
+    case _ => halt(topValueError)
+  }
+
+  def assign[T](x: MutableMarker): T =
+    (if (x.owned) x.$clone.owned = true else x.owned = true).asInstanceOf[T]
+
+  def assign[T](arg: T): T = {
+    arg match {
+      case x: MutableMarker => assign[T](x)
+      case _: ImmutableMarker => arg
+      case _ => halt(topValueError)
+    }
+  }
+
   def sIndexValue(tree: Defn.Type): Option[(Boolean, Type, Type)] = tree.body match {
     case t"IS[$index, $value]" => Some((true, index, value))
     case t"MS[$index, $value]" => Some((true, index, value))
@@ -58,10 +90,14 @@ object helper {
     case Lit.Int(n) => Some(n)
     case Lit.Long(n) => Some(n)
     case Apply(Select(Apply(Term.Name("StringContext"), Seq(Lit.String(s))), Term.Name("z")), Seq()) =>
-      try Some(BigInt(normNum(s))) catch { case _: Throwable => None }
+      try Some(BigInt(normNum(s))) catch {
+        case _: Throwable => None
+      }
     case tree: Term.Interpolate if tree.prefix.value == "z" && tree.args.isEmpty && tree.parts.size == 1 =>
       tree.parts.head match {
-        case Lit.String(s) => try Some(BigInt(normNum(s))) catch { case _: Throwable => None }
+        case Lit.String(s) => try Some(BigInt(normNum(s))) catch {
+          case _: Throwable => None
+        }
         case _ => None
       }
     case _ => None
@@ -111,8 +147,29 @@ object helper {
   }
 
   def escape(raw: Predef.String): Predef.String = {
-    import scala.reflect.runtime.universe._
-    Literal(Constant(raw)).toString
+    val sb = new java.lang.StringBuilder
+
+    def escapeChar(ch: Char): Unit = ch match {
+      case '\b' => sb.append("\\b")
+      case '\t' => sb.append("\\t")
+      case '\n' => sb.append("\\n")
+      case '\f' => sb.append("\\f")
+      case '\r' => sb.append("\\r")
+      case '"' => sb.append("\\\"")
+      case '\'' => sb.append("\\\'")
+      case '\\' => sb.append("\\\\")
+      case _ =>
+        if (ch.isControl) {
+          sb.append("\\0")
+          sb.append(Integer.toOctalString(ch.toInt))
+        }
+        else sb.append(ch)
+    }
+
+    sb.append('"')
+    raw.foreach(escapeChar)
+    sb.append('"')
+    sb.toString
   }
 
   def zCompanionName(name: Predef.String): Pat.Var.Term = Pat.Var.Term(Term.Name(s"$$${name}Companion"))

@@ -30,15 +30,13 @@ import org.sireumproto.$internal._
 import scala.language.implicitConversions
 
 
-trait Immutable extends Any with Clonable {
+trait Immutable extends Any with ImmutableMarker {
 
   def isEqual(other: Immutable): B
 
   def hash: Z
 
   def string: String
-
-  def $clone: Any = this
 
 }
 

@@ -25,7 +25,7 @@
 
 package org.sireumproto.$internal
 
-import org.sireumproto.{Z, String}
+import org.sireumproto.{Z, String, helper}
 
 object Boxer {
   val MaxArraySize: Z.MP = Z.MP(Int.MaxValue - 8)
@@ -47,21 +47,37 @@ trait Boxer {
 
   def create(length: Z.MP): scala.AnyRef = new Array[scala.Any](length)
 
-  def copy(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
-    ((src, dest): @unchecked) match {
-      case (src: Array[_], dest: Array[_]) => System.arraycopy(src, srcPos, dest, destPos, length)
-    }
-
   def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
     case a: Array[_] => box(a(i))
   }
 
   def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
-    case (a: Array[scala.Any]@unchecked) => a(i) = unbox(v)
+    case a: Array[scala.Any] => a(i) = unbox(v)
   }
 
   def size(a: scala.AnyRef): Z.MP = a match {
     case a: Array[_] => Z.MP(a.length)
+  }
+
+  def copy(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    if (length != Z.MP.zero) System.arraycopy(src, srcPos, dest, destPos, length)
+
+  def copyMut(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit = {
+    if (length == Z.MP.zero) return
+    var srcIndex: scala.Int = srcPos
+    var destIndex: scala.Int = destPos
+    val len: scala.Int = length
+    ((src, dest): @unchecked) match {
+      case (src: Array[scala.Any], dest: Array[scala.Any]) =>
+        for (_ <- 0 until len) {
+          src(srcIndex) match {
+            case o: Mutable => dest(destIndex) = helper.clone(o)
+            case o => dest(destIndex) = helper.clone(o)
+          }
+          srcIndex += 1
+          destIndex += 1
+        }
+    }
   }
 
   def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
@@ -76,6 +92,22 @@ trait Boxer {
       if (newSize > Boxer.MaxArraySize) newSize = Boxer.MaxArraySize
       val r = create(newSize)
       copy(a, Z.MP.zero, r, offset, length)
+      r
+    }
+  }
+
+  def cloneMut(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
+    val size = this.size(a)
+    if (size <= newLength) {
+      val r = create(size)
+      copyMut(a, Z.MP.zero, r, offset, length)
+      r
+    } else {
+      assert(newLength <= Boxer.MaxArraySize, s"Slang currently only supports IS/MS size up to ${Boxer.MaxArraySize}.")
+      var newSize = newLength * 3 / 2
+      if (newSize > Boxer.MaxArraySize) newSize = Boxer.MaxArraySize
+      val r = create(newSize)
+      copyMut(a, Z.MP.zero, r, offset, length)
       r
     }
   }
@@ -101,6 +133,11 @@ trait Boxer {
   protected implicit def toInt(n: Z.MP): scala.Int = n match {
     case n: Z.MP.Long => n.value.toInt
     case n: Z.MP.BigInt => n.value.toInt
+  }
+
+  protected implicit def toLong(n: Z.MP): scala.Long = n match {
+    case n: Z.MP.Long => n.value
+    case n: Z.MP.BigInt => n.value.toLong
   }
 }
 

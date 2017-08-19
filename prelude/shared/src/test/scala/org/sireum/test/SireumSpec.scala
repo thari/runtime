@@ -27,6 +27,34 @@ package org.sireum.test
 
 import org.scalatest.{FreeSpec, Tag}
 
+object SireumSpec {
+  implicit class Equiv(val result: scala.Any) extends AnyVal {
+    def equiv(expected: scala.Any): scala.Boolean = (result, expected) match {
+      case (result: scala.Array[_], expected: scala.Array[_]) =>
+        var r = true
+        if (result.length != expected.length) r = false
+        if (result.isInstanceOf[scala.Array[scala.Byte]] != expected.isInstanceOf[scala.Array[scala.Byte]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Char]] != expected.isInstanceOf[scala.Array[scala.Char]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Short]] != expected.isInstanceOf[scala.Array[scala.Short]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Int]] != expected.isInstanceOf[scala.Array[scala.Int]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Long]] != expected.isInstanceOf[scala.Array[scala.Long]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Float]] != expected.isInstanceOf[scala.Array[scala.Float]]) r = false
+        if (result.isInstanceOf[scala.Array[scala.Double]] != expected.isInstanceOf[scala.Array[scala.Double]]) r = false
+        for (i <- result.indices if r) {
+          if (result(i) != expected(i)) r = false
+        }
+        val expectedSeq = expected.map(org.sireumproto.String.escape).mkString(", ")
+        val resultSeq = result.map(org.sireumproto.String.escape).mkString(", ")
+        assert(r, s"\nExpected:  [$expectedSeq] (of ${expected.getClass.getTypeName}),\nbut found: [$resultSeq] (of ${result.getClass.getTypeName})")
+        r
+      case _ =>
+        val r = result == expected
+        assert(r, s"\nExpected:  $expected,\nbut found: $result")
+        r
+    }
+  }
+}
+
 abstract class SireumSpec extends FreeSpec {
 
   val ts: Seq[Tag] = Vector()

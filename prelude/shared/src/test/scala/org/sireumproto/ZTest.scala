@@ -26,9 +26,7 @@
 package org.sireumproto
 
 import org.sireum.test.SireumRuntimeSpec
-import spire.math._
-
-import scala.util.{Failure, Success, Try}
+import org.sireum.test.SireumSpec._
 
 class ZTest extends SireumRuntimeSpec {
 
@@ -36,7 +34,7 @@ class ZTest extends SireumRuntimeSpec {
 
   val x: Z = Z.random
 
-  *(x.toIndex == x)
+  *(x.toIndex equiv x)
 
   *(!x.isBitVector)
 
@@ -46,11 +44,11 @@ class ZTest extends SireumRuntimeSpec {
 
   *(x.isSigned)
 
-  *(x.Index == z"0")
+  *(x.Index equiv z"0")
 
-  *(x.Name == "Z")
+  *(x.Name equiv "Z")
 
-  *(x.decrease.increase == x)
+  *(x.decrease.increase equiv x)
 
   val random = new java.util.Random
 
@@ -62,7 +60,7 @@ class ZTest extends SireumRuntimeSpec {
       val n = rand()
       var m = rand()
       while (m == 0 && (op == "/" || op == "%")) m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).toBigInt == op2(n)(m))
+      *(s"$n $op $m")(op1(Z(n))(Z(m)).toBigInt equiv op2(n)(m))
     }
   }
 
@@ -71,7 +69,7 @@ class ZTest extends SireumRuntimeSpec {
     for (_ <- 0 until numOfRandomTests) {
       val n = rand()
       val m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).value == op2(n)(m))
+      *(s"$n $op $m")(op1(Z(n))(Z(m)).value equiv op2(n)(m))
     }
   }
 }

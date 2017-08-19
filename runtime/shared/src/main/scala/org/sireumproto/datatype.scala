@@ -63,7 +63,6 @@ object datatype {
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
     val (hasHash, hasEquals) = helper.hasHashEquals(tpe, stats)
-    val clone = q"override def $$clone: $tpe = this"
     val ctorName = Ctor.Name(tname.value)
     if (paramss.nonEmpty && paramss.head.nonEmpty) {
       var cparams: Vector[Term.Param] = Vector()
@@ -139,7 +138,7 @@ object datatype {
 //          }
 //          q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
 //        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -195,7 +194,7 @@ object datatype {
           Vector(q"""override def toString: java.lang.String = ${Lit.String(r)}""", q"override def string: String = toString")
         }
         //val content = q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends Datatype with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

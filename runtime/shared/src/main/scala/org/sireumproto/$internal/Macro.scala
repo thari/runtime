@@ -71,7 +71,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
     //println(showRaw(arg))
     val r =
-      if (arg.tpe <:< c.typeOf[MutableMarker]) q"$$$$assign($arg)"
+      if (arg.tpe <:< c.typeOf[MutableMarker]) q"helper.assign($arg)"
       else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
         val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
         Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), args(n))

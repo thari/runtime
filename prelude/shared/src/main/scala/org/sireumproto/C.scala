@@ -29,12 +29,22 @@ package org.sireumproto
 object C {
 
   object Boxer extends $internal.Boxer {
-    def box[T](o: scala.Any): T = (o: @unchecked) match {
+    def box[T](o: scala.Any): T = o match {
       case o: scala.Char => C(o).asInstanceOf[T]
     }
 
-    def unbox(o: scala.Any): scala.Any = (o: @unchecked) match {
+    def unbox(o: scala.Any): scala.Char = o match {
       case o: C => o.value
+    }
+
+    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Char](length)
+
+    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+      case a: Array[scala.Char] => box(a(i))
+    }
+
+    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+      case a: Array[scala.Char] => a(i) = unbox(v)
     }
   }
 

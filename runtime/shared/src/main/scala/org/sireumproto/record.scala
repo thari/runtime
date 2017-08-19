@@ -114,7 +114,7 @@ object record {
       }
       val cls = {
         val clone = {
-          val cloneNew = q"val r: $tpe = new $ctorName(..${applyArgs.map(arg => q"$$clone($arg)")})"
+          val cloneNew = q"val r: $tpe = new $ctorName(..${applyArgs.map(arg => q"helper.cloneAssign($arg)")})"
           q"override def $$clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
         }
         val hashCode =

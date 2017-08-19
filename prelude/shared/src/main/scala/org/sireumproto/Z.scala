@@ -198,7 +198,7 @@ object Z extends $ZCompanion[Z] {
 
   }
 
-  sealed trait MP extends Z {
+  sealed trait MP extends Z with $internal.HasBoxer {
 
     final def Name: Predef.String = Z.Name
 
@@ -277,6 +277,118 @@ object Z extends $ZCompanion[Z] {
 
     def toLongOpt: scala.Option[scala.Long]
 
+    def boxer: $internal.Boxer = Boxer.Z
+
+  }
+
+  object Boxer {
+    trait Byte extends $internal.Boxer {
+      def box[T](o: scala.Any): T = o match {
+        case o: scala.Byte => make(o).asInstanceOf[T]
+      }
+
+      def unbox(o: scala.Any): scala.Byte = o match {
+        case o: BV.Byte[_] => o.value
+        case o: Range[_] =>
+          val v: scala.Int = o.value
+          v.toByte
+      }
+
+      override def create(length: MP): scala.AnyRef = new Array[scala.Byte](length)
+
+      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+        case a: Array[scala.Byte] => box(a(i))
+      }
+
+      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+        case a: Array[scala.Byte] => a(i) = unbox(v)
+      }
+
+      def make(o: scala.Byte): scala.Any
+    }
+
+    trait Short extends $internal.Boxer {
+      def box[T](o: scala.Any): T = o match {
+        case o: scala.Short => make(o).asInstanceOf[T]
+      }
+
+      def unbox(o: scala.Any): scala.Short = o match {
+        case o: BV.Short[_] => o.value
+        case o: Range[_] =>
+          val v: scala.Int = o.value
+          v.toShort
+      }
+
+      override def create(length: MP): scala.AnyRef = new Array[scala.Short](length)
+
+      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+        case a: Array[scala.Short] => box(a(i))
+      }
+
+      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+        case a: Array[scala.Short] => a(i) = unbox(v)
+      }
+
+      def make(o: scala.Short): scala.Any
+    }
+
+    trait Int extends $internal.Boxer {
+      def box[T](o: scala.Any): T = o match {
+        case o: scala.Int => make(o).asInstanceOf[T]
+      }
+
+      def unbox(o: scala.Any): scala.Int = o match {
+        case o: BV.Int[_] => o.value
+        case o: Range[_] => o.value
+      }
+
+      override def create(length: MP): scala.AnyRef = new Array[scala.Int](length)
+
+      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+        case a: Array[scala.Int] => box(a(i))
+      }
+
+      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+        case a: Array[scala.Int] => a(i) = unbox(v)
+      }
+
+      def make(o: scala.Int): scala.Any
+    }
+
+    trait Long extends $internal.Boxer {
+      def box[T](o: scala.Any): T = o match {
+        case o: scala.Long => make(o).asInstanceOf[T]
+      }
+
+      def unbox(o: scala.Any): scala.Long = o match {
+        case o: BV.Long[_] => o.value
+        case o: Range[_] => o.value
+      }
+
+      override def create(length: MP): scala.AnyRef = new Array[scala.Long](length)
+
+      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+        case a: Array[scala.Long] => box(a(i))
+      }
+
+      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+        case a: Array[scala.Long] => a(i) = unbox(v)
+      }
+
+      def make(o: scala.Long): scala.Any
+    }
+
+    object Z extends $internal.Boxer {
+      def box[T](o: scala.Any): T = o match {
+        case o: MP.Long => o.asInstanceOf[T]
+        case o: scala.BigInt => MP.BigInt(o).asInstanceOf[T]
+      }
+
+      def unbox(o: scala.Any): scala.Any = o match {
+        case o: MP.Long => o
+        case o: MP.BigInt => o.value
+      }
+    }
   }
 
   object BV {
@@ -1053,7 +1165,7 @@ object Z extends $ZCompanion[Z] {
 
   }
 
-  private[sireumproto] trait BV extends Any with Z {
+  private[sireumproto] trait BV extends Any with Z with $internal.HasBoxer {
 
     final def isBitVector: scala.Boolean = true
 
@@ -1063,7 +1175,7 @@ object Z extends $ZCompanion[Z] {
 
   }
 
-  trait Range[T <: Range[T]] extends Any with Z {
+  trait Range[T <: Range[T]] extends Any with Z with $internal.HasBoxer {
 
     def value: MP
 

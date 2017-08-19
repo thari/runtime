@@ -71,19 +71,22 @@ object B {
           }
       }
 
-    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = (a: @unchecked) match {
+    override def copyMut(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
+
+    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
       case a: BS => box(a(i))
     }
 
-    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = (a: @unchecked) match {
+    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
       case a: BS => a.update(i, unbox(v))
     }
 
-    override def size(a: scala.AnyRef): Z.MP = (a: @unchecked) match {
+    override def size(a: scala.AnyRef): Z.MP = a match {
       case a: BS => sz
     }
 
-    override def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = (a: @unchecked) match {
+    override def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = a match {
       case a: BS =>
         val r = BS()
         for (i <- 0 until length) {
@@ -92,7 +95,10 @@ object B {
         r
     }
 
-    override def toString(a: scala.AnyRef, length: Z.MP): Predef.String = (a: @unchecked) match {
+    override def cloneMut(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef =
+      clone(a, length, newLength, offset)
+
+    override def toString(a: scala.AnyRef, length: Z.MP): Predef.String = a match {
       case a: BS =>
         val sb = new java.lang.StringBuilder
         val bs = a.toBitMask

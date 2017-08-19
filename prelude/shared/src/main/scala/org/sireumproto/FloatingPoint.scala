@@ -38,6 +38,26 @@ private[sireumproto] sealed trait FloatingPoint[F <: FloatingPoint[F]] extends A
 
 object F32 {
 
+  object Boxer extends $internal.Boxer {
+    def box[T](o: scala.Any): T = o match {
+      case o: scala.Float => F32(o).asInstanceOf[T]
+    }
+
+    def unbox(o: scala.Any): scala.Float = o match {
+      case o: F32 => o.value
+    }
+
+    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Float](length)
+
+    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+      case a: Array[scala.Float] => box(a(i))
+    }
+
+    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+      case a: Array[scala.Float] => a(i) = unbox(v)
+    }
+  }
+
   def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
 
   import scala.language.implicitConversions
@@ -46,7 +66,7 @@ object F32 {
 
 }
 
-final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] {
+final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] with $internal.HasBoxer {
 
   def BitWidth: Z = 32
 
@@ -77,9 +97,31 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] {
   def isEqual(other: Immutable): B = this == other
 
   def string: String = java.lang.Float.toString(value)
+
+  def boxer: $internal.Boxer = F32.Boxer
 }
 
 object F64 {
+
+  object Boxer extends $internal.Boxer {
+    def box[T](o: scala.Any): T = o match {
+      case o: scala.Double => F64(o).asInstanceOf[T]
+    }
+
+    def unbox(o: scala.Any): scala.Double = o match {
+      case o: F64 => o.value
+    }
+
+    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Double](length)
+
+    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+      case a: Array[scala.Double] => box(a(i))
+    }
+
+    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+      case a: Array[scala.Double] => a(i) = unbox(v)
+    }
+  }
 
   def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)
 
@@ -89,7 +131,7 @@ object F64 {
 
 }
 
-final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] {
+final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] with $internal.HasBoxer {
 
   def BitWidth: Z = 64
 
@@ -121,4 +163,5 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] 
 
   def string: String = java.lang.Double.toString(value)
 
+  def boxer: $internal.Boxer = F64.Boxer
 }

@@ -95,6 +95,31 @@ object range {
     val nameStr = Lit.String(name)
     val signed = minOpt.forall(_ < 0)
     val scTypeName = helper.scName(name)
+    val (boxerTerm, boxerObject) = (minOpt, maxOpt) match {
+      case (Some(min: BigInt), Some(max: BigInt)) =>
+        if (scala.Byte.MinValue.toInt <= min && max.toInt <= scala.Byte.MaxValue)
+          (q"$termName.Boxer", List[Stat](
+            q"""object Boxer extends Z.Boxer.Byte {
+                  def make(o: scala.Byte): $typeName = new $ctorName(Z.MP(o))
+                }"""))
+        else if (scala.Short.MinValue.toInt <= min && max.toInt <= scala.Short.MaxValue)
+          (q"$termName.Boxer", List[Stat](
+            q"""object Boxer extends Z.Boxer.Short {
+                  def make(o: scala.Short): $typeName = new $ctorName(Z.MP(o))
+                }"""))
+        else if (scala.Int.MinValue <= min && max <= scala.Int.MaxValue)
+          (q"$termName.Boxer", List[Stat](
+            q"""object Boxer extends Z.Boxer.Int {
+                  def make(o: scala.Int): $typeName = new $ctorName(Z.MP(o))
+                }"""))
+        else if (scala.Long.MinValue <= min && max <= scala.Long.MaxValue)
+          (q"$termName.Boxer", List[Stat](
+            q"""object Boxer extends Z.Boxer.Long {
+                  def make(o: scala.Long): $typeName = new $ctorName(Z.MP(o))
+                }"""))
+        else (q"Z.Boxer.Z", List[Stat]())
+      case _ => (q"Z.Boxer.Z", List[Stat]())
+    }
 
     def min = Lit.String(minOpt.map(_.toString).getOrElse("0"))
 
@@ -117,10 +142,12 @@ object range {
             @inline def hasMin: scala.Boolean = $termName.hasMin
             @inline def hasMax: scala.Boolean = $termName.hasMax
             def make(v: Z.MP): $typeName = $termName(v)
+            def boxer = $boxerTerm
           }""",
       q"""object $termName extends $$ZCompanion[$typeName] {
             type $isTypeName[T <: Immutable] = IS[$typeName, T]
-            type $msTypeName[T] = MS[$typeName, T]
+            type $msTypeName[T] = MS[$typeName, T];
+            ..$boxerObject;
             val Name: Predef.String = $nameStr
             lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
             lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)

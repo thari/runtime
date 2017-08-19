@@ -28,11 +28,11 @@ package org.sireumproto
 object String {
 
   object Boxer extends $internal.Boxer {
-    def box[T](o: scala.Any): T = (o: @unchecked) match {
+    def box[T](o: scala.Any): T = o match {
       case o: Predef.String => String(o).asInstanceOf[T]
     }
 
-    def unbox(o: scala.Any): scala.Any = (o: @unchecked) match {
+    def unbox(o: scala.Any): Predef.String = o match {
       case o: String => o.value
     }
   }
@@ -43,9 +43,14 @@ object String {
     o match {
       case o: String => helper.escape(o.value)
       case o: C => val s = helper.escape(o.toString); '\'' + s.substring(1, s.length - 1) + '\''
-      case o: F32 => o.toString + "f"
+      case o: F32 => o + "f"
       case o: R => "r\"" + o + '"'
-      case o: Z =>  o.Name.toLowerCase + '"' + o + '"'
+      case o: Z.MP.Long =>
+        val v = o.value
+        if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) v.toString
+        else v.toString + 'l'
+      case o: scala.BigInt => "z\"" + o + '"'
+      case o: Z => o.Name.toLowerCase + '"' + o + '"'
       case _ => o.toString
     }
   }

@@ -29,6 +29,16 @@ import spire.math.Real
 
 object R {
 
+  object Boxer extends $internal.Boxer {
+    def box[T](o: scala.Any): T = o match {
+      case o: Real => R(o).asInstanceOf[T]
+    }
+
+    def unbox(o: scala.Any): Real = o match {
+      case o: R => o.value
+    }
+  }
+
   def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)
 
   def apply(s: String): R = Real(s.value)
@@ -43,7 +53,7 @@ object R {
 
 }
 
-final class R(val value: Real) extends AnyVal with Number[R] {
+final class R(val value: Real) extends AnyVal with Number[R] with $internal.HasBoxer {
 
   @inline def <(other: R): B = value.compare(other.value) < 0
 
@@ -70,4 +80,6 @@ final class R(val value: Real) extends AnyVal with Number[R] {
   @inline def string: String = toString
 
   @inline override def toString: Predef.String = value.toString
+
+  def boxer: $internal.Boxer = R.Boxer
 }

@@ -25,27 +25,20 @@
 
 package org.sireumproto.$internal
 
-import org.sireumproto.{$ZCompanion, Immutable, Mutable, Z, IS, MS}
+import org.sireumproto.{$ZCompanion, Immutable, Z, IS, MS, helper}
+import language.experimental.macros
 
 trait PackageTrait {
 
   type ISZ[T <: Immutable] = IS[Z, T]
   type MSZ[T] = MS[Z, T]
 
-  private val $topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
-
-  val T: org.sireumproto.B = true
-  val F: org.sireumproto.B = false
-
-  def $clone[T](o: T): T = o match {
-    case o: Immutable => o.$clone.asInstanceOf[T]
-    case o: Mutable => o.$clone.asInstanceOf[T]
-    case _ => halt($topValueError)
+  object up {
+    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
   }
 
-  def halt(msg: Any): Nothing = {
-    assume(assumption = false, msg.toString)
-    throw new Error
+  object pat {
+    def update(args: Any*): Unit = macro Macro.pat
   }
 
   object ISZ {
@@ -58,27 +51,14 @@ trait PackageTrait {
     def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
   }
 
-  import language.experimental.macros
+  val T: org.sireumproto.B = true
+  val F: org.sireumproto.B = false
+
+  def halt(msg: Any): Nothing = helper.halt(msg)
 
   def $[T]: T = macro Macro.$[T]
 
   def $assign[T](arg: T): T = macro Macro.$assign
-
-  def $$assign[T](arg: T): T = {
-    arg match {
-      case x: Mutable => (if (x.owned) x.$clone.owned = true else x.owned = true).asInstanceOf[T]
-      case _: Immutable => arg
-      case _ => halt($topValueError)
-    }
-  }
-
-  object up {
-    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
-  }
-
-  object pat {
-    def update(args: Any*): Unit = macro Macro.pat
-  }
 
   import language.implicitConversions
 

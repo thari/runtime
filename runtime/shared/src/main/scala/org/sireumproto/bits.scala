@@ -104,10 +104,11 @@ object bits {
     val isZeroIndex = Lit.Boolean(index == 0)
     val minErrorMessage = Lit.String(s" is less than $name.Min ($min)")
     val maxErrorMessage = Lit.String(s" is greater than $name.Max ($max)")
-    val (valueTypeName, bvType, minLit, maxLit, indexLit, randomSeed, apply, intObject, longObject, bigIntObject) = width match {
+    val (valueTypeName, bvType, boxerType, minLit, maxLit, indexLit, randomSeed, apply, intObject, longObject, bigIntObject) = width match {
       case 8 => (
         t"scala.Byte",
         ctor"Z.BV.Byte[$typeName]",
+        ctor"Z.Boxer.Byte",
         q"(${Lit.Int(min.toInt)}).toByte",
         q"(${Lit.Int(max.toInt)}).toByte",
         q"(${Lit.Int(index.toInt)}).toByte",
@@ -143,6 +144,7 @@ object bits {
       case 16 => (
         t"scala.Short",
         ctor"Z.BV.Short[$typeName]",
+        ctor"Z.Boxer.Short",
         q"(${Lit.Int(min.toInt)}).toShort",
         q"(${Lit.Int(max.toInt)}).toShort",
         q"(${Lit.Int(index.toInt)}).toShort",
@@ -178,6 +180,7 @@ object bits {
       case 32 => (
         t"scala.Int",
         ctor"Z.BV.Int[$typeName]",
+        ctor"Z.Boxer.Int",
         Lit.Int(min.toInt),
         Lit.Int(max.toInt),
         Lit.Int(index.toInt),
@@ -217,6 +220,7 @@ object bits {
       case 64 => (
         t"scala.Long",
         ctor"Z.BV.Long[$typeName]",
+        ctor"Z.Boxer.Long",
         Lit.Long(min.toLong),
         Lit.Long(max.toLong),
         Lit.Long(index),
@@ -270,10 +274,14 @@ object bits {
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def isWrapped: scala.Boolean = $termName.isWrapped
             def make(v: $valueTypeName): $typeName = $termName(v)
+            def boxer = $termName.Boxer
           }""",
       q"""object $termName extends $$ZCompanion[$typeName] {
             type $isTypeName[T <: Immutable] = IS[$typeName, T]
             type $msTypeName[T] = MS[$typeName, T]
+            object Boxer extends $boxerType {
+              def make(o: $valueTypeName): $typeName = new $ctorName(o)
+            }
             val Name: Predef.String = $nameStr
             val BitWidth: scala.Int = ${Lit.Int(width)}
             val Min: $typeName = new $ctorName($minLit)
