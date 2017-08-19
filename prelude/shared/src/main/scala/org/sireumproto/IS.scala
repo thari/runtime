@@ -129,14 +129,14 @@ final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
 
   def -(e: V): IS[I, V] = if (isEmpty) this else withFilter(_ == e)
 
-  def indices: ZRange = {
+  def indices: ZRange[I] = {
     var j: Z = companion.Index
     var i = Z.MP.zero
     while (i < length) {
       i = i.increase
       j = j.increase
     }
-    ZRange(companion.Index, j, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+    ZRange(companion.Index, j.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
   }
 
   def map[V2 <: Immutable](f: V => V2): IS[I, V2] =

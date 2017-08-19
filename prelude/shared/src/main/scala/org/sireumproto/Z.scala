@@ -1492,7 +1492,86 @@ trait Z extends Any with Number[Z] {
 
   def toMP: Z.MP
 
-  def to(n: Z): ZRange = ZRange(this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+  def to[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
 
-  def until(n: Z): ZRange = ZRange(this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+  def until[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+}
+
+@datatype class ZRange[I <: Z](init: I,
+                               to: I,
+                               @pure cond: I => B,
+                               @pure step: (B, I) => I,
+                               isReverse: B) {
+
+  def foreach(f: I => Unit): Unit = {
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+  }
+
+  @pure def map[V <: Immutable](f: I => V): ISZ[V] = {
+    var r = ISZ[V]()
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          r = r :+ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          r = r :+ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+    r
+  }
+
+  @pure def flatMap[V <: Immutable](f: I => ISZ[V]): ISZ[V] = {
+    var r = ISZ[V]()
+    if (isReverse) {
+      var i = to
+      while (i >= init) {
+        if (cond(i)) {
+          r = r ++ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    } else {
+      var i = init
+      while (i <= to) {
+        if (cond(i)) {
+          r = r ++ f(i)
+        }
+        i = step(isReverse, i)
+      }
+    }
+    r
+  }
+
+  @pure def by(n: I): ZRange[I] = ZRange(init, to, cond, (r: B, i: Z) => if (r) (i - n).asInstanceOf[I] else (i + n).asInstanceOf[I], isReverse)
+
+  @pure def withFilter(@pure filter: I => B): ZRange[I] =
+    ZRange(init, to, (i: I) => cond(i) && filter(i), step, isReverse)
+
+  @pure def reverse: ZRange[I] = ZRange(init, to, cond, step, !isReverse)
+
 }
