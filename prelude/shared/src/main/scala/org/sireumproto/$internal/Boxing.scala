@@ -71,8 +71,8 @@ trait Boxer {
       case (src: Array[scala.Any], dest: Array[scala.Any]) =>
         for (_ <- 0 until len) {
           src(srcIndex) match {
-            case o: Mutable => dest(destIndex) = helper.clone(o)
-            case o => dest(destIndex) = helper.clone(o)
+            case o: Mutable => dest(destIndex) = helper.cloneAssign(o)
+            case o => dest(destIndex) = helper.cloneAssign(o)
           }
           srcIndex += 1
           destIndex += 1

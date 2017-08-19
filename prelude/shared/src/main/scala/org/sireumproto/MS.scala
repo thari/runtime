@@ -25,24 +25,222 @@
 
 package org.sireumproto
 
-import org.sireumproto.$internal.MSMarker
+import org.sireumproto.$internal.{Boxer, MSMarker}
 
 object MS {
 
-  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = ???
+  def checkSize[I <: Z](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+    assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
+    assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
+  }
 
-  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = ???
+  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+    checkSize(Z.MP(args.length))(companion)
+    val boxer = Boxer.boxerSeq(args)
+    val length = Z.MP(args.length)
+    val a = boxer.create(length)
+    var i = Z.MP.zero
+    for (arg <- args) {
+      boxer.store(a, i, helper.assign(arg))
+      i = i.increase
+    }
+    MS[I, V](companion, a, length, boxer)
+  }
+
+  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = size match {
+    case size: Z.MP =>
+      checkSize(size)(companion)
+      val length = size
+      val boxer = Boxer.boxer(default)
+      val a = boxer.create(length)
+      var i = Z.MP.zero
+      while (i < length) {
+        boxer.store(a, i, helper.assign(default))
+        i = i.increase
+      }
+      MS[I, V](companion, a, length, boxer)
+    case _ => halt("Slang MS operation 'create' requires size of exactly type 'Z'.")
+  }
+
+  def apply[I <: Z, V](companion: $ZCompanion[I],
+                       data: scala.AnyRef,
+                       length: Z.MP,
+                       boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
 
 }
 
-trait MS[I <: Z, V] extends Mutable with MSMarker {
+final class MS[I <: Z, V](val companion: $ZCompanion[I],
+                          val data: scala.AnyRef,
+                          val length: Z.MP,
+                          val boxer: Boxer) extends Mutable with MSMarker {
+
   private var isOwned: Boolean = false
 
   def owned: Boolean = isOwned
+
   def owned_=(b: Boolean): this.type = {
     isOwned = b
     this
   }
 
-  def size: Z
+  def $clone: MS[I, V] = {
+    val a = boxer.cloneMut(data, length, length, Z.MP.zero)
+    MS[I, V](companion, a, length, boxer)
+  }
+
+  def isEmpty: B = length == Z.MP.zero
+
+  def nonEmpty: B = length != Z.MP.zero
+
+  def :+(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
+    val newLength = length.increase
+    MS.checkSize(newLength)
+    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+    boxer.store(a, length, helper.assign(e))
+    MS[I, V](companion, a, newLength, boxer)
+  }
+
+  def +:(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
+    val newLength = length.increase
+    MS.checkSize(newLength)
+    val a = boxer.cloneMut(data, length, newLength, Z.MP.one)
+    boxer.store(a, Z.MP.zero, helper.assign(e))
+    MS[I, V](companion, a, newLength, boxer)
+  }
+
+  def ++(other: MS[I, V]): MS[I, V] = if (isEmpty) other else {
+    if (other.length == Z.MP.zero) return this
+    val newLength = length + other.length
+    MS.checkSize(newLength)
+    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+    var i = length
+    var j = Z.MP.zero
+    while (i < newLength) {
+      boxer.store(a, i, helper.assign(boxer.lookup(other.data, j)))
+      i = i.increase
+      j = j.increase
+    }
+    MS[I, V](companion, a, newLength, boxer)
+  }
+
+  def --(other: MS[I, V]): MS[I, V] =
+    if (isEmpty || other.length == Z.MP.zero) this else {
+      val otherElements = other.elements
+      var sm = elements.withFilter(_ == otherElements.head)
+      for (e <- other.elements.tail) {
+        sm = sm.withFilter(_ == e)
+      }
+      val s = sm.map(identity)
+      val newLength = Z.MP(s.size)
+      val a = boxer.create(newLength)
+      var i = Z.MP.zero
+      for (e <- s) {
+        boxer.store(a, i, helper.assign(e))
+        i = i.increase
+      }
+      MS[I, V](companion, a, newLength, boxer)
+    }
+
+  def -(e: V): MS[I, V] = if (isEmpty) this else withFilter(_ == e)
+
+  def indices: ZRange[I] = {
+    var j: Z = companion.Index
+    var i = Z.MP.zero
+    while (i < length) {
+      i = i.increase
+      j = j.increase
+    }
+    ZRange(companion.Index, j.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+  }
+
+  def map[V2](f: V => V2): MS[I, V2] =
+    if (isEmpty) this.asInstanceOf[MS[I, V2]] else {
+      var a: AnyRef = null
+      var boxer2: Boxer = null
+      var i = Z.MP.zero
+      while (i < length) {
+        val v2 = f(boxer.lookup(a, i))
+        if (boxer2 == null) {
+          boxer2 = Boxer.boxer(v2)
+          a = boxer2.cloneMut(data, length, length, Z.MP.zero)
+        }
+        boxer2.store(a, i, helper.assign(v2))
+        i = i.increase
+      }
+      MS[I, V2](companion, a, length, boxer)
+    }
+
+  def flatMap[V2](f: V => MS[I, V2]): MS[I, V2] =
+    if (isEmpty) this.asInstanceOf[MS[I, V2]] else {
+      val es = elements
+      var r = f(es.head)
+      for (e <- es.tail) {
+        r = r ++ f(e)
+      }
+      r
+    }
+
+  def withFilter(p: V => B): MS[I, V] = {
+    val s = elements.withFilter(e => p(e).value).map(identity)
+    val newLength = Z.MP(s.length)
+    val a = boxer.create(newLength)
+    var i = Z.MP.zero
+    for (e <- s) {
+      boxer.store(a, i, helper.assign(e))
+      i = i.increase
+    }
+    MS[I, V](companion, a, newLength, boxer)
+  }
+
+  def foreach(f: V => Unit): Unit = {
+    var i = Z.MP.zero
+    while (i < length) {
+      f(boxer.lookup(data, i))
+      i = i.increase
+    }
+  }
+
+  def size: I =
+    if (companion.isZeroIndex) companion(length)
+    else halt(s"Operation 'size' can only be used on zero-indexed MS.")
+
+  def apply(index: I): V = {
+    val i = index.toIndex
+    assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    boxer.lookup(data, i)
+  }
+
+  def update(index: I, value: V): Unit = {
+    val i = index.toIndex
+    assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    boxer.store(data, i, helper.assign(value))
+  }
+
+  def elements: scala.Seq[V] = {
+    var r = scala.Vector[V]()
+    var i = Z.MP.zero
+    while (i < length) {
+      r = r :+ boxer.lookup[V](data, i)
+      i = i.increase
+    }
+    r
+  }
+
+  lazy val hash: Z = elements.hashCode
+
+  def isEqual(other: Mutable): B = this == other
+
+  override def equals(other: scala.Any): scala.Boolean =
+    if (this eq other.asInstanceOf[scala.AnyRef]) true
+    else other match {
+      case other: MS[_, _] =>
+        if (companion ne other.companion) return false
+        if (length != other.length) return false
+        elements == other.elements
+      case _ => false
+    }
+
+  def string: String = toString
+
+  override def toString: Predef.String = boxer.toString(data, length)
 }

@@ -191,7 +191,31 @@ package org.sireumproto
 
 
 @ext trait MS[I <: Z, V] extends Mutable {
-  @pure def size: Z
+
+  @pure def isEmpty: B
+
+  @pure def nonEmpty: B
+
+  @pure def :+(e: V): MS[I, V]
+
+  @pure def +:(e: V): MS[I, V]
+
+  @pure def ++(other: MS[I, V]): MS[I, V]
+
+  @pure def --(other: MS[I, V]): MS[I, V]
+
+  @pure def -(e: V): MS[I, V]
+
+  @pure def map[V2](f: V => V2): MS[I, V2]
+
+  @pure def flatMap[V2](f: V => MS[I, V2]): MS[I, V2]
+
+  @pure def withFilter(p: V => B): MS[I, V]
+
+  @pure def foreach(p: V => Unit): Unit
+
+  @pure def size: I
+
 }
 
 
