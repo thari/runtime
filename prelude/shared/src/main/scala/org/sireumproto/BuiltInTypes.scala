@@ -29,11 +29,8 @@ package org.sireumproto
 
 @ext trait Immutable {
 
-  @pure def isEqual(other: Immutable): B
-
-  @pure def hash: Z
-
   @pure def string: String
+
 }
 
 
@@ -83,7 +80,25 @@ package org.sireumproto
 }
 
 
-@ext trait C extends Ordered[C]
+@ext trait C extends Ordered[C] {
+  def <(other: C): B
+
+  def <=(other: C): B
+
+  def >(other: C): B
+
+  def >=(other: C): B
+
+  def >>>(other: C): C
+
+  def <<(other: C): C
+
+  def &(other: C): C
+
+  def |(other: C): C
+
+  def |^(other: C): C
+}
 
 
 @ext trait Z extends Number[Z] {
@@ -123,10 +138,18 @@ package org.sireumproto
 @ext trait R extends Number[R]
 
 
-@ext trait String extends Immutable
+@ext trait String extends Immutable {
+
+  def size: Z
+
+  def toCis: IS[Z, C]
+
+  def toCms: MS[Z, C]
+
+}
 
 
-@ext trait IS[I <: Z, V <: Immutable] extends Immutable {
+@ext trait IS[I <: Z, V] extends Immutable {
 
   @pure def isEmpty: B
 
@@ -142,9 +165,9 @@ package org.sireumproto
 
   @pure def -(e: V): IS[I, V]
 
-  @pure def map[V2 <: Immutable](f: V => V2): IS[I, V2]
+  @pure def map[V2](f: V => V2): IS[I, V2]
 
-  @pure def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2]
+  @pure def flatMap[V2](f: V => IS[I, V2]): IS[I, V2]
 
   @pure def withFilter(p: V => B): IS[I, V]
 
@@ -154,6 +177,9 @@ package org.sireumproto
 
 }
 
+@ext trait Enum extends Immutable {
+  def numOfElements: Z
+}
 
 @ext trait Datatype extends Immutable
 
@@ -171,9 +197,6 @@ package org.sireumproto
 
   @pure def string: String
 
-  @pure def isEqual(other: Mutable): B
-
-  @pure def hash: Z
 }
 
 

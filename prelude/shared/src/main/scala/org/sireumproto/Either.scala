@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -23,49 +24,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireumproto.$internal
+package org.sireumproto
 
-import org.sireumproto.{$ZCompanion, Immutable, Z, IS, MS, helper}
-import language.experimental.macros
-
-trait PackageTrait {
-
-  type ISZ[T] = IS[Z, T]
-  type MSZ[T] = MS[Z, T]
-
-  object up {
-    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
-  }
-
-  object pat {
-    def update(args: Any*): Unit = macro Macro.pat
-  }
-
-  object ISZ {
-    def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
-    def create[V](size: Z, default: V): ISZ[V] = IS.create[Z, V](size, default)
-  }
-
-  object MSZ {
-    def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
-    def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
-  }
-
-  val T: org.sireumproto.B = true
-  val F: org.sireumproto.B = false
-
-  def halt(msg: Any): Nothing = helper.halt(msg)
-
-  def $[T]: T = macro Macro.$[T]
-
-  import language.implicitConversions
-
-  @inline implicit def $2BigIntOpt(n: scala.Int): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: org.sireumproto.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
-
-  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
-
+@datatype class Either[L, R](leftOpt: Option[L],
+                             rightOpt: Option[R]) {
+  l""" invariant leftOpt.nonEmpty || rightOpt.nonEmpty """
 }

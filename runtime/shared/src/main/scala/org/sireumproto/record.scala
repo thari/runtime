@@ -48,7 +48,7 @@ object record {
             p"case _ => false")
         List(q"override def equals(o: scala.Any): scala.Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }")
       } else List()
-    val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
+    val hash = if (hasHash) List(q"override def hashCode: scala.Int = hash.hashCode") else List()
     q"sealed trait $tname[..$tparams] extends Record with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
   }
 
@@ -118,7 +118,7 @@ object record {
           q"override def $$clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
         }
         val hashCode =
-          if (hasHash) q"override val hashCode: scala.Int = hash.toInt"
+          if (hasHash) q"override val hashCode: scala.Int = hash.hashCode"
           else if (hasEqual) q"override def hashCode: scala.Int = 0"
           else {
             val hashCodeDirty = q"private var dirty: scala.Boolean = true"
@@ -143,8 +143,6 @@ object record {
                 p"case _ => false")
             q"override def equals(o: scala.Any): scala.Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }"
           }
-        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: Mutable): B = this == other")
         val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..${applyArgs.map(arg => q"$$assign($arg)")})"
         val toString = {
           var appends = applyArgs.map(arg => q"sb.append(String.escape($arg))")
@@ -170,7 +168,7 @@ object record {
 //          }
 //          q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
 //        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Record with ..$ctorcalls { ..${vars ++ hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends Record with ..$ctorcalls { ..${vars ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -206,7 +204,7 @@ object record {
           q"override def $$clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
         } else q"override def $$clone: $tpe = this"
         val hashCode =
-          if (hasHash) q"override val hashCode: scala.Int = hash.toInt"
+          if (hasHash) q"override val hashCode: scala.Int = hash.hashCode"
           else if (hasEqual) q"override val hashCode: scala.Int = 0"
           else q"override val hashCode: scala.Int = this.getClass.hashCode"
         val equals =
@@ -223,14 +221,12 @@ object record {
                 p"case _ => false")
             q"override def equals(o: scala.Any): Boolean = if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases }"
           }
-        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: Mutable): B = this == other")
         val toString = {
           val r = tname.value + "()"
           Vector(q"""override def toString: java.lang.String = ${Lit.String(r)}""", q"override def string: String = toString")
         }
 //        val content = q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends Record with ..$ctorcalls { ..${hash ++ isEqual ++ toString ++ Vector(hashCode, equals, clone) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends Record with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, clone) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =

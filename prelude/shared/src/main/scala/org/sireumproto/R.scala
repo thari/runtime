@@ -41,11 +41,17 @@ object R {
 
   def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)
 
-  def apply(s: String): R = Real(s.value)
+  def apply(s: String): Option[R] = try Some(R.String(s.value)) catch { case _: Throwable => None[R]() }
 
   def apply(f: scala.Float): R = Real(f)
 
   def apply(d: scala.Double): R = Real(d)
+
+  def apply(n: Z): R = Real(n.toBigInt)
+
+  object String {
+    def apply(s: Predef.String): R = Real(s)
+  }
 
   import scala.language.implicitConversions
 
@@ -72,10 +78,6 @@ final class R(val value: Real) extends AnyVal with Number[R] with $internal.HasB
   @inline def /(other: R): R = value / other.value
 
   @inline def %(other: R): R = value % other.value
-
-  @inline def hash: Z = value.hashCode
-
-  @inline def isEqual(other: Immutable): B = this == other
 
   @inline def string: String = toString
 

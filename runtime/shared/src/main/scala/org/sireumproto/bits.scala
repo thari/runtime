@@ -301,6 +301,7 @@ object bits {
               $randomSeed
             }
             $apply;
+            def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.toMP);
             $intObject;
             $longObject;

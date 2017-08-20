@@ -43,8 +43,9 @@ object rich {
     val traitDef = q"trait $tname[..$tparams] extends Rich { ..$stats }"
     val objectDef = {
       val fParams = (if (tVars.size > 1) Vector(t"(..$tVars)") else tVars) :+ Type.Name("R_")
+      val richF = q"trait Rich$$F[T, U] { def result: U }"
       val apply = q"def apply[..${tParams :+ tparam"R_ <: $tpe"}](f: Rich$$F[..$fParams]): R_ = f.result"
-      o.copy(templ = o.templ.copy(stats = o.templ.stats.map(_ :+ apply)))
+      o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(richF, apply))))
     }
     Term.Block(Vector(traitDef, objectDef))
   }
@@ -102,15 +103,20 @@ object rich {
           else q"def $name[..$tparams](...$paramss): $tpeopt = $extName.$name[..$tVars](..${varNames ++ params})"
         } else stat
     }
+    val stats2 = List[Stat](
+      q"""final override def string: String = halt("Slang @rich does not support operation 'string'.")""",
+      q"""final override def hashCode: scala.Int = halt("Slang @rich does not support operation 'hashCode'.")""",
+      q"""final override def equals(other: scala.Any): scala.Boolean = halt("Slang @rich does not support operation '=='.")"""
+    )
     val classDef =
-      if (tparams.isEmpty) q"final class $tname(...$paramss) extends ..$ctorcalls { ..$newStats }"
-      else q"final class $tname[..$tparams](...$paramss) extends ..$ctorcalls { ..$newStats }"
+      if (tparams.isEmpty) q"final class $tname(...$paramss) extends Rich with ..$ctorcalls { ..${newStats ++ stats2} }"
+      else q"final class $tname[..$tparams](...$paramss) extends Rich with ..$ctorcalls { ..${newStats ++ stats2} }"
     val objectDef = {
       val ctorName = Ctor.Name(tname.value)
       val apply =
         if (tparams.isEmpty) q"def apply(...$paramss): $tpe = new $ctorName(..$varNames)"
         else q"def apply[..$tparams](...$paramss): $tpe = new $ctorName(..$varNames)"
-      if (ctorcalls.isEmpty) q"object ${Term.Name(tname.value)} { $apply }"
+      if (ctorcalls.isEmpty) o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) :+ apply)))
       else {
         val impClasses: Vector[Option[Stat]] = for (ctorcall <- ctorcalls.toVector) yield ctorcall match {
           case ctor"$ref[..$atpesnel]()" if paramss.nonEmpty && paramss.head.nonEmpty =>
@@ -121,16 +127,22 @@ object rich {
                   (q"lazy val result: $tpe = apply(..${varTypes.indices.map(i => q"arg.${Term.Name(s"_${i + 1}")}")})",
                     param"arg: (..$varTypes)")
                 else (q"lazy val result: $tpe = apply(arg)", param"arg: ${varTypes.head}")
+              val richF = ref match {
+                case ctor"$ref.$ctorname" =>
+                  val o = q"$ref.${Term.Name(ctorname.value)}"
+                  ctor"$o.${Ctor.Name("Rich$F")}[$argType, $tpe]"
+                case ref: Ctor.Name => ctor"${Term.Name(ref.value)}.${Ctor.Name("Rich$F")}[$argType, $tpe]"
+              }
               val ctorname = ref.syntax.replaceAllLiterally(".", "_")
               if (tparams.nonEmpty)
-                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}[..$tparams]($impParam) extends Rich$$F[$argType, $tpe] { $result }"""
+                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}[..$tparams]($impParam) extends $richF { $result }"""
               else
-                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}($impParam) extends Rich$$F[$argType, $tpe] { $result }"""
+                q"""implicit final class ${Type.Name(s"${tname.value}_${ctorname}_F")}($impParam) extends $richF { $result }"""
             }
             Some(impClass)
           case _ => None
         }
-        q"""object ${Term.Name(tname.value)} { ..${impClasses.flatten :+ apply} }"""
+        o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ (impClasses.flatten :+ apply))))
       }
     }
     Term.Block(Vector(classDef, objectDef))
@@ -151,6 +163,3 @@ final class rich extends scala.annotation.StaticAnnotation {
   }
 }
 
-trait Rich$F[T, U] {
-  def result: U
-}

@@ -1299,7 +1299,10 @@ object Z extends $ZCompanion[Z] {
     case _ => halt(s"Unsupported Z creation from ${n.Name}.")
   }
 
-  def apply(s: String): Z = scala.BigInt(s.value)
+  def apply(s: String): Option[Z] =
+    try Some(Z.String(s.value)) catch {
+      case _: Throwable => None[Z]()
+    }
 
   object Int extends $ZCompanionInt[Z] {
     @inline def apply(n: scala.Int): Z = MP(n)
@@ -1436,7 +1439,7 @@ trait $ZCompanionBigInt[T <: Z] {
   def unapply(n: T): scala.Option[scala.BigInt]
 }
 
-trait Z extends Any with Number[Z] {
+trait Z extends Any with Number[Z] with Comparable[Z] {
 
   def Name: Predef.String
 
@@ -1482,10 +1485,6 @@ trait Z extends Any with Number[Z] {
 
   def toIndex: Z.Index
 
-  final def isEqual(other: Immutable): B = this == other
-
-  final def hash: Z = hashCode
-
   final override def string: String = toString
 
   def toBigInt: scala.BigInt
@@ -1495,6 +1494,9 @@ trait Z extends Any with Number[Z] {
   def to[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
 
   def until[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+
+  def compareTo(other: Z): scala.Int =
+    if (this < other) -1 else if (this > other) 1 else 0
 }
 
 @datatype class ZRange[I <: Z](init: I,
@@ -1523,7 +1525,7 @@ trait Z extends Any with Number[Z] {
     }
   }
 
-  @pure def map[V <: Immutable](f: I => V): ISZ[V] = {
+  @pure def map[V](f: I => V): ISZ[V] = {
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
@@ -1545,7 +1547,7 @@ trait Z extends Any with Number[Z] {
     r
   }
 
-  @pure def flatMap[V <: Immutable](f: I => ISZ[V]): ISZ[V] = {
+  @pure def flatMap[V](f: I => ISZ[V]): ISZ[V] = {
     var r = ISZ[V]()
     if (isReverse) {
       var i = to

@@ -50,24 +50,26 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def extractParts: Seq[c.Tree] = c.prefix.tree match {
     case q"org.sireumproto.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
     case q"sireumproto.this.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
+    case q"org.sireumproto.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
+    case q"sireumproto.this.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
   }
 
   def zApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang z\"...\" should not contain $$ arguments.")
-    q"Z(${parts.head})"
+    q"Z.String(${parts.head})"
   }
 
   def rApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang r\"...\" should not contain $$ arguments.")
-    q"R(${parts.head})"
+    q"R.String(${parts.head})"
   }
 
   def $assign(arg: c.Tree): c.Tree = {
     def args(n: Int): List[c.Tree] =
       (for (i <- 1 to n) yield
-        Apply(Ident(TermName("$$assign")), List(Select(arg, TermName(s"_$i"))))).toList
+        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(arg, TermName(s"_$i"))))).toList
 
     //println(showRaw(arg))
     val r =
@@ -230,7 +232,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
         val e = exprs(1)
         val t = e.tpe
         if (t <:< c.typeOf[Predef.String]) processArg(exprs.head, e)
-        else if (t =:= c.typeOf[org.sireum._String]) processArg(exprs.head, q"$e.value")
+        else if (t.typeSymbol.fullName == "org.sireumproto.String") processArg(exprs.head, q"$e.value")
         else c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
       case _ =>
         processArg(arg, Literal(Constant("")))

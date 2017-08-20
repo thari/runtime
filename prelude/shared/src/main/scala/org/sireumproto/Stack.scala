@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -23,49 +24,44 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireumproto.$internal
+package org.sireumproto
 
-import org.sireumproto.{$ZCompanion, Immutable, Z, IS, MS, helper}
-import language.experimental.macros
+import org.sireumproto.ops.ISOps
+import org.sireumproto.ops.ISZOps._
 
-trait PackageTrait {
 
-  type ISZ[T] = IS[Z, T]
-  type MSZ[T] = MS[Z, T]
+object Stack {
+  def empty[T]: Stack[T] = {
+    return Stack[T](ISZ())
+  }
+}
 
-  object up {
-    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
+@datatype class Stack[T](elements: ISZ[T]) {
+  def isEmpty: B = {
+    return elements.isEmpty
   }
 
-  object pat {
-    def update(args: Any*): Unit = macro Macro.pat
+  def nonEmpty: B = {
+    return elements.nonEmpty
   }
 
-  object ISZ {
-    def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
-    def create[V](size: Z, default: V): ISZ[V] = IS.create[Z, V](size, default)
+  def peek: Option[T] = {
+    if (nonEmpty) {
+      return Some(elements(elements.size - 1))
+    } else {
+      return None()
+    }
   }
 
-  object MSZ {
-    def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
-    def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
+  def push(e: T): Stack[T] = {
+    return Stack(elements :+ e)
   }
 
-  val T: org.sireumproto.B = true
-  val F: org.sireumproto.B = false
-
-  def halt(msg: Any): Nothing = helper.halt(msg)
-
-  def $[T]: T = macro Macro.$[T]
-
-  import language.implicitConversions
-
-  @inline implicit def $2BigIntOpt(n: scala.Int): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: org.sireumproto.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
-
-  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
-
+  def pop(): Option[(T, Stack[T])] = {
+    if (nonEmpty) {
+      return Some((elements(elements.size - 1), Stack(ISOps(elements).dropRight(1))))
+    } else {
+      return None()
+    }
+  }
 }

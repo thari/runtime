@@ -180,6 +180,10 @@ object helper {
 
   def mSName(name: Predef.String): (Term.Name, Type.Name) = (Term.Name("MS" + name), Type.Name("MS" + name))
 
+  import scala.language.experimental.macros
+
+  def $assign[T](arg: T): T = macro $internal.Macro.$assign
+
 }
 
 final class helper extends scala.annotation.StaticAnnotation

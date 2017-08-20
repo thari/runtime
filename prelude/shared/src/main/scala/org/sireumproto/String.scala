@@ -37,8 +37,6 @@ object String {
     }
   }
 
-  def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
-
   def escape(o: scala.Any): Predef.String = {
     o match {
       case o: String => helper.escape(o.value)
@@ -55,6 +53,16 @@ object String {
     }
   }
 
+  def apply[I <: Z](cs: IS[I, C]): String = {
+    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]]))
+  }
+
+  def apply[I <: Z](cs: MS[I, C]): String = {
+    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]]))
+  }
+
+  def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
+
   import scala.language.implicitConversions
 
   implicit def apply(s: Predef.String): String = new String(s)
@@ -63,10 +71,6 @@ object String {
 
 final class String(val value: Predef.String) extends AnyVal with Immutable with $internal.HasBoxer {
 
-  @inline def hash: Z = value.hashCode
-
-  @inline def isEqual(other: Immutable): B = this == other
-
   @inline def string: String = this
 
   @inline override def toString: Predef.String = value
@@ -74,5 +78,13 @@ final class String(val value: Predef.String) extends AnyVal with Immutable with 
   def stripPrefix(prefix: Predef.String): Predef.String = value.stripPrefix(prefix)
 
   def boxer: $internal.Boxer = String.Boxer
+
+  def size: Z = value.length
+
+  def toCis: IS[Z, C] =
+    IS[Z, C](value.map(C.apply): _*)
+
+  def toCms: MS[Z, C] =
+    MS[Z, C](value.map(C.apply): _*)
 
 }

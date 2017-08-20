@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -25,92 +26,86 @@
 
 package org.sireumproto
 
-import org.sireumproto.$internal._
-
-import scala.language.implicitConversions
-
-
-trait Immutable extends Any with ImmutableMarker {
-
-  def string: String
-
+object Set {
+  @pure def empty[T]: Set[T] = {
+    return Set(Map.empty[T, B])
+  }
 }
 
+@datatype class Set[T](map: Map[T, B]) {
 
-trait Ordered[O <: Ordered[O]] extends Any with Immutable {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Number[N <: Number[N]] extends Any with Ordered[N] {
-
-  def +(other: N): N
-
-  def -(other: N): N
-
-  def *(other: N): N
-
-  def /(other: N): N
-
-  def %(other: N): N
-
-}
-
-
-trait Enum extends Immutable {
-  def numOfElements: Z
-  def string: String = halt("Unsupported Enum operation 'string'.")
-}
-
-trait Datatype extends Immutable with DatatypeMarker
-
-
-trait Rich extends Immutable
-
-
-trait Sig extends Immutable
-
-
-
-trait Mutable extends Any with MutableMarker {
-
-  def string: String
-
-}
-
-
-trait MOrdered[O <: MOrdered[O]] extends Any with Mutable {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Record extends Mutable {
-
-  private var isOwned: Boolean = false
-
-  def owned: Boolean = isOwned
-  def owned_=(b: Boolean): this.type = {
-    isOwned = b
-    this
+  @pure def add(e: T): Set[T] = {
+    return Set(map.put(e, T))
   }
 
+  @pure def addAll(is: ISZ[T]): Set[T] = {
+    var r = this
+    for (e <- is) {
+      r = r.add(e)
+    }
+    return r
+  }
+
+  @pure def remove(e: T): Set[T] = {
+    return Set(map.remove(e, T))
+  }
+
+  @pure def removeAll(is: ISZ[T]): Set[T] = {
+    var r = this
+    for (e <- is) {
+      r = r.remove(e)
+    }
+    return r
+  }
+
+  @pure def contains(e: T): B = {
+    return map.contains(e)
+  }
+
+  @pure def union(other: Set[T]): Set[T] = {
+    var r = this
+    for (p <- other.map.entries) {
+      r = r.add(p._1)
+    }
+    return r
+  }
+
+  @pure def intersect(other: Set[T]): Set[T] = {
+    var r = Set.empty[T]
+    for (p <- other.map.entries) {
+      val e = p._1
+      if (contains(e)) {
+        r = r.add(e)
+      }
+    }
+    return r
+  }
+
+  @pure def substract(other: Set[T]): Set[T] = {
+    var r = this
+    for (p <- other.map.entries) {
+      r = r.remove(p._1)
+    }
+    return r
+  }
+
+  @pure def isEqual(other: Set[T]): B = {
+    return map.isEqual(other.map)
+  }
+
+  @pure def isEmpty: B = {
+    return size == z"0"
+  }
+
+  @pure def nonEmpty: B = {
+    return size != z"0"
+  }
+
+  @pure def size: Z = {
+    return map.size
+  }
+
+  @pure def elements: ISZ[T] = {
+    return map.keys
+  }
 }
-
-
-trait MSig extends Mutable

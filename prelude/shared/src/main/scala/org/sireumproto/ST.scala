@@ -232,10 +232,6 @@ final case class ST(parts: scala.Seq[Predef.String],
 
   def renderCompact: String = ST.render(this, isCompact = true)
 
-  def isEqual(other: Immutable): B = this == other
-
-  def hash: Z = hashCode
-
   override def hashCode: Int = halt("Cannot hash Slang ST")
 
   override def equals(other: scala.Any): scala.Boolean = halt("Cannot test equality in Slang ST")

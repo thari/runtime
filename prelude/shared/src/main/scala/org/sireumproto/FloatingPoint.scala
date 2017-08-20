@@ -58,6 +58,8 @@ object F32 {
     }
   }
 
+  def apply(s: String): Option[F32] = try Some(s.value.toFloat) catch { case _: Throwable => None[F32]() }
+
   def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
 
   import scala.language.implicitConversions
@@ -92,10 +94,6 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] w
 
   def %(other: F32): F32 = value % other.value
 
-  def hash: Z = value.hashCode
-
-  def isEqual(other: Immutable): B = this == other
-
   def string: String = java.lang.Float.toString(value)
 
   def boxer: $internal.Boxer = F32.Boxer
@@ -123,6 +121,8 @@ object F64 {
     }
   }
 
+  def apply(s: String): Option[F64] = try Some(s.value.toDouble) catch { case _: Throwable => None[F64]() }
+
   def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)
 
   import scala.language.implicitConversions
@@ -138,8 +138,6 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] 
   def SignificandBitWidth: Z = 53
 
   def ExponentBitWidth: Z = 10
-
-  def hash: Z = value.hashCode
 
   def <(other: F64): B = value < other.value
 
@@ -158,8 +156,6 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] 
   def /(other: F64): F64 = value / other.value
 
   def %(other: F64): F64 = value % other.value
-
-  def isEqual(other: Immutable): B = this == other
 
   def string: String = java.lang.Double.toString(value)
 

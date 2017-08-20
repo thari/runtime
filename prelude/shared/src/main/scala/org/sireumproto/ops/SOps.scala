@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -23,49 +24,51 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireumproto.$internal
+package org.sireumproto.ops
 
-import org.sireumproto.{$ZCompanion, Immutable, Z, IS, MS, helper}
-import language.experimental.macros
+import org.sireumproto._
 
-trait PackageTrait {
+@rich trait SOps[V] {
 
-  type ISZ[T] = IS[Z, T]
-  type MSZ[T] = MS[Z, T]
+  @pure def contains(e: V): B
 
-  object up {
-    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
+  @pure def forall(p: V => B): B
+
+  @pure def exists(p: V => B): B
+
+}
+
+@rich trait ISOps[I <: Z, V] {
+
+  @pure def dropRight(n: Z): IS[I, V]
+
+}
+
+@rich class ISZOps[V](s: IS[Z, V]) extends SOps[V] with ISOps[Z, V] {
+
+  @pure def contains(e: V): B = {
+    return exists((x: V) => x == e)
   }
 
-  object pat {
-    def update(args: Any*): Unit = macro Macro.pat
+  @pure def forall(p: V => B): B = {
+    for (e <- s) {
+      if (!p(e)) {
+        return F
+      }
+    }
+    return T
   }
 
-  object ISZ {
-    def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
-    def create[V](size: Z, default: V): ISZ[V] = IS.create[Z, V](size, default)
+  @pure def exists(p: V => B): B = {
+    for (e <- s) {
+      if (p(e)) {
+        return T
+      }
+    }
+    return F
   }
 
-  object MSZ {
-    def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
-    def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
+  @pure def dropRight(n: Z): IS[Z, V] = {
+    return for (i <- 0 until s.size - n) yield s(i)
   }
-
-  val T: org.sireumproto.B = true
-  val F: org.sireumproto.B = false
-
-  def halt(msg: Any): Nothing = helper.halt(msg)
-
-  def $[T]: T = macro Macro.$[T]
-
-  import language.implicitConversions
-
-  @inline implicit def $2BigIntOpt(n: scala.Int): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
-
-  @inline implicit def $2BigIntOpt(n: org.sireumproto.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
-
-  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
-
 }

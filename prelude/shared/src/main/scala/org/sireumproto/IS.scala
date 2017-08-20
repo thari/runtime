@@ -34,7 +34,7 @@ object IS {
     assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
   }
 
-  def apply[I <: Z, V <: Immutable](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
     checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
@@ -47,7 +47,7 @@ object IS {
     IS[I, V](companion, a, length, boxer)
   }
 
-  def create[I <: Z, V <: Immutable](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
+  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
     case size: Z.MP =>
       checkSize(size)(companion)
       val length = size
@@ -62,14 +62,14 @@ object IS {
     case _ => halt("Slang IS operation 'create' requires size of exactly type 'Z'.")
   }
 
-  def apply[I <: Z, V <: Immutable](companion: $ZCompanion[I],
+  def apply[I <: Z, V](companion: $ZCompanion[I],
                                     data: scala.AnyRef,
                                     length: Z.MP,
                                     boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
 
 }
 
-final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
+final class IS[I <: Z, V](val companion: $ZCompanion[I],
                                        val data: scala.AnyRef,
                                        val length: Z.MP,
                                        val boxer: Boxer) extends Immutable with ISMarker {
@@ -139,7 +139,7 @@ final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
     ZRange(companion.Index, j.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
   }
 
-  def map[V2 <: Immutable](f: V => V2): IS[I, V2] =
+  def map[V2](f: V => V2): IS[I, V2] =
     if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
       var a: AnyRef = null
       var boxer2: Boxer = null
@@ -156,7 +156,7 @@ final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
       IS[I, V2](companion, a, length, boxer)
     }
 
-  def flatMap[V2 <: Immutable](f: V => IS[I, V2]): IS[I, V2] =
+  def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] =
     if (isEmpty) this.asInstanceOf[IS[I, V2]] else {
       val es = elements
       var r = f(es.head)
@@ -196,6 +196,16 @@ final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
     boxer.lookup(data, i)
   }
 
+  def apply(args: (I, V)*): IS[I, V] = if (args.isEmpty) this else {
+    val a = boxer.clone(data, length, length, Z.MP.zero)
+    for ((index, v) <- args) {
+      val i = index.toIndex
+      assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+      boxer.store(a, i, v)
+    }
+    IS[I, V](companion, a, length, boxer)
+  }
+
   def elements: scala.Seq[V] = {
     var r = scala.Vector[V]()
     var i = Z.MP.zero
@@ -206,9 +216,7 @@ final class IS[I <: Z, V <: Immutable](val companion: $ZCompanion[I],
     r
   }
 
-  lazy val hash: Z = elements.hashCode
-
-  def isEqual(other: Immutable): B = this == other
+  override lazy val hashCode: scala.Int = (companion, elements).hashCode
 
   override def equals(other: scala.Any): scala.Boolean =
     if (this eq other.asInstanceOf[scala.AnyRef]) true

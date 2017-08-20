@@ -179,6 +179,7 @@ object range {
               case n: Z.MP => new $ctorName(n)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }
+            def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
             def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
             object Int extends $$ZCompanionInt[$typeName] {
               def apply(n: scala.Int): $typeName = new $ctorName(check(Z.MP(n)))

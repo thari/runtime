@@ -66,9 +66,15 @@ final class C(val value: scala.Char) extends AnyVal with Ordered[C] with $intern
 
   @inline def >=(other: C): B = value >= other.value
 
-  @inline def hash: Z = value.hashCode
+  @inline def >>>(other: C): C = (value >>> other.value).toChar
 
-  @inline def isEqual(other: Immutable): B = this == other
+  @inline def <<(other: C): C = (value << other.value).toChar
+
+  @inline def &(other: C): C = (value & other.value).toChar
+
+  @inline def |(other: C): C = (value | other.value).toChar
+
+  @inline def |^(other: C): C = (value ^ other.value).toChar
 
   @inline def string: String = toString
 

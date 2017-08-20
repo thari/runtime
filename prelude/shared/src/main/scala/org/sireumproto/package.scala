@@ -51,10 +51,38 @@ package object sireumproto extends $internal.PackageTrait {
       def apply(args: Any*): R = macro Macro.rApply
       def unapply(n: R): scala.Boolean = {
         assume(sc.parts.size == 1)
-        n == R(sc.parts.head)
+        n == R.String(sc.parts.head)
       }
     }
 
     def st(args: Any*): ST = macro Macro.st
+
+    // Compatibility
+
+    def f32(args: Any*): F32 = {
+      assume(sc.parts.size == 1 && args.isEmpty)
+      F32(sc.parts.head.toFloat)
+    }
+
+    def f64(args: Any*): F64 = {
+      assume(sc.parts.size == 1 && args.isEmpty)
+      F64(sc.parts.head.toDouble)
+    }
   }
+
+  // Compatibility
+
+  def _2B(b: scala.Boolean): B = b
+  def _2C(c: scala.Char): C = c
+  def _2String(s: Predef.String): String = s
+  def _Z(n: scala.Int): Z = n
+  val _XChar: C.type = C
+  val _XInt: Z.Int.type = Z.Int
+  val _XLong: Z.Long.type = Z.Long
+  val _XFLoat: F32.type = F32
+  val _XDouble: F64.type = F64
+  val _XString: String.type = String
+
+  def $assign[T](arg: T): T = macro $internal.Macro.$assign
+  def $clone[T](o: T): T = helper.clone(o)
 }

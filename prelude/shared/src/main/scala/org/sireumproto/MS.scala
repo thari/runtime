@@ -74,11 +74,13 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
                           val length: Z.MP,
                           val boxer: Boxer) extends Mutable with MSMarker {
 
-  private var isOwned: Boolean = false
+  private var isOwned: scala.Boolean = false
+  private var isDirty: scala.Boolean = true
+  private var $hashCode: scala.Int = 0
 
-  def owned: Boolean = isOwned
+  def owned: scala.Boolean = isOwned
 
-  def owned_=(b: Boolean): this.type = {
+  def owned_=(b: scala.Boolean): this.type = {
     isOwned = b
     this
   }
@@ -214,6 +216,7 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
     val i = index.toIndex
     assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
+    isDirty = true
   }
 
   def elements: scala.Seq[V] = {
@@ -226,9 +229,13 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
     r
   }
 
-  lazy val hash: Z = elements.hashCode
-
-  def isEqual(other: Mutable): B = this == other
+  override def hashCode: scala.Int = {
+    if (isDirty) {
+      isDirty = false
+      $hashCode = (companion, elements).hashCode
+    }
+    $hashCode
+  }
 
   override def equals(other: scala.Any): scala.Boolean =
     if (this eq other.asInstanceOf[scala.AnyRef]) true
