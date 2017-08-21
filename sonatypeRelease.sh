@@ -1,2 +1,2 @@
-sbt "project runtimeJVM" sonatypeRelease "project runtimeJS" sonatypeRelease "project preludeJVM" sonatypeRelease "project preludeJS" sonatypeRelease
+sbt "project macrosJVM" sonatypeRelease "project macrosJS" sonatypeRelease "project libraryJVM" sonatypeRelease "project libraryJS" sonatypeRelease
 

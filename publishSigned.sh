@@ -1,2 +1,2 @@
-sbt publishLocal "project runtimeJVM" publishSigned "project runtimeJS" publishSigned "project preludeJVM" publishSigned "project preludeJS" publishSigned
+sbt publishLocal "project macrosJVM" publishSigned "project macrosJS" publishSigned "project libraryJVM" publishSigned "project libraryJS" publishSigned
 

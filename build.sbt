@@ -4,11 +4,9 @@ val metaVersion = "1.8.0"
 
 val paradiseVersion = "3.0.0-M10"
 
-val silencerVersion = "0.5"
-
 val runtimeVersion = "3.1.1-SNAPSHOT"
 
-val sireumScalacVersion = "3.1"
+val sireumScalacVersion = "3.1.2"
 
 scalaVersion in ThisBuild := scalaVer
 
@@ -61,34 +59,32 @@ val commonSettings = Seq(
 
 lazy val sireumRuntime = {
   val `sireum-runtime` = project.in(file(".")).
-    aggregate(runtimeJvm, runtimeJs, preludeJvm, preludeJs).
+    aggregate(macrosJvm, macrosJs, libraryJvm, libraryJs).
     settings(
       publishArtifact := false
     )
   `sireum-runtime`
 }
 
-lazy val runtime = crossProject.in(file("runtime")).settings(commonSettings: _*).settings(
-  name := "runtime",
+lazy val macros = crossProject.in(file("macros")).settings(commonSettings: _*).settings(
+  name := "macros",
   libraryDependencies ++= Seq(
     "org.scala-lang" % "scala-reflect" % scalaVer,
     "org.spire-math" %%% "spire" % "0.13.0"
   )
 )
 
-lazy val runtimeJvm = runtime.jvm
-lazy val runtimeJs = runtime.js
+lazy val macrosJvm = macros.jvm
+lazy val macrosJs = macros.js
 
-lazy val prelude = crossProject.in(file("prelude")).settings(commonSettings: _*).settings(
-  name := "prelude",
+lazy val library = crossProject.in(file("library")).settings(commonSettings: _*).settings(
+  name := "library",
   libraryDependencies ++= Seq(
     "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4",
-    "org.scalatest" %%% "scalatest" % "3.0.1" % "test",
-    "com.github.ghik" %% "silencer-lib" % silencerVersion
+    "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
   ),
-  addCompilerPlugin("com.github.ghik" %% "silencer-plugin" % silencerVersion),
   addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion)
-).dependsOn(runtime)
+).dependsOn(macros)
 
-lazy val preludeJvm = prelude.jvm
-lazy val preludeJs = prelude.js
+lazy val libraryJvm = library.jvm
+lazy val libraryJs = library.js
