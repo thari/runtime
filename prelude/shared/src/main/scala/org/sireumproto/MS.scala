@@ -128,9 +128,9 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
   def --(other: MS[I, V]): MS[I, V] =
     if (isEmpty || other.length == Z.MP.zero) this else {
       val otherElements = other.elements
-      var sm = elements.withFilter(_ == otherElements.head)
+      var sm = elements.withFilter(_ != otherElements.head)
       for (e <- other.elements.tail) {
-        sm = sm.withFilter(_ == e)
+        sm = sm.withFilter(_ != e)
       }
       val s = sm.map(identity)
       val newLength = Z.MP(s.size)
@@ -143,7 +143,7 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
       MS[I, V](companion, a, newLength, boxer)
     }
 
-  def -(e: V): MS[I, V] = if (isEmpty) this else withFilter(_ == e)
+  def -(e: V): MS[I, V] = if (isEmpty) this else withFilter(_ != e)
 
   def indices: ZRange[I] = {
     var j: Z = companion.Index
@@ -152,7 +152,7 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
       i = i.increase
       j = j.increase
     }
-    ZRange(companion.Index, j.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
   }
 
   def map[V2](f: V => V2): MS[I, V2] =
@@ -161,7 +161,7 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
       var boxer2: Boxer = null
       var i = Z.MP.zero
       while (i < length) {
-        val v2 = f(boxer.lookup(a, i))
+        val v2 = f(boxer.lookup(data, i))
         if (boxer2 == null) {
           boxer2 = Boxer.boxer(v2)
           a = boxer2.cloneMut(data, length, length, Z.MP.zero)
@@ -208,13 +208,13 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
 
   def apply(index: I): V = {
     val i = index.toIndex
-    assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.lookup(data, i)
   }
 
   def update(index: I, value: V): Unit = {
     val i = index.toIndex
-    assume(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
     isDirty = true
   }

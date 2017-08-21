@@ -25,8 +25,7 @@
 
 package org.sireumproto
 
-import org.sireum.test.SireumRuntimeSpec
-import org.sireum.test.SireumSpec._
+import org.sireum.test._
 
 import scala.util.{Failure, Success, Try}
 
@@ -62,17 +61,17 @@ class RangeTest extends SireumRuntimeSpec {
 
     *(One10i.hasMax)
 
-    *(One10i.Index equiv one10i"1")
+    *(One10i.Index =~= one10i"1")
 
-    *(One10i.Min equiv one10i"1")
+    *(One10i.Min =~= one10i"1")
 
-    *(One10i.Max equiv one10i"10")
+    *(One10i.Max =~= one10i"10")
 
-    *(One10i.Name equiv "One10i")
+    *(One10i.Name =~= "One10i")
 
     val x = one10i"10"
 
-    *(x.toIndex equiv z"9")
+    *(x.toIndex =~= z"9")
 
     *(!x.isSigned)
 
@@ -82,19 +81,19 @@ class RangeTest extends SireumRuntimeSpec {
 
     *(x.hasMax)
 
-    *(x.Index equiv one10i"1")
+    *(x.Index =~= one10i"1")
 
-    *(x.Min equiv one10i"1")
+    *(x.Min =~= one10i"1")
 
-    *(x.Max equiv one10i"10")
+    *(x.Max =~= one10i"10")
 
-    *(x.Name equiv "One10i")
+    *(x.Name =~= "One10i")
 
-    *(x.value equiv z"10")
+    *(x.value =~= z"10")
 
-    *(x - one10i"9" equiv One10i.Min)
+    *(x - one10i"9" =~= One10i.Min)
 
-    *(x.decrease.increase equiv x)
+    *(x.decrease.increase =~= x)
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
@@ -116,7 +115,7 @@ class RangeTest extends SireumRuntimeSpec {
         var m = rand()
         while (m == 0 && (op == "/" || op == "%")) m = rand()
         *(s"$n $op $m")(Try(op1(One10i(n))(One10i(m)).toBigInt.toInt) match {
-          case Success(r) => r equiv op2(n)(m)
+          case Success(r) => r =~= op2(n)(m)
           case Failure(_) =>
             val ir = op2(n)(m)
             !(One10i.Min.toBigInt <= ir && ir <= One10i.Max.toBigInt)
@@ -129,7 +128,7 @@ class RangeTest extends SireumRuntimeSpec {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
         val m = rand()
-        *(s"$n $op $m")(op1(One10i(n))(One10i(m)).value equiv op2(n)(m))
+        *(s"$n $op $m")(op1(One10i(n))(One10i(m)).value =~= op2(n)(m))
       }
     }
   }
@@ -146,33 +145,33 @@ class RangeTest extends SireumRuntimeSpec {
 
     *(M1_16.hasMax)
 
-    *(M1_16.Index equiv m1_16"0")
+    *(M1_16.Index =~= m1_16"0")
 
-    *(M1_16.Min equiv m1_16"-1")
+    *(M1_16.Min =~= m1_16"-1")
 
-    *(M1_16.Max equiv m1_16"16")
+    *(M1_16.Max =~= m1_16"16")
 
-    *(M1_16.Name equiv "M1_16")
+    *(M1_16.Name =~= "M1_16")
 
     val x = m1_16"10"
 
-    *(x.toIndex equiv z"10")
+    *(x.toIndex =~= z"10")
 
     *(x.isSigned)
 
-    *(x.Index equiv m1_16"0")
+    *(x.Index =~= m1_16"0")
 
-    *(x.Min equiv m1_16"-1")
+    *(x.Min =~= m1_16"-1")
 
-    *(x.Max equiv m1_16"16")
+    *(x.Max =~= m1_16"16")
 
-    *(x.Name equiv "M1_16")
+    *(x.Name =~= "M1_16")
 
-    *(x.value equiv z"10")
+    *(x.value =~= z"10")
 
-    *(x - m1_16"11" equiv M1_16.Min)
+    *(x - m1_16"11" =~= M1_16.Min)
 
-    *(x.decrease.increase equiv x)
+    *(x.decrease.increase =~= x)
 
     for (_ <- 0 until numOfRandomTests) {
       *("random"){
@@ -192,7 +191,7 @@ class RangeTest extends SireumRuntimeSpec {
         var m = rand()
         while (m == 0 && (op == "/" || op == "%")) m = rand()
         *(s"$n $op $m")(Try(op1(M1_16(n))(M1_16(m)).toBigInt.toInt) match {
-          case Success(r) => r equiv op2(n)(m)
+          case Success(r) => r =~= op2(n)(m)
           case Failure(_) =>
             val ir = op2(n)(m)
             !(M1_16.Min.toBigInt <= ir && ir <= M1_16.Max.toBigInt)
@@ -205,7 +204,7 @@ class RangeTest extends SireumRuntimeSpec {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
         val m = rand()
-        *(s"$n $op $m")(op1(M1_16(n))(M1_16(m)).value equiv op2(n)(m))
+        *(s"$n $op $m")(op1(M1_16(n))(M1_16(m)).value =~= op2(n)(m))
       }
     }
   }

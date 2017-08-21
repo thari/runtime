@@ -295,6 +295,9 @@ object Z extends $ZCompanion[Z] {
           v.toByte
       }
 
+      override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
+        copy(src, srcPos, dest, destPos, length)
+
       override def create(length: MP): scala.AnyRef = new Array[scala.Byte](length)
 
       override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
@@ -320,6 +323,9 @@ object Z extends $ZCompanion[Z] {
           v.toShort
       }
 
+      override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
+        copy(src, srcPos, dest, destPos, length)
+
       override def create(length: MP): scala.AnyRef = new Array[scala.Short](length)
 
       override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
@@ -342,6 +348,9 @@ object Z extends $ZCompanion[Z] {
         case o: BV.Int[_] => o.value
         case o: Range[_] => o.value
       }
+
+      override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
+        copy(src, srcPos, dest, destPos, length)
 
       override def create(length: MP): scala.AnyRef = new Array[scala.Int](length)
 
@@ -366,6 +375,9 @@ object Z extends $ZCompanion[Z] {
         case o: Range[_] => o.value
       }
 
+      override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
+        copy(src, srcPos, dest, destPos, length)
+
       override def create(length: MP): scala.AnyRef = new Array[scala.Long](length)
 
       override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
@@ -389,6 +401,9 @@ object Z extends $ZCompanion[Z] {
         case o: MP.Long => o
         case o: MP.BigInt => o.value
       }
+
+      override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
+        copy(src, srcPos, dest, destPos, length)
     }
 
   }
@@ -1493,7 +1508,7 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
 
   def to[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
 
-  def until[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+  def until[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
 
   def compareTo(other: Z): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0

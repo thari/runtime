@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,35 +23,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireumproto
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum.test._
 
-abstract class SireumSpec extends FreeSpec {
+class MapTest extends SireumRuntimeSpec {
+  *(Map.empty[String, Z].size =~= z"0")
 
-  val ts: Seq[Tag] = Vector()
+  *(Map.empty[String, Z].get("a") =~= None())
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
-  }
+  *(Map.empty[String, Z].put("a", 1).get("a") =~= Some(1))
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
+  *(Map.empty[String, Z].put("a", 1).get("A") =~= None())
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
+  *(Map.empty[String, Z].put("a", 1).put("a", 2).get("a") =~= Some(2))
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).get("a") =~= Some(1))
 
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
-  }
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).get("b") =~= Some(2))
+
+  *(Map.empty[String, Z].put("a", 1).put("b", 2) =~= Map[String, Z](ISZ(("b", 2), ("a", 1))))
+
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("a", 1) =~= Map[String, Z](ISZ(("b", 2))))
+
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).remove("b", 2) =~= Map[String, Z](ISZ(("a", 1))))
+
+  *(Map.empty[String, Z].put("a", 1).put("b", 2).removeAll(ISZ("a", "b")) =~= Map[String, Z](ISZ()))
 }

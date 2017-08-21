@@ -37,6 +37,9 @@ object R {
     def unbox(o: scala.Any): Real = o match {
       case o: R => o.value
     }
+
+    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
   }
 
   def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)

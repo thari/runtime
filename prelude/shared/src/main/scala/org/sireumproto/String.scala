@@ -35,6 +35,9 @@ object String {
     def unbox(o: scala.Any): Predef.String = o match {
       case o: String => o.value
     }
+
+    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
   }
 
   def escape(o: scala.Any): Predef.String = {
@@ -54,11 +57,11 @@ object String {
   }
 
   def apply[I <: Z](cs: IS[I, C]): String = {
-    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]]))
+    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toIntOpt.get))
   }
 
   def apply[I <: Z](cs: MS[I, C]): String = {
-    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]]))
+    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toIntOpt.get))
   }
 
   def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)

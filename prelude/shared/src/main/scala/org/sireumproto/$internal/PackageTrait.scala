@@ -32,6 +32,7 @@ trait PackageTrait {
 
   type ISZ[T] = IS[Z, T]
   type MSZ[T] = MS[Z, T]
+  type ZS = MS[Z, Z]
 
   object up {
     def update[T](lhs: T, rhs: T): Unit = macro Macro.up
@@ -49,6 +50,11 @@ trait PackageTrait {
   object MSZ {
     def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
     def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
+  }
+
+  object ZS {
+    def apply(args: Z*): ZS = MS[Z, Z](args: _*)
+    def create(size: Z, default: Z): ZS = MS.create[Z, Z](size, default)
   }
 
   val T: org.sireumproto.B = true

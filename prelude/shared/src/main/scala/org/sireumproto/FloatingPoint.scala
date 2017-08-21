@@ -47,6 +47,9 @@ object F32 {
       case o: F32 => o.value
     }
 
+    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
+
     override def create(length: Z.MP): scala.AnyRef = new Array[scala.Float](length)
 
     override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
@@ -109,6 +112,9 @@ object F64 {
     def unbox(o: scala.Any): scala.Double = o match {
       case o: F64 => o.value
     }
+
+    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
 
     override def create(length: Z.MP): scala.AnyRef = new Array[scala.Double](length)
 

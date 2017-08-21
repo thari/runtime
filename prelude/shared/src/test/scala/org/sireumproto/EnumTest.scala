@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,35 +23,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireumproto
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum.test._
 
-abstract class SireumSpec extends FreeSpec {
+@enum object Day {
+  'Monday
+  'Tuesday
+  'Wednesday
+  'Thursday
+  'Friday
+  'Saturday
+  'Sunday
+}
 
-  val ts: Seq[Tag] = Vector()
+class EnumTest extends SireumRuntimeSpec {
+  def isMonday(day: Day.Type): Boolean = day == Day.Monday
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
-  }
-
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
-
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
-  }
+  *(Day.Monday !~= Day.Tuesday)
 }

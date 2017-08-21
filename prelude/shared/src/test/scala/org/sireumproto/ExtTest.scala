@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,35 +23,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireumproto
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum.test._
 
-abstract class SireumSpec extends FreeSpec {
+object NFoo_Ext {
+  type NA = String
 
-  val ts: Seq[Tag] = Vector()
+  def x: Z = 5
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
-  }
+  def y: NA = "abc"
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
+  def foo[T](x: Z): T = Z(2).asInstanceOf[T]
+}
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
+@ext object NFoo {
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
+  trait NA
 
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
-  }
+  val x: Z = $
+  var y: NA = $
+
+  def foo[T](x: Z): T = $
+}
+
+class ExtTest extends SireumRuntimeSpec {
+  *(NFoo.x =~= Z(5))
+
+  *(NFoo.y.value =~= "abc")
+
+  *(NFoo.foo[Z](4) =~= Z(2))
 }

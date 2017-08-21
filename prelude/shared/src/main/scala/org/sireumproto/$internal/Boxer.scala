@@ -82,7 +82,7 @@ trait Boxer {
 
   def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
     val size = this.size(a)
-    if (size <= newLength) {
+    if (newLength <= size) {
       val r = create(size)
       copy(a, Z.MP.zero, r, offset, length)
       r
@@ -98,7 +98,7 @@ trait Boxer {
 
   def cloneMut(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
     val size = this.size(a)
-    if (size <= newLength) {
+    if (newLength <= size) {
       val r = create(size)
       copyMut(a, Z.MP.zero, r, offset, length)
       r

@@ -22,36 +22,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.sireumproto
 
-package org.sireum.test
+import org.sireum.test._
 
-import org.scalatest.{FreeSpec, Tag}
+class ZSTest extends SireumRuntimeSpec {
+  final val size = Z(1024)
+  final val zs123 = ZS(1, 2, 3)
+  final val zs12 = ZS(1, 2)
+  final val zs23 = ZS(2, 3)
 
-abstract class SireumSpec extends FreeSpec {
+  "append" - {
+    * (zs123 =~= zs12 :+ 3)
 
-  val ts: Seq[Tag] = Vector()
-
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
+    *(zs123.hashCode =~= (zs12 :+ 3).hashCode)
   }
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
+  "prepend" - {
+    *(zs123 =~= 1 +: zs23)
+    *(zs123.hashCode =~= (1 +: zs23).hashCode)
   }
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
+  "impl" - {
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
+    "zsArray" in {
+      var i = Z(0)
+      var append: ZS = ZS()
+      var prepend: ZS = ZS()
+      while (i < size) {
+        append :+= i
+        prepend +:= size - i - 1
+        i += 1
+      }
+      assert(append =~= prepend)
+    }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,35 +23,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireumproto
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum.test._
 
-abstract class SireumSpec extends FreeSpec {
+class HashSSetTest extends SireumRuntimeSpec {
+  *(HashSSet.empty[String].size =~= z"0")
 
-  val ts: Seq[Tag] = Vector()
+  *(!HashSSet.empty[String].contains("a"))
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
-  }
+  *(HashSSet.empty[String].add("a").contains("a"))
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
+  *(!HashSSet.empty[String].add("a").contains("A"))
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
+  *(HashSSet.empty[String].add("a").add("b").contains("a"))
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
+  *(HashSSet.empty[String].add("a").add("b").contains("b"))
 
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
-  }
+  *(HashSSet.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+
+  *(HashSSet.empty[String].addAll(ISZ("a","b")) =~= HashSSet.empty[String].add("b").add("a"))
+
+  *(HashSSet.empty[String].union(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String].add("A"))
+
+  *(HashSSet.empty[String].intersect(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String])
+
+  *(HashSSet.empty[String].add("a").intersect(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String])
 }

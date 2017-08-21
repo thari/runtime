@@ -54,8 +54,6 @@ object Map {
     return r
   }
 
-  /*
-
   @pure def keySet: Set[K] = {
     return Set.empty[K].addAll(keys)
   }
@@ -63,8 +61,6 @@ object Map {
   @pure def valueSet: Set[V] = {
     return Set.empty[V].addAll(values)
   }
-
-  */
 
   @pure def put(key: K, value: V): Map[K, V] = {
     val index = indexOf(key)

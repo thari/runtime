@@ -1,5 +1,6 @@
+// #Sireum
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,35 +24,65 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireumproto
 
-import org.scalatest.{FreeSpec, Tag}
+import org.sireum.test._
 
-abstract class SireumSpec extends FreeSpec {
+@record trait F2
 
-  val ts: Seq[Tag] = Vector()
+@record class Foo(x: Z, var bar: Bar) extends F2
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
-    import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
+@record class Bar(x: Z, var y: Z) extends F2
+
+@datatype class Baz(x: Z, y: Z)
+
+@datatype class Bazz()
+
+@datatype class $Foo(x: Z, y: $Bar)
+
+@datatype class $Bar(z: Z, zz: ISZ[Z])
+
+@record class Bazzz[T](var x: T) {
+  def updateX(newX: T): Unit = {
+    x = newX
+  }
+}
+
+class DatatypeRecordTest extends SireumRuntimeSpec {
+  val foo = Foo(1, Bar(2, 5))
+
+  * {
+    foo.x =~= 1
   }
 
-  private def name(line: Int): String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
+  * {
+    assert(foo.x =~= 1)
+    val fooClone: Foo = foo
+    foo.bar.y = 4
+    fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
   }
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
+  * {
+    var a = $Foo(5, $Bar(4, ISZ(1, 2, 3)))
+
+    up(a.x) = 6
+    up(a.y.z) = 7
+    up(a.y.zz(0)) = 8
+
+    a =~= $Foo(6, $Bar(7, ISZ(8, 2, 3)))
   }
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
+  * {
+    val bazzz = Bazzz[Z](5)
+    bazzz.updateX(4)
+    bazzz.x =~= z"4"
   }
 
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
+  * {
+    val p = (Bar(1, 2), Bar(3, 4))
+    val q = p
+    p._1.y = 3
+    p !~= q
   }
+
 }

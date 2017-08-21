@@ -25,23 +25,25 @@
 
 package org.sireumproto
 
-import org.sireum.test.SireumRuntimeSpec
-import org.sireum.test.SireumSpec._
-
+import org.sireum.test._
+import org.sireumproto.ops._
+import org.sireumproto.ops.ISZOps._
 import scala.collection.mutable.{BitSet => BS}
 import U16._
 import N16._
+import Z8._
+import U8._
 import spire.math.Real
 
 class STest extends SireumRuntimeSpec {
 
   "IS" - {
 
-    *(ISZ[Z](z"1", z"2", z"3") equiv IS[Z, Z](z"1", z"2", z"3"))
+    *(ISZ[Z](z"1", z"2", z"3") =~= IS[Z, Z](z"1", z"2", z"3"))
 
-    *(ISU16[U16](u16"-1", u16"-2", u16"-3") equiv IS[U16, U16](u16"-1", u16"-2", u16"-3"))
+    *(ISU16[U16](u16"-1", u16"-2", u16"-3") =~= IS[U16, U16](u16"-1", u16"-2", u16"-3"))
 
-    *(ISZ[Z](z"1", z"2", z"3") != ISZ[U16](u16"-1", u16"-2", u16"-3"))
+    *(ISZ[Z](z"1", z"2", z"3") !~= ISZ[U16](u16"-1", u16"-2", u16"-3"))
 
     "ISZ[B]" - {
 
@@ -49,61 +51,120 @@ class STest extends SireumRuntimeSpec {
 
       *(empty.data.isInstanceOf[scala.Array[scala.Any]])
 
-      *(empty.data.asInstanceOf[scala.Array[scala.Any]].length equiv 0)
+      *(empty.data.asInstanceOf[scala.Array[scala.Any]].length =~= 0)
 
       *((empty :+ T).data.isInstanceOf[BS])
 
-      *((ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString equiv "[B64]")
+      *((ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[B64]")
 
     }
 
     "ISZ[String]" - {
 
-      *(ISZ[String]("A", "B", "C\nD").toString equiv "[\"A\", \"B\", \"C\\nD\"]")
+      *(ISZ[String]("A", "B", "C\nD").toString =~= "[\"A\", \"B\", \"C\\nD\"]")
 
     }
 
     "ISZ[C]" - {
 
-      *(ISZ[C]('A', 'B', '\u0010').toString equiv "['A', 'B', '\\020']")
+      *(ISZ[C]('A', 'B', '\u0010').toString =~= "['A', 'B', '\\020']")
 
     }
 
     "ISZ[Z]" - {
 
-      *(ISZ[Z](1, 2, 3).data equiv scala.Array[scala.Any](Z.MP.Long(1), Z.MP.Long(2), Z.MP.Long(3)))
+      *(ISZ[Z](1, 2, 3).data =~= scala.Array[scala.Any](Z.MP.Long(1), Z.MP.Long(2), Z.MP.Long(3)))
 
-      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000").data equiv
+      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000").data =~=
         scala.Array[scala.Any](scala.BigInt("10000000000000000000"),
           scala.BigInt("20000000000000000000"), scala.BigInt("30000000000000000000")))
 
-      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000")(1) equiv
+      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000")(1) =~=
         z"20000000000000000000")
     }
 
     "ISZ[U16]" - {
 
-      *(ISZ[U16](u16"1", u16"2", u16"3").data equiv scala.Array[scala.Short](1, 2, 3))
+      *(ISZ[U16](u16"1", u16"2", u16"3").data =~= scala.Array[scala.Short](1, 2, 3))
 
-      *(ISZ[U16](u16"1", u16"2", u16"3")(1) equiv U16(2))
+      *(ISZ[U16](u16"1", u16"2", u16"3")(1) =~= U16(2))
 
     }
 
     "ISZ[N16]" - {
 
-      *(ISZ[N16](n16"1", n16"2", n16"3").data equiv scala.Array[scala.Int](1, 2, 3))
+      *(ISZ[N16](n16"1", n16"2", n16"3").data =~= scala.Array[scala.Int](1, 2, 3))
 
-      *(ISZ[N16](n16"1", n16"2", n16"3")(1) equiv N16(2))
+      *(ISZ[N16](n16"1", n16"2", n16"3")(1) =~= N16(2))
 
     }
 
     "ISZ[R]" - {
 
-      *(ISZ[R](r"1", r"2", r"3").data equiv scala.Array[Real](Real(1), Real(2), Real(3)))
+      *(ISZ[R](r"1", r"2", r"3").data =~= scala.Array[Real](Real(1), Real(2), Real(3)))
 
-      *(ISZ[R](r"1", r"2", r"3")(1) equiv R(2))
+      *(ISZ[R](r"1", r"2", r"3")(1) =~= R(2))
 
     }
 
+  }
+
+  "MS" - {
+
+    "MS[Z8, B]" - {
+
+      * {
+        val s1 = MS[Z8, B](T, T)
+        val s2 = MS.create[Z8, B](2, T)
+        s1(z8"0") =~= s2(z8"0") && s1(z8"1") =~= s2(z8"1")
+      }
+
+      * {
+        val s1 = MS[Z8, B](F, T)
+        val s2 = MS.create[Z8, B](2, T)
+        s2(z8"0") = false
+        s1 =~= s2
+      }
+    }
+
+    "MS[U8, B]" - {
+
+      * {
+        val s1 = MS[U8, B](T, T)
+        val s2 = MS.create[U8, B](2, T)
+        s1(u8"0") =~= s2(u8"0") && s1(u8"1") =~= s2(u8"1")
+      }
+
+      * {
+        val s1 = MS[U8, B](F, T)
+        val s2 = MS.create[U8, B](2, T)
+        s2(u8"0") = F
+        s1 =~= s2
+      }
+
+    }
+  }
+
+  "ISZOps" - {
+    val s = ISZ[Z](Z.random, Z.random, Z.random, Z.random)
+
+    *(SOps(s).contains(s(2)))
+
+    *(SOps(s :+ 1).forall(_ >= z"1"))
+
+    *(SOps(s :+ 2).exists(_ == z"2"))
+
+    *(ISOps(s) :+ 3 =~= s :+ 3)
+
+    *(1 +: ISOps(s) =~= 1 +: s)
+
+    *(ISOps(s) ++ s =~= s ++ s)
+
+    *(ISOps(s).toMS =~= MSZ(s.elements: _*))
+
+    * {
+      s =~= ISOps(ISOps(s).chunk(2)).
+        foldLeft((r: ISZ[Z], t: ISZ[Z]) => r ++ t, ISZ[Z]())
+    }
   }
 }

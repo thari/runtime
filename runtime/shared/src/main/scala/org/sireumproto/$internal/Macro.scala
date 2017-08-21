@@ -96,6 +96,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
         if (isVar(name.symbol)) Some(name.tpe) else None
       case q"${name: Ident}.apply[..$_]($_)($_)" =>
         if (isVar(name.symbol)) Some(name.tpe) else None
+      case q"${name: Ident}.apply[..$_]($_)" =>
+        if (isVar(name.symbol)) Some(name.tpe) else None
       case t@Select(This(_), _) =>
         if (isVar(t.symbol)) Some(t.tpe) else None
       case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
@@ -103,6 +105,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       case Typed(e, t) => varType(e)
       case q"${expr: c.Tree}.$_" => varType(expr)
       case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => varType(expr)
+      case q"${expr: c.Tree}.apply[..$_]($arg)" => varType(expr)
       case _ =>
         c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }
@@ -111,14 +114,17 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       case q"${name: c.TermName}.$tname" =>
         q"$name = $name($tname = $r)"
       case q"${name: c.TermName}.apply[..$_]($arg)($_)" =>
-        q"$name = $name($arg -> $r)"
+        q"$name = $name(($arg, $r))"
+      case q"${name: c.TermName}.apply[..$_]($arg)" =>
+        q"$name = $name(($arg, $r))"
       case q"$tpname.this.$name.$tname" =>
         q"$tpname.this.$name = $name($tname = $r)"
       case q"$tpname.this.$name.apply[..$_]($arg)($_)" =>
-        q"$tpname.this.$name = this.$name($arg -> $r)"
+        q"$tpname.this.$name = this.$name(($arg, $r))"
       case Typed(e, t) => f(e, r)
       case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
-      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr($arg -> $r)")
+      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr(($arg, $r))")
+      case q"${expr: c.Tree}.apply[..$_]($arg)" => f(expr, q"$expr(($arg, $r))")
       case _ =>
         c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }

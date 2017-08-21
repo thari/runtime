@@ -23,52 +23,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireumproto
+package org.sireumproto.ops
 
-import org.sireum.test._
+import org.sireumproto._
 
-class ZTest extends SireumRuntimeSpec {
-
-  val numOfRandomTests = 64
-
-  val x: Z = Z.random
-
-  *(x.toIndex =~= x)
-
-  *(!x.isBitVector)
-
-  *(!x.hasMin)
-
-  *(!x.hasMax)
-
-  *(x.isSigned)
-
-  *(x.Index =~= z"0")
-
-  *(x.Name =~= "Z")
-
-  *(x.decrease.increase =~= x)
-
-  val random = new java.util.Random
-
-  def rand(): scala.BigInt = Z.random.toBigInt
-
-  for ((op, op1, op2) <- List[(Predef.String, Z => Z => Z, scala.BigInt => scala.BigInt => scala.BigInt)](
-    ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-    for (_ <- 0 until numOfRandomTests) {
-      val n = rand()
-      var m = rand()
-      while (m == 0 && (op == "/" || op == "%")) m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).toBigInt =~= op2(n)(m))
-    }
+object ISOps_Ext {
+  @pure def toMS[I <: Z, V](s: IS[I, V]): MS[I, V] = {
+    new MS[I, V](s.companion, s.boxer.cloneMut(s.data, s.length, s.length, Z.MP.zero), s.length, s.boxer)
   }
 
-  for ((op, op1, op2) <- List[(Predef.String, Z => Z => B, scala.BigInt => scala.BigInt => scala.Boolean)](
-    (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-    for (_ <- 0 until numOfRandomTests) {
-      val n = rand()
-      val m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).value =~= op2(n)(m))
+  @pure def sortWith[I <: Z, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
+    val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
+    val a = s.boxer.create(s.length)
+    var i = Z.MP.zero
+    for (e <- es) {
+      s.boxer.store(a, i, e)
+      i = i.increase
     }
+    new IS[I, V](s.companion, a, s.length, s.boxer)
   }
+}
+
+object ISZOps_Ext {
+  @pure def toMS[V](s: IS[Z, V]): MS[Z, V] = ISOps_Ext.toMS(s)
+
+  @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] = ISOps_Ext.sortWith(s, lt)
 }

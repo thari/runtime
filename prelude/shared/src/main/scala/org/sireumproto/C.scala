@@ -37,6 +37,9 @@ object C {
       case o: C => o.value
     }
 
+    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+      copy(src, srcPos, dest, destPos, length)
+
     override def create(length: Z.MP): scala.AnyRef = new Array[scala.Char](length)
 
     override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
