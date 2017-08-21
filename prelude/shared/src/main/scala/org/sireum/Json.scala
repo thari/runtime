@@ -83,91 +83,91 @@ object Json {
     }
 
     @pure def printC(c: C): ST = {
-      return printString(String.fromC(c))
+      return printString(c.string)
     }
 
     @pure def printZ(n: Z): ST = {
-      return printNumber(String.fromZ(n))
+      return printNumber(n.string)
     }
 
     @pure def printZ8(n: Z8): ST = {
-      return printNumber(String.fromZ8(n))
+      return printNumber(n.string)
     }
 
     @pure def printZ16(n: Z16): ST = {
-      return printNumber(String.fromZ16(n))
+      return printNumber(n.string)
     }
 
     @pure def printZ32(n: Z32): ST = {
-      return printNumber(String.fromZ32(n))
+      return printNumber(n.string)
     }
 
     @pure def printZ64(n: Z64): ST = {
-      return printNumber(String.fromZ64(n))
+      return printNumber(n.string)
     }
 
     @pure def printN(n: N): ST = {
-      return printNumber(String.fromN(n))
+      return printNumber(n.string)
     }
 
     @pure def printN8(n: N8): ST = {
-      return printNumber(String.fromN8(n))
+      return printNumber(n.string)
     }
 
     @pure def printN16(n: N16): ST = {
-      return printNumber(String.fromN16(n))
+      return printNumber(n.string)
     }
 
     @pure def printN32(n: N32): ST = {
-      return printNumber(String.fromN32(n))
+      return printNumber(n.string)
     }
 
     @pure def printN64(n: N64): ST = {
-      return printNumber(String.fromN64(n))
+      return printNumber(n.string)
     }
 
     @pure def printS8(n: S8): ST = {
-      return printNumber(String.fromS8(n))
+      return printNumber(n.string)
     }
 
     @pure def printS16(n: S16): ST = {
-      return printNumber(String.fromS16(n))
+      return printNumber(n.string)
     }
 
     @pure def printS32(n: S32): ST = {
-      return printNumber(String.fromS32(n))
+      return printNumber(n.string)
     }
 
     @pure def printS64(n: S64): ST = {
-      return printNumber(String.fromS64(n))
+      return printNumber(n.string)
     }
 
     @pure def printU8(n: U8): ST = {
-      return printNumber(String.fromU8(n))
+      return printNumber(n.string)
     }
 
     @pure def printU16(n: U16): ST = {
-      return printNumber(String.fromU16(n))
+      return printNumber(n.string)
     }
 
     @pure def printU32(n: U32): ST = {
-      return printNumber(String.fromU32(n))
+      return printNumber(n.string)
     }
 
     @pure def printU64(n: U64): ST = {
-      return printNumber(String.fromU64(n))
+      return printNumber(n.string)
     }
 
     @pure def printF32(n: F32): ST = {
-      return printNumber(String.fromF32(n))
+      return printNumber(n.string)
     }
 
     @pure def printF64(n: F64): ST = {
-      return printNumber(String.fromF64(n))
+      return printNumber(n.string)
     }
 
     @pure def printR(n: R): ST = {
-      return printNumber(String.fromR(n))
+      return printNumber(n.string)
     }
 
     @pure def printISZ[T](isSimple: B, s: IS[Z, T], f: T => ST): ST = {
@@ -346,7 +346,7 @@ object Json {
 
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
-      for (c <- String.toValues(s)) {
+      for (c <- s.toCis) {
         c match {
           case '"' => r = r :+ '\\' :+ '\"'
           case '\\' => r = r :+ '\\' :+ '\\'
@@ -358,11 +358,11 @@ object Json {
           case '\t' => r = r :+ '\\' :+ 't'
           case _ if '\u0020' <= c && c < '\u00FF' && c != '\u007f' => r = r :+ c
           case _ =>
-            r = r :+ '\\' :+ 'u'
-            r = r ++ String.toValues(String.fromHexC(c))
+            val q = COps(c).toUnicodeHex
+            r = r :+ '\\' :+ 'u' :+ q._1 :+ q._2 :+ q._3 :+ q._4
         }
       }
-      return st""""${String.fromValues(r)}""""
+      return st""""${String(r)}""""
     }
 
     @pure def printConstant(s: String): ST = {
@@ -384,7 +384,7 @@ object Json {
                  |}"""
     }
 
-    @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
+    @pure def printIS[I <: Z](isSimple: B, elements: IS[I, ST]): ST = {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {
@@ -394,7 +394,7 @@ object Json {
       }
     }
 
-    @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
+    @pure def printMS[I <: Z](isSimple: B, elements: MS[I, ST]): ST = {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {
@@ -407,7 +407,7 @@ object Json {
 
   object Parser {
     @pure def create(input: String): Parser = {
-      return Parser(String.toValues(input), 0, None())
+      return Parser(input.toCis, 0, None())
     }
   }
 
@@ -448,7 +448,7 @@ object Json {
 
     def parseC(): C = {
       val i = offset
-      val s = String.toValues(parseString())
+      val s = parseString().toCis
       if (s.size != 1) {
         parseException(i, s"Expected a C, but '$s' found.")
         return ' '
@@ -460,7 +460,7 @@ object Json {
     def parseZ(): Z = {
       val i = offset
       val s = parseNumber()
-      String.toZ(s) match {
+      Z(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z, but '$s' found.")
@@ -471,220 +471,220 @@ object Json {
     def parseZ8(): Z8 = {
       val i = offset
       val s = parseNumber()
-      String.toZ8(s) match {
+      Z8(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z8, but '$s' found.")
-          return z8"0"
+          return Z8(0)
       }
     }
 
     def parseZ16(): Z16 = {
       val i = offset
       val s = parseNumber()
-      String.toZ16(s) match {
+      Z16(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z16, but '$s' found.")
-          return z16"0"
+          return Z16(0)
       }
     }
 
     def parseZ32(): Z32 = {
       val i = offset
       val s = parseNumber()
-      String.toZ32(s) match {
+      Z32(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z32, but '$s' found.")
-          return z32"0"
+          return Z32(0)
       }
     }
 
     def parseZ64(): Z64 = {
       val i = offset
       val s = parseNumber()
-      String.toZ64(s) match {
+      Z64(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z64, but '$s' found.")
-          return z64"0"
+          return Z64(0)
       }
     }
 
     def parseN(): N = {
       val i = offset
       val s = parseNumber()
-      String.toN(s) match {
+      N(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N, but '$s' found.")
-          return n"0"
+          return N(0)
       }
     }
 
     def parseN8(): N8 = {
       val i = offset
       val s = parseNumber()
-      String.toN8(s) match {
+      N8(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N8, but '$s' found.")
-          return n8"0"
+          return N8(0)
       }
     }
 
     def parseN16(): N16 = {
       val i = offset
       val s = parseNumber()
-      String.toN16(s) match {
+      N16(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N16, but '$s' found.")
-          return n16"0"
+          return N16(0)
       }
     }
 
     def parseN32(): N32 = {
       val i = offset
       val s = parseNumber()
-      String.toN32(s) match {
+      N32(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N32, but '$s' found.")
-          return n32"0"
+          return N32(0)
       }
     }
 
     def parseN64(): N64 = {
       val i = offset
       val s = parseNumber()
-      String.toN64(s) match {
+      N64(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N64, but '$s' found.")
-          return n64"0"
+          return N64(0)
       }
     }
 
     def parseS8(): S8 = {
       val i = offset
       val s = parseNumber()
-      String.toS8(s) match {
+      S8(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S8, but '$s' found.")
-          return s8"0"
+          return S8(0)
       }
     }
 
     def parseS16(): S16 = {
       val i = offset
       val s = parseNumber()
-      String.toS16(s) match {
+      S16(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S16, but '$s' found.")
-          return s16"0"
+          return S16(0)
       }
     }
 
     def parseS32(): S32 = {
       val i = offset
       val s = parseNumber()
-      String.toS32(s) match {
+      S32(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S32, but '$s' found.")
-          return s32"0"
+          return S32(0)
       }
     }
 
     def parseS64(): S64 = {
       val i = offset
       val s = parseNumber()
-      String.toS64(s) match {
+      S64(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S64, but '$s' found.")
-          return s64"0"
+          return S64(0)
       }
     }
 
     def parseU8(): U8 = {
       val i = offset
       val s = parseNumber()
-      String.toU8(s) match {
+      U8(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U8, but '$s' found.")
-          return u8"0"
+          return U8(0)
       }
     }
 
     def parseU16(): U16 = {
       val i = offset
       val s = parseNumber()
-      String.toU16(s) match {
+      U16(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U16, but '$s' found.")
-          return u16"0"
+          return U16(0)
       }
     }
 
     def parseU32(): U32 = {
       val i = offset
       val s = parseNumber()
-      String.toU32(s) match {
+      U32(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U32, but '$s' found.")
-          return u32"0"
+          return U32(0)
       }
     }
 
     def parseU64(): U64 = {
       val i = offset
       val s = parseNumber()
-      String.toU64(s) match {
+      U64(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U64, but '$s' found.")
-          return u64"0"
+          return U64(0)
       }
     }
 
     def parseF32(): F32 = {
       val i = offset
       val s = parseNumber()
-      String.toF32(s) match {
+      F32(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a F32, but '$s' found.")
-          return f32"0"
+          return 0f
       }
     }
 
     def parseF64(): F64 = {
       val i = offset
       val s = parseNumber()
-      String.toF64(s) match {
+      F64(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a F64, but '$s' found.")
-          return f64"0"
+          return 0.0
       }
     }
 
     def parseR(): R = {
       val i = offset
       val s = parseNumber()
-      String.toR(s) match {
+      R(s) match {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a R, but '$s' found.")
-          return r"0"
+          return R(0)
       }
     }
 
@@ -710,12 +710,7 @@ object Json {
       var e = f()
       var r = IS[Z8, T](e)
       var continue = parseArrayNext()
-      val max = Z8.toZ(Z8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z8 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -730,12 +725,7 @@ object Json {
       var e = f()
       var r = IS[Z16, T](e)
       var continue = parseArrayNext()
-      val max = Z16.toZ(Z16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z16 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -750,12 +740,7 @@ object Json {
       var e = f()
       var r = IS[Z32, T](e)
       var continue = parseArrayNext()
-      val max = Z32.toZ(Z32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z32 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -770,12 +755,7 @@ object Json {
       var e = f()
       var r = IS[Z64, T](e)
       var continue = parseArrayNext()
-      val max = Z64.toZ(Z64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z64 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -805,12 +785,7 @@ object Json {
       var e = f()
       var r = IS[N8, T](e)
       var continue = parseArrayNext()
-      val max = N8.toZ(N8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N8 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -825,12 +800,7 @@ object Json {
       var e = f()
       var r = IS[N16, T](e)
       var continue = parseArrayNext()
-      val max = N16.toZ(N16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N16 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -845,12 +815,7 @@ object Json {
       var e = f()
       var r = IS[N32, T](e)
       var continue = parseArrayNext()
-      val max = N32.toZ(N32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N32 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -865,12 +830,7 @@ object Json {
       var e = f()
       var r = IS[N64, T](e)
       var continue = parseArrayNext()
-      val max = N64.toZ(N64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N64 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -885,12 +845,7 @@ object Json {
       var e = f()
       var r = IS[S8, T](e)
       var continue = parseArrayNext()
-      val max = S8.toZ(S8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S8 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -905,12 +860,7 @@ object Json {
       var e = f()
       var r = IS[S16, T](e)
       var continue = parseArrayNext()
-      val max = S16.toZ(S16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S16 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -925,12 +875,7 @@ object Json {
       var e = f()
       var r = IS[S32, T](e)
       var continue = parseArrayNext()
-      val max = S32.toZ(S32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S32 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -945,12 +890,7 @@ object Json {
       var e = f()
       var r = IS[S64, T](e)
       var continue = parseArrayNext()
-      val max = S64.toZ(S64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S64 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -965,12 +905,7 @@ object Json {
       var e = f()
       var r = IS[U8, T](e)
       var continue = parseArrayNext()
-      val max = U8.toZ(U8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U8 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -985,12 +920,7 @@ object Json {
       var e = f()
       var r = IS[U16, T](e)
       var continue = parseArrayNext()
-      val max = U16.toZ(U16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U16 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1005,12 +935,7 @@ object Json {
       var e = f()
       var r = IS[U32, T](e)
       var continue = parseArrayNext()
-      val max = U32.toZ(U32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U32 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1025,12 +950,7 @@ object Json {
       var e = f()
       var r = IS[U64, T](e)
       var continue = parseArrayNext()
-      val max = U64.toZ(U64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U64 index.")
-          return IS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1060,12 +980,7 @@ object Json {
       var e = f()
       var r = MS[Z8, T](e)
       var continue = parseArrayNext()
-      val max = Z8.toZ(Z8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z8 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1080,12 +995,7 @@ object Json {
       var e = f()
       var r = MS[Z16, T](e)
       var continue = parseArrayNext()
-      val max = Z16.toZ(Z16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z16 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1100,12 +1010,7 @@ object Json {
       var e = f()
       var r = MS[Z32, T](e)
       var continue = parseArrayNext()
-      val max = Z32.toZ(Z32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z32 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1120,12 +1025,7 @@ object Json {
       var e = f()
       var r = MS[Z64, T](e)
       var continue = parseArrayNext()
-      val max = Z64.toZ(Z64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for Z64 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1155,12 +1055,7 @@ object Json {
       var e = f()
       var r = MS[N8, T](e)
       var continue = parseArrayNext()
-      val max = N8.toZ(N8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N8 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1175,12 +1070,7 @@ object Json {
       var e = f()
       var r = MS[N16, T](e)
       var continue = parseArrayNext()
-      val max = N16.toZ(N16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N16 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1195,12 +1085,7 @@ object Json {
       var e = f()
       var r = MS[N32, T](e)
       var continue = parseArrayNext()
-      val max = N32.toZ(N32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N32 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1215,12 +1100,7 @@ object Json {
       var e = f()
       var r = MS[N64, T](e)
       var continue = parseArrayNext()
-      val max = N64.toZ(N64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for N64 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1235,12 +1115,7 @@ object Json {
       var e = f()
       var r = MS[S8, T](e)
       var continue = parseArrayNext()
-      val max = S8.toZ(S8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S8 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1255,12 +1130,7 @@ object Json {
       var e = f()
       var r = MS[S16, T](e)
       var continue = parseArrayNext()
-      val max = S16.toZ(S16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S16 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1275,12 +1145,7 @@ object Json {
       var e = f()
       var r = MS[S32, T](e)
       var continue = parseArrayNext()
-      val max = S32.toZ(S32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S32 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1295,12 +1160,7 @@ object Json {
       var e = f()
       var r = MS[S64, T](e)
       var continue = parseArrayNext()
-      val max = S64.toZ(S64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for S64 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1315,12 +1175,7 @@ object Json {
       var e = f()
       var r = MS[U8, T](e)
       var continue = parseArrayNext()
-      val max = U8.toZ(U8.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U8 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1335,12 +1190,7 @@ object Json {
       var e = f()
       var r = MS[U16, T](e)
       var continue = parseArrayNext()
-      val max = U16.toZ(U16.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U16 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1355,12 +1205,7 @@ object Json {
       var e = f()
       var r = MS[U32, T](e)
       var continue = parseArrayNext()
-      val max = U32.toZ(U32.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U32 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1375,12 +1220,7 @@ object Json {
       var e = f()
       var r = MS[U64, T](e)
       var continue = parseArrayNext()
-      val max = U64.toZ(U64.Max)
       while (continue) {
-        if (r.size > max) {
-          parseException(offset, "Exceeded maximum elements for U64 index.")
-          return MS()
-        }
         e = f()
         r = r :+ e
         continue = parseArrayNext()
@@ -1501,11 +1341,11 @@ object Json {
       val i = offset + 1
       val value = parseString()
       parseObjectNext()
-      if (expectedTypes.nonEmpty && !SO(expectedTypes).contains(value)) {
+      if (expectedTypes.nonEmpty && !SOps(expectedTypes).contains(value)) {
         expectedTypes.size match {
           case 1 => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")
           case 2 => parseException(i, s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
-          case _ => parseException(i, s"Expected ${st"'${(SI.dropRight(expectedTypes, 1), "', '")}', or '${expectedTypes(expectedTypes.size - 1)}'".render} , but '$value' found.")
+          case _ => parseException(i, s"Expected ${st"'${(ISOps(expectedTypes).dropRight(1), "', '")}', or '${expectedTypes(expectedTypes.size - 1)}'".render} , but '$value' found.")
         }
       }
       return value
@@ -1516,7 +1356,7 @@ object Json {
       val i = offset + 1
       val key = parseString()
       if (key != expectedKey) {
-        parseException(i, s"Expected '${expectedKey}', but '$key' found.")
+        parseException(i, s"Expected '$expectedKey', but '$key' found.")
       }
       parseWhitespace()
       errorIfEof(offset)
@@ -1535,11 +1375,11 @@ object Json {
       errorIfEof(offset)
       val i = offset + 1
       val key = parseString()
-      if (expectedKeys.nonEmpty && !SO(expectedKeys).contains(key)) {
+      if (expectedKeys.nonEmpty && !SOps(expectedKeys).contains(key)) {
         expectedKeys.size match {
           case 1 => parseException(i, s"Expected '${expectedKeys(0)}', but '$key' found.")
           case 2 => parseException(i, s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
-          case _ => parseException(i, s"Expected ${st"'${(SI.dropRight(expectedKeys, 1), "', '")}', or '${expectedKeys(expectedKeys.size - 1)}'".render} , but '$key' found.")
+          case _ => parseException(i, s"Expected ${st"'${(ISOps(expectedKeys).dropRight(1), "', '")}', or '${expectedKeys(expectedKeys.size - 1)}'".render} , but '$key' found.")
         }
       }
       parseWhitespace()
@@ -1651,21 +1491,21 @@ object Json {
           r = r :+ c
           if (offset + 1 == input.size) {
             offset = offset + 1
-            return String.fromValues(r)
+            return String(r)
           }
           c = incOffset(1)
         case _ =>
           r = r :+ c
           if (offset + 1 == input.size) {
             offset = offset + 1
-            return String.fromValues(r)
+            return String(r)
           }
           c = incOffset(1)
           while (isDigit(c)) {
             r = r :+ c
             if (offset + 1 == input.size) {
               offset = offset + 1
-              return String.fromValues(r)
+              return String(r)
             }
             c = incOffset(1)
           }
@@ -1679,7 +1519,7 @@ object Json {
             r = r :+ c
             if (offset + 1 == input.size) {
               offset = offset + 1
-              return String.fromValues(r)
+              return String(r)
             }
             c = incOffset(1)
           }
@@ -1689,7 +1529,7 @@ object Json {
       c match {
         case 'e' =>
         case 'E' =>
-        case _ => return String.fromValues(r)
+        case _ => return String(r)
       }
       r = r :+ c
       c = incOffset(1)
@@ -1706,11 +1546,11 @@ object Json {
         r = r :+ c
         if (offset + 1 == input.size) {
           offset = offset + 1
-          return String.fromValues(r)
+          return String(r)
         }
         c = incOffset(1)
       }
-      return String.fromValues(r)
+      return String(r)
     }
 
     def parseString(): String = {
@@ -1738,7 +1578,7 @@ object Json {
                   case 'u' =>
                     incOffset(4)
                     val hex = slice(offset - 3, offset + 1)
-                    String.toHexC(hex) match {
+                    COps.fromUnicodeHex(hex) match {
                       case Some(ch) => r = r :+ ch
                       case _ => parseException(offset - 3, s"Expected a character hex but '$hex' found.")
                     }
@@ -1749,7 +1589,7 @@ object Json {
             c = incOffset(1)
           }
           offset = offset + 1
-          return String.fromValues(r)
+          return String(r)
         case _ =>
           parseException(offset, s"""Expected '"' but '$c' found.""")
           return ""
@@ -1758,7 +1598,7 @@ object Json {
 
     def parseConstant(text: String): Unit = {
       errorIfEof(offset + text.size - 1)
-      val t = slice(offset, offset + text.size)
+      val t = String(slice(offset, offset + text.size))
       if (t != text) {
         parseException(offset, s"Expected '$text', but '$t' found.")
       }
@@ -1851,12 +1691,12 @@ object Json {
       }
     }
 
-    @pure def slice(start: Z, til: Z): String = {
+    @pure def slice(start: Z, til: Z): ISZ[C] = {
       var r = ISZ[C]()
       for (i <- start until til) {
         r = r :+ at(i)
       }
-      return String.fromValues(r)
+      return r
     }
   }
 
@@ -1961,7 +1801,7 @@ object Json {
           return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(SO(es).forall(isSimple), es.map(printValue))
+          return Printer.printIS(SOps(es).forall(isSimple), es.map(printValue))
         case ValueKind.True => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
         case ValueKind.Null => return Printer.nullSt

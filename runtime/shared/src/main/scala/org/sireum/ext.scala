@@ -29,6 +29,7 @@ import scala.meta._
 
 object ext {
 
+  val extSuffix = "_Ext"
   val typeExtSuffix = "$Ext"
 
   def transformObject(o: Defn.Object): Defn.Object = {
@@ -36,7 +37,7 @@ object ext {
     val dollar = Term.Name("$").structure
     if (mods.nonEmpty || estats.nonEmpty || ctorcalls.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort(s"Invalid @ext form on an object; it has to be of the form '@ext object ${name.value} { ... }'.")
-    val extName = Term.Name(name.value + "_Ext")
+    val extName = Term.Name(name.value + extSuffix)
     val newStats = for (stat <- stats) yield stat match {
       case q"..$mods val ..$patsnel: ${tpeopt: Option[Type]} = $$" =>
         if (mods.nonEmpty || patsnel.size != 1 || !patsnel.head.isInstanceOf[Pat.Var.Term] || tpeopt.isEmpty)
@@ -154,7 +155,19 @@ class ext extends scala.annotation.StaticAnnotation {
       case tree: Defn.Trait => ext.transformTrait(tree)
       case tree: Defn.Object => ext.transformObject(tree)
       case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @ext cannot used on a trait with a companion object.")
-      case _ => abort(s"Slang @ext can only be used on an object or a trait.")
+      case _ => abort(tree.pos, s"Slang @ext can only be used on an object or a trait.")
+    }
+    //println(result.syntax)
+    result
+  }
+}
+
+class mext extends scala.annotation.StaticAnnotation {
+  inline def apply(tree: Any): Any = meta {
+    val result: Stat = tree match {
+      case tree: Defn.Trait => ext.transformTrait(tree)
+      case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @mext cannot used on a trait with a companion object.")
+      case _ => abort(tree.pos, s"Slang @mext can only be used on a trait.")
     }
     //println(result.syntax)
     result

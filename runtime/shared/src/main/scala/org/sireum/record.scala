@@ -35,21 +35,21 @@ object record {
     if (mods.nonEmpty || estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @record traits have to be of the form '@record trait <id> ... { ... }'.")
     val tVars = tparams.map { tp =>
-      val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
+      val tparam"..$_ $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
       Type.Name(tparamname.value)
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-    val (hasHash, hasEqual) = _Clonable.hasHashEquals(tpe, stats)
+    val (hasHash, hasEqual) = helper.hasHashEquals(tpe, stats)
     val equals =
       if (hasEqual) {
         val eCases =
           Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
           else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
             p"case _ => false")
-        List(q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }")
+        List(q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }")
       } else List()
-    val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-    q"sealed trait $tname[..$tparams] extends { ..$estats } with org.sireum._Record with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
+    val hash = if (hasHash) List(q"override def hashCode: scala.Int = { hash.hashCode }") else List()
+    q"sealed trait $tname[..$tparams] extends RecordSig with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -62,7 +62,7 @@ object record {
       Type.Name(tparamname.value)
     }
     val tpe = if (tVars.isEmpty) tname else t"$tname[..$tVars]"
-    val (hasHash, hasEqual) = _Clonable.hasHashEquals(tpe, stats)
+    val (hasHash, hasEqual) = helper.hasHashEquals(tpe, stats)
     val ctorName = Ctor.Name(tname.value)
     var inVars = Vector[Term.Assign]()
     for (stat <- stats) stat match {
@@ -100,7 +100,7 @@ object record {
           }
           varNames :+= varName
           cparams :+= param"private var $varName: $atpeopt"
-          vars :+= q"def $paramName = $varName"
+          vars :+= q"def $paramName = { $varName }"
           vars :+= q"def ${Term.Name(paramname.value + "_=")}($paramname: $atpeopt): this.type = { dirty = true; $varName = $paramName; this }"
           applyParams :+= param"$paramname: $atpeopt = this.$varName"
           oApplyParams :+= param"$paramname: $atpeopt"
@@ -114,18 +114,18 @@ object record {
       }
       val cls = {
         val clone = {
-          val cloneNew = q"val r: $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._Clonable.clone($arg)")})"
-          q"override def clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
+          val cloneNew = q"val r: $tpe = { new $ctorName(..${applyArgs.map(arg => q"helper.cloneAssign($arg)")}) }"
+          q"override def $$clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
         }
         val hashCode =
-          if (hasHash) q"override val hashCode: Int = hash.toInt"
-          else if (hasEqual) q"override def hashCode: Int = 0"
+          if (hasHash) q"override val hashCode: scala.Int = { hash.hashCode }"
+          else if (hasEqual) q"override def hashCode: scala.Int = { 0 }"
           else {
-            val hashCodeDirty = q"private var dirty: Boolean = true"
-            val hashCodeVar = q"private var _hashCode: Int = _"
-            val hashCodeDef = q"private def computeHashCode: Int = Seq(this.getClass, ..$unapplyArgs).hashCode"
+            val hashCodeDirty = q"private var dirty: scala.Boolean = { true }"
+            val hashCodeVar = q"private var _hashCode: scala.Int = _"
+            val hashCodeDef = q"private def computeHashCode: scala.Int = { scala.Seq(this.getClass, ..$unapplyArgs).hashCode }"
             vars = (hashCodeDirty +: vars) :+ hashCodeVar :+ hashCodeDef
-            q"override def hashCode: Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
+            q"override def hashCode: scala.Int = { if (dirty) { dirty = false; _hashCode = computeHashCode}; _hashCode }"
           }
         val equals =
           if (hasEqual) {
@@ -133,7 +133,7 @@ object record {
               Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
               else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
                 p"case _ => false")
-            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+            q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           } else {
             val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
             val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
@@ -141,57 +141,58 @@ object record {
               Vector(if (tparams.isEmpty) p"case o: $tname => if (this.hashCode != o.hashCode) false else $eCaseExp"
               else p"case (o: $tname[..$tVars] @unchecked) => if (this.hashCode != o.hashCode) false else $eCaseExp",
                 p"case _ => false")
-            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+            q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           }
-        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: $tpe): B = this == other")
-        val apply = q"def apply(..$applyParams): $tpe = new $ctorName(..${applyArgs.map(arg => q"org.sireum._macro._assign($arg)")})"
+        val apply = q"def apply(..$applyParams): $tpe = { new $ctorName(..${applyArgs.map(arg => q"$$assign($arg)")}) }"
         val toString = {
-          var appends = applyArgs.map(arg => q"org.sireum._Helper.append(sb, $arg)")
+          var appends = applyArgs.map(arg => q"sb.append(String.escape($arg))")
           appends =
             if (appends.isEmpty) appends
-            else appends.head +: appends.tail.flatMap(a => Vector(q"""sb.append(", ")""", a))
-          q"""override def toString: java.lang.String = {
-                    val sb = new StringBuilder
+            else appends.head +: appends.tail.flatMap(a => Vector( q"""sb.append(", ")""", a))
+          Vector(
+            q"""override def toString: java.lang.String = {
+                    val sb = new java.lang.StringBuilder
                     sb.append(${Lit.String(tname.value)})
                     sb.append('(')
                     ..$appends
                     sb.append(')')
                     sb.toString
-                  }"""
+                  }""",
+            q"override def string: String = { toString }"
+          )
         }
-        val content = {
-          var fields = List[Term.Arg](q"(${Lit.String("type")}, ${Lit.String(tname.value)})")
-          for (x <- applyArgs) {
-            fields ::= q"(${Lit.String(x.value)}, $x)"
-          }
-          q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
-        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends {} with org.sireum._Record with ..$ctorcalls { ..${vars ++ hash ++ isEqual ++ Vector(hashCode, equals, content, clone, apply, toString) ++ stats} }"
+//        val content = {
+//          var fields = List[Term.Arg](q"(${Lit.String("type")}, ${Lit.String(tname.value)})")
+//          for (x <- applyArgs) {
+//            fields ::= q"(${Lit.String(x.value)}, $x)"
+//          }
+//          q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
+//        }
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends RecordSig with ..$ctorcalls { ..${vars ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
           if (tparams.isEmpty)
-            (q"def apply(..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
+            (q"def apply(..$oApplyParams): $tpe = { new $ctorName(..$applyArgs) }",
               unapplyTypes.size match {
-                case 0 => q"def unapply(o: $tpe): Boolean = true"
-                case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
-                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case 0 => q"def unapply(o: $tpe): scala.Boolean = { true }"
+                case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = { scala.Some($$clone(o.${unapplyArgs.head})) }"
+                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"$$clone(o.$arg)")})) }"
                 case _ =>
                   val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
-                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum._Clonable.clone(o.$a)")})").toVector
-                  q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"$$clone(o.$a.clone)")})").toVector
+                  q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = { scala.Some((..$unapplyArgss)) }"
               })
           else
-            (q"def apply[..$tparams](..$oApplyParams): $tpe = new $ctorName(..$applyArgs)",
+            (q"def apply[..$tparams](..$oApplyParams): $tpe = { new $ctorName(..$applyArgs) }",
               unapplyTypes.size match {
-                case 0 => q"def unapply[..$tparams](o: $tpe): Boolean = true"
-                case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = scala.Some(org.sireum._Clonable.clone(o.${unapplyArgs.head}))"
-                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = scala.Some((..${unapplyArgs.map(arg => q"org.sireum._Clonable.clone(o.$arg)")}))"
+                case 0 => q"def unapply[..$tparams](o: $tpe): scala.Boolean = { true }"
+                case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = { scala.Some(o.${unapplyArgs.head}) }"
+                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"$$clone(o.$arg)")})) }"
                 case _ =>
                   val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
-                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum._Clonable.clone(o.$a)")})").toVector
-                  q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypess)] = scala.Some((..$unapplyArgss))"
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"$$clone(o.$a)")})").toVector
+                  q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypess)] = { scala.Some((..$unapplyArgss)) }"
               })
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(apply, unapply))))
       }
@@ -199,46 +200,44 @@ object record {
     } else {
       val cls = {
         val clone = if (inVars.nonEmpty) {
-          val cloneNew = q"val r: $tpe = new $ctorName()"
-          q"override def clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
-        } else q"override def clone: $tpe = this"
+          val cloneNew = q"val r: $tpe = { new $ctorName() }"
+          q"override def $$clone: $tpe = { ..${cloneNew +: inVars :+ q"r"} }"
+        } else q"override def $$clone: $tpe = { this }"
         val hashCode =
-          if (hasHash) q"override val hashCode: Int = hash.toInt"
-          else if (hasEqual) q"override val hashCode: Int = 0"
-          else q"override val hashCode: Int = this.getClass.hashCode"
+          if (hasHash) q"override val hashCode: scala.Int = hash.hashCode"
+          else if (hasEqual) q"override val hashCode: scala.Int = 0"
+          else q"override val hashCode: scala.Int = this.getClass.hashCode"
         val equals =
           if (hasEqual) {
             val eCases =
               Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
               else p"case o: $tname[..$tVars] => isEqual(o)",
                 p"case _ => false")
-            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+            q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           } else {
             val eCases =
               Vector(if (tparams.isEmpty) p"case o: $tname => true"
               else p"case o: $tname[..$tVars] => true",
                 p"case _ => false")
-            q"override def equals(o: Any): Boolean = if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases }"
+            q"override def equals(o: scala.Any): Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           }
-        val hash = if (hasHash) List() else List(q"override def hash: Z = hashCode")
-        val isEqual = if (hasEqual) List() else List(q"def isEqual(other: $tpe): B = this == other")
         val toString = {
           val r = tname.value + "()"
-          q"""override def toString: java.lang.String = ${Lit.String(r)}"""
+          Vector(q"""override def toString: java.lang.String = { ${Lit.String(r)} }""", q"override def string: String = { toString }")
         }
-        val content = q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends {} with org.sireum._Record with ..$ctorcalls { ..${hash ++ isEqual ++ Vector(hashCode, equals, content, clone, toString) ++ stats} }"
+//        val content = q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
+        q"final class $tname[..$tparams](...$paramss) extends RecordSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, clone) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =
           if (tparams.isEmpty)
-            (q"private[this] val v: AnyRef = new $ctorName()",
-              q"def apply(): $tpe = v.asInstanceOf[$tpe]",
-              q"def unapply(o: $tpe): Boolean = true")
+            (q"private[this] val v: scala.AnyRef = { new $ctorName() }",
+              q"def apply(): $tpe = { v.asInstanceOf[$tpe] }",
+              q"def unapply(o: $tpe): scala.Boolean = { true }")
           else
-            (q"private[this] val v: AnyRef = new $ctorName[..${tparams.map(_ => t"Nothing")}]()",
-              q"def apply[..$tparams](): $tpe = v.asInstanceOf[$tpe]",
-              q"def unapply[..$tparams](o: $tpe): Boolean = true")
+            (q"private[this] val v: scala.AnyRef = { new $ctorName[..${tparams.map(_ => t"Nothing")}]() }",
+              q"def apply[..$tparams](): $tpe = { v.asInstanceOf[$tpe] }",
+              q"def unapply[..$tparams](o: $tpe): Boolean = { true }")
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(v, apply, unapply))))
       }
       Term.Block(Vector(cls, companion))
@@ -253,8 +252,7 @@ class record extends scala.annotation.StaticAnnotation {
       case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](record.transformTrait(t), o))
       case tree: Defn.Class => record.transformClass(tree, q"object ${Term.Name(tree.name.value)} {}")
       case Term.Block(Seq(t: Defn.Class, o: Defn.Object)) => record.transformClass(t, o)
-      case _ =>
-        abort(s"Invalid Slang @record on: ${tree.syntax}.")
+      case _ => abort(tree.pos, s"Invalid Slang @record on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

@@ -108,6 +108,7 @@ object Map {
     if (size != other.size) {
       return F
     }
+
     var seen = Set.empty[K]
     for (kv <- entries) {
       val k = kv._1
@@ -132,6 +133,7 @@ object Map {
         }
       }
     }
+
     return T
   }
 

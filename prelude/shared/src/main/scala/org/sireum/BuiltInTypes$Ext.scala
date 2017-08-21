@@ -25,27 +25,89 @@
 
 package org.sireum
 
-import scala.meta._
+import org.sireum.$internal._
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object msig {
+import scala.language.implicitConversions
 
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @msig traits have to be of the form '@msig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Mutable with ..$ctorcalls { $param => ..$stats }"
-  }
+
+trait Immutable extends Any with ImmutableMarker {
+
+  def string: String
+
 }
 
-class msig extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => msig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](msig.transformTrait(t), o))
-      case _ => abort(tree.pos, s"Invalid Slang @msig on: ${tree.syntax}.")
-    }
-    //println(result.syntax)
-    result
-  }
+
+trait Ordered[O <: Ordered[O]] extends Any with Immutable {
+
+  def <(other: O): B
+
+  def <=(other: O): B
+
+  def >(other: O): B
+
+  def >=(other: O): B
+
 }
+
+
+trait Number[N <: Number[N]] extends Any with Ordered[N] {
+
+  def +(other: N): N
+
+  def -(other: N): N
+
+  def *(other: N): N
+
+  def /(other: N): N
+
+  def %(other: N): N
+
+}
+
+
+trait EnumSig extends Immutable {
+  def numOfElements: Z
+  def string: String = halt("Unsupported Enum operation 'string'.")
+}
+
+trait DatatypeSig extends Immutable with DatatypeMarker
+
+
+trait RichSig extends Immutable
+
+
+
+trait Mutable extends Any with MutableMarker {
+
+  def string: String
+
+}
+
+
+trait MOrdered[O <: MOrdered[O]] extends Any with Mutable {
+
+  def <(other: O): B
+
+  def <=(other: O): B
+
+  def >(other: O): B
+
+  def >=(other: O): B
+
+}
+
+
+trait RecordSig extends Mutable {
+
+  private var isOwned: Boolean = false
+
+  def owned: Boolean = isOwned
+  def owned_=(b: Boolean): this.type = {
+    isOwned = b
+    this
+  }
+
+}
+
+
+trait MSig extends Mutable

@@ -30,5 +30,5 @@ import org.scalatest.Tag
 object RuntimeTest extends Tag("SireumRuntime")
 
 class SireumRuntimeSpec extends SireumSpec {
-  override val ts = Vector(RuntimeTest)
+  override val ts = scala.Vector(RuntimeTest)
 }

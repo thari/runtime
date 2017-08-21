@@ -25,7 +25,7 @@
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
 class PosetTest extends SireumRuntimeSpec {
   /*
@@ -61,33 +61,33 @@ class PosetTest extends SireumRuntimeSpec {
 
   *(poset.isChildOf("A", "C"))
 
-  *(poset.parentsOf("F") == Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
+  *(poset.parentsOf("F") =~= Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
 
-  *(poset.ancestorsOf("J") == Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
+  *(poset.ancestorsOf("J") =~= Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
 
-  *(poset.ancestorsOf("F") == Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
+  *(poset.ancestorsOf("F") =~= Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
 
-  *(poset.ancestorsOf("L") == Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
+  *(poset.ancestorsOf("L") =~= Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
-  *(poset.lub(ISZ[String]("A", "A")) == Some[String]("A"))
+  *(poset.lub(ISZ[String]("A", "A")) =~= Some[String]("A"))
 
-  *(poset.lub(ISZ[String]("A", "H")) == None[String]())
+  *(poset.lub(ISZ[String]("A", "H")) =~= None[String]())
 
-  *(poset.lub(ISZ[String]("D", "E", "F")) == Some[String]("A"))
+  *(poset.lub(ISZ[String]("D", "E", "F")) =~= Some[String]("A"))
 
-  *(poset.lub(ISZ[String]("F", "J", "K")) == Some[String]("G"))
+  *(poset.lub(ISZ[String]("F", "J", "K")) =~= Some[String]("G"))
 
-  *(poset.glb(ISZ[String]("A", "A")) == Some[String]("A"))
+  *(poset.glb(ISZ[String]("A", "A")) =~= Some[String]("A"))
 
-  *(poset.glb(ISZ[String]("D", "E")) == None[String]())
+  *(poset.glb(ISZ[String]("D", "E")) =~= None[String]())
 
-  *(poset.glb(ISZ[String]("A", "I")) == None[String]())
+  *(poset.glb(ISZ[String]("A", "I")) =~= None[String]())
 
-  *(poset.glb(ISZ[String]("B", "C")) == Some[String]("E"))
+  *(poset.glb(ISZ[String]("B", "C")) =~= Some[String]("E"))
 
-  *(poset.glb(ISZ[String]("A", "B", "C")) == Some[String]("E"))
+  *(poset.glb(ISZ[String]("A", "B", "C")) =~= Some[String]("E"))
 
-  *(poset.glb(ISZ[String]("B", "C", "G")) == Some[String]("L"))
+  *(poset.glb(ISZ[String]("B", "C", "G")) =~= Some[String]("L"))
 
-  *(poset.glb(ISZ[String]("H", "I", "N")) == Some[String]("M"))
+  *(poset.glb(ISZ[String]("H", "I", "N")) =~= Some[String]("M"))
 }

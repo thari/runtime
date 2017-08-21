@@ -25,19 +25,19 @@
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
 object NFoo_Ext {
   type NA = String
 
   def x: Z = 5
+
   def y: NA = "abc"
 
-  def foo[T](x: Z): T = math._Z(2).asInstanceOf[T]
+  def foo[T](x: Z): T = Z(2).asInstanceOf[T]
 }
 
 @ext object NFoo {
-  //type NA = NFoo_Native.NA
 
   trait NA
 
@@ -48,7 +48,9 @@ object NFoo_Ext {
 }
 
 class ExtTest extends SireumRuntimeSpec {
-  * {
-    NFoo.x == math._Z(5) && NFoo.y.value == "abc" && NFoo.foo[Z](4) == math._Z(2)
-  }
+  *(NFoo.x =~= Z(5))
+
+  *(NFoo.y.value =~= "abc")
+
+  *(NFoo.foo[Z](4) =~= Z(2))
 }

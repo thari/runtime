@@ -23,30 +23,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.$internal
 
-import org.sireum.test._
+import org.sireum.{Some, None, MSome, MNone}
 
-class HashSetTest extends SireumRuntimeSpec {
-  *(HashSet.empty[String].size =~= z"0")
-
-  *(!HashSet.empty[String].contains("a"))
-
-  *(HashSet.empty[String].add("a").contains("a"))
-
-  *(!HashSet.empty[String].add("a").contains("A"))
-
-  *(HashSet.empty[String].add("a").add("b").contains("a"))
-
-  *(HashSet.empty[String].add("a").add("b").contains("b"))
-
-  *(HashSet.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
-
-  *(HashSet.empty[String].addAll(ISZ("a","b")) =~= HashSet.empty[String].add("b").add("a"))
-
-  *(HashSet.empty[String].union(HashSet.empty[String].add("A")) =~= HashSet.empty[String].add("A"))
-
-  *(HashSet.empty[String].intersect(HashSet.empty[String].add("A")) =~= HashSet.empty[String])
-
-  *(HashSet.empty[String].add("a").intersect(HashSet.empty[String].add("A")) =~= HashSet.empty[String])
+object Option {
+  def apply(o: Any): Any = {
+    o match {
+      case Some(x) => scala.Some(x)
+      case MSome(x) => scala.Some(x)
+      case _: None[_] => scala.None
+      case _: MNone[_] => scala.None
+      case _ => o
+    }
+  }
 }

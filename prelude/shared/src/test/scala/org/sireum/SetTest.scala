@@ -25,10 +25,10 @@
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
 class SetTest extends SireumRuntimeSpec {
-  *(Set.empty[String].size == z"0")
+  *(Set.empty[String].size =~= z"0")
 
   *(!Set.empty[String].contains("a"))
 
@@ -42,11 +42,11 @@ class SetTest extends SireumRuntimeSpec {
 
   *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
 
-  *(Set.empty[String].addAll(ISZ("a","b")) == Set.empty[String].add("b").add("a"))
+  *(Set.empty[String].addAll(ISZ("a","b")) =~= Set.empty[String].add("b").add("a"))
 
-  *(Set.empty[String].union(Set.empty[String].add("A")) == Set.empty[String].add("A"))
+  *(Set.empty[String].union(Set.empty[String].add("A")) =~= Set.empty[String].add("A"))
 
-  *(Set.empty[String].intersect(Set.empty[String].add("A")) == Set.empty[String])
+  *(Set.empty[String].intersect(Set.empty[String].add("A")) =~= Set.empty[String])
 
-  *(Set.empty[String].add("a").intersect(Set.empty[String].add("A")) == Set.empty[String])
+  *(Set.empty[String].add("a").intersect(Set.empty[String].add("A")) =~= Set.empty[String])
 }

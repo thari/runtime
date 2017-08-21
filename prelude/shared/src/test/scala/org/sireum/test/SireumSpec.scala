@@ -29,29 +29,29 @@ import org.scalatest.{FreeSpec, Tag}
 
 abstract class SireumSpec extends FreeSpec {
 
-  val ts: Seq[Tag] = Vector()
+  val ts: scala.Seq[Tag] = scala.Vector()
 
-  private val m: scala.collection.mutable.Map[Int, Int] = {
+  private val m: scala.collection.mutable.Map[scala.Int, scala.Int] = {
     import scala.collection.JavaConverters._
-    new java.util.concurrent.ConcurrentHashMap[Int, Int]().asScala
+    new java.util.concurrent.ConcurrentHashMap[scala.Int, scala.Int]().asScala
   }
 
-  private def name(line: Int): String = {
+  private def name(line: scala.Int): Predef.String = {
     val last = m.getOrElseUpdate(line, 0)
     val next = last + 1
     m(line) = next
     if (last == 0) s"L$line" else s"L$line # $next"
   }
 
-  def *(title: String)(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
+  def *(title: Predef.String)(b: => scala.Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
     registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
   }
 
-  def *(b: => Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
+  def *(b: => scala.Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
     registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
   }
 
-  def *(b: => Boolean, msg: => String)(implicit pos: org.scalactic.source.Position): Unit = {
+  def *(b: => scala.Boolean, msg: => Predef.String)(implicit pos: org.scalactic.source.Position): Unit = {
     registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
   }
 }

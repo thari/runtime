@@ -34,7 +34,7 @@ object sig {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @sig traits have to be of the form '@sig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with org.sireum._Immutable with ..$ctorcalls { $param => ..$stats }"
+    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Immutable with ..$ctorcalls { $param => ..$stats }"
   }
 }
 
@@ -44,7 +44,7 @@ class sig extends scala.annotation.StaticAnnotation {
       case tree: Defn.Trait => sig.transformTrait(tree)
       case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](sig.transformTrait(t), o))
       case _ =>
-        abort(s"Invalid Slang @sig on: ${tree.syntax}.")
+        abort(tree.pos, s"Invalid Slang @sig on: ${tree.syntax}.")
     }
     //println(result.syntax)
     result

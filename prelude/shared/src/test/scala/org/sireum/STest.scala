@@ -1,90 +1,169 @@
 /*
- * Copyright (c) 2017, Robby, Kansas State University
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ Copyright (c) 2017, Robby, Kansas State University
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this
+    list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
-
+import org.sireum.test._
 import org.sireum.ops._
 import org.sireum.ops.ISZOps._
-import org.sireum.ops.ISZBOps._
+import scala.collection.mutable.{BitSet => BS}
+import U16._
+import N16._
+import Z8._
+import U8._
+import spire.math.Real
 
 class STest extends SireumRuntimeSpec {
-  "MS[Z8, B]" - {
 
-    * {
-      val s1 = collection._MS[Z8, B](T, T)
-      val s2 = collection._MS.create[Z8, B](z8"2", T)
-      s1(0) == s2(0) && s1(1) == s2(1)
+  "IS" - {
+
+    *(ISZ[Z](z"1", z"2", z"3") =~= IS[Z, Z](z"1", z"2", z"3"))
+
+    *(ISU16[U16](u16"-1", u16"-2", u16"-3") =~= IS[U16, U16](u16"-1", u16"-2", u16"-3"))
+
+    *(ISZ[Z](z"1", z"2", z"3") !~= ISZ[U16](u16"-1", u16"-2", u16"-3"))
+
+    "ISZ[B]" - {
+
+      val empty = ISZ[B]()
+
+      *(empty.data.isInstanceOf[scala.Array[scala.Any]])
+
+      *(empty.data.asInstanceOf[scala.Array[scala.Any]].length =~= 0)
+
+      *((empty :+ T).data.isInstanceOf[BS])
+
+      *((ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[B64]")
+
     }
 
-    * {
-      val s1 = collection._MS[Z8, B](F, T)
-      val s2 = collection._MS.create[Z8, B](z8"2", T)
-      s2(z8"0") = false
-      s1 == s2
+    "ISZ[String]" - {
+
+      *(ISZ[String]("A", "B", "C\nD").toString =~= "[\"A\", \"B\", \"C\\nD\"]")
+
+    }
+
+    "ISZ[C]" - {
+
+      *(ISZ[C]('A', 'B', '\u0010').toString =~= "['A', 'B', '\\020']")
+
+    }
+
+    "ISZ[Z]" - {
+
+      *(ISZ[Z](1, 2, 3).data =~= scala.Array[scala.Any](Z.MP.Long(1), Z.MP.Long(2), Z.MP.Long(3)))
+
+      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000").data =~=
+        scala.Array[scala.Any](scala.BigInt("10000000000000000000"),
+          scala.BigInt("20000000000000000000"), scala.BigInt("30000000000000000000")))
+
+      *(ISZ[Z](z"10000000000000000000", z"20000000000000000000", z"30000000000000000000")(1) =~=
+        z"20000000000000000000")
+    }
+
+    "ISZ[U16]" - {
+
+      *(ISZ[U16](u16"1", u16"2", u16"3").data =~= scala.Array[scala.Short](1, 2, 3))
+
+      *(ISZ[U16](u16"1", u16"2", u16"3")(1) =~= U16(2))
+
+    }
+
+    "ISZ[N16]" - {
+
+      *(ISZ[N16](n16"1", n16"2", n16"3").data =~= scala.Array[scala.Int](1, 2, 3))
+
+      *(ISZ[N16](n16"1", n16"2", n16"3")(1) =~= N16(2))
+
+    }
+
+    "ISZ[R]" - {
+
+      *(ISZ[R](r"1", r"2", r"3").data =~= scala.Array[Real](Real(1), Real(2), Real(3)))
+
+      *(ISZ[R](r"1", r"2", r"3")(1) =~= R(2))
+
     }
 
   }
 
-  "IS[U8, B]" - {
+  "MS" - {
 
-    * {
-      val s1 = collection._MS[U8, B](T, T)
-      val s2 = collection._MS.create[U8, B](u8"2", T)
-      s1(0) == s2(0) && s1(1) == s2(1)
+    "MS[Z8, B]" - {
+
+      * {
+        val s1 = MS[Z8, B](T, T)
+        val s2 = MS.create[Z8, B](2, T)
+        s1(z8"0") =~= s2(z8"0") && s1(z8"1") =~= s2(z8"1")
+      }
+
+      * {
+        val s1 = MS[Z8, B](F, T)
+        val s2 = MS.create[Z8, B](2, T)
+        s2(z8"0") = false
+        s1 =~= s2
+      }
     }
 
-    * {
-      val s1 = collection._MS[U8, B](F, T)
-      val s2 = collection._MS.create[U8, B](u8"2", T)
-      s2(z8"0") = F
-      s1 == s2
-    }
+    "MS[U8, B]" - {
 
+      * {
+        val s1 = MS[U8, B](T, T)
+        val s2 = MS.create[U8, B](2, T)
+        s1(u8"0") =~= s2(u8"0") && s1(u8"1") =~= s2(u8"1")
+      }
+
+      * {
+        val s1 = MS[U8, B](F, T)
+        val s2 = MS.create[U8, B](2, T)
+        s2(u8"0") = F
+        s1 =~= s2
+      }
+
+    }
   }
 
   "ISZOps" - {
     val s = ISZ[Z](Z.random, Z.random, Z.random, Z.random)
 
-    *(ISZOps(s).contains(s(2)))
+    *(SOps(s).contains(s(2)))
 
-    *(ISZOps(s :+ 1).forall(_ >= 1))
+    *(SOps(s :+ 1).forall(_ >= z"1"))
 
-    *(ISZOps(s :+ 2).exists(_ == 2))
+    *(SOps(s :+ 2).exists(_ == z"2"))
 
-    *(ISZOps(s) :+ 3 == s :+ 3)
+    *(ISOps(s) :+ 3 =~= s :+ 3)
 
-    *(1 +: ISZOps(s) == 1 +: s)
+    *(1 +: ISOps(s) =~= 1 +: s)
 
-    *(ISZOps(s) ++ s == s ++ s)
+    *(ISOps(s) ++ s =~= s ++ s)
 
-    *(ISZOps(s).toMS == MSZ(s.elements: _*))
+    *(s.toMS =~= MSZ(s.elements: _*))
 
     * {
-      s == ISZOps(ISZOps(s).chunk(2)).
+      s =~= ISOps(ISOps(s).chunk(2)).
         foldLeft((r: ISZ[Z], t: ISZ[Z]) => r ++ t, ISZ[Z]())
     }
   }

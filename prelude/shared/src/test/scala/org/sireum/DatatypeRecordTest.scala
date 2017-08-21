@@ -26,8 +26,7 @@
 
 package org.sireum
 
-import com.github.ghik.silencer.silent
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
 @record trait F2
 
@@ -53,11 +52,11 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
   val foo = Foo(1, Bar(2, 5))
 
   * {
-    foo.x == 1: @silent
+    foo.x =~= 1
   }
 
   * {
-    assert(foo.x == 1: @silent)
+    assert(foo.x =~= 1)
     val fooClone: Foo = foo
     foo.bar.y = 4
     fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
@@ -70,20 +69,20 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
     up(a.y.z) = 7
     up(a.y.zz(0)) = 8
 
-    a == $Foo(6, $Bar(7, ISZ(8, 2, 3)))
+    a =~= $Foo(6, $Bar(7, ISZ(8, 2, 3)))
   }
 
   * {
     val bazzz = Bazzz[Z](5)
     bazzz.updateX(4)
-    bazzz.x == z"4"
+    bazzz.x =~= z"4"
   }
 
   * {
     val p = (Bar(1, 2), Bar(3, 4))
     val q = p
     p._1.y = 3
-    p != q
+    p !~= q
   }
 
 }

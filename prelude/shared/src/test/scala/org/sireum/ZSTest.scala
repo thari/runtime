@@ -24,29 +24,29 @@
  */
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
 class ZSTest extends SireumRuntimeSpec {
-  final val size = math._Z(1024)
+  final val size = Z(1024)
   final val zs123 = ZS(1, 2, 3)
   final val zs12 = ZS(1, 2)
   final val zs23 = ZS(2, 3)
 
   "append" - {
-    * (zs123 == zs12 :+ 3)
+    * (zs123 =~= zs12 :+ 3)
 
-    *(zs123.hashCode == (zs12 :+ 3).hashCode)
+    *(zs123.hashCode =~= (zs12 :+ 3).hashCode)
   }
 
   "prepend" - {
-    *(zs123 == 1 +: zs23)
-    *(zs123.hashCode == (1 +: zs23).hashCode)
+    *(zs123 =~= 1 +: zs23)
+    *(zs123.hashCode =~= (1 +: zs23).hashCode)
   }
 
   "impl" - {
 
     "zsArray" in {
-      var i = math._Z.zero
+      var i = Z(0)
       var append: ZS = ZS()
       var prepend: ZS = ZS()
       while (i < size) {
@@ -54,7 +54,7 @@ class ZSTest extends SireumRuntimeSpec {
         prepend +:= size - i - 1
         i += 1
       }
-      assert(append == prepend)
+      assert(append =~= prepend)
     }
   }
 }

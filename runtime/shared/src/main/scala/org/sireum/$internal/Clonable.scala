@@ -23,29 +23,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.$internal
 
-import scala.meta._
-
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object msig {
-
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @msig traits have to be of the form '@msig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Mutable with ..$ctorcalls { $param => ..$stats }"
-  }
-}
-
-class msig extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => msig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](msig.transformTrait(t), o))
-      case _ => abort(tree.pos, s"Invalid Slang @msig on: ${tree.syntax}.")
-    }
-    //println(result.syntax)
-    result
-  }
+trait Clonable extends Any {
+  def $clone: Any
 }

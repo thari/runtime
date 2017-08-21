@@ -23,29 +23,23 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.ops
 
-import scala.meta._
+import org.sireum._
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object msig {
-
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @msig traits have to be of the form '@msig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Mutable with ..$ctorcalls { $param => ..$stats }"
+object ISOps_Ext {
+  @pure def sortWith[I <: Z, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
+    val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
+    val a = s.boxer.create(s.length)
+    var i = Z.MP.zero
+    for (e <- es) {
+      s.boxer.store(a, i, e)
+      i = i.increase
+    }
+    new IS[I, V](s.companion, a, s.length, s.boxer)
   }
 }
 
-class msig extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => msig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](msig.transformTrait(t), o))
-      case _ => abort(tree.pos, s"Invalid Slang @msig on: ${tree.syntax}.")
-    }
-    //println(result.syntax)
-    result
-  }
+object ISZOps_Ext {
+  @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] = ISOps_Ext.sortWith(s, lt)
 }
