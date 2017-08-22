@@ -200,9 +200,9 @@ object Z extends $ZCompanion[Z] {
 
     @inline def apply(n: scala.BigInt): MP = MP.BigInt(n).pack
 
-    @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
+    @inline def apply(n: java.math.BigInteger): MP = MP.BigInt(scala.BigInt(n))
 
-    @inline def apply(s: String): MP = MP(scala.BigInt(helper.normNum(s.value)))
+    @inline def apply(s: String): MP = MP.BigInt(scala.BigInt(helper.normNum(s.value)))
 
   }
 
