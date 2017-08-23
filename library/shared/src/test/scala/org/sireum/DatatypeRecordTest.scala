@@ -81,6 +81,7 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
   * {
     val p = (Bar(1, 2), Bar(3, 4))
     val q = p
+    assert(q ne p)
     p._1.y = 3
     p !~= q
   }
