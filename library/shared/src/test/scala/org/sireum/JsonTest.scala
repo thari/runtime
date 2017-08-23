@@ -100,7 +100,7 @@ class JsonTest extends SireumRuntimeSpec {
   def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber().value)
 
   def parse[T](s: Predef.String, f: Json.Parser => T): T = {
-    val parser = Json.Parser(String(s).toCis, 0, None())
+    val parser = Json.Parser(String(s), 0, None())
     val r = f(parser)
     parser.eof()
     assert(parser.errorOpt.isEmpty)

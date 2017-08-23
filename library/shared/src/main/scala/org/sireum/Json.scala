@@ -407,11 +407,11 @@ object Json {
 
   object Parser {
     @pure def create(input: String): Parser = {
-      return Parser(input.toCis, 0, None())
+      return Parser(input, 0, None())
     }
   }
 
-  @record class Parser(input: ISZ[C],
+  @record class Parser(input: String,
                        var offset: Z,
                        var errorOpt: Option[ErrorMsg]) {
 
@@ -430,7 +430,7 @@ object Json {
           return F
         }
         val p = computeLineColumn(offset)
-        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input(offset)}' found."))
+        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input.at(offset)}' found."))
         return F
       } else {
         return T
@@ -1289,8 +1289,8 @@ object Json {
     }
 
     def at(i: Z): C = {
-      if (0 <= i && i < input.length && errorOpt.isEmpty) {
-        return input(i)
+      if (0 <= i && i < input.size && errorOpt.isEmpty) {
+        return input.at(i)
       }
       return '\u0000'
     }
@@ -1636,7 +1636,7 @@ object Json {
     }
 
     def errorIfEof(i: Z): Unit = {
-      if (i >= input.length || errorOpt.nonEmpty) {
+      if (i >= input.size || errorOpt.nonEmpty) {
         parseException(offset, "Unexpected end-of-file.")
       }
     }

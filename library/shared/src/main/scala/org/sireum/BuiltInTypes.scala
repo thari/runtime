@@ -152,6 +152,8 @@ package org.sireum
 
 @ext trait String extends Immutable {
 
+  def at(i: Z): C
+
   def size: Z
 
   def toCis: IS[Z, C]
