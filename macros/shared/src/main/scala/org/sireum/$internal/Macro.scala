@@ -67,18 +67,21 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   }
 
   def $assign(arg: c.Tree): c.Tree = {
-    //    def args(n: Int): List[c.Tree] =
-    //      (for (i <- 1 to n) yield
-    //        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(arg, TermName(s"_$i"))))).toList
+    def args(n: Int): List[c.Tree] =
+      (for (i <- 1 to n) yield
+        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(arg, TermName(s"_$i"))))).toList
 
     //println(showRaw(arg))
-    val r =
-      if (arg.tpe <:< c.typeOf[MutableMarker]) q"helper.assign($arg)"
-      //      else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
-      //        val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
-      //        Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), args(n))
-      //      }
-      else arg
+    val r = arg match {
+      case q"(..$args)" if args.size > 1 => arg
+      case _ =>
+        if (arg.tpe <:< c.typeOf[MutableMarker]) q"helper.assign($arg)"
+        else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
+          val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
+          Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), args(n))
+        }
+        else arg
+    }
     //println(showRaw(r))
     //println(showCode(r))
     r
