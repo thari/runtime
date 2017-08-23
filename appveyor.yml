@@ -30,4 +30,4 @@ build_script:
   - bash -lc "cd $APPVEYOR_BUILD_FOLDER && sbt clean test:compile"
 
 test_script:
-  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && sbt test"
+  - bash -lc "cd $APPVEYOR_BUILD_FOLDER && sbt --error test"
