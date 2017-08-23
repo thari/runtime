@@ -30,7 +30,7 @@ import org.sireum._
 
 @rich class COps(c: C) {
   def toUnicodeHex: (C, C, C, C) = {
-    return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u0007'), COps.hex2c((c >>> '\u0004') & '\u0007'), COps.hex2c(c & '\u0007'))
+    return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))
   }
 }
 

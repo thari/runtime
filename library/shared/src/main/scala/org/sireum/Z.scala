@@ -40,7 +40,7 @@ object Z extends $ZCompanion[Z] {
     val one: MP = MP.Long(1)
     val mone: MP = MP.Long(-1)
 
-    private[sireum] final case class Long(value: scala.Long) extends MP {
+    final case class Long(value: scala.Long) extends MP {
 
       override def toBigInt: scala.BigInt = scala.BigInt(value)
 
@@ -60,7 +60,7 @@ object Z extends $ZCompanion[Z] {
 
     }
 
-    private[sireum] final case class BigInt(value: scala.BigInt) extends MP {
+    final case class BigInt(value: scala.BigInt) extends MP {
 
       override def toBigInt: scala.BigInt = value
 
@@ -200,9 +200,13 @@ object Z extends $ZCompanion[Z] {
 
     @inline def apply(n: scala.BigInt): MP = MP.BigInt(n).pack
 
-    @inline def apply(n: java.math.BigInteger): MP = MP.BigInt(scala.BigInt(n))
+    @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
 
-    @inline def apply(s: String): MP = MP.BigInt(scala.BigInt(helper.normNum(s.value)))
+    @inline def apply(s: String): MP = {
+      val ns = helper.normNum(s.value)
+      if (ns.length > 2 && ns.head == '0' && ns(1).toLower == 'x') MP(scala.BigInt(ns.substring(2), 16))
+      else MP(scala.BigInt(ns))
+    }
 
   }
 

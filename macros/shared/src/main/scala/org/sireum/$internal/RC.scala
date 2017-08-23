@@ -32,13 +32,36 @@ import java.nio.file.Files
 import com.github.marklister.base64.Base64
 
 import scala.language.experimental.macros
+import scala.collection.mutable.{Map => MMap}
 
 object RC {
+  def toTrie(m: scala.collection.Map[Seq[String], String]): Trie.Node[String, String] = {
+    var root = Trie.InNode[String, String](MMap())
+
+    def add(path: Seq[String], content: String, node: Trie.InNode[String, String]): Unit = path match {
+      case Seq(s) => node.children += ((s, Trie.Leaf[String, String](content)))
+      case _ =>
+        node.children.get(path.head) match {
+          case Some(n: Trie.InNode[String, String] @unchecked) => add(path.tail, content, n)
+          case _ =>
+            val n = Trie.InNode[String, String](MMap())
+            node.children += ((path.head, n))
+            add(path.tail, content, n)
+        }
+    }
+
+    for ((path, content) <- m) add(path, content, root)
+
+    root
+  }
+
   def text(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.textImpl
+
   def base64(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.base64Impl
 }
 
 class RC(val c: scala.reflect.macros.blackbox.Context) {
+
   import c.universe._
 
   def commonImpl(isText: Boolean, p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] = {
@@ -66,6 +89,7 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
         file.listFiles.foreach(rec)
       }
     }
+
     rec(anchorDir)
 
     val r = q"scala.collection.immutable.ListMap[Seq[Predef.String], Predef.String](..$args)"

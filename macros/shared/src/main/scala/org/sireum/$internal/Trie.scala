@@ -23,19 +23,16 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.$internal
 
-import org.sireum.$internal.{RC, Trie}
+import scala.collection.mutable.Map
 
-object $SlangFiles {
-  def map: scala.collection.Map[scala.Seq[Predef.String], Predef.String] = RC.text { (p, f) =>
-    if (p.last.endsWith(".scala")) {
-      val r = java.nio.file.Files.newBufferedReader(f.toPath, java.nio.charset.StandardCharsets.UTF_8)
-      val line: Predef.String = r.readLine
-      r.close()
-      line.replaceAllLiterally(" ", "").contains("#Sireum")
-    } else false
-  }
+object Trie {
 
-  def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(map)
+  sealed trait Node[K, V]
+
+  final case class InNode[K, V](children: Map[K, Node[K, V]]) extends Node[K, V]
+
+  final case class Leaf[K, V](data: V) extends Node[K, V]
+
 }

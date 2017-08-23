@@ -194,7 +194,7 @@ object range {
                 else scala.None
             }
             object String extends $$ZCompanionString[$typeName] {
-              def apply(s: Predef.String): $typeName = BigInt(scala.BigInt(helper.normNum(s)))
+              def apply(s: Predef.String): $typeName = BigInt(Z.String(s).toBigInt)
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
             object BigInt extends $$ZCompanionBigInt[$typeName] {

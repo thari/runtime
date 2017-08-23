@@ -41,26 +41,31 @@ object String {
   }
 
   def escape(o: scala.Any): Predef.String = {
+    def z2s(n: scala.Long): Predef.String =
+      if (scala.Int.MinValue <= n && n <= scala.Int.MaxValue) n.toString
+      else n.toString + 'l'
     o match {
       case o: String => helper.escape(o.value)
       case o: C => val s = helper.escape(o.toString); '\'' + s.substring(1, s.length - 1) + '\''
       case o: F32 => o + "f"
       case o: R => "r\"" + o + '"'
-      case o: Z.MP.Long =>
-        val v = o.value
-        if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) v.toString
-        else v.toString + 'l'
-      case o: scala.BigInt => "z\"" + o + '"'
+      case o: Z.MP.Long => z2s(o.value)
+      case o: Z.MP.BigInt => o.pack match {
+        case o2: Z.MP.Long => z2s(o2.value)
+        case _ => "z\"" + o + '"'
+      }
       case o: Z => o.Name.toLowerCase + '"' + o + '"'
       case _ => o.toString
     }
   }
 
   def apply[I <: Z](cs: IS[I, C]): String = {
+    if (cs.isEmpty) return ""
     String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
   }
 
   def apply[I <: Z](cs: MS[I, C]): String = {
+    if (cs.isEmpty) return ""
     String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
   }
 
