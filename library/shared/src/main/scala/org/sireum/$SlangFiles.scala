@@ -23,15 +23,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireum
 
-abstract class SireumRcSpec extends SireumSpec {
-  def textResources: scala.collection.Map[scala.Seq[Predef.String], Predef.String]
-
-  def check(path: scala.Seq[Predef.String], content: Predef.String): scala.Boolean
-
-  for (r <- textResources.toSeq.map(p => (p._1.mkString("/"), p._1, p._2)).
-    sortWith((p1, p2) => p1._1.compareTo(p2._1) < 0)) {
-    registerTest(s"${r._1}", ts: _*)(assert(check(r._2, r._3)))
+object $SlangFiles {
+  lazy val librarySlangFiles: scala.collection.Map[scala.Seq[Predef.String], Predef.String] = $internal.RC.text { (p, f) =>
+    if (p.last.endsWith(".scala")) {
+      val r = java.nio.file.Files.newBufferedReader(f.toPath, java.nio.charset.StandardCharsets.UTF_8)
+      val line: Predef.String = r.readLine
+      r.close()
+      line.replaceAllLiterally(" ", "").contains("#Sireum")
+    } else false
   }
 }

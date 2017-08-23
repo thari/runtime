@@ -23,40 +23,43 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.`macro`
+package org.sireum.$internal
 
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
 import com.github.marklister.base64.Base64
-import org.sireum.{B, HashSMap, ISZ, String, U8}
 
 import scala.language.experimental.macros
 
 object RC {
-  def text(p: ISZ[String] => B): HashSMap[ISZ[String], String] = macro RC.textImpl
-  def base64(p: ISZ[String] => B): HashSMap[ISZ[String], String] = macro RC.base64Impl
+  def text(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.textImpl
+  def base64(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.base64Impl
 }
 
 class RC(val c: scala.reflect.macros.blackbox.Context) {
   import c.universe._
 
-  def commonImpl(isText: Boolean, p: c.Expr[ISZ[String] => B]): c.Expr[HashSMap[ISZ[String], String]] = {
+  def commonImpl(isText: Boolean, p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] = {
     val anchorDir = new File(p.tree.pos.source.file.canonicalPath).getParentFile
     val anchorPath = uriOf(anchorDir)
-    val pf = c.eval[ISZ[String] => B](c.Expr(c.untypecheck(p.tree)))
-    var tree = q"org.sireum.HashSMap.empty[org.sireum.ISZ[org.sireum.String], org.sireum.String]"
+    val pf = c.eval[(Seq[String], File) => Boolean](c.Expr(c.untypecheck(p.tree)))
+    var args = Vector[c.Tree]()
 
     def rec(file: File): Unit = {
       if (file.isFile) {
         val filePath = uriOf(file)
         if (filePath.startsWith(anchorPath)) {
-          val path = filePath.substring(anchorPath.length).split('/').map(String.apply)
-          if (pf(ISZ(path: _*))) {
-            val pathSegments: Seq[c.Tree] = path.map(p => q"org.sireum.String(${Literal(Constant(p.value))})")
-            val s = Literal(Constant(if (isText) readText(file) else readBase64(file)))
-            tree = q"$tree.put(ISZ(..$pathSegments), org.sireum.String($s))"
+          val path = filePath.substring(anchorPath.length).split('/')
+          if (pf(Seq(path: _*), file)) {
+            val pathSegments: Seq[c.Tree] = path.map(p => Literal(Constant(p)))
+            val content = if (isText) readText(file) else readBase64(file)
+            val s = content.grouped(20000).toSeq.map(c => Literal(Constant(c)))
+            val fs = s.indices.toVector.map(n => TermName("f" + n))
+            val ms = fs.zip(s).map(p => q"def ${p._1}: Predef.String = ${p._2}")
+            val b = q"..${ms :+ fs.map(f => Ident(f): c.Tree).reduce((f1, f2) => q"$f1 + $f2")}"
+            args :+= q"(Seq(..$pathSegments), $b)"
           }
         }
       } else if (file.isDirectory) {
@@ -65,18 +68,20 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
     }
     rec(anchorDir)
 
-    c.Expr(tree)
+    val r = q"scala.collection.immutable.ListMap[Seq[Predef.String], Predef.String](..$args)"
+    //println(showCode(r))
+    c.Expr(r)
   }
 
-  def textImpl(p: c.Expr[ISZ[String] => B]): c.Expr[HashSMap[ISZ[String], String]] =
+  def textImpl(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
     commonImpl(isText = true, p)
 
-  def base64Impl(p: c.Expr[ISZ[String] => B]): c.Expr[HashSMap[ISZ[String], String]] =
+  def base64Impl(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
     commonImpl(isText = false, p)
 
-  def uriOf(f: File): Predef.String = f.toURI.toASCIIString
+  def uriOf(f: File): String = f.toURI.toASCIIString
 
-  def readText(f: File): Predef.String = new Predef.String(Files.readAllBytes(f.toPath), StandardCharsets.UTF_8)
+  def readText(f: File): String = new String(Files.readAllBytes(f.toPath), StandardCharsets.UTF_8)
 
-  def readBase64(f: File): Predef.String = Base64.Encoder(Files.readAllBytes(f.toPath)).toBase64(Base64.base64)
+  def readBase64(f: File): String = Base64.Encoder(Files.readAllBytes(f.toPath)).toBase64(Base64.base64)
 }

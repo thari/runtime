@@ -1,4 +1,3 @@
-// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
