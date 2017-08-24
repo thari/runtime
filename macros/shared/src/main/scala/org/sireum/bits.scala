@@ -97,7 +97,7 @@ object bits {
     val iTermName = helper.zCompanionName(name)
     val (isTermName, isTypeName) = helper.iSName(name)
     val (msTermName, msTypeName) = helper.mSName(name)
-    val lowerTermName = Term.Name(name.toLowerCase)
+    val lowerTermName = helper.scPrefix(name)
     val ctorName = Ctor.Name(name)
     val scTypeName = helper.scName(name)
     val nameStr = Lit.String(name)

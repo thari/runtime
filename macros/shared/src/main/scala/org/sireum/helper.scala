@@ -183,6 +183,8 @@ object helper {
 
   def mSName(name: Predef.String): (Term.Name, Type.Name) = (Term.Name("MS" + name), Type.Name("MS" + name))
 
+  def scPrefix(name: Predef.String): Term.Name = Term.Name(name.head.toLower + name.tail)
+
   import scala.language.experimental.macros
 
   def $assign[T](arg: T): T = macro $internal.Macro.$assign
