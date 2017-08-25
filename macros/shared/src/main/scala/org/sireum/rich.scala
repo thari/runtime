@@ -88,7 +88,7 @@ object rich {
             abort(stat.pos, s"Slang @rich class extension methods should only have a list of parameters (instead of several lists of parameters).")
           if (tpeopt.isEmpty)
             abort(stat.pos, s"Slang @rich class extension methods should be explicitly typed.")
-          val tVars = tparams.map { tp =>
+          val mtVars = tparams.map { tp =>
             val tparam"..$mods $tparamname[..$_] >: $_ <: $_ <% ..$_ : ..$_" = tp
             Type.Name(tparamname.value)
           }
@@ -99,8 +99,9 @@ object rich {
               case _ => abort(paramname.pos, "Unsupported Slang @rich class extension method parameter form.")
             }
           }
-          if (tVars.isEmpty) q"def $name[..$tparams](...$paramss): $tpeopt = $extName.$name(..${varNames ++ params})"
-          else q"def $name[..$tparams](...$paramss): $tpeopt = $extName.$name[..$tVars](..${varNames ++ params})"
+          val etVars = tVars ++ mtVars
+          if (etVars.isEmpty) q"def $name[..$tparams](...$paramss): $tpeopt = $extName.$name(..${varNames ++ params})"
+          else q"def $name[..$tparams](...$paramss): $tpeopt = $extName.$name[..$etVars](..${varNames ++ params})"
         } else stat
     }
     val stats2 = List[Stat](
