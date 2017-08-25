@@ -60,11 +60,9 @@ trait PackageTrait {
   val T: org.sireum.B = true
   val F: org.sireum.B = false
 
-  def halt(msg: scala.Any): scala.Nothing = helper.halt(msg)
+  final def randomInt(): Z = Z.random
 
-  def $[T]: T = macro Macro.$[T]
-
-  final def readInt(msg: String = "Enter an integer: "): Z = {
+  final def promptInt(msg: String): Z = {
     while (true) {
       Console.out.print(msg.value)
       Console.out.flush()
@@ -79,6 +77,12 @@ trait PackageTrait {
     }
     Z.MP.zero
   }
+
+  final def readInt(): Z = promptInt("Enter an integer: ")
+
+  def halt(msg: scala.Any): scala.Nothing = helper.halt(msg)
+
+  def $[T]: T = macro Macro.$[T]
 
   final def cprintln(isErr: B, as: Any*): Unit = {
     if (isErr) eprintln(as: _*) else println(as: _*)
@@ -113,8 +117,6 @@ trait PackageTrait {
       Console.err.flush()
     }
   }
-
-  final def randomInt(): Z = Z.random
 
   import language.implicitConversions
 
