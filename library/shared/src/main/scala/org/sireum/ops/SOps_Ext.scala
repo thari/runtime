@@ -37,6 +37,15 @@ object ISOps_Ext {
     a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
   }
 
+  def mParMapFoldRight[I <: Z, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+    val elements = s.elements
+    val ies = elements.indices.zip(elements)
+    val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+    val a = new Array[scala.Any](irs.length)
+    irs.foreach { p => a(p._1) = p._2 }
+    a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+  }
+
   @pure def sortWith[I <: Z, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
@@ -53,6 +62,10 @@ object ISZOps_Ext {
   def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)
 
   def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)
+
+  def mParMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldRight(s, f, g, init)
+
+  def parMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldRight(s, f, g, init)
 
   @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] = ISOps_Ext.sortWith(s, lt)
 }

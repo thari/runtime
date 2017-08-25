@@ -40,9 +40,13 @@ import org.sireum._
 
   @pure def foldRight[R](f: (R, V) => R, init: R): R
 
-  def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
 
   def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+
+  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R
+
+  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R
 
   @pure def forall(p: V => B): B
 
@@ -262,10 +266,15 @@ import org.sireum._
     return s.map(f)
   }
 
-  def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R =
+  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R =
     l""" ensures ISZOps(map(f)).foldLeft(g, init) """
 
   def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = $
+
+  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures ISZOps(map(f)).foldLeft(g, init) """
+
+  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = $
 
   @pure def remove(i: Z): IS[Z, V] = {
     l""" requires 0 ≤ i
