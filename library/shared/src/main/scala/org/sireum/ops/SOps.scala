@@ -40,6 +40,10 @@ import org.sireum._
 
   @pure def foldRight[R](f: (R, V) => R, init: R): R
 
+  def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+
+  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+
   @pure def forall(p: V => B): B
 
   @pure def indexOf(e: V): I
@@ -258,6 +262,11 @@ import org.sireum._
     return s.map(f)
   }
 
+  def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures ISZOps(map(f)).foldLeft(g, init) """
+
+  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = $
+
   @pure def remove(i: Z): IS[Z, V] = {
     l""" requires 0 ≤ i
                   i < s.size
@@ -331,10 +340,10 @@ import org.sireum._
   @pure def toU64: U64
 }
 
-import U8._
-import U16._
-import U32._
-import U64._
+import org.sireum.U8._
+import org.sireum.U16._
+import org.sireum.U32._
+import org.sireum.U64._
 
 object ISZBOps {
 
