@@ -25,10 +25,15 @@
 
 package org.sireum.$internal
 
+import scala.collection.GenSeq
 import scala.language.experimental.macros
 
 object Macro {
   val templateString = "st\"...\""
+
+  def par[T](arg: GenSeq[T]): GenSeq[T] = macro Macro.parImpl
+
+  def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 }
 
 import Macro._
@@ -204,6 +209,12 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       r
     }
   }
+
+  def isJs: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
+
+  def parImpl(arg: c.Tree): c.Tree = if (isJs) arg else q"$arg.par"
+
+  def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJs) arg else q"$o.synchronized { $arg }"
 
   def st(args: c.Tree*): c.Tree = {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
