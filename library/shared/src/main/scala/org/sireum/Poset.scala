@@ -29,13 +29,13 @@ package org.sireum
 object Poset {
 
   @pure def empty[T]: Poset[T] = {
-    return Poset[T](Map.empty, Map.empty)
+    return Poset[T](HashMap.empty, HashMap.empty)
   }
 }
 
-@datatype class Poset[T](parents: Map[T, Set[T]],
-                         children: Map[T, Set[T]]) {
-  val emptySet: Set[T] = Set.empty
+@datatype class Poset[T](parents: HashMap[T, HashSet[T]],
+                         children: HashMap[T, HashSet[T]]) {
+  val emptySet: HashSet[T] = HashSet.empty
 
   @pure def isEqual(other: Poset[T]): B = {
     if (!parents.isEqual(other.parents)) {
@@ -56,11 +56,11 @@ object Poset {
   }
 
   @pure def addParents(n: T, ns: ISZ[T]): Poset[T] = {
-    val newParents: Map[T, Set[T]] = parents.get(n) match {
+    val newParents: HashMap[T, HashSet[T]] = parents.get(n) match {
       case Some(s) => parents.put(n, s.addAll(ns))
       case _ => parents.put(n, emptySet.addAll(ns))
     }
-    var newChildren: Map[T, Set[T]] = children
+    var newChildren: HashMap[T, HashSet[T]] = children
     for (c <- ns) {
       newChildren = newChildren.get(c) match {
         case Some(s) => newChildren.put(c, s.add(n))
@@ -71,11 +71,11 @@ object Poset {
   }
 
   @pure def addChildren(n: T, ns: ISZ[T]): Poset[T] = {
-    val newChildren: Map[T, Set[T]] = children.get(n) match {
+    val newChildren: HashMap[T, HashSet[T]] = children.get(n) match {
       case Some(s) => children.put(n, s.addAll(ns))
       case _ => children.put(n, emptySet.addAll(ns))
     }
-    var newParents: Map[T, Set[T]] = parents
+    var newParents: HashMap[T, HashSet[T]] = parents
     for (c <- ns) {
       newParents = newParents.get(c) match {
         case Some(s) => newParents.put(c, s.add(n))
@@ -85,7 +85,7 @@ object Poset {
     return Poset(newParents, newChildren)
   }
 
-  @pure def childrenOf(n: T): Set[T] = {
+  @pure def childrenOf(n: T): HashSet[T] = {
     children.get(n) match {
       case Some(s) => return s
       case _ => return emptySet
@@ -96,7 +96,7 @@ object Poset {
     return childrenOf(n).contains(m)
   }
 
-  @pure def parentsOf(n: T): Set[T] = {
+  @pure def parentsOf(n: T): HashSet[T] = {
     parents.get(n) match {
       case Some(s) => return s
       case _ => return emptySet
@@ -107,11 +107,11 @@ object Poset {
     return parentsOf(n).contains(m)
   }
 
-  @pure def ancestorsOf(n: T): Set[T] = {
-    return ancestorsCache(n, Map.empty)._1
+  @pure def ancestorsOf(n: T): HashSet[T] = {
+    return ancestorsCache(n, HashMap.empty)._1
   }
 
-  @pure def ancestorsCache(n: T, acc: Map[T, Set[T]]): (Set[T], Map[T, Set[T]]) = {
+  @pure def ancestorsCache(n: T, acc: HashMap[T, HashSet[T]]): (HashSet[T], HashMap[T, HashSet[T]]) = {
     var mAcc = acc
     var r = emptySet
     for (nParent <- parentsOf(n).elements) {
@@ -121,7 +121,7 @@ object Poset {
     return (r, mAcc)
   }
 
-  @pure def ancestorsRec(m: T, acc: Map[T, Set[T]]): Map[T, Set[T]] = {
+  @pure def ancestorsRec(m: T, acc: HashMap[T, HashSet[T]]): HashMap[T, HashSet[T]] = {
     if (acc.contains(m)) {
       return acc
     }
@@ -135,7 +135,7 @@ object Poset {
     if (ns.isEmpty) {
       return None()
     }
-    val p0 = ancestorsCache(ns(0), Map.empty)
+    val p0 = ancestorsCache(ns(0), HashMap.empty)
     var commons = p0._1.add(ns(0))
     var acc = p0._2
     for (i <- 1 until ns.size) {
@@ -161,11 +161,11 @@ object Poset {
   }
 
 
-  @pure def descendantsOf(n: T): Set[T] = {
-    return descendantsCache(n, Map.empty)._1
+  @pure def descendantsOf(n: T): HashSet[T] = {
+    return descendantsCache(n, HashMap.empty)._1
   }
 
-  @pure def descendantsCache(n: T, acc: Map[T, Set[T]]): (Set[T], Map[T, Set[T]]) = {
+  @pure def descendantsCache(n: T, acc: HashMap[T, HashSet[T]]): (HashSet[T], HashMap[T, HashSet[T]]) = {
     var mAcc = acc
     var r = emptySet
     for (nChild <- childrenOf(n).elements) {
@@ -175,7 +175,7 @@ object Poset {
     return (r, mAcc)
   }
 
-  @pure def descendantsRec(m: T, acc: Map[T, Set[T]]): Map[T, Set[T]] = {
+  @pure def descendantsRec(m: T, acc: HashMap[T, HashSet[T]]): HashMap[T, HashSet[T]] = {
     if (acc.contains(m)) {
       return acc
     }
@@ -189,7 +189,7 @@ object Poset {
     if (ns.isEmpty) {
       return None()
     }
-    val p0 = descendantsCache(ns(0), Map.empty)
+    val p0 = descendantsCache(ns(0), HashMap.empty)
     var commons = p0._1.add(ns(0))
     var acc = p0._2
     for (i <- 1 until ns.size) {
