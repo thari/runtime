@@ -39,7 +39,9 @@ package org.sireum
 
   @pure def exists(f: T => B): B
 
-  @pure def getOrElse(default: T): T
+  @pure def get: T
+
+  @pure def getOrElse(default: => T): T
 
   def foreach(f: T => Unit): Unit
 }
@@ -77,9 +79,14 @@ package org.sireum
     return F
   }
 
-  @pure def getOrElse(default: T): T = {
+  @pure def getOrElse(default: => T): T = {
     l""" ensures  result ≡ default """
     return default
+  }
+
+  @pure def get: T = {
+    l""" requires  F """
+    halt("Invalid 'None' operation 'get'.")
   }
 
   def foreach(f: T => Unit): Unit = {}
@@ -118,7 +125,12 @@ package org.sireum
     return f(value)
   }
 
-  @pure def getOrElse(default: T): T = {
+  @pure def getOrElse(default: => T): T = {
+    l""" ensures  result ≡ value """
+    return value
+  }
+
+  @pure def get: T = {
     l""" ensures  result ≡ value """
     return value
   }
