@@ -73,11 +73,7 @@ object HashSMap {
 
   @pure def put(key: K, value: V): HashSMap[K, V] = {
     val newMap = map.put(key, value)
-    if (newMap.size == size) {
-      return this
-    } else {
-      return HashSMap(newMap, keys.add(key))
-    }
+    return HashSMap(newMap, keys.add(key))
   }
 
   @pure def putAll(entries: ISZ[(K, V)]): HashSMap[K, V] = {

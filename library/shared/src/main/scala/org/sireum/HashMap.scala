@@ -84,7 +84,9 @@ object HashMap {
   @pure def put(key: K, value: V): HashMap[K, V] = {
     val r = ensureCapacity(size + 1)
     val i = hashIndex(key)
-    return r(mapEntries = mapEntries(i -> mapEntries(i).put(key, value)), size = size + 1)
+    val m = mapEntries(i)
+    val newSize: Z = if (m.contains(key)) size else size + 1
+    return r(mapEntries = mapEntries(i -> mapEntries(i).put(key, value)), size = newSize)
   }
 
   @pure def putAll(entries: ISZ[(K, V)]): HashMap[K, V] = {

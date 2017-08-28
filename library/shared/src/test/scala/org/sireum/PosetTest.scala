@@ -61,13 +61,13 @@ class PosetTest extends SireumRuntimeSpec {
 
   *(poset.isChildOf("A", "C"))
 
-  *(poset.parentsOf("F") =~= Set.empty[String].addAll(ISZ[String]("C", "G", "H")))
+  *(poset.parentsOf("F") =~= HashSet.empty[String].addAll(ISZ[String]("C", "G", "H")))
 
-  *(poset.ancestorsOf("J") =~= Set.empty[String].addAll(ISZ[String]("G", "H", "I")))
+  *(poset.ancestorsOf("J") =~= HashSet.empty[String].addAll(ISZ[String]("G", "H", "I")))
 
-  *(poset.ancestorsOf("F") =~= Set.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
+  *(poset.ancestorsOf("F") =~= HashSet.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
 
-  *(poset.ancestorsOf("L") =~= Set.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
+  *(poset.ancestorsOf("L") =~= HashSet.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
   *(poset.lub(ISZ[String]("A", "A")) =~= Some[String]("A"))
 
