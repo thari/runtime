@@ -25,8 +25,10 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 final class memoize extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
@@ -71,11 +73,21 @@ final class memoize extends scala.annotation.StaticAnnotation {
                   case _ =>
                 }
                 val r = _internal
-                cache = cache + (arg -> r)
+                cache(arg) = r
                 r
               }
            """
-        val cacheVar = q"var cache = scala.collection.immutable.Map[$argType, $returnType]()"
+        val cacheVar = {
+          val cacheInit = if (helper.isJs) {
+            q"{ scala.collection.mutable.Map[$argType, $returnType]() }"
+          } else {
+            q"""{
+                  import scala.collection.JavaConverters._
+                  (new java.util.concurrent.ConcurrentHashMap[$argType, $returnType]()).asScala
+                }"""
+          }
+          q"val cache: scala.collection.mutable.Map[$argType, $returnType] = $cacheInit"
+        }
         val newName = Term.Name("_" + name.value)
         val newStat =
           if (tparams.isEmpty) q"..$mods def $newName(...$paramss): $tpeopt = $body"
