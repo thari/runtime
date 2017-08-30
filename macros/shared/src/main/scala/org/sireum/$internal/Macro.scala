@@ -25,6 +25,8 @@
 
 package org.sireum.$internal
 
+import org.sireum.helper
+
 import scala.collection.GenSeq
 import scala.language.experimental.macros
 
@@ -210,11 +212,9 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     }
   }
 
-  def isJs: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
+  def parImpl(arg: c.Tree): c.Tree = if (helper.isJs) arg else q"$arg.par"
 
-  def parImpl(arg: c.Tree): c.Tree = if (isJs) arg else q"$arg.par"
-
-  def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJs) arg else q"$o.synchronized { $arg }"
+  def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (helper.isJs) arg else q"$o.synchronized { $arg }"
 
   def st(args: c.Tree*): c.Tree = {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
