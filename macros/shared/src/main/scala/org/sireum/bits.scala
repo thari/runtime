@@ -25,8 +25,10 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class bits(signed: Boolean,
            width: Int,
            min: Option[BigInt] = None,
@@ -107,20 +109,20 @@ object bits {
     val (valueTypeName, bvType, boxerType, minLit, maxLit, indexLit, randomSeed, apply, intObject, longObject, bigIntObject) = width match {
       case 8 => (
         t"scala.Byte",
-        ctor"Z.BV.Byte[$typeName]",
-        ctor"Z.Boxer.Byte",
+        ctor"org.sireum.Z.BV.Byte[$typeName]",
+        ctor"org.sireum.Z.Boxer.Byte",
         q"(${Lit.Int(min.toInt)}).toByte",
         q"(${Lit.Int(max.toInt)}).toByte",
         q"(${Lit.Int(index.toInt)}).toByte",
         q"new $ctorName((n + zMin).toBigInt.toByte)",
-        q"""def apply(n: Z): $typeName = n match {
-              case n: Z.MP.Long =>
+        q"""def apply(n: org.sireum.Z): $typeName = n match {
+              case n: org.sireum.Z.MP.Long =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
                 }
                 new $ctorName(n.value.toByte)
-              case n: Z.MP.BigInt =>
+              case n: org.sireum.Z.MP.BigInt =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
@@ -128,35 +130,35 @@ object bits {
                 new $ctorName(n.value.toByte)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }""",
-        q"""object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+        q"""object Int extends org.sireum.$$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toMP.toInt)
             }""",
-        q"""object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+        q"""object Long extends org.sireum.$$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLong)
             }""",
-        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(Z.MP(n))
+        q"""object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toByte) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }"""
       )
       case 16 => (
         t"scala.Short",
-        ctor"Z.BV.Short[$typeName]",
-        ctor"Z.Boxer.Short",
+        ctor"org.sireum.Z.BV.Short[$typeName]",
+        ctor"org.sireum.Z.Boxer.Short",
         q"(${Lit.Int(min.toInt)}).toShort",
         q"(${Lit.Int(max.toInt)}).toShort",
         q"(${Lit.Int(index.toInt)}).toShort",
         q"new $ctorName((n + zMin).toBigInt.toShort)",
-        q"""def apply(n: Z): $typeName = n match {
-              case n: Z.MP.Long =>
+        q"""def apply(n: org.sireum.Z): $typeName = n match {
+              case n: org.sireum.Z.MP.Long =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
                 }
                 new $ctorName(n.value.toShort)
-              case n: Z.MP.BigInt =>
+              case n: org.sireum.Z.MP.BigInt =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
@@ -164,35 +166,35 @@ object bits {
                 new $ctorName(n.value.toShort)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }""",
-        q"""object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+        q"""object Int extends org.sireum.$$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Int] = scala.Some(n.toMP.toInt)
             }""",
-        q"""object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+        q"""object Long extends org.sireum.$$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLong)
             }""",
-        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(Z.MP(n))
+        q"""object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toShort) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }"""
       )
       case 32 => (
         t"scala.Int",
-        ctor"Z.BV.Int[$typeName]",
-        ctor"Z.Boxer.Int",
+        ctor"org.sireum.Z.BV.Int[$typeName]",
+        ctor"org.sireum.Z.Boxer.Int",
         Lit.Int(min.toInt),
         Lit.Int(max.toInt),
         Lit.Int(index.toInt),
         q"new $ctorName((n + zMin).toBigInt.toInt)",
-        q"""def apply(n: Z): $typeName = n match {
-              case n: Z.MP.Long =>
+        q"""def apply(n: org.sireum.Z): $typeName = n match {
+              case n: org.sireum.Z.MP.Long =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
                 }
                 new $ctorName(n.value.toInt)
-              case n: Z.MP.BigInt =>
+              case n: org.sireum.Z.MP.BigInt =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
@@ -200,39 +202,39 @@ object bits {
                 new $ctorName(n.value.toInt)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }""",
-        q"""object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+        q"""object Int extends org.sireum.$$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Int] = {
                 val v = n.toMP
                 if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) scala.Some(v.toInt)
                 else scala.None
               }
             }""",
-        q"""object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(Z.MP(n))
+        q"""object Long extends org.sireum.$$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Long] = scala.Some(n.toMP.toLong)
             }""",
-        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(Z.MP(n))
+        q"""object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toInt) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }"""
       )
       case 64 => (
         t"scala.Long",
-        ctor"Z.BV.Long[$typeName]",
-        ctor"Z.Boxer.Long",
+        ctor"org.sireum.Z.BV.Long[$typeName]",
+        ctor"org.sireum.Z.Boxer.Long",
         Lit.Long(min.toLong),
         Lit.Long(max.toLong),
         Lit.Long(index),
         q"new $ctorName((n + zMin).toBigInt.toLong)",
-        q"""def apply(n: Z): $typeName = n match {
-              case n: Z.MP.Long =>
+        q"""def apply(n: org.sireum.Z): $typeName = n match {
+              case n: org.sireum.Z.MP.Long =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
                 }
                 new $ctorName(n.value)
-              case n: Z.MP.BigInt =>
+              case n: org.sireum.Z.MP.BigInt =>
                 if (!isWrapped) {
                   assert(Min.toMP <= n, n + $minErrorMessage)
                   assert(n <= Max.toMP, n + $maxErrorMessage)
@@ -240,24 +242,24 @@ object bits {
                 new $ctorName(n.value.toLong)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }""",
-        q"""object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+        q"""object Int extends org.sireum.$$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = if (isWrapped) new $ctorName(n) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Int] = {
                 val v = n.toMP
                 if (scala.Int.MinValue <= v && v <= scala.Int.MaxValue) scala.Some(v.toInt)
                 else scala.None
               }
             }""",
-        q"""object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n) else $termName(Z.MP(n))
+        q"""object Long extends org.sireum.$$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = if (isWrapped) new $ctorName(n) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.Long] = {
                 val v = n.toMP
                 if (scala.Long.MinValue <= v && v <= scala.Long.MaxValue) scala.Some(v.toLongOpt.get)
                 else scala.None
               }
             }""",
-        q"""object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toLong) else $termName(Z.MP(n))
+        q"""object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = if (isWrapped) new $ctorName(n.toLong) else $termName(org.sireum.Z.MP(n))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }"""
       )
@@ -276,9 +278,9 @@ object bits {
             def make(v: $valueTypeName): $typeName = $termName(v)
             def boxer = $termName.Boxer
           }""",
-      q"""object $termName extends $$ZCompanion[$typeName] {
-            type $isTypeName[T <: Immutable] = IS[$typeName, T]
-            type $msTypeName[T] = MS[$typeName, T]
+      q"""object $termName extends org.sireum.$$ZCompanion[$typeName] {
+            type $isTypeName[T <:  org.sireum.Immutable] =  org.sireum.IS[$typeName, T]
+            type $msTypeName[T] =  org.sireum.MS[$typeName, T]
             object Boxer extends $boxerType {
               def make(o: $valueTypeName): $typeName = new $ctorName(o)
             }
@@ -293,34 +295,39 @@ object bits {
             val isBitVector: scala.Boolean = true
             val hasMin: scala.Boolean = true
             val hasMax: scala.Boolean = true
-            def random: $typeName = randomSeed(System.currentTimeMillis)
-            def randomSeed(seed: Z): $typeName = {
-              val zMin = Z(Min.toBigInt)
-              val d = Z(Max.toBigInt) - zMin + Z.MP.one
-              val n = Z.randomSeed(seed) % d
+            def random: $typeName = {
+              val zMin = org.sireum.Z(Min.toBigInt)
+              val d = org.sireum.Z(Max.toBigInt) - zMin + org.sireum.Z.MP.one
+              val n = org.sireum.Z.random % d
+              $randomSeed
+            }
+            def randomSeed(seed: org.sireum.Z): $typeName = {
+              val zMin = org.sireum.Z(Min.toBigInt)
+              val d = org.sireum.Z(Max.toBigInt) - zMin + org.sireum.Z.MP.one
+              val n = org.sireum.Z.randomSeed(seed) % d
               $randomSeed
             }
             $apply;
             def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
-            def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.toMP);
+            def unapply(n: $typeName): scala.Option[org.sireum.Z] = scala.Some(n.toMP);
             $intObject;
             $longObject;
-            object String extends $$ZCompanionString[$typeName] {
-              def apply(s: Predef.String): $typeName = BigInt(Z.String(s).toBigInt)
+            object String extends org.sireum.$$ZCompanionString[$typeName] {
+              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.String(s).toBigInt)
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             };
             $bigIntObject;
             object $isTermName {
-              def apply[V <: Immutable](args: V*): $isTypeName[V] = IS[$typeName, V](args: _*)
-              def create[V <: Immutable](size: Z, default: V): $isTypeName[V] = IS.create[$typeName, V](size, default)
+              def apply[V <:  org.sireum.Immutable](args: V*): $isTypeName[V] =  org.sireum.IS[$typeName, V](args: _*)
+              def create[V <:  org.sireum.Immutable](size: org.sireum.Z, default: V): $isTypeName[V] =  org.sireum.IS.create[$typeName, V](size, default)
             }
             object $msTermName {
-              def apply[V](args: V*): $msTypeName[V] = MS[$typeName, V](args: _*)
-              def create[V](size: Z, default: V): $msTypeName[V] = MS.create[$typeName, V](size, default)
+              def apply[V](args: V*): $msTypeName[V] =  org.sireum.MS[$typeName, V](args: _*)
+              def create[V](size: org.sireum.Z, default: V): $msTypeName[V] =  org.sireum.MS.create[$typeName, V](size, default)
             }
-            implicit class $scTypeName(val sc: StringContext) {
+            implicit class $scTypeName(val sc: scala.StringContext) {
               object $lowerTermName {
-                def apply(args: Any*): $typeName = {
+                def apply(args: scala.Any*): $typeName = {
                   assume(args.isEmpty && sc.parts.length == 1)
                   String(sc.parts.head)
                 }
@@ -331,7 +338,7 @@ object bits {
               }
             }
             import scala.language.implicitConversions
-            implicit val $iTermName: $$ZCompanion[$typeName] = this
+            implicit val $iTermName: org.sireum.$$ZCompanion[$typeName] = this
           }"""
     ))
   }

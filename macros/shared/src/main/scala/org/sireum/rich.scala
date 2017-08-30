@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
 object rich {
@@ -105,13 +106,13 @@ object rich {
         } else stat
     }
     val stats2 = List[Stat](
-      q"""final override def string: String = halt("Slang @rich does not support operation 'string'.")""",
-      q"""final override def hashCode: scala.Int = halt("Slang @rich does not support operation 'hashCode'.")""",
-      q"""final override def equals(other: scala.Any): scala.Boolean = halt("Slang @rich does not support operation '=='.")"""
+      q"""final override def string: org.sireum.String = org.sireum.halt("Slang @rich does not support operation 'string'.")""",
+      q"""final override def hashCode: scala.Int = org.sireum.halt("Slang @rich does not support operation 'hashCode'.")""",
+      q"""final override def equals(other: scala.Any): scala.Boolean = org.sireum.halt("Slang @rich does not support operation '=='.")"""
     )
     val classDef =
-      if (tparams.isEmpty) q"final class $tname(...$paramss) extends RichSig with ..$ctorcalls { ..${newStats ++ stats2} }"
-      else q"final class $tname[..$tparams](...$paramss) extends RichSig with ..$ctorcalls { ..${newStats ++ stats2} }"
+      if (tparams.isEmpty) q"final class $tname(...$paramss) extends org.sireum.RichSig with ..$ctorcalls { ..${newStats ++ stats2} }"
+      else q"final class $tname[..$tparams](...$paramss) extends org.sireum.RichSig with ..$ctorcalls { ..${newStats ++ stats2} }"
     val objectDef = {
       val ctorName = Ctor.Name(tname.value)
       val apply =
@@ -149,6 +150,7 @@ object rich {
   }
 }
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 final class rich extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {

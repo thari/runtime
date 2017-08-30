@@ -35,6 +35,8 @@ object helper {
 
   private val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
+  lazy val isJs: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
+
   def hasHashEquals(tpe: Type, stats: Seq[Stat]): (Boolean, Boolean) = {
     var hasEquals = false
     var hasHash = false

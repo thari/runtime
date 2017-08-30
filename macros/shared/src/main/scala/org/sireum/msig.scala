@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
@@ -34,10 +35,11 @@ object msig {
     val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
     if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
       abort("Slang @msig traits have to be of the form '@msig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with Mutable with ..$ctorcalls { $param => ..$stats }"
+    q"..$mods trait $tname[..$tparams] extends { ..$estats } with org.sireum.Mutable with ..$ctorcalls { $param => ..$stats }"
   }
 }
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class msig extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {

@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
 object ext {
@@ -152,6 +153,7 @@ object ext {
   }
 }
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class ext extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
@@ -159,18 +161,6 @@ class ext extends scala.annotation.StaticAnnotation {
       case tree: Defn.Object => ext.transformObject(tree)
       case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @ext cannot used on a trait with a companion object.")
       case _ => abort(tree.pos, s"Slang @ext can only be used on an object or a trait.")
-    }
-    //println(result.syntax)
-    result
-  }
-}
-
-class mext extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => ext.transformTrait(tree)
-      case Term.Block(Seq(_: Defn.Trait, _: Defn.Object)) => abort(s"Slang @mext cannot used on a trait with a companion object.")
-      case _ => abort(tree.pos, s"Slang @mext can only be used on a trait.")
     }
     //println(result.syntax)
     result

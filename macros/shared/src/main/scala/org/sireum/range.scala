@@ -25,8 +25,10 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class range(min: Option[BigInt] = None,
             max: Option[BigInt] = None,
             index: Boolean = false) extends scala.annotation.StaticAnnotation {
@@ -99,26 +101,26 @@ object range {
       case (Some(min: BigInt), Some(max: BigInt)) =>
         if (scala.Byte.MinValue.toInt <= min && max.toInt <= scala.Byte.MaxValue)
           (q"$termName.Boxer", List[Stat](
-            q"""object Boxer extends Z.Boxer.Byte {
-                  def make(o: scala.Byte): $typeName = new $ctorName(Z.MP(o))
+            q"""object Boxer extends org.sireum.Z.Boxer.Byte {
+                  def make(o: scala.Byte): $typeName = new $ctorName(org.sireum.Z.MP(o))
                 }"""))
         else if (scala.Short.MinValue.toInt <= min && max.toInt <= scala.Short.MaxValue)
           (q"$termName.Boxer", List[Stat](
-            q"""object Boxer extends Z.Boxer.Short {
-                  def make(o: scala.Short): $typeName = new $ctorName(Z.MP(o))
+            q"""object Boxer extends org.sireum.Z.Boxer.Short {
+                  def make(o: scala.Short): $typeName = new $ctorName(org.sireum.Z.MP(o))
                 }"""))
         else if (scala.Int.MinValue <= min && max <= scala.Int.MaxValue)
           (q"$termName.Boxer", List[Stat](
-            q"""object Boxer extends Z.Boxer.Int {
-                  def make(o: scala.Int): $typeName = new $ctorName(Z.MP(o))
+            q"""object Boxer extends org.sireum.Z.Boxer.Int {
+                  def make(o: scala.Int): $typeName = new $ctorName(org.sireum.Z.MP(o))
                 }"""))
         else if (scala.Long.MinValue <= min && max <= scala.Long.MaxValue)
           (q"$termName.Boxer", List[Stat](
-            q"""object Boxer extends Z.Boxer.Long {
-                  def make(o: scala.Long): $typeName = new $ctorName(Z.MP(o))
+            q"""object Boxer extends org.sireum.Z.Boxer.Long {
+                  def make(o: scala.Long): $typeName = new $ctorName(org.sireum.Z.MP(o))
                 }"""))
-        else (q"Z.Boxer.Z", List[Stat]())
-      case _ => (q"Z.Boxer.Z", List[Stat]())
+        else (q"org.sireum.Z.Boxer.Z", List[Stat]())
+      case _ => (q"org.sireum.Z.Boxer.Z", List[Stat]())
     }
 
     def min = Lit.String(minOpt.map(_.toString).getOrElse("0"))
@@ -132,7 +134,7 @@ object range {
     val minErrorMessage = Lit.String(s" is less than $name.Min (${min.value})")
     val maxErrorMessage = Lit.String(s" is greater than $name.Max (${max.value})")
     Term.Block(List(
-      q"""final class $typeName(val value: Z.MP) extends AnyVal with Z.Range[$typeName] {
+      q"""final class $typeName(val value: org.sireum.Z.MP) extends AnyVal with org.sireum.Z.Range[$typeName] {
             @inline def Name: Predef.String = $termName.Name
             @inline def Min: $typeName = $termName.Min
             @inline def Max: $typeName = $termName.Max
@@ -141,77 +143,87 @@ object range {
             @inline def isSigned: scala.Boolean = $termName.isSigned
             @inline def hasMin: scala.Boolean = $termName.hasMin
             @inline def hasMax: scala.Boolean = $termName.hasMax
-            def make(v: Z.MP): $typeName = $termName(v)
+            def make(v: org.sireum.Z.MP): $typeName = $termName(v)
             def boxer = $boxerTerm
           }""",
-      q"""object $termName extends $$ZCompanion[$typeName] {
-            type $isTypeName[T <: Immutable] = IS[$typeName, T]
-            type $msTypeName[T] = MS[$typeName, T];
+      q"""object $termName extends org.sireum.$$ZCompanion[$typeName] {
+            type $isTypeName[T <: org.sireum.Immutable] = org.sireum.IS[$typeName, T]
+            type $msTypeName[T] = org.sireum.MS[$typeName, T];
             ..$boxerObject;
             val Name: Predef.String = $nameStr
-            lazy val Min: $typeName = if (hasMin) new $ctorName(Z.MP($min)) else halt($minUnsupported)
-            lazy val Max: $typeName = if (hasMax) new $ctorName(Z.MP($max)) else halt($maxUnsupported)
-            val Index: $typeName = new $ctorName(Z.MP(${Lit.String(index.toString)}))
+            lazy val Min: $typeName = if (hasMin) new $ctorName(org.sireum.Z.MP($min)) else halt($minUnsupported)
+            lazy val Max: $typeName = if (hasMax) new $ctorName(org.sireum.Z.MP($max)) else halt($maxUnsupported)
+            val Index: $typeName = new $ctorName(org.sireum.Z.MP(${Lit.String(index.toString)}))
             val isZeroIndex: scala.Boolean = $isZeroIndex
             val isSigned: scala.Boolean = ${Lit.Boolean(signed)}
             val isBitVector: scala.Boolean = false
             val hasMin: scala.Boolean = ${Lit.Boolean(minOpt.nonEmpty)}
             val hasMax: scala.Boolean = ${Lit.Boolean(maxOpt.nonEmpty)}
             def BitWidth: scala.Int = halt(s"Unsupported $$Name operation 'BitWidth'")
-            def random: $typeName = randomSeed(System.currentTimeMillis)
-            def randomSeed(seed: Z): $typeName = if (hasMax && hasMin) {
-              val d = Max.value - Min.value + Z.MP.one
-              val n = Z.randomSeed(seed) % d
+            def random: $typeName = if (hasMax && hasMin) {
+              val d = Max.value - Min.value + org.sireum.Z.MP.one
+              val n = org.sireum.Z.random % d
               new $ctorName(n + Min.value)
             } else if (hasMax) {
-              val n = Z.randomSeed(seed)
+              val n = org.sireum.Z.random
               new $ctorName(if (n > Max.value) Max.value - n else n)
             } else {
-              val n = Z.randomSeed(seed)
+              val n = org.sireum.Z.random
               new $ctorName(if (n < Min.value) Min.value + n else n)
             }
-            private def check(v: Z.MP): Z.MP = {
+            def randomSeed(seed: org.sireum.Z): $typeName = if (hasMax && hasMin) {
+              val d = Max.value - Min.value + org.sireum.Z.MP.one
+              val n = org.sireum.Z.randomSeed(seed) % d
+              new $ctorName(n + Min.value)
+            } else if (hasMax) {
+              val n = org.sireum.Z.randomSeed(seed)
+              new $ctorName(if (n > Max.value) Max.value - n else n)
+            } else {
+              val n = org.sireum.Z.randomSeed(seed)
+              new $ctorName(if (n < Min.value) Min.value + n else n)
+            }
+            private def check(v: org.sireum.Z.MP): org.sireum.Z.MP = {
               if (hasMin) assert(Min.value <= v, v + $minErrorMessage)
               if (hasMax) assert(v <= Max.value, v + $maxErrorMessage)
               v
             }
-            def apply(n: Z): $typeName = n match {
-              case n: Z.MP => new $ctorName(n)
+            def apply(n: org.sireum.Z): $typeName = n match {
+              case n: org.sireum.Z.MP => new $ctorName(n)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }
             def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
-            def unapply(n: $typeName): scala.Option[Z] = scala.Some(n.value)
-            object Int extends $$ZCompanionInt[$typeName] {
-              def apply(n: scala.Int): $typeName = new $ctorName(check(Z.MP(n)))
+            def unapply(n: $typeName): scala.Option[org.sireum.Z] = scala.Some(n.value)
+            object Int extends org.sireum.$$ZCompanionInt[$typeName] {
+              def apply(n: scala.Int): $typeName = new $ctorName(check(org.sireum.Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Int] =
                 if (scala.Int.MinValue <= n.value && n.value <= scala.Int.MaxValue) scala.Some(n.value.toBigInt.toInt)
                 else scala.None
             }
-            object Long extends $$ZCompanionLong[$typeName] {
-              def apply(n: scala.Long): $typeName = new $ctorName(check(Z.MP(n)))
+            object Long extends org.sireum.$$ZCompanionLong[$typeName] {
+              def apply(n: scala.Long): $typeName = new $ctorName(check(org.sireum.Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.Long] =
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
-            object String extends $$ZCompanionString[$typeName] {
-              def apply(s: Predef.String): $typeName = BigInt(Z.String(s).toBigInt)
+            object String extends org.sireum.$$ZCompanionString[$typeName] {
+              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.String(s).toBigInt)
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
-            object BigInt extends $$ZCompanionBigInt[$typeName] {
-              def apply(n: scala.BigInt): $typeName = new $ctorName(check(Z.MP(n)))
+            object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
+              def apply(n: scala.BigInt): $typeName = new $ctorName(check(org.sireum.Z.MP(n)))
               def unapply(n: $typeName): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
             }
             object $isTermName {
-              def apply[V <: Immutable](args: V*): $isTypeName[V] = IS[$typeName, V](args: _*)
-              def create[V <: Immutable](size: Z, default: V): $isTypeName[V] = IS.create[$typeName, V](size, default)
+              def apply[V <: org.sireum.Immutable](args: V*): $isTypeName[V] = org.sireum.IS[$typeName, V](args: _*)
+              def create[V <: org.sireum.Immutable](size: org.sireum.Z, default: V): $isTypeName[V] = org.sireum.IS.create[$typeName, V](size, default)
             }
             object $msTermName {
-              def apply[V](args: V*): $msTypeName[V] = MS[$typeName, V](args: _*)
-              def create[V](size: Z, default: V): $msTypeName[V] = MS.create[$typeName, V](size, default)
+              def apply[V](args: V*): $msTypeName[V] = org.sireum.MS[$typeName, V](args: _*)
+              def create[V](size: org.sireum.Z, default: V): $msTypeName[V] = org.sireum.MS.create[$typeName, V](size, default)
             }
-            implicit class $scTypeName(val sc: StringContext) {
+            implicit class $scTypeName(val sc: scala.StringContext) {
               object $lowerTermName {
-                def apply(args: Any*): $typeName = {
+                def apply(args: scala.Any*): $typeName = {
                   assume(args.isEmpty && sc.parts.length == 1)
                   String(sc.parts.head)
                 }
@@ -222,7 +234,7 @@ object range {
               }
             }
             import scala.language.implicitConversions
-            implicit val $iTermName: $$ZCompanion[$typeName] = this
+            implicit val $iTermName: org.sireum.$$ZCompanion[$typeName] = this
           }"""
     ))
   }

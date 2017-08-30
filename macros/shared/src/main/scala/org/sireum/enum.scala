@@ -25,8 +25,10 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class enum extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
@@ -35,26 +37,26 @@ class enum extends scala.annotation.StaticAnnotation {
           abort(s"Invalid @enum form on an object; it has to be of the form '@enum object ${name.value} { ... }'.")
         var decls = Vector[Stat](
           q"""sealed trait Value extends scala.Ordered[Value] {
-                def ordinal: Z
+                def ordinal: org.sireum.Z
 
-                def name: String
+                def name: org.sireum.String
 
-                final def hash: Z = hashCode
+                final def hash: org.sireum.Z = hashCode
 
-                final def isEqual(other: Value): B = this == other
+                final def isEqual(other: Value): org.sireum.B = this == other
 
                 final def compare(that: Value): scala.Int = this.ordinal.compareTo(that.ordinal)
               }
            """
           ,
-          q"""final def byName(name: String): Option[Value] =
+          q"""final def byName(name: org.sireum.String): org.sireum.Option[Value] =
                 elements.elements.find(_.name == name) match {
-                  case scala.Some(v) => Some(v)
-                  case _ => None()
+                  case scala.Some(v) => org.sireum.Some(v)
+                  case _ => org.sireum.None()
               }
            """,
-          q"""final def byOrdinal(n: Z): Option[Value] =
-                if (0 <= n && n < elements.size) Some(elements(n)) else None()
+          q"""final def byOrdinal(n: org.sireum.Z): org.sireum.Option[Value] =
+                if (0 <= n && n < elements.size) org.sireum.Some(elements(n)) else org.sireum.None()
            """
         )
         var elements = Vector[Term.Name]()
@@ -67,18 +69,18 @@ class enum extends scala.annotation.StaticAnnotation {
           }
           val tname = Term.Name(sym)
           val ostats = Vector(
-            q"def ordinal: Z = ${Lit.Int(i)}",
-            q"def name: String = ${Lit.String(sym)}"
+            q"def ordinal: org.sireum.Z = ${Lit.Int(i)}",
+            q"def name: org.sireum.String = ${Lit.String(sym)}"
           )
           decls :+= q"final case object $tname extends Value { ..$ostats }"
           elements :+= tname
           i += 1
         }
         decls ++= Vector(
-          q"val numOfElements: Z = ${Lit.Int(i)}",
-          q"val elements: ISZ[Value] = ISZ[Value](..$elements)"
+          q"val numOfElements: org.sireum.Z = ${Lit.Int(i)}",
+          q"val elements: org.sireum.ISZ[Value] = org.sireum.ISZ[Value](..$elements)"
         )
-        q"object $name extends {} with EnumSig { type Type = Value; ..$decls }"
+        q"object $name extends {} with org.sireum.EnumSig { type Type = Value; ..$decls }"
       case _ => abort(tree.pos, "Slang @enum can only be used on an object.")
     }
     //println(result.syntax)

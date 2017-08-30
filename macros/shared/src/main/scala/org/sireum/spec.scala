@@ -25,8 +25,10 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class spec extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {

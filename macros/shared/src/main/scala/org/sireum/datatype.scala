@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
@@ -49,7 +50,7 @@ object datatype {
         List(q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }")
       } else List()
     val hash = if (hasHash) List(q"override def hashCode: scala.Int = { hash.hashCode }") else List()
-    q"sealed trait $tname[..$tparams] extends DatatypeSig with ..$ctorcalls { $param => ..${ hash ++ equals ++ stats } }"
+    q"sealed trait $tname[..$tparams] extends org.sireum.DatatypeSig with ..$ctorcalls { $param => ..${ hash ++ equals ++ stats } }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -101,7 +102,7 @@ object datatype {
           if (hasEquals) {
             val eCases = Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
             else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)", p"case _ => false")
-            q"override def equals(o: Any): scala.Boolean = { if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases } }"
+            q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[AnyRef]) true else o match { ..case $eCases } }"
           } else {
             val eCaseEqs = unapplyArgs.map(arg => q"$arg == o.$arg")
             val eCaseExp = if (eCaseEqs.isEmpty) q"true" else eCaseEqs.tail.foldLeft(eCaseEqs.head)((t1, t2) => q"$t1 && $t2")
@@ -126,7 +127,7 @@ object datatype {
                     sb.append(')')
                     sb.toString
                   }""",
-            q"override def string: String = { toString }"
+            q"override def string: org.sireum.String = { toString }"
           )
         }
 //        val content = {
@@ -136,7 +137,7 @@ object datatype {
 //          }
 //          q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
 //        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends DatatypeSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, apply) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends org.sireum.DatatypeSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -177,7 +178,7 @@ object datatype {
               Vector(if (tparams.isEmpty) p"case o: $tname => isEqual(o)"
               else p"case (o: $tname[..$tVars] @unchecked) => isEqual(o)",
                 p"case _ => false")
-            q"override def equals(o: Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
+            q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           } else {
             val eCases =
               Vector(if (tparams.isEmpty) p"case o: $tname => true"
@@ -187,10 +188,10 @@ object datatype {
           }
         val toString = {
           val r = tname.value + "()"
-          Vector(q"""override def toString: java.lang.String = { ${Lit.String(r)} }""", q"override def string: String = { toString }")
+          Vector(q"""override def toString: java.lang.String = { ${Lit.String(r)} }""", q"override def string: org.sireum.String = { toString }")
         }
         //val content = q"override lazy val content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends DatatypeSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends org.sireum.DatatypeSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =
@@ -199,7 +200,7 @@ object datatype {
               q"def apply(): $tpe = { v.asInstanceOf[$tpe] }",
               q"def unapply(o: $tpe): scala.Boolean = { true }")
           else
-            (q"private[this] val v: scala.AnyRef = { new $ctorName[..${tparams.map(_ => t"Nothing")}]() }",
+            (q"private[this] val v: scala.AnyRef = { new $ctorName[..${tparams.map(_ => t"scala.Nothing")}]() }",
               q"def apply[..$tparams](): $tpe = { v.asInstanceOf[$tpe] }",
               q"def unapply[..$tparams](o: $tpe): scala.Boolean = { true }")
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(v, apply, unapply))))
@@ -209,6 +210,7 @@ object datatype {
   }
 }
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class datatype extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {

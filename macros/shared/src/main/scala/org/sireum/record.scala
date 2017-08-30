@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import scala.annotation.compileTimeOnly
 import scala.meta._
 
 // TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
@@ -49,7 +50,7 @@ object record {
         List(q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }")
       } else List()
     val hash = if (hasHash) List(q"override def hashCode: scala.Int = { hash.hashCode }") else List()
-    q"sealed trait $tname[..$tparams] extends RecordSig with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
+    q"sealed trait $tname[..$tparams] extends org.sireum.RecordSig with ..$ctorcalls { $param => ..${hash ++ equals ++ stats} }"
   }
 
   def transformClass(tree: Defn.Class, o: Defn.Object): Term.Block = {
@@ -143,9 +144,9 @@ object record {
                 p"case _ => false")
             q"override def equals(o: scala.Any): scala.Boolean = { if (this eq o.asInstanceOf[scala.AnyRef]) true else o match { ..case $eCases } }"
           }
-        val apply = q"def apply(..$applyParams): $tpe = { new $ctorName(..${applyArgs.map(arg => q"helper.$$assign($arg)")}) }"
+        val apply = q"def apply(..$applyParams): $tpe = { new $ctorName(..${applyArgs.map(arg => q"org.sireum.helper.$$assign($arg)")}) }"
         val toString = {
-          var appends = applyArgs.map(arg => q"sb.append(String.escape($arg))")
+          var appends = applyArgs.map(arg => q"sb.append(org.sireum.String.escape($arg))")
           appends =
             if (appends.isEmpty) appends
             else appends.head +: appends.tail.flatMap(a => Vector( q"""sb.append(", ")""", a))
@@ -158,7 +159,7 @@ object record {
                     sb.append(')')
                     sb.toString
                   }""",
-            q"override def string: String = { toString }"
+            q"override def string: org.sireum.String = { toString }"
           )
         }
 //        val content = {
@@ -168,7 +169,7 @@ object record {
 //          }
 //          q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq(..${fields.reverse})"
 //        }
-        q"final class $tname[..$tparams](...${Vector(cparams)}) extends RecordSig with ..$ctorcalls { ..${vars ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
+        q"final class $tname[..$tparams](...${Vector(cparams)}) extends org.sireum.RecordSig with ..$ctorcalls { ..${vars ++ toString ++ Vector(hashCode, equals, clone, apply) ++ stats} }"
       }
       val companion = {
         val (apply, unapply) =
@@ -176,11 +177,11 @@ object record {
             (q"def apply(..$oApplyParams): $tpe = { new $ctorName(..$applyArgs) }",
               unapplyTypes.size match {
                 case 0 => q"def unapply(o: $tpe): scala.Boolean = { true }"
-                case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = { scala.Some(helper.clone(o.${unapplyArgs.head})) }"
-                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"helper.clone(o.$arg)")})) }"
+                case 1 => q"def unapply(o: $tpe): scala.Option[${unapplyTypes.head}] = { scala.Some(org.sireum.helper.clone(o.${unapplyArgs.head})) }"
+                case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"org.sireum.helper.clone(o.$arg)")})) }"
                 case _ =>
                   val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
-                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"helper.clone(o.$a.clone)")})").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum.helper.clone(o.$a.clone)")})").toVector
                   q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = { scala.Some((..$unapplyArgss)) }"
               })
           else
@@ -188,10 +189,10 @@ object record {
               unapplyTypes.size match {
                 case 0 => q"def unapply[..$tparams](o: $tpe): scala.Boolean = { true }"
                 case 1 => q"def unapply[..$tparams](o: $tpe): scala.Option[${unapplyTypes.head}] = { scala.Some(o.${unapplyArgs.head}) }"
-                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"helper.clone(o.$arg)")})) }"
+                case n if n <= 22 => q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"org.sireum.helper.clone(o.$arg)")})) }"
                 case _ =>
                   val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
-                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"helper.clone(o.$a)")})").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum.helper.clone(o.$a)")})").toVector
                   q"def unapply[..$tparams](o: $tpe): scala.Option[(..$unapplyTypess)] = { scala.Some((..$unapplyArgss)) }"
               })
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(apply, unapply))))
@@ -223,10 +224,10 @@ object record {
           }
         val toString = {
           val r = tname.value + "()"
-          Vector(q"""override def toString: java.lang.String = { ${Lit.String(r)} }""", q"override def string: String = { toString }")
+          Vector(q"""override def toString: java.lang.String = { ${Lit.String(r)} }""", q"override def string: org.sireum.String = { toString }")
         }
 //        val content = q"override def content: scala.Seq[(Predef.String, scala.Any)] = scala.Seq((${Lit.String("type")}, ${Lit.String(tname.value)}))"
-        q"final class $tname[..$tparams](...$paramss) extends RecordSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, clone) ++ stats} }"
+        q"final class $tname[..$tparams](...$paramss) extends org.sireum.RecordSig with ..$ctorcalls { ..${toString ++ Vector(hashCode, equals, clone) ++ stats} }"
       }
       val companion = {
         val (v, apply, unapply) =
@@ -235,9 +236,9 @@ object record {
               q"def apply(): $tpe = { v.asInstanceOf[$tpe] }",
               q"def unapply(o: $tpe): scala.Boolean = { true }")
           else
-            (q"private[this] val v: scala.AnyRef = { new $ctorName[..${tparams.map(_ => t"Nothing")}]() }",
+            (q"private[this] val v: scala.AnyRef = { new $ctorName[..${tparams.map(_ => t"scala.Nothing")}]() }",
               q"def apply[..$tparams](): $tpe = { v.asInstanceOf[$tpe] }",
-              q"def unapply[..$tparams](o: $tpe): Boolean = { true }")
+              q"def unapply[..$tparams](o: $tpe): scala.Boolean = { true }")
         o.copy(templ = o.templ.copy(stats = Some(o.templ.stats.getOrElse(List()) ++ List(v, apply, unapply))))
       }
       Term.Block(Vector(cls, companion))
@@ -245,6 +246,7 @@ object record {
   }
 }
 
+@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
 class record extends scala.annotation.StaticAnnotation {
   inline def apply(tree: Any): Any = meta {
     val result: Stat = tree match {
