@@ -15,7 +15,6 @@ scalacOptions in ThisBuild := Seq("-target:jvm-1.8", "-deprecation", "-Yrangepos
 
 val commonSettings = Seq(
   organization := "org.sireum",
-  incOptions := incOptions.value.withNameHashing(true),
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
   retrieveManaged := true,
   version := runtimeVersion,
