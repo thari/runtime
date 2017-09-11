@@ -70,6 +70,20 @@ object Poset {
     return Poset(newParents, newChildren)
   }
 
+  @pure def removeParent(n: T, parent: T): Poset[T] = {
+    parents.get(n) match {
+      case Some(s) =>
+        return Poset(
+          parents.put(n, s.remove(parent)),
+          children.put(parent, children.get(parent).getOrElse(emptySet).remove(n)))
+      case _ => return this
+    }
+  }
+
+  @pure def removeChild(n: T, child: T): Poset[T] = {
+    return removeParent(child, n)
+  }
+
   @pure def addChildren(n: T, ns: ISZ[T]): Poset[T] = {
     val newChildren: HashMap[T, HashSet[T]] = children.get(n) match {
       case Some(s) => children.put(n, s.addAll(ns))
