@@ -75,6 +75,11 @@ object Map {
     return if (index < 0) None[V]() else Some(entries(index)._2)
   }
 
+  @pure def entry(key: K): Option[(K, V)] = {
+    val index = indexOf(key)
+    return if (index < 0) None[(K, V)]() else Some(entries(index))
+  }
+
   @pure def indexOf(key: K): Z = {
     var index = z"-1"
     for (i <- entries.indices if index == z"-1") {

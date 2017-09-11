@@ -122,7 +122,12 @@ object HashMap {
 
   @pure def get(key: K): Option[V] = {
     val m = mapEntries(hashIndex(key))
-    m.get(key)
+    return m.get(key)
+  }
+
+  @pure def entry(key: K): Option[(K, V)] = {
+    val m = mapEntries(hashIndex(key))
+    return m.entry(key)
   }
 
   @pure def removeAll(keys: ISZ[K]): HashMap[K, V] = {

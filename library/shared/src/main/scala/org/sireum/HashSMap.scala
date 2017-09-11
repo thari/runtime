@@ -92,6 +92,10 @@ object HashSMap {
     return map.get(key)
   }
 
+  @pure def entry(key: K): Option[(K, V)] = {
+    return map.entry(key)
+  }
+
   @pure def removeAll(keys: ISZ[K]): HashSMap[K, V] = {
     return HashSMap(map.removeAll(keys), this.keys.removeAll(keys))
   }
