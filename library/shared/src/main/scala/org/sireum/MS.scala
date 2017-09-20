@@ -29,12 +29,12 @@ import org.sireum.$internal.{Boxer, MSMarker}
 
 object MS {
 
-  def checkSize[I <: Z](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[I](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
-    assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
+    assert(!companion.hasMax || companion.Index.asInstanceOf[Z].toMP + size <= companion.Max.asInstanceOf[Z].toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
   }
 
-  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+  def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
@@ -47,7 +47,7 @@ object MS {
     MS[I, V](companion, a, length, boxer)
   }
 
-  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = size match {
+  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = size match {
     case size: Z.MP =>
       checkSize(size)(companion)
       val length = size
@@ -62,17 +62,17 @@ object MS {
     case _ => halt("Slang MS operation 'create' requires size of exactly type 'Z'.")
   }
 
-  def apply[I <: Z, V](companion: $ZCompanion[I],
-                       data: scala.AnyRef,
-                       length: Z.MP,
-                       boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
+  def apply[I, V](companion: $ZCompanion[I],
+                  data: scala.AnyRef,
+                  length: Z.MP,
+                  boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
 
 }
 
-final class MS[I <: Z, V](val companion: $ZCompanion[I],
-                          val data: scala.AnyRef,
-                          val length: Z.MP,
-                          val boxer: Boxer) extends Mutable with MSMarker {
+final class MS[I, V](val companion: $ZCompanion[I],
+                     val data: scala.AnyRef,
+                     val length: Z.MP,
+                     val boxer: Boxer) extends Mutable with MSMarker {
 
   private var isOwned: scala.Boolean = false
   private var isDirty: scala.Boolean = true
@@ -146,13 +146,13 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
   def -(e: V): MS[I, V] = if (isEmpty) this else withFilter(_ != e)
 
   def indices: ZRange[I] = {
-    var j: Z = companion.Index
+    var j: Z = companion.Index.asInstanceOf[Z]
     var i = Z.MP.zero
     while (i < length) {
       i = i.increase
       j = j.increase
     }
-    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
   }
 
   def map[V2](f: V => V2): MS[I, V2] =
@@ -211,13 +211,13 @@ final class MS[I <: Z, V](val companion: $ZCompanion[I],
   }
 
   def apply(index: I): V = {
-    val i = index.toIndex
+    val i = index.asInstanceOf[Z].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.lookup(data, i)
   }
 
   def update(index: I, value: V): Unit = {
-    val i = index.toIndex
+    val i = index.asInstanceOf[Z].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
     isDirty = true

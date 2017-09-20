@@ -1411,7 +1411,7 @@ object Z extends $ZCompanion[Z] {
 
 }
 
-trait $ZCompanion[T <: Z] {
+trait $ZCompanion[T] {
 
   def Name: Predef.String
 
@@ -1449,31 +1449,31 @@ trait $ZCompanion[T <: Z] {
 
 }
 
-trait $ZCompanionInt[T <: Z] {
+trait $ZCompanionInt[T] {
   def apply(n: scala.Int): T
 
   def unapply(n: T): scala.Option[scala.Int]
 }
 
-trait $ZCompanionLong[T <: Z] {
+trait $ZCompanionLong[T] {
   def apply(n: scala.Long): T
 
   def unapply(n: T): scala.Option[scala.Long]
 }
 
-trait $ZCompanionString[T <: Z] {
+trait $ZCompanionString[T] {
   def apply(s: Predef.String): T
 
   def unapply(n: T): scala.Option[Predef.String]
 }
 
-trait $ZCompanionBigInt[T <: Z] {
+trait $ZCompanionBigInt[T] {
   def apply(s: scala.BigInt): T
 
   def unapply(n: T): scala.Option[scala.BigInt]
 }
 
-trait Z extends Any with Number[Z] with Comparable[Z] {
+trait Z extends Any with Number with Comparable[Z] {
 
   def Name: Predef.String
 
@@ -1496,6 +1496,24 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
   def BitWidth: scala.Int
 
   final def isEqType(other: Z): Boolean = Name == other.Name
+
+  def <(other: Z): B
+
+  def <=(other: Z): B
+
+  def >(other: Z): B
+
+  def >=(other: Z): B
+
+  def +(other: Z): Z
+
+  def -(other: Z): Z
+
+  def *(other: Z): Z
+
+  def /(other: Z): Z
+
+  def %(other: Z): Z
 
   def increase: Z
 
@@ -1525,24 +1543,25 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
 
   def toMP: Z.MP
 
-  def to[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+  def to[I](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
 
-  def until[I <: Z](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+  def until[I](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n.asInstanceOf[Z].decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
 
   def compareTo(other: Z): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0
 }
 
-@datatype class ZRange[I <: Z](init: I,
-                               to: I,
-                               @pure cond: I => B,
-                               @pure step: (B, I) => I,
-                               isReverse: B) {
+@datatype class ZRange[I](init: I,
+                          to: I,
+                          @pure cond: I => B,
+                          @pure step: (B, I) => I,
+                          isReverse: B) {
 
   def foreach(f: I => Unit): Unit = {
     if (isReverse) {
       var i = to
-      while (i >= init) {
+      val initZ = init.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] >= initZ) {
         if (cond(i)) {
           f(i)
         }
@@ -1550,7 +1569,8 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
       }
     } else {
       var i = init
-      while (i <= to) {
+      val toZ = to.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] <= toZ) {
         if (cond(i)) {
           f(i)
         }
@@ -1563,7 +1583,8 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      while (i >= init) {
+      val initZ = init.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] >= initZ) {
         if (cond(i)) {
           r = r :+ f(i)
         }
@@ -1571,7 +1592,8 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
       }
     } else {
       var i = init
-      while (i <= to) {
+      val toZ = to.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] <= toZ) {
         if (cond(i)) {
           r = r :+ f(i)
         }
@@ -1585,7 +1607,8 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      while (i >= init) {
+      val initZ = init.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] >= initZ) {
         if (cond(i)) {
           r = r ++ f(i)
         }
@@ -1593,7 +1616,8 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
       }
     } else {
       var i = init
-      while (i <= to) {
+      val toZ = to.asInstanceOf[Z]
+      while (i.asInstanceOf[Z] <= toZ) {
         if (cond(i)) {
           r = r ++ f(i)
         }
@@ -1603,7 +1627,7 @@ trait Z extends Any with Number[Z] with Comparable[Z] {
     r
   }
 
-  @pure def by(n: I): ZRange[I] = ZRange(init, to, cond, (r: B, i: Z) => if (r) (i - n).asInstanceOf[I] else (i + n).asInstanceOf[I], isReverse)
+  @pure def by(n: I): ZRange[I] = ZRange(init, to, cond, (r: B, i: I) => if (r) (i.asInstanceOf[Z] - n.asInstanceOf[Z]).asInstanceOf[I] else (i.asInstanceOf[Z] + n.asInstanceOf[Z]).asInstanceOf[I], isReverse)
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
     ZRange(init, to, (i: I) => cond(i) && filter(i), step, isReverse)

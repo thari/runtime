@@ -384,7 +384,7 @@ object Json {
                  |}"""
     }
 
-    @pure def printIS[I <: Z](isSimple: B, elements: IS[I, ST]): ST = {
+    @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {
@@ -394,7 +394,7 @@ object Json {
       }
     }
 
-    @pure def printMS[I <: Z](isSimple: B, elements: MS[I, ST]): ST = {
+    @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
       if (isSimple) {
         return st"[${(elements, ", ")}]"
       } else {

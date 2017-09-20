@@ -44,6 +44,7 @@ object String {
     def z2s(n: scala.Long): Predef.String =
       if (scala.Int.MinValue <= n && n <= scala.Int.MaxValue) n.toString
       else n.toString + 'l'
+
     o match {
       case o: String => helper.escape(o.value)
       case o: C => val s = helper.escape(o.toString); '\'' + s.substring(1, s.length - 1) + '\''
@@ -59,12 +60,12 @@ object String {
     }
   }
 
-  def apply[I <: Z](cs: IS[I, C]): String = {
+  def apply[I](cs: IS[I, C]): String = {
     if (cs.isEmpty) return ""
     String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
   }
 
-  def apply[I <: Z](cs: MS[I, C]): String = {
+  def apply[I](cs: MS[I, C]): String = {
     if (cs.isEmpty) return ""
     String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
   }

@@ -26,7 +26,7 @@
 package org.sireum
 
 
-private[sireum] sealed trait FloatingPoint[F <: FloatingPoint[F]] extends Any with Number[F] {
+private[sireum] sealed trait FloatingPoint extends Any with Number {
 
   def BitWidth: Z
 
@@ -61,10 +61,13 @@ object F32 {
     }
   }
 
-  def apply(s: String): Option[F32] = try Some(String(s.value)) catch { case _: Throwable => None[F32]() }
+  def apply(s: String): Option[F32] = try Some(String(s.value)) catch {
+    case _: Throwable => None[F32]()
+  }
 
   object String {
     def apply(s: Predef.String): F32 = s.toFloat
+
     def unapply(n: F32): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
@@ -76,7 +79,7 @@ object F32 {
 
 }
 
-final class F32(val value: scala.Float) extends AnyVal with FloatingPoint[F32] with $internal.HasBoxer {
+final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $internal.HasBoxer {
 
   def BitWidth: Z = 32
 
@@ -134,10 +137,13 @@ object F64 {
     }
   }
 
-  def apply(s: String): Option[F64] = try Some(String(s.value)) catch { case _: Throwable => None[F64]() }
+  def apply(s: String): Option[F64] = try Some(String(s.value)) catch {
+    case _: Throwable => None[F64]()
+  }
 
   object String {
     def apply(s: Predef.String): F64 = s.toDouble
+
     def unapply(n: F64): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
@@ -149,7 +155,7 @@ object F64 {
 
 }
 
-final class F64(val value: scala.Double) extends AnyVal with FloatingPoint[F64] with $internal.HasBoxer {
+final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with $internal.HasBoxer {
 
   def BitWidth: Z = 64
 

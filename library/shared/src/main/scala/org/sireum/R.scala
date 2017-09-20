@@ -44,7 +44,9 @@ object R {
 
   def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)
 
-  def apply(s: String): Option[R] = try Some(R.String(s.value)) catch { case _: Throwable => None[R]() }
+  def apply(s: String): Option[R] = try Some(R.String(s.value)) catch {
+    case _: Throwable => None[R]()
+  }
 
   def apply(f: scala.Float): R = Real(f)
 
@@ -62,7 +64,7 @@ object R {
 
 }
 
-final class R(val value: Real) extends AnyVal with Number[R] with $internal.HasBoxer {
+final class R(val value: Real) extends AnyVal with Number with $internal.HasBoxer {
 
   @inline def unary_- : R = -value
 

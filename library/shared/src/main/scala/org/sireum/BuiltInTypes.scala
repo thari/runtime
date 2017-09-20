@@ -34,33 +34,6 @@ package org.sireum
 }
 
 
-@ext trait Ordered[O <: Ordered[O]] extends Immutable {
-
-  @pure def <(other: O): B
-
-  @pure def <=(other: O): B
-
-  @pure def >(other: O): B
-
-  @pure def >=(other: O): B
-
-}
-
-
-@ext trait Number[N <: Number[N]] extends Ordered[N] {
-
-  @pure def +(other: N): N
-
-  @pure def -(other: N): N
-
-  @pure def *(other: N): N
-
-  @pure def /(other: N): N
-
-  @pure def %(other: N): N
-}
-
-
 @ext trait B extends Immutable {
 
   @pure def &(other: B): B
@@ -80,7 +53,7 @@ package org.sireum
 }
 
 
-@ext trait C extends Ordered[C] {
+@ext trait C extends Immutable {
   def <(other: C): B
 
   def <=(other: C): B
@@ -100,8 +73,27 @@ package org.sireum
   def |^(other: C): C
 }
 
+@ext trait Number extends Immutable
 
-@ext trait Z extends Number[Z] {
+@ext trait Z extends Number {
+
+  @pure def <(other: Z): B
+
+  @pure def <=(other: Z): B
+
+  @pure def >(other: Z): B
+
+  @pure def >=(other: Z): B
+
+  @pure def +(other: Z): Z
+
+  @pure def -(other: Z): Z
+
+  @pure def *(other: Z): Z
+
+  @pure def /(other: Z): Z
+
+  @pure def %(other: Z): Z
 
   @pure def unary_- : Z
 
@@ -126,24 +118,78 @@ package org.sireum
 }
 
 
-@ext trait FloatingPoint[F <: FloatingPoint[F]] extends Number[F]
+@ext trait FloatingPoint extends Number
 
 
-@ext trait F32 extends FloatingPoint[F32] {
+@ext trait F32 extends FloatingPoint {
+
+  @pure def <(other: F32): B
+
+  @pure def <=(other: F32): B
+
+  @pure def >(other: F32): B
+
+  @pure def >=(other: F32): B
+
+  @pure def +(other: F32): F32
+
+  @pure def -(other: F32): F32
+
+  @pure def *(other: F32): F32
+
+  @pure def /(other: F32): F32
+
+  @pure def %(other: F32): F32
 
   @pure def unary_- : F32
 
 }
 
 
-@ext trait F64 extends FloatingPoint[F64] {
+@ext trait F64 extends FloatingPoint {
+
+  @pure def <(other: F64): B
+
+  @pure def <=(other: F64): B
+
+  @pure def >(other: F64): B
+
+  @pure def >=(other: F64): B
+
+  @pure def +(other: F64): F64
+
+  @pure def -(other: F64): F64
+
+  @pure def *(other: F64): F64
+
+  @pure def /(other: F64): F64
+
+  @pure def %(other: F64): F64
 
   @pure def unary_- : F64
 
 }
 
 
-@ext trait R extends Number[R] {
+@ext trait R extends Number {
+
+  @pure def <(other: R): B
+
+  @pure def <=(other: R): B
+
+  @pure def >(other: R): B
+
+  @pure def >=(other: R): B
+
+  @pure def +(other: R): R
+
+  @pure def -(other: R): R
+
+  @pure def *(other: R): R
+
+  @pure def /(other: R): R
+
+  @pure def %(other: R): R
 
   @pure def unary_- : R
 
@@ -163,7 +209,7 @@ package org.sireum
 }
 
 
-@ext trait IS[I <: Z, V] extends Immutable {
+@ext trait IS[I, V] extends Immutable {
 
   @pure def isEmpty: B
 
@@ -215,20 +261,7 @@ package org.sireum
 }
 
 
-@ext trait MOrdered[O <: MOrdered[O]] extends Mutable {
-
-  @pure def <(other: O): B
-
-  @pure def <=(other: O): B
-
-  @pure def >(other: O): B
-
-  @pure def >=(other: O): B
-
-}
-
-
-@ext trait MS[I <: Z, V] extends Mutable {
+@ext trait MS[I, V] extends Mutable {
 
   @pure def isEmpty: B
 

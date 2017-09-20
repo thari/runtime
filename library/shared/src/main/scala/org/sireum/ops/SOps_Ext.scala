@@ -28,7 +28,7 @@ package org.sireum.ops
 import org.sireum._
 
 object ISOps_Ext {
-  def mParMapFoldLeft[I <: Z, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+  def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
@@ -37,7 +37,7 @@ object ISOps_Ext {
     a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
   }
 
-  def mParMapFoldRight[I <: Z, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+  def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
@@ -46,7 +46,7 @@ object ISOps_Ext {
     a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
   }
 
-  @pure def sortWith[I <: Z, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
+  @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
     var i = Z.MP.zero

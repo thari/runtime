@@ -59,7 +59,7 @@ object C {
 
 }
 
-final class C(val value: scala.Char) extends AnyVal with Ordered[C] with $internal.HasBoxer {
+final class C(val value: scala.Char) extends AnyVal with $internal.HasBoxer {
 
   @inline def <(other: C): B = value < other.value
 

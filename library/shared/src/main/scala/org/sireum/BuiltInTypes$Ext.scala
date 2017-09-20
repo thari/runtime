@@ -37,36 +37,12 @@ trait Immutable extends Any with ImmutableMarker {
 }
 
 
-trait Ordered[O <: Ordered[O]] extends Any with Immutable {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
-
-}
-
-
-trait Number[N <: Number[N]] extends Any with Ordered[N] {
-
-  def +(other: N): N
-
-  def -(other: N): N
-
-  def *(other: N): N
-
-  def /(other: N): N
-
-  def %(other: N): N
-
-}
+trait Number extends Any with Immutable
 
 
 trait EnumSig extends Immutable {
   def numOfElements: Z
+
   def string: String = halt("Unsupported Enum operation 'string'.")
 }
 
@@ -76,23 +52,9 @@ trait DatatypeSig extends Immutable with DatatypeMarker
 trait RichSig extends Immutable
 
 
-
 trait Mutable extends Any with MutableMarker {
 
   def string: String
-
-}
-
-
-trait MOrdered[O <: MOrdered[O]] extends Any with Mutable {
-
-  def <(other: O): B
-
-  def <=(other: O): B
-
-  def >(other: O): B
-
-  def >=(other: O): B
 
 }
 
@@ -102,6 +64,7 @@ trait RecordSig extends Mutable {
   private var isOwned: Boolean = false
 
   def owned: Boolean = isOwned
+
   def owned_=(b: Boolean): this.type = {
     isOwned = b
     this

@@ -28,7 +28,7 @@ package org.sireum.ops
 
 import org.sireum._
 
-@rich trait SOps[I <: Z, V] {
+@rich trait SOps[I, V] {
 
   @pure def contains(e: V): B
 
@@ -56,7 +56,7 @@ import org.sireum._
 
 }
 
-@rich trait ISOps[I <: Z, V] {
+@rich trait ISOps[I, V] {
 
   @pure def :+(e: V): IS[I, V]
 
@@ -338,7 +338,7 @@ import org.sireum._
   }
 }
 
-@rich trait SBOps[I <: Z] {
+@rich trait SBOps[I] {
 
   @pure def toU8: U8
 

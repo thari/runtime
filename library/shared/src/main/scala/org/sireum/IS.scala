@@ -29,12 +29,12 @@ import org.sireum.$internal.{Boxer, ISMarker}
 
 object IS {
 
-  def checkSize[I <: Z](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[I](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
-    assert(!companion.hasMax || companion.Index.toMP + size <= companion.Max.toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
+    assert(!companion.hasMax || companion.Index.asInstanceOf[Z].toMP + size <= companion.Max.asInstanceOf[Z].toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
   }
 
-  def apply[I <: Z, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+  def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
     checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
@@ -47,7 +47,7 @@ object IS {
     IS[I, V](companion, a, length, boxer)
   }
 
-  def create[I <: Z, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
+  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
     case size: Z.MP =>
       checkSize(size)(companion)
       val length = size
@@ -62,17 +62,17 @@ object IS {
     case _ => halt("Slang IS operation 'create' requires size of exactly type 'Z'.")
   }
 
-  def apply[I <: Z, V](companion: $ZCompanion[I],
-                       data: scala.AnyRef,
-                       length: Z.MP,
-                       boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
+  def apply[I, V](companion: $ZCompanion[I],
+                  data: scala.AnyRef,
+                  length: Z.MP,
+                  boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
 
 }
 
-final class IS[I <: Z, V](val companion: $ZCompanion[I],
-                          val data: scala.AnyRef,
-                          val length: Z.MP,
-                          val boxer: Boxer) extends Immutable with ISMarker {
+final class IS[I, V](val companion: $ZCompanion[I],
+                     val data: scala.AnyRef,
+                     val length: Z.MP,
+                     val boxer: Boxer) extends Immutable with ISMarker {
 
   def isEmpty: B = length == Z.MP.zero
 
@@ -130,13 +130,13 @@ final class IS[I <: Z, V](val companion: $ZCompanion[I],
   def -(e: V): IS[I, V] = if (isEmpty) this else withFilter(_ != e)
 
   def indices: ZRange[I] = {
-    var j: Z = companion.Index
+    var j: Z = companion.Index.asInstanceOf[Z]
     var i = Z.MP.zero
     while (i < length) {
       i = i.increase
       j = j.increase
     }
-    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.decrease.asInstanceOf[I] else i.increase.asInstanceOf[I], F)
+    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
   }
 
   def map[V2](f: V => V2): IS[I, V2] =
@@ -195,7 +195,7 @@ final class IS[I <: Z, V](val companion: $ZCompanion[I],
   }
 
   def apply(index: I): V = {
-    val i = index.toIndex
+    val i = index.asInstanceOf[Z].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.lookup(data, i)
   }
@@ -203,7 +203,7 @@ final class IS[I <: Z, V](val companion: $ZCompanion[I],
   def apply(args: (I, V)*): IS[I, V] = if (args.isEmpty) this else {
     val a = boxer.clone(data, length, length, Z.MP.zero)
     for ((index, v) <- args) {
-      val i = index.toIndex
+      val i = index.asInstanceOf[Z].toIndex
       assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
       boxer.store(a, i, v)
     }
