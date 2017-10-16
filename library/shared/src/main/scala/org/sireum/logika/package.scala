@@ -71,6 +71,7 @@ package object logika {
   type F32S = org.sireum.MS[Z, F32]
   type F64S = org.sireum.MS[Z, F64]
   type RS = org.sireum.MS[Z, R]
+  type helper = org.sireum.helper
 
   val helper: org.sireum.helper.type = org.sireum.helper
   val ZS: org.sireum.ZS.type = org.sireum.ZS
