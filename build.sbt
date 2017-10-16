@@ -26,13 +26,12 @@ val commonSettings = Seq(
   resolvers += Resolver.sonatypeRepo("public"),
   addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
   publishMavenStyle := true,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
+  publishTo := Some(
     if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
+      Opts.resolver.sonatypeSnapshots
     else
-      Some("releases" at nexus + "service/local/staging/deploy/maven2")
-  },
+      Opts.resolver.sonatypeStaging
+  ),
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
   pomExtra :=
