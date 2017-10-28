@@ -4,7 +4,7 @@ val metaVersion = "1.8.0"
 
 val paradiseVersion = "3.0.0-M10"
 
-val runtimeVersion = "3.1.4-SNAPSHOT"
+val runtimeVersion = "3.1.4"
 
 val sireumScalacVersion = "3.1.2"
 
