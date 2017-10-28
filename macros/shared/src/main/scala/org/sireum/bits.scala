@@ -308,12 +308,12 @@ object bits {
               $randomSeed
             }
             $apply;
-            def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
+            def apply(s: String): Option[$typeName] = try Some($termName.$$String(s.value)) catch { case _: Throwable => None[$typeName]() }
             def unapply(n: $typeName): scala.Option[org.sireum.Z] = scala.Some(n.toMP);
             $intObject;
             $longObject;
-            object String extends org.sireum.$$ZCompanionString[$typeName] {
-              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.String(s).toBigInt)
+            object $$String extends org.sireum.$$ZCompanionString[$typeName] {
+              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.$$String(s).toBigInt)
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             };
             $bigIntObject;
@@ -329,11 +329,11 @@ object bits {
               object $lowerTermName {
                 def apply(args: scala.Any*): $typeName = {
                   assume(args.isEmpty && sc.parts.length == 1)
-                  String(sc.parts.head)
+                  $$String(sc.parts.head)
                 }
                 def unapply(n: $typeName): scala.Boolean = {
                   assume(sc.parts.length == 1)
-                  n == String(sc.parts.head)
+                  n == $$String(sc.parts.head)
                 }
               }
             }

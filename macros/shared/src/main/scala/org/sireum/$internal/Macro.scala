@@ -64,13 +64,13 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def zApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang z\"...\" should not contain $$ arguments.")
-    q"Z.String(${parts.head})"
+    q"Z.$$String(${parts.head})"
   }
 
   def rApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang r\"...\" should not contain $$ arguments.")
-    q"R.String(${parts.head})"
+    q"R.$$String(${parts.head})"
   }
 
   def $assign(arg: c.Tree): c.Tree = {

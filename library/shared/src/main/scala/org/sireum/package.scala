@@ -51,7 +51,7 @@ package object sireum extends $internal.PackageTrait {
       def apply(args: Any*): R = macro Macro.rApply
       def unapply(n: R): scala.Boolean = {
         assume(sc.parts.size == 1)
-        n == R.String(sc.parts.head)
+        n == R.$String(sc.parts.head)
       }
     }
 

@@ -68,7 +68,7 @@ trait PackageTrait {
       Console.out.flush()
       val s = Console.in.readLine()
       try {
-        return Z.String(s)
+        return Z.$String(s)
       } catch {
         case _: Throwable =>
           Console.err.println(s"Invalid integer format: $s.")

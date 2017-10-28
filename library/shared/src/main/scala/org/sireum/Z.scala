@@ -1331,7 +1331,7 @@ object Z extends $ZCompanion[Z] {
   }
 
   def apply(s: String): Option[Z] =
-    try Some(Z.String(s.value)) catch {
+    try Some(Z.$String(s.value)) catch {
       case _: Throwable => None[Z]()
     }
 
@@ -1353,7 +1353,7 @@ object Z extends $ZCompanion[Z] {
     }
   }
 
-  object String extends $ZCompanionString[Z] {
+  object $String extends $ZCompanionString[Z] {
     @inline def apply(s: Predef.String): Z = MP(s)
 
     def unapply(n: Z): scala.Option[Predef.String] = n match {
@@ -1441,7 +1441,7 @@ trait $ZCompanion[T] {
 
   def Long: $ZCompanionLong[T]
 
-  def String: $ZCompanionString[T]
+  def $String: $ZCompanionString[T]
 
   def BigInt: $ZCompanionBigInt[T]
 

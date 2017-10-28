@@ -191,7 +191,7 @@ object range {
               case n: org.sireum.Z.MP => new $ctorName(n)
               case _ => halt(s"Unsupported $$Name creation from $${n.Name}.")
             }
-            def apply(s: String): Option[$typeName] = try Some($termName.String(s.value)) catch { case _: Throwable => None[$typeName]() }
+            def apply(s: String): Option[$typeName] = try Some($termName.$$String(s.value)) catch { case _: Throwable => None[$typeName]() }
             def unapply(n: $typeName): scala.Option[org.sireum.Z] = scala.Some(n.value)
             object Int extends org.sireum.$$ZCompanionInt[$typeName] {
               def apply(n: scala.Int): $typeName = new $ctorName(check(org.sireum.Z.MP(n)))
@@ -205,8 +205,8 @@ object range {
                 if (scala.Long.MinValue <= n.value && n.value <= scala.Long.MaxValue) scala.Some(n.value.toBigInt.toLong)
                 else scala.None
             }
-            object String extends org.sireum.$$ZCompanionString[$typeName] {
-              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.String(s).toBigInt)
+            object $$String extends org.sireum.$$ZCompanionString[$typeName] {
+              def apply(s: Predef.String): $typeName = BigInt(org.sireum.Z.$$String(s).toBigInt)
               def unapply(n: $typeName): scala.Option[Predef.String] = scala.Some(n.toBigInt.toString)
             }
             object BigInt extends org.sireum.$$ZCompanionBigInt[$typeName] {
@@ -225,11 +225,11 @@ object range {
               object $lowerTermName {
                 def apply(args: scala.Any*): $typeName = {
                   assume(args.isEmpty && sc.parts.length == 1)
-                  String(sc.parts.head)
+                  $$String(sc.parts.head)
                 }
                 def unapply(n: $typeName): scala.Boolean = {
                   assume(sc.parts.length == 1)
-                  n == String(sc.parts.head)
+                  n == $$String(sc.parts.head)
                 }
               }
             }

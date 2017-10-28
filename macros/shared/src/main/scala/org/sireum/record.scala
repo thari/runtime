@@ -181,7 +181,7 @@ object record {
                 case n if n <= 22 => q"def unapply(o: $tpe): scala.Option[(..$unapplyTypes)] = { scala.Some((..${unapplyArgs.map(arg => q"org.sireum.helper.clone(o.$arg)")})) }"
                 case _ =>
                   val unapplyTypess = unapplyTypes.grouped(22).map(types => t"(..$types)").toVector
-                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum.helper.clone(o.$a.clone)")})").toVector
+                  val unapplyArgss = unapplyArgs.grouped(22).map(args => q"(..${args.map(a => q"org.sireum.helper.clone(o.$a)")})").toVector
                   q"def unapply(o: $tpe): scala.Option[(..$unapplyTypess)] = { scala.Some((..$unapplyArgss)) }"
               })
           else

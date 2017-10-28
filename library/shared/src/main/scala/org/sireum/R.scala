@@ -44,7 +44,7 @@ object R {
 
   def unapply(r: R): scala.Option[Predef.String] = scala.Some(r.toString)
 
-  def apply(s: String): Option[R] = try Some(R.String(s.value)) catch {
+  def apply(s: String): Option[R] = try Some(R.$String(s.value)) catch {
     case _: Throwable => None[R]()
   }
 
@@ -54,7 +54,7 @@ object R {
 
   def apply(n: Z): R = Real(n.toBigInt)
 
-  object String {
+  object $String {
     def apply(s: Predef.String): R = Real(s)
   }
 

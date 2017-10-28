@@ -61,11 +61,11 @@ object F32 {
     }
   }
 
-  def apply(s: String): Option[F32] = try Some(String(s.value)) catch {
+  def apply(s: String): Option[F32] = try Some($String(s.value)) catch {
     case _: Throwable => None[F32]()
   }
 
-  object String {
+  object $String {
     def apply(s: Predef.String): F32 = s.toFloat
 
     def unapply(n: F32): scala.Option[Predef.String] = scala.Some(n.toString)
@@ -137,11 +137,11 @@ object F64 {
     }
   }
 
-  def apply(s: String): Option[F64] = try Some(String(s.value)) catch {
+  def apply(s: String): Option[F64] = try Some($String(s.value)) catch {
     case _: Throwable => None[F64]()
   }
 
-  object String {
+  object $String {
     def apply(s: Predef.String): F64 = s.toDouble
 
     def unapply(n: F64): scala.Option[Predef.String] = scala.Some(n.toString)
