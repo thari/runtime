@@ -1,4 +1,4 @@
-val scalaVer = "2.12.3"
+val scalaVer = "2.12.4"
 
 val metaVersion = "1.8.0"
 
@@ -20,7 +20,7 @@ val commonSettings = Seq(
   version := runtimeVersion,
   parallelExecution in Test := true,
   libraryDependencies ++= Seq(
-    "org.scalameta" %% "scalameta" % metaVersion
+    "org.scalameta" %%% "scalameta" % metaVersion
   ),
   sources in(Compile, doc) := Seq.empty,
   resolvers += Resolver.sonatypeRepo("public"),
@@ -79,7 +79,7 @@ lazy val library = crossProject.in(file("library")).settings(commonSettings: _*)
   name := "library",
   libraryDependencies ++= Seq(
     "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4",
-    "org.scalatest" %%% "scalatest" % "3.0.1" % "test"
+    "org.scalatest" %%% "scalatest" % "3.0.4" % "test",
   ),
   addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion)
 ).dependsOn(macros)
