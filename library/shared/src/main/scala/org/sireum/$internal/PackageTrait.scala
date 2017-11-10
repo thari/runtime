@@ -93,9 +93,18 @@ trait PackageTrait {
   }
 
   final def println(as: Any*): Unit = {
-    print(as: _*)
-    Console.out.println()
-    Console.out.flush()
+    as.size match {
+      case 0 =>
+        Console.out.println()
+        Console.out.flush()
+      case 1 =>
+        Console.out.println(as(0))
+        Console.out.flush()
+      case _ =>
+        for (a <- as) Console.out.print(a)
+        Console.out.println()
+        Console.out.flush()
+    }
   }
 
   final def print(as: Any*): Unit = {
@@ -106,9 +115,18 @@ trait PackageTrait {
   }
 
   final def eprintln(as: Any*): Unit = {
-    eprint(as: _*)
-    Console.err.println()
-    Console.err.flush()
+    as.size match {
+      case 0 =>
+        Console.err.println()
+        Console.err.flush()
+      case 1 =>
+        Console.err.println(as(0))
+        Console.err.flush()
+      case _ =>
+        for (a <- as) Console.err.print(a)
+        Console.err.println()
+        Console.err.flush()
+    }
   }
 
   final def eprint(as: Any*): Unit = {
