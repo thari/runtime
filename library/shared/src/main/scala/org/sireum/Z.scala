@@ -200,7 +200,7 @@ object Z extends $ZCompanion[Z] {
 
     @inline def apply(n: scala.BigInt): MP = MP.BigInt(n).pack
 
-    @inline def apply(n: java.math.BigInteger): MP = MP(scala.BigInt(n))
+    @inline def apply(n: _root_.java.math.BigInteger): MP = MP(scala.BigInt(n))
 
     @inline def apply(s: String): MP = {
       val ns = helper.normNum(s.value)
@@ -277,9 +277,9 @@ object Z extends $ZCompanion[Z] {
       case other: scala.Int => MP.isEqual(this, other)
       case other: scala.Long => MP.isEqual(this, other)
       case other: scala.BigInt => MP.isEqual(this, other)
-      case other: java.lang.Integer => MP.isEqual(this, other.intValue)
-      case other: java.lang.Long => MP.isEqual(this, other.longValue)
-      case other: java.math.BigInteger => MP.isEqual(this, scala.BigInt(other))
+      case other: _root_.java.lang.Integer => MP.isEqual(this, other.intValue)
+      case other: _root_.java.lang.Long => MP.isEqual(this, other.longValue)
+      case other: _root_.java.math.BigInteger => MP.isEqual(this, scala.BigInt(other))
       case _ => false
     }
 

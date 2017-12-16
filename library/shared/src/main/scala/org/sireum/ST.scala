@@ -41,7 +41,7 @@ object ST {
   }
 
   def render(t: ST, isCompact: Boolean): String = {
-    val sb = new java.lang.StringBuilder
+    val sb = new _root_.java.lang.StringBuilder
     var indent = 0
     var lastWs = false
 
@@ -65,7 +65,7 @@ object ST {
       }
     }
 
-    def appendIndent(): Unit = if (isCompact) appendChar(' ') else for (i <- 0 until indent) sb.append(' ')
+    def appendIndent(): Unit = if (isCompact) appendChar(' ') else for (_ <- 0 until indent) sb.append(' ')
 
     def appendLineSep(): Unit = {
       trim()
@@ -113,7 +113,7 @@ object ST {
       var l = List[Predef.String]()
       var i = 0
       val sz = s.length
-      val sb = new java.lang.StringBuilder(sz)
+      val sb = new _root_.java.lang.StringBuilder(sz)
       while (i < sz) {
         s(i) match {
           case '\r' =>
@@ -203,7 +203,7 @@ final case class ST(parts: scala.Seq[Predef.String],
                     source: Predef.String) extends Immutable with STMarker {
   lazy val compactParts: scala.Seq[Predef.String] = {
     for (part <- parts) yield {
-      val sb = new java.lang.StringBuilder(part.length)
+      val sb = new _root_.java.lang.StringBuilder(part.length)
       var lastWs = false
       for (c <- part) {
         if (isWs(c)) {
@@ -236,7 +236,7 @@ final case class ST(parts: scala.Seq[Predef.String],
 
   override def equals(other: scala.Any): scala.Boolean = halt("Cannot test equality in Slang ST")
 
-  override def toString: java.lang.String = source
+  override def toString: _root_.java.lang.String = source
 
   def string: String = source
 }

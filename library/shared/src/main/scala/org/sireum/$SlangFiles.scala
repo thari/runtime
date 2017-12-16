@@ -30,7 +30,7 @@ import org.sireum.$internal.{RC, Trie}
 object $SlangFiles {
   def map: scala.collection.Map[scala.Seq[Predef.String], Predef.String] = RC.text { (p, f) =>
     if (p.last.endsWith(".scala")) {
-      val r = java.nio.file.Files.newBufferedReader(f.toPath, java.nio.charset.StandardCharsets.UTF_8)
+      val r = _root_.java.nio.file.Files.newBufferedReader(f.toPath, _root_.java.nio.charset.StandardCharsets.UTF_8)
       val line: Predef.String = r.readLine
       r.close()
       line.replaceAllLiterally(" ", "").contains("#Sireum")

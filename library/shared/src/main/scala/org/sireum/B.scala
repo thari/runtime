@@ -101,7 +101,7 @@ object B {
 
     override def toString(a: scala.AnyRef, length: Z.MP): Predef.String = a match {
       case a: BS =>
-        val sb = new java.lang.StringBuilder
+        val sb = new _root_.java.lang.StringBuilder
         val bs = a.toBitMask
         sb.append('[')
         if (length > 0) {
