@@ -20,7 +20,7 @@ cache:
   - '%USERPROFILE%\.sbt'
 
 install:
-  - bash -lc "pacman --noconfirm -S unzip"
+  - bash -lc "pacman --noconfirm -S unzip bc"
   - bash -lc "mkdir -p $APPVEYOR_BUILD_FOLDER/bin"
   - bash -lc "wget -qO $APPVEYOR_BUILD_FOLDER/bin/prelude.sh https://raw.githubusercontent.com/sireum/v3/master/bin/prelude.sh"
   - bash -lc "chmod +x $APPVEYOR_BUILD_FOLDER/bin/prelude.sh"
