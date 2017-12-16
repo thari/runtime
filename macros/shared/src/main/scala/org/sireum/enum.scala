@@ -63,8 +63,8 @@ class enum extends scala.annotation.StaticAnnotation {
         var i = 0
         for (stat <- stats) {
           val sym = stat match {
-            case Lit.Symbol(sym) => sym.name
-            case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(sym))) => sym
+            case Lit.Symbol(s) => s.name
+            case Term.Apply(Term.Select(Term.Name("scala"), Term.Name("Symbol")), Seq(Lit.String(s))) => s
             case _ => abort(stat.pos, s"Slang @enum can only have symbols for enum element names: ${stat.structure}")
           }
           val tname = Term.Name(sym)
