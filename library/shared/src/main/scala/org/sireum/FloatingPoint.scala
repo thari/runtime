@@ -109,9 +109,11 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $
 
   def %(other: F32): F32 = value % other.value
 
-  def string: String = _root_.java.lang.Float.toString(value)
+  def string: String = toString
 
   def boxer: $internal.Boxer = F32.Boxer
+
+  override def toString: _root_.java.lang.String = _root_.java.lang.Float.toString(value)
 }
 
 object F64 {
@@ -187,7 +189,9 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with 
 
   def %(other: F64): F64 = value % other.value
 
-  def string: String = _root_.java.lang.Double.toString(value)
+  def string: String = toString
 
   def boxer: $internal.Boxer = F64.Boxer
+
+  override def toString: _root_.java.lang.String = _root_.java.lang.Double.toString(value)
 }
