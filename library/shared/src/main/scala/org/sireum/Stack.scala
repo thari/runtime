@@ -26,8 +26,7 @@
 
 package org.sireum
 
-import org.sireum.ops.ISOps
-import org.sireum.ops.ISZOps._
+import org.sireum.ops.ISZOps
 
 
 object Stack {
@@ -59,7 +58,7 @@ object Stack {
 
   def pop(): Option[(T, Stack[T])] = {
     if (nonEmpty) {
-      return Some((elements(elements.size - 1), Stack(ISOps(elements).dropRight(1))))
+      return Some((elements(elements.size - 1), Stack(ISZOps(elements).dropRight(1))))
     } else {
       return None()
     }

@@ -39,7 +39,7 @@ object HashMap {
 }
 
 @datatype class HashMap[K, V](mapEntries: ISZ[Map[K, V]], size: Z) {
-  @pure def hash: Z = {
+  @pure override def hash: Z = {
     return size
   }
 

@@ -82,11 +82,35 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     }
 
     //println(showRaw(arg))
+    val mm = c.typeOf[MutableMarker]
     val r = arg match {
       case q"(..$args)" if args.size > 1 => arg
       case _ =>
-        if (arg.tpe <:< c.typeOf[MutableMarker]) q"helper.assign($arg)"
+        if (arg.tpe <:< mm) q"helper.assign($arg)"
         else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
+          val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
+          args(n)
+        }
+        else arg
+    }
+    //println(showRaw(r))
+    //println(showCode(r))
+    r
+  }
+
+  def $tmatch(arg: c.Tree): c.Tree = {
+    def args(n: Int): c.Tree = {
+      val l = (for (i <- 1 to n) yield
+        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(Ident(TermName("x")), TermName(s"_$i"))))).toList
+      Block(List(q"val x = $arg"),
+        Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), l))
+    }
+
+    //println(showRaw(arg))
+    val r = arg match {
+      case q"(..$args)" if args.size > 1 => arg
+      case _ =>
+        if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
           val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
           args(n)
         }

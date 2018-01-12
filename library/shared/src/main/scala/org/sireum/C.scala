@@ -61,6 +61,8 @@ object C {
 
 final class C(val value: scala.Char) extends AnyVal with $internal.HasBoxer {
 
+  @inline def native: scala.Char = value
+
   @inline def <(other: C): B = value < other.value
 
   @inline def <=(other: C): B = value <= other.value

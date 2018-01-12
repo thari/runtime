@@ -75,10 +75,11 @@ object String {
   import scala.language.implicitConversions
 
   implicit def apply(s: Predef.String): String = new String(s)
-
 }
 
 final class String(val value: Predef.String) extends AnyVal with Immutable with $internal.HasBoxer {
+
+  @inline def native: Predef.String = value
 
   @inline def string: String = this
 

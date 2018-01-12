@@ -26,8 +26,7 @@
 package org.sireum
 
 import org.sireum.test._
-import org.sireum.ops._
-import org.sireum.ops.ISZOps._
+import org.sireum.ops.ISZOps
 import scala.collection.mutable.{BitSet => BS}
 import U16._
 import N16._
@@ -148,22 +147,22 @@ class STest extends SireumRuntimeSpec {
   "ISZOps" - {
     val s = ISZ[Z](Z.random, Z.random, Z.random, Z.random)
 
-    *(SOps(s).contains(s(2)))
+    *(ISZOps(s).contains(s(2)))
 
-    *(SOps(s :+ 1).forall(_ >= z"1"))
+    *(ISZOps(s :+ 1).forall(_ >= z"1"))
 
-    *(SOps(s :+ 2).exists(_ == z"2"))
+    *(ISZOps(s :+ 2).exists(_ == z"2"))
 
-    *(ISOps(s) :+ 3 =~= s :+ 3)
+    *(ISZOps(s) :+ 3 =~= s :+ 3)
 
-    *(1 +: ISOps(s) =~= 1 +: s)
+    *(1 +: ISZOps(s) =~= 1 +: s)
 
-    *(ISOps(s) ++ s =~= s ++ s)
+    *(ISZOps(s) ++ s =~= s ++ s)
 
     *(s.toMS =~= MSZ(s.elements: _*))
 
     * {
-      s =~= ISOps(ISOps(s).chunk(2)).
+      s =~= ISZOps(ISZOps(s).chunk(2)).
         foldLeft((r: ISZ[Z], t: ISZ[Z]) => r ++ t, ISZ[Z]())
     }
   }

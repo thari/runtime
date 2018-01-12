@@ -89,6 +89,8 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $
 
   def unary_- : F32 = -value
 
+  def native: scala.Float = value
+
   def <(other: F32): B = value < other.value
 
   def <=(other: F32): B = value <= other.value
@@ -164,6 +166,8 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with 
   def ExponentBitWidth: Z = 10
 
   def unary_- : F64 = -value
+
+  def native: scala.Double = value
 
   def <(other: F64): B = value < other.value
 

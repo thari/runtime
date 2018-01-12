@@ -1,12 +1,8 @@
 val scalaVer = "2.12.4"
 
-val metaVersion = "1.8.0"
-
-val paradiseVersion = "3.0.0-M10"
-
 val runtimeVersion = "3.1.5-SNAPSHOT"
 
-val sireumScalacVersion = "3.1.2"
+val sireumScalacVersion = "3.2"
 
 scalaVersion in ThisBuild := scalaVer
 
@@ -19,12 +15,8 @@ val commonSettings = Seq(
   retrieveManaged := true,
   version := runtimeVersion,
   parallelExecution in Test := true,
-  libraryDependencies ++= Seq(
-    "org.scalameta" %%% "scalameta" % metaVersion
-  ),
-  sources in(Compile, doc) := Seq.empty,
+  //sources in(Compile, doc) := Seq.empty,
   resolvers += Resolver.sonatypeRepo("public"),
-  addCompilerPlugin("org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full),
   publishMavenStyle := true,
   publishTo := Some(
     if (isSnapshot.value)

@@ -58,7 +58,7 @@ object ISOps_Ext {
   }
 }
 
-object ISZOps_Ext {
+object ISZOpsUtil_Ext {
   def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)
 
   def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)

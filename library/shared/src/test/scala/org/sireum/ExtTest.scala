@@ -37,16 +37,6 @@ object NFoo_Ext {
   def foo[T](x: Z): T = Z(2).asInstanceOf[T]
 }
 
-@ext object NFoo {
-
-  trait NA
-
-  val x: Z = $
-  var y: NA = $
-
-  def foo[T](x: Z): T = $
-}
-
 class ExtTest extends SireumRuntimeSpec {
   *(NFoo.x =~= Z(5))
 

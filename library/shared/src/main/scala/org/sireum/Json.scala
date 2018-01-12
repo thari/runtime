@@ -27,7 +27,6 @@
 package org.sireum
 
 import org.sireum.ops._
-import org.sireum.ops.ISZOps._
 
 object Json {
 
@@ -40,7 +39,7 @@ object Json {
 
     @pure def toString(s: String): V
 
-    @pure def toNull(): V
+    @pure def toNull: V
 
     @pure def toBoolean(b: B): V
 
@@ -347,7 +346,7 @@ object Json {
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
       for (c <- s.toCis) {
-        c match {
+        c.native match {
           case '"' => r = r :+ '\\' :+ '\"'
           case '\\' => r = r :+ '\\' :+ '\\'
           case '/' => r = r :+ '\\' :+ '/'
@@ -366,7 +365,7 @@ object Json {
     }
 
     @pure def printConstant(s: String): ST = {
-      s match {
+      s.native match {
         case "true" => return trueSt
         case "false" => return falseSt
         case "null" => return nullSt
@@ -439,7 +438,7 @@ object Json {
 
     def parseB(): B = {
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case 't' => parseConstant("true"); return T
         case 'f' => parseConstant("false"); return F
         case c => parseException(offset, s"Expected 'true' or 'false', but '$c...' found."); return F
@@ -705,7 +704,7 @@ object Json {
 
     def parseISZ8[T](f: () => T): IS[Z8, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[Z8, T]()
       }
       var e = f()
       var r = IS[Z8, T](e)
@@ -720,7 +719,7 @@ object Json {
 
     def parseISZ16[T](f: () => T): IS[Z16, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[Z16, T]()
       }
       var e = f()
       var r = IS[Z16, T](e)
@@ -735,7 +734,7 @@ object Json {
 
     def parseISZ32[T](f: () => T): IS[Z32, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[Z32, T]()
       }
       var e = f()
       var r = IS[Z32, T](e)
@@ -750,7 +749,7 @@ object Json {
 
     def parseISZ64[T](f: () => T): IS[Z64, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[Z64, T]()
       }
       var e = f()
       var r = IS[Z64, T](e)
@@ -765,7 +764,7 @@ object Json {
 
     def parseISN[T](f: () => T): IS[N, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[N, T]()
       }
       var e = f()
       var r = IS[N, T](e)
@@ -780,7 +779,7 @@ object Json {
 
     def parseISN8[T](f: () => T): IS[N8, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[N8, T]()
       }
       var e = f()
       var r = IS[N8, T](e)
@@ -795,7 +794,7 @@ object Json {
 
     def parseISN16[T](f: () => T): IS[N16, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[N16, T]()
       }
       var e = f()
       var r = IS[N16, T](e)
@@ -810,7 +809,7 @@ object Json {
 
     def parseISN32[T](f: () => T): IS[N32, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[N32, T]()
       }
       var e = f()
       var r = IS[N32, T](e)
@@ -825,7 +824,7 @@ object Json {
 
     def parseISN64[T](f: () => T): IS[N64, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[N64, T]()
       }
       var e = f()
       var r = IS[N64, T](e)
@@ -840,7 +839,7 @@ object Json {
 
     def parseISS8[T](f: () => T): IS[S8, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[S8, T]()
       }
       var e = f()
       var r = IS[S8, T](e)
@@ -855,7 +854,7 @@ object Json {
 
     def parseISS16[T](f: () => T): IS[S16, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[S16, T]()
       }
       var e = f()
       var r = IS[S16, T](e)
@@ -870,7 +869,7 @@ object Json {
 
     def parseISS32[T](f: () => T): IS[S32, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[S32, T]()
       }
       var e = f()
       var r = IS[S32, T](e)
@@ -885,7 +884,7 @@ object Json {
 
     def parseISS64[T](f: () => T): IS[S64, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[S64, T]()
       }
       var e = f()
       var r = IS[S64, T](e)
@@ -900,7 +899,7 @@ object Json {
 
     def parseISU8[T](f: () => T): IS[U8, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[U8, T]()
       }
       var e = f()
       var r = IS[U8, T](e)
@@ -915,7 +914,7 @@ object Json {
 
     def parseISU16[T](f: () => T): IS[U16, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[U16, T]()
       }
       var e = f()
       var r = IS[U16, T](e)
@@ -930,7 +929,7 @@ object Json {
 
     def parseISU32[T](f: () => T): IS[U32, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[U32, T]()
       }
       var e = f()
       var r = IS[U32, T](e)
@@ -945,7 +944,7 @@ object Json {
 
     def parseISU64[T](f: () => T): IS[U64, T] = {
       if (!parseArrayBegin()) {
-        return IS()
+        return IS[U64, T]()
       }
       var e = f()
       var r = IS[U64, T](e)
@@ -960,7 +959,7 @@ object Json {
 
     def parseMSZ[T](f: () => T): MS[Z, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[Z, T]()
       }
       var e = f()
       var r = MS[Z, T](e)
@@ -975,7 +974,7 @@ object Json {
 
     def parseMSZ8[T](f: () => T): MS[Z8, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[Z8, T]()
       }
       var e = f()
       var r = MS[Z8, T](e)
@@ -990,7 +989,7 @@ object Json {
 
     def parseMSZ16[T](f: () => T): MS[Z16, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[Z16, T]()
       }
       var e = f()
       var r = MS[Z16, T](e)
@@ -1005,7 +1004,7 @@ object Json {
 
     def parseMSZ32[T](f: () => T): MS[Z32, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[Z32, T]()
       }
       var e = f()
       var r = MS[Z32, T](e)
@@ -1020,7 +1019,7 @@ object Json {
 
     def parseMSZ64[T](f: () => T): MS[Z64, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[Z64, T]()
       }
       var e = f()
       var r = MS[Z64, T](e)
@@ -1035,7 +1034,7 @@ object Json {
 
     def parseMSN[T](f: () => T): MS[N, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[N, T]()
       }
       var e = f()
       var r = MS[N, T](e)
@@ -1050,7 +1049,7 @@ object Json {
 
     def parseMSN8[T](f: () => T): MS[N8, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[N8, T]()
       }
       var e = f()
       var r = MS[N8, T](e)
@@ -1065,7 +1064,7 @@ object Json {
 
     def parseMSN16[T](f: () => T): MS[N16, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[N16, T]()
       }
       var e = f()
       var r = MS[N16, T](e)
@@ -1080,7 +1079,7 @@ object Json {
 
     def parseMSN32[T](f: () => T): MS[N32, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[N32, T]()
       }
       var e = f()
       var r = MS[N32, T](e)
@@ -1095,7 +1094,7 @@ object Json {
 
     def parseMSN64[T](f: () => T): MS[N64, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[N64, T]()
       }
       var e = f()
       var r = MS[N64, T](e)
@@ -1110,7 +1109,7 @@ object Json {
 
     def parseMSS8[T](f: () => T): MS[S8, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[S8, T]()
       }
       var e = f()
       var r = MS[S8, T](e)
@@ -1125,7 +1124,7 @@ object Json {
 
     def parseMSS16[T](f: () => T): MS[S16, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[S16, T]()
       }
       var e = f()
       var r = MS[S16, T](e)
@@ -1140,7 +1139,7 @@ object Json {
 
     def parseMSS32[T](f: () => T): MS[S32, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[S32, T]()
       }
       var e = f()
       var r = MS[S32, T](e)
@@ -1155,7 +1154,7 @@ object Json {
 
     def parseMSS64[T](f: () => T): MS[S64, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[S64, T]()
       }
       var e = f()
       var r = MS[S64, T](e)
@@ -1170,7 +1169,7 @@ object Json {
 
     def parseMSU8[T](f: () => T): MS[U8, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[U8, T]()
       }
       var e = f()
       var r = MS[U8, T](e)
@@ -1185,7 +1184,7 @@ object Json {
 
     def parseMSU16[T](f: () => T): MS[U16, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[U16, T]()
       }
       var e = f()
       var r = MS[U16, T](e)
@@ -1200,7 +1199,7 @@ object Json {
 
     def parseMSU32[T](f: () => T): MS[U32, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[U32, T]()
       }
       var e = f()
       var r = MS[U32, T](e)
@@ -1215,7 +1214,7 @@ object Json {
 
     def parseMSU64[T](f: () => T): MS[U64, T] = {
       if (!parseArrayBegin()) {
-        return MS()
+        return MS[U64, T]()
       }
       var e = f()
       var r = MS[U64, T](e)
@@ -1230,7 +1229,7 @@ object Json {
 
     def parseOption[T](f: () => T): Option[T] = {
       val tpe = parseObjectTypes(typesOption)
-      tpe match {
+      tpe.native match {
         case "Some" =>
           parseObjectKey("value")
           val v = f()
@@ -1243,7 +1242,7 @@ object Json {
 
     def parseMOption[T](f: () => T): MOption[T] = {
       val tpe = parseObjectTypes(typesOption)
-      tpe match {
+      tpe.native match {
         case "Some" =>
           parseObjectKey("value")
           val v = f()
@@ -1260,11 +1259,11 @@ object Json {
       val i = parseZ()
       parseObjectKey("value")
       i match {
-        case 0 =>
+        case z"0" =>
           val l = f0()
           parseObjectNext()
           return Either(Some(l), None())
-        case 1 =>
+        case z"1" =>
           val r = f1()
           parseObjectNext()
           return Either(None(), Some(r))
@@ -1277,11 +1276,11 @@ object Json {
       val i = parseZ()
       parseObjectKey("value")
       i match {
-        case 0 =>
+        case z"0" =>
           val l = f0()
           parseObjectNext()
           return MEither(MSome(l), MNone())
-        case 1 =>
+        case z"1" =>
           val r = f1()
           parseObjectNext()
           return MEither(MNone(), MSome(r))
@@ -1296,10 +1295,9 @@ object Json {
     }
 
     def detect(): ValueKind.Type = {
-      val default = ValueKind.Null
       parseWhitespace()
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case '"' => return ValueKind.String
         case '{' => return ValueKind.Object
         case '[' => return ValueKind.Array
@@ -1330,7 +1328,7 @@ object Json {
       val value = parseString()
       parseObjectNext()
       if (value != expectedType) {
-        parseException(i, s"Expected '${expectedType}', but '$value' found.")
+        parseException(i, s"Expected '$expectedType', but '$value' found.")
       }
       return value
     }
@@ -1341,11 +1339,11 @@ object Json {
       val i = offset + 1
       val value = parseString()
       parseObjectNext()
-      if (expectedTypes.nonEmpty && !SOps(expectedTypes).contains(value)) {
+      if (expectedTypes.nonEmpty && !ISZOps(expectedTypes).contains(value)) {
         expectedTypes.size match {
-          case 1 => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")
-          case 2 => parseException(i, s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
-          case _ => parseException(i, s"Expected ${st"'${(ISOps(expectedTypes).dropRight(1), "', '")}', or '${expectedTypes(expectedTypes.size - 1)}'".render} , but '$value' found.")
+          case z"1" => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")
+          case z"2" => parseException(i, s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
+          case _ => parseException(i, s"Expected ${st"'${(ISZOps(expectedTypes).dropRight(1), "', '")}', or '${expectedTypes(expectedTypes.size - 1)}'".render} , but '$value' found.")
         }
       }
       return value
@@ -1360,7 +1358,7 @@ object Json {
       }
       parseWhitespace()
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case ':' =>
           offset = offset + 1
           parseWhitespace()
@@ -1375,16 +1373,16 @@ object Json {
       errorIfEof(offset)
       val i = offset + 1
       val key = parseString()
-      if (expectedKeys.nonEmpty && !SOps(expectedKeys).contains(key)) {
+      if (expectedKeys.nonEmpty && !ISZOps(expectedKeys).contains(key)) {
         expectedKeys.size match {
-          case 1 => parseException(i, s"Expected '${expectedKeys(0)}', but '$key' found.")
-          case 2 => parseException(i, s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
-          case _ => parseException(i, s"Expected ${st"'${(ISOps(expectedKeys).dropRight(1), "', '")}', or '${expectedKeys(expectedKeys.size - 1)}'".render} , but '$key' found.")
+          case z"1" => parseException(i, s"Expected '${expectedKeys(0)}', but '$key' found.")
+          case z"2" => parseException(i, s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
+          case _ => parseException(i, s"Expected ${st"'${(ISZOps(expectedKeys).dropRight(1), "', '")}', or '${expectedKeys(expectedKeys.size - 1)}'".render} , but '$key' found.")
         }
       }
       parseWhitespace()
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case ':' =>
           offset = offset + 1
           parseWhitespace()
@@ -1397,12 +1395,12 @@ object Json {
 
     def parseObjectBegin(): Boolean = {
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case '{' =>
           offset = offset + 1
           parseWhitespace()
           errorIfEof(offset)
-          at(offset) match {
+          at(offset).native match {
             case '}' =>
               offset = offset + 1
               return F
@@ -1418,7 +1416,7 @@ object Json {
     def parseObjectNext(): Boolean = {
       parseWhitespace()
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case ',' =>
           offset = offset + 1
           parseWhitespace()
@@ -1435,12 +1433,12 @@ object Json {
 
     def parseArrayBegin(): Boolean = {
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case '[' =>
           offset = offset + 1
           parseWhitespace()
           errorIfEof(offset)
-          at(offset) match {
+          at(offset).native match {
             case ']' =>
               offset = offset + 1
               return F
@@ -1456,7 +1454,7 @@ object Json {
     def parseArrayNext(): Boolean = {
       parseWhitespace()
       errorIfEof(offset)
-      at(offset) match {
+      at(offset).native match {
         case ',' =>
           offset = offset + 1
           parseWhitespace()
@@ -1476,7 +1474,7 @@ object Json {
       errorIfEof(offset)
 
       var c = at(offset)
-      c match {
+      c.native match {
         case '-' =>
           r = r :+ c
           c = incOffset(1)
@@ -1486,7 +1484,7 @@ object Json {
           }
       }
 
-      c match {
+      c.native match {
         case '0' =>
           r = r :+ c
           if (offset + 1 == input.size) {
@@ -1511,7 +1509,7 @@ object Json {
           }
       }
 
-      c match {
+      c.native match {
         case '.' =>
           r = r :+ c
           c = incOffset(1)
@@ -1526,14 +1524,14 @@ object Json {
         case _ =>
       }
 
-      c match {
+      c.native match {
         case 'e' =>
         case 'E' =>
         case _ => return String(r)
       }
       r = r :+ c
       c = incOffset(1)
-      val hasPlusMinus: B = c match {
+      val hasPlusMinus: B = c.native match {
         case '+' => T
         case '-' => T
         case _ => F
@@ -1559,14 +1557,14 @@ object Json {
       var r = ISZ[C]()
 
       var c = at(offset)
-      c match {
+      c.native match {
         case '"' =>
           c = incOffset(1)
           while (c != '"') {
-            c match {
+            c.native match {
               case '\\' =>
                 c = incOffset(1)
-                c match {
+                c.native match {
                   case '"' => r = r :+ '"'
                   case '\\' => r = r :+ '\\'
                   case '/' => r = r :+ '/'
@@ -1603,7 +1601,7 @@ object Json {
         parseException(offset, s"Expected '$text', but '$t' found.")
       }
       offset = offset + text.size
-      text match {
+      text.native match {
         case "true" =>
         case "false" =>
         case "null" =>
@@ -1616,7 +1614,7 @@ object Json {
       var column: Z = 1
       var j: Z = 0
       while (j != i) {
-        at(j) match {
+        at(j).native match {
           case '\n' =>
             line = line + 1
             column = 1
@@ -1666,7 +1664,7 @@ object Json {
     }
 
     @pure def isDigit(c: C): B = {
-      c match {
+      c.native match {
         case '0' => return T
         case '1' => return T
         case '2' => return T
@@ -1682,7 +1680,7 @@ object Json {
     }
 
     @pure def isWhitespace(c: C): B = {
-      c match {
+      c.native match {
         case ' ' => return T
         case '\n' => return T
         case '\r' => return T
@@ -1726,7 +1724,7 @@ object Json {
 
     def parseNull(): V = {
       parser.parseConstant("null")
-      return binding.toNull()
+      return binding.toNull
     }
 
     def parseArray(): V = {
@@ -1801,7 +1799,7 @@ object Json {
           return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(SOps(es).forall(isSimple), es.map(printValue))
+          return Printer.printIS(ISZOps(es).forall(isSimple), es.map(printValue))
         case ValueKind.True => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
         case ValueKind.Null => return Printer.nullSt

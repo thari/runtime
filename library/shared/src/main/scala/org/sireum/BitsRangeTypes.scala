@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -25,30 +26,36 @@
 
 package org.sireum
 
-import scala.annotation.compileTimeOnly
-import scala.meta._
+@range(min = -128, max = 127) class Z8
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object sig {
+@range(min = -32768, max = 32767) class Z16
 
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @sig traits have to be of the form '@sig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with org.sireum.Immutable with ..$ctorcalls { $param => ..$stats }"
-  }
-}
+@range(min = -2147483648, max = 2147483647) class Z32
 
-@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
-class sig extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => sig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](sig.transformTrait(t), o))
-      case _ =>
-        abort(tree.pos, s"Invalid Slang @sig on: ${tree.syntax}.")
-    }
-    //println(result.syntax)
-    result
-  }
-}
+@range(min = -9223372036854775808l, max = 9223372036854775807l) class Z64
+
+@range(min = 0) class N
+
+@range(min = 0, max = 255) class N8
+
+@range(min = 0, max = 65535) class N16
+
+@range(min = 0, max = 4294967295l) class N32
+
+@range(min = 0, max = z"18,446,744,073,709,551,617") class N64
+
+@bits(signed = T, width = 8) class S8
+
+@bits(signed = F, width = 8) class U8
+
+@bits(signed = T, width = 16) class S16
+
+@bits(signed = F, width = 16) class U16
+
+@bits(signed = T, width = 32) class S32
+
+@bits(signed = F, width = 32) class U32
+
+@bits(signed = T, width = 64) class S64
+
+@bits(signed = F, width = 64) class U64

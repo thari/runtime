@@ -28,7 +28,7 @@ package org.sireum.ops
 
 import org.sireum._
 
-@rich trait SOps[I, V] {
+@sig trait SOps[I, V] {
 
   @pure def contains(e: V): B
 
@@ -56,7 +56,7 @@ import org.sireum._
 
 }
 
-@rich trait ISOps[I, V] {
+@sig trait ISOps[I, V] {
 
   @pure def :+(e: V): IS[I, V]
 
@@ -92,7 +92,24 @@ import org.sireum._
 
 }
 
-@rich class ISZOps[V](s: IS[Z, V]) extends SOps[Z, V] with ISOps[Z, V] {
+@ext object ISZOpsUtil {
+  @pure def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
+
+  def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+
+  @pure def parMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
+
+  def mParMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+
+  @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] =
+    l""" ensures result.size ≡ s.size
+                 ∀i: [0, result.size - 1) lt(i, i + 1)
+                 SOps.isPermutation(s, result)         """
+}
+
+@datatype class ISZOps[V](s: IS[Z, V]) extends SOps[Z, V] with ISOps[Z, V] {
 
   @pure def :+(e: V): IS[Z, V] = {
     l""" ensures result.size ≡ s.size + 1
@@ -266,15 +283,25 @@ import org.sireum._
     return s.map(f)
   }
 
-  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R =
-    l""" ensures ISZOps(map(f)).foldLeft(g, init) """
+  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = ISZOpsUtil.parMapFoldLeft(s, f, g, init)
+    return r
+  }
 
-  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = $
+  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = ISZOpsUtil.mParMapFoldLeft(s, f, g, init)
+    return r
+  }
 
-  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R =
-    l""" ensures ISZOps(map(f)).foldLeft(g, init) """
+  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = ISZOpsUtil.parMapFoldRight(s, f, g, init)
+    return r
+  }
 
-  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = $
+  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = ISZOpsUtil.mParMapFoldRight(s, f, g, init)
+    return r
+  }
 
   @pure def remove(i: Z): IS[Z, V] = {
     l""" requires 0 ≤ i
@@ -307,10 +334,9 @@ import org.sireum._
     return laxSlice(from, til)
   }
 
-  @pure def sortWith(lt: (V, V) => B): IS[Z, V] =
-    l""" ensures result.size ≡ s.size
-                 ∀i: [0, result.size - 1) lt(i, i + 1)
-                 SOps.isPermutation(s, result)         """
+  @pure def sortWith(lt: (V, V) => B): IS[Z, V] = {
+    return ISZOpsUtil.sortWith(s, lt)
+  }
 
   @pure def tail: IS[Z, V] = {
     l""" requires s.size > 0
@@ -338,7 +364,7 @@ import org.sireum._
   }
 }
 
-@rich trait SBOps[I] {
+@sig trait SBOps[I] {
 
   @pure def toU8: U8
 
@@ -623,7 +649,7 @@ object ISZBOps {
   }
 }
 
-@rich class ISZBOps(s: IS[Z, B]) extends SBOps[Z] {
+@datatype class ISZBOps(s: IS[Z, B]) extends SBOps[Z] {
 
   @pure def toU8: U8 = {
     l""" requires s.size ≡ 8

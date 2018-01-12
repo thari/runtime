@@ -1551,7 +1551,7 @@ trait Z extends Any with Number with Comparable[Z] {
     if (this < other) -1 else if (this > other) 1 else 0
 }
 
-@datatype class ZRange[I](init: I,
+final case class ZRange[I](init: I,
                           to: I,
                           @pure cond: I => B,
                           @pure step: (B, I) => I,

@@ -25,29 +25,28 @@
 
 package org.sireum
 
-import scala.annotation.compileTimeOnly
-import scala.meta._
+import scala.annotation.StaticAnnotation
 
-// TODO: clean up quasiquotes due to IntelliJ's macro annotation inference workaround
-object msig {
+class datatype extends StaticAnnotation
 
-  def transformTrait(tree: Defn.Trait): Defn.Trait = {
-    val q"..$mods trait $tname[..$tparams] extends { ..$estats } with ..$ctorcalls { $param => ..$stats }" = tree
-    if (estats.nonEmpty || !param.name.isInstanceOf[Name.Anonymous])
-      abort("Slang @msig traits have to be of the form '@msig trait <id> ... { ... }'.")
-    q"..$mods trait $tname[..$tparams] extends { ..$estats } with org.sireum.Mutable with ..$ctorcalls { $param => ..$stats }"
-  }
-}
+class enum extends StaticAnnotation
 
-@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
-class msig extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case tree: Defn.Trait => msig.transformTrait(tree)
-      case Term.Block(Seq(t: Defn.Trait, o: Defn.Object)) => Term.Block(List[Stat](msig.transformTrait(t), o))
-      case _ => abort(tree.pos, s"Invalid Slang @msig on: ${tree.syntax}.")
-    }
-    //println(result.syntax)
-    result
-  }
-}
+class ext extends StaticAnnotation
+
+class hidden extends StaticAnnotation
+
+class memoize extends StaticAnnotation
+
+class msig extends StaticAnnotation
+
+class pure extends StaticAnnotation
+
+class record extends StaticAnnotation
+
+class sig extends StaticAnnotation
+
+class spec extends StaticAnnotation
+
+class range(min: Z = 0, max: Z = 0, index: B = F)
+
+class bits(signed: B, width: Z, min: Z = 0, max: Z = 0, index: B = F)

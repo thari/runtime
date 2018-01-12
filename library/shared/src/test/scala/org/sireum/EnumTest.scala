@@ -27,16 +27,6 @@ package org.sireum
 
 import org.sireum.test._
 
-@enum object Day {
-  'Monday
-  'Tuesday
-  'Wednesday
-  'Thursday
-  'Friday
-  'Saturday
-  'Sunday
-}
-
 class EnumTest extends SireumRuntimeSpec {
   def isMonday(day: Day.Type): Boolean = day == Day.Monday
 

@@ -28,26 +28,6 @@ package org.sireum
 
 import org.sireum.test._
 
-@record trait F2
-
-@record class Foo(x: Z, var bar: Bar) extends F2
-
-@record class Bar(x: Z, var y: Z) extends F2
-
-@datatype class Baz(x: Z, y: Z)
-
-@datatype class Bazz()
-
-@datatype class $Foo(x: Z, y: $Bar)
-
-@datatype class $Bar(z: Z, zz: ISZ[Z])
-
-@record class Bazzz[T](var x: T) {
-  def updateX(newX: T): Unit = {
-    x = newX
-  }
-}
-
 class DatatypeRecordTest extends SireumRuntimeSpec {
   val foo = Foo(1, Bar(2, 5))
 

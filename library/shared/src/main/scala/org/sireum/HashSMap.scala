@@ -44,7 +44,7 @@ object HashSMap {
     return keys.size
   }
 
-  @pure def hash: Z = {
+  @pure override def hash: Z = {
     return map.hash
   }
 

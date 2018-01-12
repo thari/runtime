@@ -29,10 +29,6 @@ import org.sireum.test._
 
 import scala.util.{Failure, Success, Try}
 
-@range(min = 1, max = 10, index = T) class One10i
-
-@range(min = -1, max = 16) class M1_16
-
 class RangeTest extends SireumRuntimeSpec {
 
   val numOfRandomTests = 64

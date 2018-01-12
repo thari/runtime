@@ -1,3 +1,5 @@
+// #Sireum
+
 /*
  Copyright (c) 2017, Robby, Kansas State University
  All rights reserved.
@@ -23,19 +25,52 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 package org.sireum
 
-import scala.annotation.compileTimeOnly
-import scala.meta._
+@bits(signed = T, width = 16, min = -2, index = true) class S16_m2
 
-@compileTimeOnly("Enable scala.meta paradise to expand Slang macros")
-class spec extends scala.annotation.StaticAnnotation {
-  inline def apply(tree: Any): Any = meta {
-    val result: Stat = tree match {
-      case _: Defn.Val | _: Defn.Var | _: Defn.Def => q"{}"
-      case _ => abort("Slang @spec can only be used on a val/var declaration or a method.")
-    }
-    //println(result.syntax)
-    result
+@record trait F2
+
+@record class Foo(x: Z, var bar: Bar) extends F2
+
+@record class Bar(x: Z, var y: Z) extends F2
+
+@datatype class Baz(x: Z, y: Z)
+
+@datatype class Bazz()
+
+@datatype class $Foo(x: Z, y: $Bar)
+
+@datatype class $Bar(z: Z, zz: ISZ[Z])
+
+@record class Bazzz[T](var x: T) {
+  def updateX(newX: T): Unit = {
+    x = newX
   }
 }
+
+@enum object Day {
+  'Monday
+  'Tuesday
+  'Wednesday
+  'Thursday
+  'Friday
+  'Saturday
+  'Sunday
+}
+
+@ext object NFoo {
+
+  trait NA
+
+  val x: Z = $
+  var y: NA = $
+
+  def foo[T](x: Z): T = $
+}
+
+@range(min = 1, max = 10, index = T) class One10i
+
+@range(min = -1, max = 16) class M1_16
+
