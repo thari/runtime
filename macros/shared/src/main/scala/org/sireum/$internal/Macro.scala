@@ -36,6 +36,21 @@ object Macro {
   def par[T](arg: GenSeq[T]): GenSeq[T] = macro Macro.parImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
+
+  def eval[T](c: scala.reflect.macros.blackbox.Context)(
+    t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
+    val tree = t.asInstanceOf[c.Tree]
+    val expr = c.Expr(c.untypecheck(tree))
+    for (_ <- 0 until n) {
+      scala.util.Try(c.eval[T](expr)) match {
+        case scala.util.Success(x) => return x
+        case _ =>
+      }
+      synchronized { wait(100) }
+    }
+    c.eval[T](expr)
+  }
+
 }
 
 import Macro._
@@ -54,23 +69,49 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def $[T]: c.Expr[T] = c.Expr[T]( q"""halt("Slang '$$' should have been erased by the Sireum Scala compiler plugin.")""")
 
-  def extractParts: Seq[c.Tree] = c.prefix.tree match {
+  def extractParts: Seq[c.Tree] = (c.prefix.tree match {
     case q"org.sireum.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
     case q"sireum.this.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
     case q"org.sireum.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
     case q"sireum.this.`package`.$$Slang(scala.StringContext.apply(..$ps))" => ps
-  }
+  }).asInstanceOf[Seq[c.Tree]]
 
   def zApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang z\"...\" should not contain $$ arguments.")
-    q"Z.$$String(${parts.head})"
+    q"_root_.org.sireum.Z.$$String(${parts.head})"
+  }
+
+  def cApply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang c\"...\" should not contain $$ arguments.")
+    val s = Macro.eval[String](c)(parts.head)
+    if (s.length != 1) c.abort(c.prefix.tree.pos, "Slang c\"...\" can only have a single character.")
+    q"_root_.org.sireum.C(${parts.head}.head)"
+  }
+
+  def f32Apply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang f32\"...\" should not contain $$ arguments.")
+    q"_root_.org.sireum.F32.$$String(${parts.head})"
+  }
+
+  def f64Apply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang f64\"...\" should not contain $$ arguments.")
+    q"_root_.org.sireum.F64.$$String(${parts.head})"
   }
 
   def rApply(args: c.Tree*): c.Tree = {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang r\"...\" should not contain $$ arguments.")
-    q"R.$$String(${parts.head})"
+    q"_root_.org.sireum.R.$$String(${parts.head})"
+  }
+
+  def stringApply(args: c.Tree*): c.Tree = {
+    val parts = extractParts
+    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang string\"...\" should not contain $$ arguments.")
+    q"_root_.org.sireum.String(${parts.head})"
   }
 
   def $assign(arg: c.Tree): c.Tree = {
@@ -140,10 +181,10 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
         if (isVar(t.symbol)) Some(t.tpe) else None
       case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
         if (isVar(t.symbol)) Some(t.tpe) else None
-      case Typed(e, t) => varType(e)
+      case Typed(e, _) => varType(e)
       case q"${expr: c.Tree}.$_" => varType(expr)
-      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => varType(expr)
-      case q"${expr: c.Tree}.apply[..$_]($arg)" => varType(expr)
+      case q"${expr: c.Tree}.apply[..$_]($_)($_)" => varType(expr)
+      case q"${expr: c.Tree}.apply[..$_]($_)" => varType(expr)
       case _ =>
         c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
     }
@@ -159,7 +200,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
         q"$tpname.this.$name = $name($tname = $r)"
       case q"$tpname.this.$name.apply[..$_]($arg)($_)" =>
         q"$tpname.this.$name = this.$name(($arg, $r))"
-      case Typed(e, t) => f(e, r)
+      case Typed(e, _) => f(e, r)
       case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
       case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr(($arg, $r))")
       case q"${expr: c.Tree}.apply[..$_]($arg)" => f(expr, q"$expr(($arg, $r))")
@@ -277,10 +318,11 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>
         if (exprs.size != 2) c.abort(arg.pos, s"Expecting a pair instead of a ${exprs.size}-tuple.")
-        val e = exprs(1)
+        val e = exprs(1).asInstanceOf[c.Tree]
+        val first = exprs.head.asInstanceOf[c.Tree]
         val t = e.tpe
-        if (t <:< c.typeOf[Predef.String]) processArg(exprs.head, e)
-        else if (t.typeSymbol.fullName == "org.sireum.String") processArg(exprs.head, q"$e.value")
+        if (t <:< c.typeOf[Predef.String]) processArg(first, e)
+        else if (t.typeSymbol.fullName == "org.sireum.String") processArg(first, q"$e.value")
         else c.abort(e.pos, s"Expecting a separator string instead of '${showCode(e)}'.")
       case _ =>
         processArg(arg, Literal(Constant("")))

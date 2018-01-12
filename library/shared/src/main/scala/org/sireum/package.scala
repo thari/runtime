@@ -43,7 +43,15 @@ package object sireum extends $internal.PackageTrait {
       def apply(args: Any*): Z = macro Macro.zApply
       def unapply(n: Z): scala.Boolean = {
         assume(n.isInstanceOf[Z.MP] && sc.parts.size == 1)
-        n == Z(sc.parts.head)
+        n == Z.$String(sc.parts.head)
+      }
+    }
+
+    object c {
+      def apply(args: Any*): C = macro Macro.cApply
+      def unapply(c: C): scala.Boolean = {
+        assume(sc.parts.size == 1)
+        c.value.toString == sc.parts.head
       }
     }
 
@@ -52,6 +60,30 @@ package object sireum extends $internal.PackageTrait {
       def unapply(n: R): scala.Boolean = {
         assume(sc.parts.size == 1)
         n == R.$String(sc.parts.head)
+      }
+    }
+
+    object f32 {
+      def apply(args: Any*): F32 = macro Macro.f32Apply
+      def unapply(n: F32): scala.Boolean = {
+        assume(sc.parts.size == 1)
+        n == F32.$String(sc.parts.head)
+      }
+    }
+
+    object f64 {
+      def apply(args: Any*): F64 = macro Macro.f64Apply
+      def unapply(n: F64): scala.Boolean = {
+        assume(sc.parts.size == 1)
+        n == F64.$String(sc.parts.head)
+      }
+    }
+
+    object string {
+      def apply(args: Any*): String = macro Macro.stringApply
+      def unapply(s: String): scala.Boolean = {
+        assume(sc.parts.size == 1)
+        s.value == sc.parts.head
       }
     }
 
