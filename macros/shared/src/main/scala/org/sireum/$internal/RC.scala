@@ -65,9 +65,21 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
   import c.universe._
 
   def commonImpl(isText: Boolean, p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] = {
+    def eval[T](n: Int, t: Tree): T = { // HACK: eval may non-deterministically fail, so try n times!
+      val expr = c.Expr(c.untypecheck(t))
+      for (_ <- 0 until n) {
+        scala.util.Try(c.eval[T](expr)) match {
+          case scala.util.Success(x) => return x
+          case _ =>
+        }
+        synchronized { wait(100) }
+      }
+      c.eval[T](expr)
+    }
+
     val anchorDir = new File(p.tree.pos.source.file.canonicalPath).getParentFile
     val anchorPath = uriOf(anchorDir)
-    val pf = c.eval[(Seq[String], File) => Boolean](c.Expr(c.untypecheck(p.tree)))
+    val pf = eval[(Seq[String], File) => Boolean](6, p.tree)
     var args = Vector[c.Tree]()
 
     def rec(file: File): Unit = {
