@@ -4,9 +4,9 @@ val runtimeVersion = "3.1.5-SNAPSHOT"
 
 val sireumScalacVersion = "3.2"
 
-scalaVersion in ThisBuild := scalaVer
+ThisBuild / scalaVersion := scalaVer
 
-scalacOptions in ThisBuild := Seq("-target:jvm-1.8", "-deprecation", "-Yrangepos",
+ThisBuild / scalacOptions := Seq("-target:jvm-1.8", "-deprecation", "-Yrangepos",
   "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings")
 
 val commonSettings = Seq(
@@ -14,8 +14,7 @@ val commonSettings = Seq(
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
   retrieveManaged := true,
   version := runtimeVersion,
-  parallelExecution in Test := true,
-  //sources in(Compile, doc) := Seq.empty,
+  Test / parallelExecution := true,
   resolvers += Resolver.sonatypeRepo("public"),
   publishMavenStyle := true,
   publishTo := Some(
@@ -24,7 +23,7 @@ val commonSettings = Seq(
     else
       Opts.resolver.sonatypeStaging
   ),
-  publishArtifact in Test := false,
+  Test / publishArtifact := false,
   pomIncludeRepository := { _ => false },
   pomExtra :=
     <url>https://github.com/sireum/v3-runtime/</url>
