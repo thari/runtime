@@ -29,14 +29,12 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 
-import com.github.marklister.base64.Base64
-
 import scala.language.experimental.macros
 import scala.collection.mutable.{Map => MMap}
 
 object RC {
   def toTrie(m: scala.collection.Map[Seq[String], String]): Trie.Node[String, String] = {
-    var root = Trie.InNode[String, String](MMap())
+    val root = Trie.InNode[String, String](MMap())
 
     def add(path: Seq[String], content: String, node: Trie.InNode[String, String]): Unit = path match {
       case Seq(s) => node.children += ((s, Trie.Leaf[String, String](content)))
@@ -107,5 +105,5 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
 
   def readText(f: File): String = new String(Files.readAllBytes(f.toPath), StandardCharsets.UTF_8)
 
-  def readBase64(f: File): String = Base64.Encoder(Files.readAllBytes(f.toPath)).toBase64(Base64.base64)
+  def readBase64(f: File): String = java.util.Base64.getEncoder.encodeToString(Files.readAllBytes(f.toPath))
 }
