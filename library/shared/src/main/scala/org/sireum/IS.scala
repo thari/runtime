@@ -47,19 +47,17 @@ object IS {
     IS[I, V](companion, a, length, boxer)
   }
 
-  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = size match {
-    case size: Z.MP =>
-      checkSize(size)(companion)
-      val length = size
-      val boxer = Boxer.boxer(default)
-      val a = boxer.create(length)
-      var i = Z.MP.zero
-      while (i < length) {
-        boxer.store(a, i, default)
-        i = i.increase
-      }
-      IS[I, V](companion, a, length, boxer)
-    case _ => halt("Slang IS operation 'create' requires size of exactly type 'Z'.")
+  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+    val length = size.toMP
+    checkSize(length)(companion)
+    val boxer = Boxer.boxer(default)
+    val a = boxer.create(length)
+    var i = Z.MP.zero
+    while (i < length) {
+      boxer.store(a, i, default)
+      i = i.increase
+    }
+    IS[I, V](companion, a, length, boxer)
   }
 
   def apply[I, V](companion: $ZCompanion[I],
