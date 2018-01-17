@@ -62,10 +62,7 @@ package org.sireum
 
 @ext object NFoo {
 
-  trait NA
-
   val x: Z = $
-  var y: NA = $
 
   def foo[T](x: Z): T = $
 }
@@ -73,4 +70,93 @@ package org.sireum
 @range(min = 1, max = 10, index = T) class One10i
 
 @range(min = -1, max = 16) class M1_16
+
+object F2MessagePack {
+  object Constants {
+    val Foo: Z = 0
+    val Bar: Z = 1
+  }
+
+  @record class Writer(writer: MessagePack.Writer) {
+    def writeF2(o: F2): Unit = {
+      o match {
+        case o: Foo => writeFoo(o)
+        case o: Bar => writeBar(o)
+      }
+    }
+
+    def writeFoo(o: Foo): Unit = {
+      writer.writeZ(Constants.Foo)
+      writer.writeZ(o.x)
+      writeBar(o.bar)
+    }
+
+    def writeBar(o: Bar): Unit = {
+      writer.writeZ(Constants.Bar)
+      writer.writeZ(o.x)
+      writer.writeZ(o.y)
+    }
+
+    def result: ISZ[U8] = {
+      return writer.result
+    }
+
+    def resultBase64: String = {
+      return writer.resultBase64
+    }
+
+  }
+
+  @record class Reader(reader: MessagePack.Reader) {
+
+    def readF2(): F2 = {
+      val t = reader.readZ()
+      t match {
+        case Constants.Foo => return readFooT(typeRead = T)
+        case Constants.Bar => return readBarT(typeRead = T)
+      }
+    }
+
+    def readFoo(): Foo = {
+      val r = readFooT(typeRead = F)
+      return r
+    }
+
+    def readFooT(typeRead: B): Foo = {
+      if (!typeRead) {
+        reader.expectZ(Constants.Foo)
+      }
+      val x = reader.readZ()
+      val bar = readBar()
+      return Foo(x, bar)
+    }
+
+    def readBar(): Bar = {
+      val r = readBarT(typeRead = F)
+      return r
+    }
+
+    def readBarT(typeRead: B): Bar = {
+      if (!typeRead) {
+        reader.expectZ(Constants.Bar)
+      }
+      val x = reader.readZ()
+      val y = reader.readZ()
+      return Bar(x, y)
+    }
+
+  }
+
+  def writer: Writer = {
+    return Writer(MessagePack.writer)
+  }
+
+  def reader(data: ISZ[U8]): Reader = {
+    return Reader(MessagePack.reader(data))
+  }
+
+  def readerBase64(data: String): Reader = {
+    return Reader(MessagePack.readerBase64(data))
+  }
+}
 

@@ -150,25 +150,59 @@ class MessagePackTest extends SireumRuntimeSpec {
       check(s, { w => w.writeString(s) }, { r => r.readString() })
     }
 
-    { val size = Z.random % 1024
-      val a = (z"0" until size).map(_ => Z.random % 1024)
-      check(a,
-        { w =>
-          w.writeArrayHeader(size)
-          for (i <- z"0" until size) {
-            w.writeZ(a(i))
-          }
-        },
-        { r =>
-          val size2 = r.readArrayHeader()
-          val a2 = MSZ.create(size2, z"0")
-          for (i <- z"0" until size2) {
-            a2(i) = r.readZ()
-          }
-          a2.toIS
+    {
+      import Z8._
+      val size = {
+        var r = Z8.random
+        while (r < z8"0") {
+          r = Z8.random
         }
-      )
+        r
+      }
+
+      val a = {
+        val r = MS.create[Z8, Z8](size, z8"0")
+        for (i <- z8"0" until size) {
+          r(i) = Z8.random
+        }
+        r.toIS
+      }
+      check(a, (w) => w.writeISZ8(a, w.writeZ8 _), (r) => r.readISZ8(r.readZ8 _))
     }
+
+    {
+      val size = {
+        var r = Z.random % 1024
+        while (r < 0) {
+          r = Z.random % 1024
+        }
+        r
+      }
+      val a = MSZ.create(size, z"0")
+      for (i <- z"0" until size) {
+        a(i) = Z.random % 1024
+      }
+      check(a, (w) => w.writeMSZ(a, w.writeZ _), (r) => r.readMSZ(r.readZ _))
+    }
+
+    {
+      val o = Foo(Z.random, Bar(Z.random, Z.random))
+      val w = F2MessagePack.writer
+      w.writeF2(o)
+      val data = w.writer.result
+      val r = F2MessagePack.reader(data)
+      assert(o == r.readF2())
+    }
+
+    {
+      val o = Bar(Z.random, Z.random)
+      val w = F2MessagePack.writer
+      w.writeF2(o)
+      val data = w.writer.result
+      val r = F2MessagePack.reader(data)
+      assert(o == r.readF2())
+    }
+
   }
 
   def check[T](n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(implicit pos: Position): Unit = {
