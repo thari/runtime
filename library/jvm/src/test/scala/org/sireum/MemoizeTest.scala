@@ -37,8 +37,9 @@ class MemoizeTest extends SireumRuntimeSpec {
   }
 
   * {
-    Memoize.foo(4, f _)
-    Memoize.foo(4, f _)
+    val m = () => f()
+    Memoize.foo(4, m)
+    Memoize.foo(4, m)
     true
   }
 }
