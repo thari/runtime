@@ -27,7 +27,7 @@
 package org.sireum
 
 object Memoize {
-  @memoize def foo(x: Z, f: () => Unit): Z = {
+  @memoize def foo(x: Z, @hidden f: () => Unit): Z = {
     f()
     return x + 1
   }

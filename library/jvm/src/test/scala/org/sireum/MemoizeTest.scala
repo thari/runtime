@@ -29,19 +29,16 @@ import org.sireum.test.SireumRuntimeSpec
 
 class MemoizeTest extends SireumRuntimeSpec {
 
+  var first: B = T
+
   def f(): Unit = {
-    this.synchronized {
-      this.wait(1000)
-    }
+    assert(first)
+    first = F
   }
 
   * {
-    val start = System.currentTimeMillis()
     Memoize.foo(4, f _)
-    val end = System.currentTimeMillis()
     Memoize.foo(4, f _)
-    val end2 = System.currentTimeMillis()
-    //println(end - start, " > ", end2 - end)
-    end - start > end2 - end
+    true
   }
 }
