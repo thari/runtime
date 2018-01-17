@@ -1,5 +1,7 @@
 // #Sireum
 /*
+Adapted from: https://github.com/msgpack4z/msgpack4z-native with the following license:
+
 Copyright (c) 2015 msgpack4z-core contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -242,6 +244,16 @@ object MessagePack {
     def writeArrayHeader(n: Z): Unit
 
     def writeBinary(array: ISZ[U8]): Unit
+
+    def writeNil(): Unit
+
+    def writeMapHeader(size: Z): Unit
+
+    def writeB(b: B): Unit
+
+    def writeC(c: C): Unit
+
+    def writeString(s: String): Unit
   }
 
   @record class WriterImpl(var buf: MSZ[U8], var size: Z) extends Writer {
@@ -485,6 +497,8 @@ object MessagePack {
     }
 
     def writeBinary(array: ISZ[U8]): Unit = {
+      l""" requires 0 <= array.size ∧ array.size <= z"4294967295" """
+
       val len = array.size
       if (len < 256 /* 1 << 8 */ ) {
         addU8(Code.BIN8)
@@ -505,16 +519,16 @@ object MessagePack {
       addU8(Code.NIL)
     }
 
-    def writeMapHeader(size: Z): Unit = {
-      l""" requires 0 <= n """
-      if (size < 16 /* 1 << 4 */) {
-        addU8(Code.FIXMAP_PREFIX | conversions.Z.toU8(size))
-      } else if (size < 65536 /* 1 << 16 */) {
+    def writeMapHeader(n: Z): Unit = {
+      l""" requires 0 <= n ∧ n <= z"4294967295" """
+      if (n < 16 /* 1 << 4 */ ) {
+        addU8(Code.FIXMAP_PREFIX | conversions.Z.toU8(n))
+      } else if (n < 65536 /* 1 << 16 */ ) {
         addU8(Code.MAP16)
-        addU16(conversions.Z.toU16(size))
+        addU16(conversions.Z.toU16(n))
       } else {
         addU8(Code.MAP32)
-        addU32(conversions.Z.toU32(size))
+        addU32(conversions.Z.toU32(n))
       }
     }
 
@@ -527,13 +541,15 @@ object MessagePack {
     }
 
     def writeString(s: String): Unit = {
+      l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
+
       val len = s.size
-      if(len < 32 /* 1 << 5 */) {
+      if (len < 32 /* 1 << 5 */ ) {
         addU8(Code.FIXSTR_PREFIX | conversions.Z.toU8(len))
-      } else if(len < 256 /* 1 << 8 */) {
+      } else if (len < 256 /* 1 << 8 */ ) {
         addU8(Code.STR8)
         addU8(conversions.Z.toU8(len))
-      } else if(len < 65536 /* 1 << 16 */) {
+      } else if (len < 65536 /* 1 << 16 */ ) {
         addU8(Code.STR16)
         addU16(conversions.Z.toU16(len))
       } else {
@@ -545,7 +561,41 @@ object MessagePack {
       }
     }
 
-  }
+    def writeExtTypeHeader(extType: S8, payloadLen: Z): Unit = {
+      l""" requires extType >= s8"0" ∧ 0 <= payloadLen ∧ payloadLen <= z"4294967295""""
 
+      if (payloadLen < 256 /* 1 << 8 */ ) {
+        payloadLen match {
+          case z"1" =>
+            addU8(u8"0xD4")
+            addS8(extType)
+          case z"2" =>
+            addU8(u8"0xD5")
+            addS8(extType)
+          case z"4" =>
+            addU8(u8"0xD6")
+            addS8(extType)
+          case z"8" =>
+            addU8(u8"0xD7")
+            addS8(extType)
+          case z"16" =>
+            addU8(u8"0xD8")
+            addS8(extType)
+          case _ =>
+            addU8(u8"0xC7")
+            addU8(conversions.Z.toU8(payloadLen))
+            addS8(extType)
+        }
+      } else if (payloadLen < 65536 /* 1 << 16 */ ) {
+        addU8(u8"0xC8")
+        addU16(conversions.Z.toU16(payloadLen))
+        addS8(extType)
+      } else {
+        addU8(u8"0xC9")
+        addU32(conversions.Z.toU32(payloadLen))
+        addS8(extType)
+      }
+    }
+  }
 
 }
