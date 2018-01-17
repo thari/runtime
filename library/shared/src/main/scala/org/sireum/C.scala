@@ -51,6 +51,8 @@ object C {
     }
   }
 
+  def random: C = new _root_.java.util.Random().nextInt.toChar
+
   def unapply(c: C): scala.Option[scala.Char] = scala.Some(c.value)
 
   import scala.language.implicitConversions

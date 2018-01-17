@@ -123,6 +123,8 @@ object B {
   val T = new B(true)
   val F = new B(false)
 
+  def random: B = new _root_.java.util.Random().nextBoolean
+
   def unapply(b: B): scala.Option[scala.Boolean] = scala.Some(b.value)
 
   import scala.language.implicitConversions

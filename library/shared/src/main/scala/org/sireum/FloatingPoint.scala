@@ -71,6 +71,8 @@ object F32 {
     def unapply(n: F32): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
+  def random: F32 = new _root_.java.util.Random().nextFloat
+
   def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
 
   import scala.language.implicitConversions
@@ -150,6 +152,8 @@ object F64 {
 
     def unapply(n: F64): scala.Option[Predef.String] = scala.Some(n.toString)
   }
+
+  def random: F64 = new _root_.java.util.Random().nextDouble
 
   def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)
 

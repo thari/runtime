@@ -58,6 +58,11 @@ object R {
     def apply(s: Predef.String): R = Real(s)
   }
 
+  def random: R = {
+    val d = Z.random.toBigInt
+    Real(spire.math.Rational(Z.random.toBigInt, if (d == 0) BigInt(1) else d))
+  }
+
   import scala.language.implicitConversions
 
   implicit def apply(r: Real): R = new R(r)
