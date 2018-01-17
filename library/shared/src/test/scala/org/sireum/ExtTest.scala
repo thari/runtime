@@ -40,7 +40,5 @@ object NFoo_Ext {
 class ExtTest extends SireumRuntimeSpec {
   *(NFoo.x =~= Z(5))
 
-  *(NFoo.y.value =~= "abc")
-
   *(NFoo.foo[Z](4) =~= Z(2))
 }
