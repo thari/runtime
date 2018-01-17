@@ -16,8 +16,8 @@ build:
   ci:
       - git submodule update --init --recursive
       - export PATH=$PATH:/opt/sireum-v3/platform/node/bin
-      - sbt clean "test:compile" "test:fastOptJS"
-      - sbt test
+      - sbt -Dfile.encoding=UTF-8 clean "test:compile" "test:fastOptJS"
+      - sbt -Dfile.encoding=UTF-8 test
   post_ci:
   on_success:
   on_failure:
