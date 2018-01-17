@@ -183,6 +183,12 @@ object MessagePack {
 
     def result: ISZ[U8]
 
+    def writeB(b: B): Unit
+
+    def writeC(c: C): Unit
+
+    def writeZ(n: Z): Unit
+
     def writeZ8(n: Z8): Unit = {
       writeS8(conversions.Z8.toS8(n))
     }
@@ -219,14 +225,6 @@ object MessagePack {
       writeU64(conversions.N64.toU64(n))
     }
 
-    def writeU8(n: U8): Unit
-
-    def writeU16(n: U16): Unit
-
-    def writeU32(n: U32): Unit
-
-    def writeU64(n: U64): Unit
-
     def writeS8(n: S8): Unit
 
     def writeS16(n: S16): Unit
@@ -235,11 +233,21 @@ object MessagePack {
 
     def writeS64(n: S64): Unit
 
-    def writeZ(n: Z): Unit
+    def writeU8(n: U8): Unit
+
+    def writeU16(n: U16): Unit
+
+    def writeU32(n: U32): Unit
+
+    def writeU64(n: U64): Unit
+
+    def writeR(n: R): Unit
 
     def writeF32(n: F32): Unit
 
     def writeF64(n: F64): Unit
+
+    def writeString(s: String): Unit
 
     def writeArrayHeader(n: Z): Unit
 
@@ -249,11 +257,7 @@ object MessagePack {
 
     def writeMapHeader(size: Z): Unit
 
-    def writeB(b: B): Unit
-
-    def writeC(c: C): Unit
-
-    def writeString(s: String): Unit
+    def writeExtTypeHeader(extType: S8, payloadLen: Z): Unit
   }
 
   @record class WriterImpl(var buf: MSZ[U8], var size: Z) extends Writer {
@@ -470,6 +474,10 @@ object MessagePack {
       } else {
         writeBinary(conversions.Z.toBinary(n))
       }
+    }
+
+    def writeR(n: R): Unit = {
+      writeString(n.string)
     }
 
     def writeF32(n: F32): Unit = {
