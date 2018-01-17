@@ -345,7 +345,7 @@ object Json {
 
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
-      for (c <- s.toCis) {
+      for (c <- conversions.String.toCis(s)) {
         c.native match {
           case '"' => r = r :+ '\\' :+ '\"'
           case '\\' => r = r :+ '\\' :+ '\\'
@@ -361,7 +361,7 @@ object Json {
             r = r :+ '\\' :+ 'u' :+ q._1 :+ q._2 :+ q._3 :+ q._4
         }
       }
-      return st""""${String(r)}""""
+      return st""""${conversions.String.fromCis(r)}""""
     }
 
     @pure def printConstant(s: String): ST = {
@@ -447,7 +447,7 @@ object Json {
 
     def parseC(): C = {
       val i = offset
-      val s = parseString().toCis
+      val s = conversions.String.toCis(parseString())
       if (s.size != 1) {
         parseException(i, s"Expected a C, but '$s' found.")
         return ' '
@@ -1489,21 +1489,21 @@ object Json {
           r = r :+ c
           if (offset + 1 == input.size) {
             offset = offset + 1
-            return String(r)
+            return conversions.String.fromCis(r)
           }
           c = incOffset(1)
         case _ =>
           r = r :+ c
           if (offset + 1 == input.size) {
             offset = offset + 1
-            return String(r)
+            return conversions.String.fromCis(r)
           }
           c = incOffset(1)
           while (isDigit(c)) {
             r = r :+ c
             if (offset + 1 == input.size) {
               offset = offset + 1
-              return String(r)
+              return conversions.String.fromCis(r)
             }
             c = incOffset(1)
           }
@@ -1517,7 +1517,7 @@ object Json {
             r = r :+ c
             if (offset + 1 == input.size) {
               offset = offset + 1
-              return String(r)
+              return conversions.String.fromCis(r)
             }
             c = incOffset(1)
           }
@@ -1527,7 +1527,7 @@ object Json {
       c.native match {
         case 'e' =>
         case 'E' =>
-        case _ => return String(r)
+        case _ => return conversions.String.fromCis(r)
       }
       r = r :+ c
       c = incOffset(1)
@@ -1544,11 +1544,11 @@ object Json {
         r = r :+ c
         if (offset + 1 == input.size) {
           offset = offset + 1
-          return String(r)
+          return conversions.String.fromCis(r)
         }
         c = incOffset(1)
       }
-      return String(r)
+      return conversions.String.fromCis(r)
     }
 
     def parseString(): String = {
@@ -1587,7 +1587,7 @@ object Json {
             c = incOffset(1)
           }
           offset = offset + 1
-          return String(r)
+          return conversions.String.fromCis(r)
         case _ =>
           parseException(offset, s"""Expected '"' but '$c' found.""")
           return ""
@@ -1596,7 +1596,7 @@ object Json {
 
     def parseConstant(text: String): Unit = {
       errorIfEof(offset + text.size - 1)
-      val t = String(slice(offset, offset + text.size))
+      val t = conversions.String.fromCis(slice(offset, offset + text.size))
       if (t != text) {
         parseException(offset, s"Expected '$text', but '$t' found.")
       }

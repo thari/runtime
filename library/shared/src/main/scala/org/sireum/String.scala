@@ -60,16 +60,6 @@ object String {
     }
   }
 
-  def apply[I](cs: IS[I, C]): String = {
-    if (cs.isEmpty) return ""
-    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
-  }
-
-  def apply[I](cs: MS[I, C]): String = {
-    if (cs.isEmpty) return ""
-    String(new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt))
-  }
-
   def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
 
   import scala.language.implicitConversions
@@ -96,11 +86,5 @@ final class String(val value: Predef.String) extends AnyVal with Immutable with 
   @inline def boxer: $internal.Boxer = String.Boxer
 
   @inline def size: Z = value.length
-
-  def toCis: IS[Z, C] =
-    IS[Z, C](value.map(C.apply): _*)
-
-  def toCms: MS[Z, C] =
-    MS[Z, C](value.map(C.apply): _*)
 
 }
