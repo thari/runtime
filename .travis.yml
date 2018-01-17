@@ -18,5 +18,5 @@ install:
   - export PATH=$TRAVIS_BUILD_DIR/platform/java/bin:$TRAVIS_BUILD_DIR/platform/scala/bin:$TRAVIS_BUILD_DIR/platform/sbt/bin:$TRAVIS_BUILD_DIR/platform/node/bin:$TRAVIS_BUILD_DIR/apps/z3/bin:$PATH
 
 script:
-  - sbt clean test:compile
-  - sbt --error test
+  - sbt clean test:compile test:fastOptJS
+  - sbt test
