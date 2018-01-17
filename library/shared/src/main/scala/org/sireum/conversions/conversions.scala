@@ -2108,6 +2108,10 @@ import org.sireum._
 
 @ext object String {
 
+  @pure def fromBase64(s: String): IS[Z, U8] = $
+
+  @pure def toBase64(data: IS[Z, U8]): String = $
+
   @pure def fromBis[I](bs: IS[I, U8]): String = $
 
   @pure def fromBms[I](bs: MS[I, U8]): String = $

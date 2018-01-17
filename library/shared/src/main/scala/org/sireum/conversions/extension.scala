@@ -1564,6 +1564,21 @@ object String_Ext {
     new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt)
   }
 
+  @pure def fromBase64(s: String): IS[Z, U8] = {
+    val array = _root_.java.util.Base64.getDecoder.decode(s.value)
+    val r = MSZ.create(array.size, u8"0")
+    for (i <- 0 until array.length) {
+      r(i) = org.sireum.U8(array(i))
+    }
+    r.toIS
+  }
+
+  @pure def toBase64(data: IS[Z, U8]): String = {
+    val size = data.size.toBigInt.toInt
+    val array = data.data.asInstanceOf[scala.Array[scala.Byte]].slice(0, size)
+    _root_.java.util.Base64.getEncoder.encodeToString(array)
+  }
+
   @pure def toBis(s: String): IS[Z, U8] =
     IS[Z, U8](s.value.getBytes("UTF-8").map(org.sireum.U8(_)): _*)
 
