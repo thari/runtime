@@ -111,17 +111,7 @@ object Z extends $ZCompanion[Z] {
       BigInt(n.toBigInt + other.toBigInt)
     }
 
-    @inline def -(n: Z, other: Z): MP = {
-      (n, other) match {
-        case (Long(n1), Long(n2)) =>
-          val r = n1 - n2
-          if (((n1 ^ r) & (n2 ^ r)) >= 0L)
-            return Long(r)
-        case (_: MP, _: MP) =>
-        case _ => unsupported("-", other)
-      }
-      BigInt(n.toBigInt - other.toBigInt).pack
-    }
+    @inline def -(n: Z, other: Z): MP = this.+(n, -other)
 
     @inline def *(n: Z, other: Z): MP = {
       (n, other) match {
