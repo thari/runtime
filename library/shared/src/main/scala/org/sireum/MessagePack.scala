@@ -260,6 +260,292 @@ object MessagePack {
 
     def writeString(s: String): Unit
 
+    def writeOption[T](o: Option[T], f: T => Unit): Unit = {
+      o match {
+        case Some(e) => f(e)
+        case _ => writeNil()
+      }
+    }
+
+    def writeMOption[T](o: MOption[T], f: T => Unit): Unit = {
+      o match {
+        case MSome(e) => f(e)
+        case _ => writeNil()
+      }
+    }
+
+    def writeEither[L, R](o: Either[L, R], l: L => Unit, r: R => Unit): Unit = {
+      o match {
+        case Either(Some(e), _) =>
+          l(e)
+        case Either(_, Some(e)) =>
+          writeNil()
+          r(e)
+      }
+    }
+
+    def writeMEither[L, R](o: MEither[L, R], l: L => Unit, r: R => Unit): Unit = {
+      o match {
+        case MEither(MSome(e), _) =>
+          l(e)
+        case MEither(_, MSome(e)) =>
+          writeNil()
+          r(e)
+      }
+    }
+
+    def writeISZ[V](s: IS[Z, V], f: V => Unit): Unit = {
+      writeArrayHeader(s.size)
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISZ8[V](s: IS[Z8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISZ16[V](s: IS[Z16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISZ32[V](s: IS[Z32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISZ64[V](s: IS[Z64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISN[V](s: IS[N, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISN8[V](s: IS[N8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISN16[V](s: IS[N16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISN32[V](s: IS[N32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISN64[V](s: IS[N64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISS8[V](s: IS[S8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISS16[V](s: IS[S16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISS32[V](s: IS[S32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISS64[V](s: IS[S64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISU8[V](s: IS[U8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISU16[V](s: IS[U16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISU32[V](s: IS[U32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeISU64[V](s: IS[U64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSZ[V](s: MS[Z, V], f: V => Unit): Unit = {
+      writeArrayHeader(s.size)
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSZ8[V](s: MS[Z8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSZ16[V](s: MS[Z16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSZ32[V](s: MS[Z32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSZ64[V](s: MS[Z64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.Z64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSN[V](s: MS[N, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSN8[V](s: MS[N8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSN16[V](s: MS[N16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSN32[V](s: MS[N32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSN64[V](s: MS[N64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.N64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSS8[V](s: MS[S8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSS16[V](s: MS[S16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSS32[V](s: MS[S32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSS64[V](s: MS[S64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.S64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSU8[V](s: MS[U8, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U8.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSU16[V](s: MS[U16, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U16.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSU32[V](s: MS[U32, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U32.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
+    def writeMSU64[V](s: MS[U64, V], f: V => Unit): Unit = {
+      writeArrayHeader(conversions.U64.toZ(s.size))
+      for (e <- s) {
+        f(e)
+      }
+    }
+
     def writeArrayHeader(n: Z): Unit
 
     def writeBinary(array: ISZ[U8]): Unit
@@ -640,6 +926,11 @@ object MessagePack {
 
     def readZ(): Z
 
+    def expectZ(n: Z): Unit = {
+      val m = readZ()
+      assert(n == m, s"Expecting $n, but found $m.")
+    }
+
     @pure def fix8(n: Z): Z = {
       if (n > 127) {
         return n - 256
@@ -746,11 +1037,485 @@ object MessagePack {
 
     def readString(): String
 
+    def readOption[T](f: () => T): Option[T] = {
+      val isNil = skipIfNil()
+      if (isNil) {
+        return None[T]()
+      } else {
+        val o = f()
+        return Some[T](o)
+      }
+    }
+
+    def readMOption[T](f: () => T): MOption[T] = {
+      val isNil = skipIfNil()
+      if (isNil) {
+        return MNone[T]()
+      } else {
+        val o = f()
+        return MSome[T](o)
+      }
+    }
+
+    def readEither[L, R](l: () => L, r: () => R): Either[L, R] = {
+      val isNil = skipIfNil()
+      if (isNil) {
+        val o = r()
+        return Either[L, R](None[L](), Some(o))
+      } else {
+        val o = l()
+        return Either[L, R](Some(o), None[R]())
+      }
+    }
+
+    def readMEither[L, R](l: () => L, r: () => R): MEither[L, R] = {
+      val isNil = skipIfNil()
+      if (isNil) {
+        val o = r()
+        return MEither[L, R](MNone[L](), MSome(o))
+      } else {
+        val o = l()
+        return MEither[L, R](MSome(o), MNone[R]())
+      }
+    }
+
+    def readISZ[V](f: () => V): IS[Z, V] = {
+      val size = readArrayHeader()
+      var r = IS[Z, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISZ8[V](f: () => V): IS[Z8, V] = {
+      val size = readArrayHeader()
+      var r = IS[Z8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISZ16[V](f: () => V): IS[Z16, V] = {
+      val size = readArrayHeader()
+      var r = IS[Z16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISZ32[V](f: () => V): IS[Z32, V] = {
+      val size = readArrayHeader()
+      var r = IS[Z32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISZ64[V](f: () => V): IS[Z64, V] = {
+      val size = readArrayHeader()
+      var r = IS[Z64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISN[V](f: () => V): IS[N, V] = {
+      val size = readArrayHeader()
+      var r = IS[N, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISN8[V](f: () => V): IS[N8, V] = {
+      val size = readArrayHeader()
+      var r = IS[N8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISN16[V](f: () => V): IS[N16, V] = {
+      val size = readArrayHeader()
+      var r = IS[N16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISN32[V](f: () => V): IS[N32, V] = {
+      val size = readArrayHeader()
+      var r = IS[N32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISN64[V](f: () => V): IS[N64, V] = {
+      val size = readArrayHeader()
+      var r = IS[N64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISS8[V](f: () => V): IS[S8, V] = {
+      val size = readArrayHeader()
+      var r = IS[S8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISS16[V](f: () => V): IS[S16, V] = {
+      val size = readArrayHeader()
+      var r = IS[S16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISS32[V](f: () => V): IS[S32, V] = {
+      val size = readArrayHeader()
+      var r = IS[S32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISS64[V](f: () => V): IS[S64, V] = {
+      val size = readArrayHeader()
+      var r = IS[S64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISU8[V](f: () => V): IS[U8, V] = {
+      val size = readArrayHeader()
+      var r = IS[U8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISU16[V](f: () => V): IS[U16, V] = {
+      val size = readArrayHeader()
+      var r = IS[U16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISU32[V](f: () => V): IS[U32, V] = {
+      val size = readArrayHeader()
+      var r = IS[U32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readISU64[V](f: () => V): IS[U64, V] = {
+      val size = readArrayHeader()
+      var r = IS[U64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSZ[V](f: () => V): MS[Z, V] = {
+      val size = readArrayHeader()
+      var r = MS[Z, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSZ8[V](f: () => V): MS[Z8, V] = {
+      val size = readArrayHeader()
+      var r = MS[Z8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSZ16[V](f: () => V): MS[Z16, V] = {
+      val size = readArrayHeader()
+      var r = MS[Z16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSZ32[V](f: () => V): MS[Z32, V] = {
+      val size = readArrayHeader()
+      var r = MS[Z32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSZ64[V](f: () => V): MS[Z64, V] = {
+      val size = readArrayHeader()
+      var r = MS[Z64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSN[V](f: () => V): MS[N, V] = {
+      val size = readArrayHeader()
+      var r = MS[N, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSN8[V](f: () => V): MS[N8, V] = {
+      val size = readArrayHeader()
+      var r = MS[N8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSN16[V](f: () => V): MS[N16, V] = {
+      val size = readArrayHeader()
+      var r = MS[N16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSN32[V](f: () => V): MS[N32, V] = {
+      val size = readArrayHeader()
+      var r = MS[N32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSN64[V](f: () => V): MS[N64, V] = {
+      val size = readArrayHeader()
+      var r = MS[N64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSS8[V](f: () => V): MS[S8, V] = {
+      val size = readArrayHeader()
+      var r = MS[S8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSS16[V](f: () => V): MS[S16, V] = {
+      val size = readArrayHeader()
+      var r = MS[S16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSS32[V](f: () => V): MS[S32, V] = {
+      val size = readArrayHeader()
+      var r = MS[S32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSS64[V](f: () => V): MS[S64, V] = {
+      val size = readArrayHeader()
+      var r = MS[S64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSU8[V](f: () => V): MS[U8, V] = {
+      val size = readArrayHeader()
+      var r = MS[U8, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSU16[V](f: () => V): MS[U16, V] = {
+      val size = readArrayHeader()
+      var r = MS[U16, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSU32[V](f: () => V): MS[U32, V] = {
+      val size = readArrayHeader()
+      var r = MS[U32, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMSU64[V](f: () => V): MS[U64, V] = {
+      val size = readArrayHeader()
+      var r = MS[U64, V]()
+      var i = 0
+      while (i < size) {
+        val o = f()
+        r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
     def readArrayHeader(): Z
 
     def readBinary(): ISZ[U8]
 
-    def isNil: B
+    def skipIfNil(): B
 
     def readMapHeader(): Z
 
@@ -962,9 +1727,13 @@ object MessagePack {
         return a.toIS
       }
 
-      def isNil: B = {
-        val n = read8()
-        return n == Code.NIL
+      def skipIfNil(): B = {
+        val n = peek()
+        val r = n == Code.NIL
+        if (r) {
+          skip(1)
+        }
+        return r
       }
 
       def readMapHeader(): Z = {
