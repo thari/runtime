@@ -25,8 +25,6 @@
 
 package org.sireum.$internal
 
-import org.sireum.helper
-
 import scala.collection.GenSeq
 import scala.language.experimental.macros
 
@@ -36,6 +34,8 @@ object Macro {
   def par[T](arg: GenSeq[T]): GenSeq[T] = macro Macro.parImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
+
+  def isJs: Boolean = macro Macro.isJsImpl
 
   def eval[T](c: scala.reflect.macros.blackbox.Context)(
     t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
@@ -56,6 +56,8 @@ object Macro {
 import Macro._
 
 class Macro(val c: scala.reflect.macros.blackbox.Context) {
+
+  val isJsCheck: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
 
   import c.universe._
 
@@ -280,9 +282,9 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     }
   }
 
-  def parImpl(arg: c.Tree): c.Tree = if (helper.isJs) arg else q"$arg.par"
+  def parImpl(arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$arg.par"
 
-  def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (helper.isJs) arg else q"$o.synchronized { $arg }"
+  def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
 
   def st(args: c.Tree*): c.Tree = {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
@@ -338,5 +340,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     } else templateString
     q"ST(scala.Seq(..$parts), scala.Seq(..$stArgs), ${Literal(Constant(source))})"
   }
+
+  def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 }
 

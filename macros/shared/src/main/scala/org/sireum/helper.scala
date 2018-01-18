@@ -34,8 +34,6 @@ object helper {
 
   private val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
-  lazy val isJs: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
-
   def halt(msg: Any): Nothing = {
     assume(assumption = false, msg.toString)
     throw new Error
