@@ -61,7 +61,7 @@ object C {
 
 }
 
-final class C(val value: scala.Char) extends AnyVal with $internal.HasBoxer {
+final class C(val value: scala.Char) extends AnyVal with Immutable with $internal.HasBoxer {
 
   @inline def native: scala.Char = value
 
@@ -83,7 +83,7 @@ final class C(val value: scala.Char) extends AnyVal with $internal.HasBoxer {
 
   @inline def |^(other: C): C = (value ^ other.value).toChar
 
-  @inline def string: String = toString
+  @inline override def string: String = toString
 
   @inline override def toString: Predef.String = value.toString
 
