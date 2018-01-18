@@ -1639,7 +1639,32 @@ final case class ZRange[I](init: I,
     r
   }
 
-  @pure def by(n: I): ZRange[I] = ??? //ZRange(init, to, cond, (r: B, i: I) => if (r) (i.asInstanceOf[ZLike[_]] - n.asInstanceOf[Z]).asInstanceOf[I] else (i.asInstanceOf[Z] + n.asInstanceOf[Z]).asInstanceOf[I], isReverse)
+  @pure def by(n: I): ZRange[I] = {
+    val nMP = n.asInstanceOf[ZLike[_]].toMP
+    require(nMP != 0, "Cannot iterate by 0.")
+    ZRange[I](init, to, cond,
+      (r: B, i: I) => {
+        val count = if (r) -nMP else nMP
+        if (count > 0) {
+          var j = 0
+          var r = i.asInstanceOf[ZLike[_]]
+          while (j < count) {
+            r = r.increase.asInstanceOf[ZLike[_]]
+            j = j + 1
+          }
+          r.asInstanceOf[I]
+        } else {
+          var j = 0
+          var r = i.asInstanceOf[ZLike[_]]
+          while (j > count) {
+            r = r.decrease.asInstanceOf[ZLike[_]]
+            j = j - 1
+          }
+          r.asInstanceOf[I]
+        }
+      },
+      isReverse)
+  }
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
     ZRange(init, to, (i: I) => cond(i) && filter(i), step, isReverse)
