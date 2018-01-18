@@ -29,7 +29,7 @@ import org.sireum.$internal.{Boxer, MSMarker}
 
 object MS {
 
-  def checkSize[I](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
     assert(!companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max.asInstanceOf[ZLike[_]].toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
   }
@@ -42,19 +42,6 @@ object MS {
     var i = Z.MP.zero
     for (arg <- args) {
       boxer.store(a, i, helper.assign(arg))
-      i = i.increase
-    }
-    MS[I, V](companion, a, length, boxer)
-  }
-
-  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
-    val length = size.toMP
-    checkSize(length)(companion)
-    val boxer = Boxer.boxer(default)
-    val a = boxer.create(length)
-    var i = Z.MP.zero
-    while (i < length) {
-      boxer.store(a, i, helper.assign(default))
       i = i.increase
     }
     MS[I, V](companion, a, length, boxer)
@@ -75,19 +62,17 @@ object MS {
 
   def apply[I, V](companion: $ZCompanion[I],
                   data: scala.AnyRef,
-                  length: Z.MP,
+                  length: Z,
                   boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
 
 }
 
 final class MS[I, V](val companion: $ZCompanion[I],
                      val data: scala.AnyRef,
-                     val length: Z.MP,
+                     val length: Z,
                      val boxer: Boxer) extends Mutable with MSMarker {
 
   private var isOwned: scala.Boolean = false
-  private var isDirty: scala.Boolean = true
-  private var $hashCode: scala.Int = 0
 
   def owned: scala.Boolean = isOwned
 
@@ -231,7 +216,6 @@ final class MS[I, V](val companion: $ZCompanion[I],
     val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
-    isDirty = true
   }
 
   def elements: scala.Seq[V] = {
@@ -245,11 +229,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
   }
 
   override def hashCode: scala.Int = {
-    if (isDirty) {
-      isDirty = false
-      $hashCode = (companion, elements).hashCode
-    }
-    $hashCode
+    (companion, elements).hashCode
   }
 
   override def equals(other: scala.Any): scala.Boolean =

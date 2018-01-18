@@ -29,7 +29,7 @@ import org.sireum.$internal.{Boxer, ISMarker}
 
 object IS {
 
-  def checkSize[I](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
     assert(!companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max.asInstanceOf[ZLike[_]].toMP, s"Slang IS requires its index plus its size less than or equal to it max.")
   }
@@ -42,19 +42,6 @@ object IS {
     var i = Z.MP.zero
     for (arg <- args) {
       boxer.store(a, i, arg)
-      i = i.increase
-    }
-    IS[I, V](companion, a, length, boxer)
-  }
-
-  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = {
-    val length = size.toMP
-    checkSize(length)(companion)
-    val boxer = Boxer.boxer(default)
-    val a = boxer.create(length)
-    var i = Z.MP.zero
-    while (i < length) {
-      boxer.store(a, i, default)
       i = i.increase
     }
     IS[I, V](companion, a, length, boxer)
@@ -75,14 +62,14 @@ object IS {
 
   def apply[I, V](companion: $ZCompanion[I],
                   data: scala.AnyRef,
-                  length: Z.MP,
+                  length: Z,
                   boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
 
 }
 
 final class IS[I, V](val companion: $ZCompanion[I],
                      val data: scala.AnyRef,
-                     val length: Z.MP,
+                     val length: Z,
                      val boxer: Boxer) extends Immutable with ISMarker {
 
   def isEmpty: B = length == Z.MP.zero

@@ -38,7 +38,7 @@ object R {
       case o: R => o.value
     }
 
-    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copyMut(src: AnyRef, srcPos: Z, dest: AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
   }
 

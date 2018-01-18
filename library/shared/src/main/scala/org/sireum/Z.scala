@@ -29,18 +29,18 @@ import spire.math._
 
 object Z extends $ZCompanion[Z] {
 
-  type Index = MP
+  type Index = Z
 
   val longMin = scala.BigInt(scala.Long.MinValue)
   val longMax = scala.BigInt(scala.Long.MaxValue)
 
   object MP {
 
-    val zero: MP = MP.Long(0)
-    val one: MP = MP.Long(1)
-    val mone: MP = MP.Long(-1)
+    val zero: Z = MP.Long(0)
+    val one: Z = MP.Long(1)
+    val mone: Z = MP.Long(-1)
 
-    final case class Long(value: scala.Long) extends MP {
+    final case class Long(value: scala.Long) extends Z {
 
       override def toBigInt: scala.BigInt = scala.BigInt(value)
 
@@ -60,7 +60,7 @@ object Z extends $ZCompanion[Z] {
 
     }
 
-    final case class BigInt(value: scala.BigInt) extends MP {
+    final case class BigInt(value: scala.BigInt) extends Z {
 
       override def toBigInt: scala.BigInt = value
 
@@ -78,7 +78,7 @@ object Z extends $ZCompanion[Z] {
 
       override def toString: Predef.String = value.toString
 
-      def pack: MP =
+      def pack: Z =
         if ((value.compareTo(Z.longMin) >= 0) &&
           (value.compareTo(Z.longMax) <= 0)) Long(value.longValue)
         else this
@@ -89,31 +89,30 @@ object Z extends $ZCompanion[Z] {
     @inline def unsupported(op: Predef.String, other: Z): Nothing =
       halt(s"Unsupported Z operation '$op' with ${other.Name}")
 
-    @inline def unary_-(n: Z): MP = {
+    @inline def unary_-(n: Z): Z = {
       n match {
         case Long(m) =>
           if (m != scala.Long.MinValue)
             return Long(-m)
-        case _: MP =>
+        case _: Z =>
       }
       BigInt(-n.toBigInt)
     }
 
-    @inline def +(n: Z, other: Z): MP = {
+    @inline def +(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 + n2
           if (((n1 ^ r) & (n2 ^ r)) >= 0L)
             return Long(r)
-        case (_: MP, _: MP) =>
-        case _ => unsupported("+", other)
+        case (_: Z, _: Z) =>
       }
       BigInt(n.toBigInt + other.toBigInt)
     }
 
-    @inline def -(n: Z, other: Z): MP = this.+(n, -other)
+    @inline def -(n: Z, other: Z): Z = this.+(n, -other)
 
-    @inline def *(n: Z, other: Z): MP = {
+    @inline def *(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 * n2
@@ -127,163 +126,68 @@ object Z extends $ZCompanion[Z] {
               upgrade = true
           }
           if (!upgrade) return Long(r)
-        case (_: MP, _: MP) =>
-        case _ => unsupported("*", other)
+        case (_: Z, _: Z) =>
       }
       BigInt(n.toBigInt * other.toBigInt)
     }
 
-    @inline def /(n: Z, other: Z): MP = {
+    @inline def /(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
           val r = n1 / n2
           if (!((n1 == scala.Long.MinValue) && (n2 == -1)))
             return Long(r)
-        case (_: MP, _: MP) =>
-        case _ => unsupported("/", other)
+        case (_: Z, _: Z) =>
       }
       BigInt(n.toBigInt / other.toBigInt).pack
     }
 
-    @inline def %(n: Z, other: Z): MP = {
+    @inline def %(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) => return Long(n1 % n2)
-        case (_: MP, _: MP) =>
-        case _ => unsupported("%", other)
+        case (_: Z, _: Z) =>
       }
       BigInt(n.toBigInt % other.toBigInt).pack
     }
 
     @inline def >(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 > n2
-      case (_: MP, _: MP) => n.toBigInt > other.toBigInt
-      case _ => unsupported(">", other)
+      case (_: Z, _: Z) => n.toBigInt > other.toBigInt
     }
 
     @inline def >=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 >= n2
-      case (_: MP, _: MP) => n.toBigInt >= other.toBigInt
-      case _ => unsupported(">=", other)
+      case (_: Z, _: Z) => n.toBigInt >= other.toBigInt
     }
 
     @inline def <(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 < n2
-      case (_: MP, _: MP) => n.toBigInt < other.toBigInt
-      case _ => unsupported("<", other)
+      case (_: Z, _: Z) => n.toBigInt < other.toBigInt
     }
 
     @inline def <=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 <= n2
-      case (_: MP, _: MP) => n.toBigInt <= other.toBigInt
-      case _ => unsupported("<=", other)
+      case (_: Z, _: Z) => n.toBigInt <= other.toBigInt
     }
 
     @inline def isEqual(n: Z, other: Z): B = (n, other) match {
       case (n: Long, other: Long) => n.value == other.value
-      case (_: MP, _: MP) => n.toBigInt == other.toBigInt
-      case _ => unsupported("==", other)
+      case (_: Z, _: Z) => n.toBigInt == other.toBigInt
     }
 
-    @inline def apply(n: scala.Int): MP = MP.Long(n)
+    @inline def apply(n: scala.Int): Z = MP.Long(n)
 
-    @inline def apply(n: scala.Long): MP = MP.Long(n)
+    @inline def apply(n: scala.Long): Z = MP.Long(n)
 
-    @inline def apply(n: scala.BigInt): MP = MP.BigInt(n).pack
+    @inline def apply(n: scala.BigInt): Z = MP.BigInt(n).pack
 
-    @inline def apply(n: _root_.java.math.BigInteger): MP = MP(scala.BigInt(n))
+    @inline def apply(n: _root_.java.math.BigInteger): Z = MP(scala.BigInt(n))
 
-    @inline def apply(s: String): MP = {
+    @inline def apply(s: String): Z = {
       val ns = helper.normNum(s.value)
       if (ns.length > 2 && ns.head == '0' && ns(1).toLower == 'x') MP(scala.BigInt(ns.substring(2), 16))
       else MP(scala.BigInt(ns))
     }
-
-  }
-
-  sealed trait MP extends Z with $internal.HasBoxer {
-
-    final def Name: Predef.String = Z.Name
-
-    final def isBitVector: scala.Boolean = Z.isBitVector
-
-    final def isSigned: scala.Boolean = Z.isSigned
-
-    final def Index: MP = Z.Index
-
-    final def isZeroIndex: scala.Boolean = Z.isZeroIndex
-
-    final def hasMin: scala.Boolean = Z.hasMin
-
-    final def hasMax: scala.Boolean = Z.hasMax
-
-    final def Min: Z = Z.Min
-
-    final def Max: Z = Z.Max
-
-    final def BitWidth: Int = Z.BitWidth
-
-    final def toIndex: Z.Index = this
-
-    final def unary_- : MP = MP.unary_-(this)
-
-    final def +(other: Z): MP = MP.+(this, other)
-
-    final def -(other: Z): MP = MP.-(this, other)
-
-    final def *(other: Z): MP = MP.*(this, other)
-
-    final def /(other: Z): MP = MP./(this, other)
-
-    final def %(other: Z): MP = MP.%(this, other)
-
-    final def >(other: Z): B = MP.>(this, other)
-
-    final def >=(other: Z): B = MP.>=(this, other)
-
-    final def <(other: Z): B = MP.<(this, other)
-
-    final def <=(other: Z): B = MP.<=(this, other)
-
-    final def increase: MP = this + MP.one
-
-    final def decrease: MP = this - MP.one
-
-    final def >>(other: Z): MP = halt("Unsupported Z operation '>>'.")
-
-    final def >>>(other: Z): MP = halt("Unsupported Z operation '>>>'.")
-
-    final def <<(other: Z): MP = halt("Unsupported Z operation '<<'.")
-
-    final def &(other: Z): MP = halt("Unsupported Z operation '&'.")
-
-    final def |(other: Z): MP = halt("Unsupported Z operation '|'.")
-
-    final def |^(other: Z): MP = halt("Unsupported Z operation '|^'.")
-
-    final def unary_~ : MP = halt("Unsupported Z operation '~'.")
-
-    final override def equals(other: scala.Any): scala.Boolean = other match {
-      case other: MP => if (this eq other) true else MP.isEqual(this, other)
-      case other: scala.Int => MP.isEqual(this, other)
-      case other: scala.Long => MP.isEqual(this, other)
-      case other: scala.BigInt => MP.isEqual(this, other)
-      case other: _root_.java.lang.Integer => MP.isEqual(this, other.intValue)
-      case other: _root_.java.lang.Long => MP.isEqual(this, other.longValue)
-      case other: _root_.java.math.BigInteger => MP.isEqual(this, scala.BigInt(other))
-      case _ => false
-    }
-
-    final def toMP: Z.MP = this
-
-    def toIntOpt: scala.Option[scala.Int]
-
-    def toLongOpt: scala.Option[scala.Long]
-
-    def toInt: scala.Int
-
-    def toLong: scala.Long
-
-    def boxer: $internal.Boxer = Boxer.Z
 
   }
 
@@ -304,13 +208,13 @@ object Z extends $ZCompanion[Z] {
       override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
         copy(src, srcPos, dest, destPos, length)
 
-      override def create(length: MP): scala.AnyRef = new Array[scala.Byte](length)
+      override def create(length: Z): scala.AnyRef = new Array[scala.Byte](length)
 
-      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+      override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
         case a: Array[scala.Byte] => box(a(i))
       }
 
-      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+      override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Byte] => a(i) = unbox(v)
       }
 
@@ -332,13 +236,13 @@ object Z extends $ZCompanion[Z] {
       override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
         copy(src, srcPos, dest, destPos, length)
 
-      override def create(length: MP): scala.AnyRef = new Array[scala.Short](length)
+      override def create(length: Z): scala.AnyRef = new Array[scala.Short](length)
 
-      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+      override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
         case a: Array[scala.Short] => box(a(i))
       }
 
-      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+      override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Short] => a(i) = unbox(v)
       }
 
@@ -358,13 +262,13 @@ object Z extends $ZCompanion[Z] {
       override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
         copy(src, srcPos, dest, destPos, length)
 
-      override def create(length: MP): scala.AnyRef = new Array[scala.Int](length)
+      override def create(length: Z): scala.AnyRef = new Array[scala.Int](length)
 
-      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+      override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
         case a: Array[scala.Int] => box(a(i))
       }
 
-      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+      override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Int] => a(i) = unbox(v)
       }
 
@@ -384,13 +288,13 @@ object Z extends $ZCompanion[Z] {
       override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
         copy(src, srcPos, dest, destPos, length)
 
-      override def create(length: MP): scala.AnyRef = new Array[scala.Long](length)
+      override def create(length: Z): scala.AnyRef = new Array[scala.Long](length)
 
-      override def lookup[T](a: scala.AnyRef, i: MP): T = a match {
+      override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
         case a: Array[scala.Long] => box(a(i))
       }
 
-      override def store(a: scala.AnyRef, i: MP, v: scala.Any): Unit = a match {
+      override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Long] => a(i) = unbox(v)
       }
 
@@ -445,7 +349,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toUByte: UByte = UByte(toByte)
 
-      @inline private final def make(value: MP): T = {
+      @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
         assert(value <= Max.toMP, s"$value should not be greater than $Name.Max ($Max)")
         make(value match {
@@ -458,137 +362,89 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def makeByte(value: scala.Int): T = if (isSigned) make(value.toByte) else make(UByte(value).toByte)
 
-      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
-        halt(s"Unsupported $Name operation '$op' with ${other.Name}")
-
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) makeByte(-toByte)
         else umake(-toUByte)
 
-      final def +(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("+", other)
-          if (!isWrapped) make(toMP + other.toMP)
-          else if (isSigned) makeByte(toByte + other.toByte)
-          else umake(toUByte + other.toUByte)
-        case _ => unsupported("+", other)
+      final def +(other: T): T = {
+        if (!isWrapped) make(toMP + other.toMP)
+        else if (isSigned) makeByte(toByte + other.toByte)
+        else umake(toUByte + other.toUByte)
       }
 
-      final def -(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("-", other)
-          if (!isWrapped) make(toMP - other.toMP)
-          else if (isSigned) makeByte(toByte - other.toByte)
-          else umake(toUByte - other.toUByte)
-        case _ => unsupported("-", other)
+      final def -(other: T): T = {
+        if (!isWrapped) make(toMP - other.toMP)
+        else if (isSigned) makeByte(toByte - other.toByte)
+        else umake(toUByte - other.toUByte)
       }
 
-      final def *(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("*", other)
-          if (!isWrapped) make(toMP * other.toMP)
-          else if (isSigned) makeByte(toByte * other.toByte)
-          else umake(toUByte * other.toUByte)
-        case _ => unsupported("*", other)
+      final def *(other: T): T = {
+        if (!isWrapped) make(toMP * other.toMP)
+        else if (isSigned) makeByte(toByte * other.toByte)
+        else umake(toUByte * other.toUByte)
       }
 
-      final def /(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("/", other)
-          if (!isWrapped) make(toMP / other.toMP)
-          else if (isSigned) makeByte(toByte / other.toByte)
-          else umake(toUByte / other.toUByte)
-        case _ => unsupported("/", other)
+      final def /(other: T): T = {
+        if (!isWrapped) make(toMP / other.toMP)
+        else if (isSigned) makeByte(toByte / other.toByte)
+        else umake(toUByte / other.toUByte)
       }
 
-      final def %(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("%", other)
-          if (!isWrapped) make(toMP % other.toMP)
-          else if (isSigned) makeByte(toByte % other.toByte)
-          else umake(toUByte % other.toUByte)
-        case _ => unsupported("%", other)
+      final def %(other: T): T = {
+        if (!isWrapped) make(toMP % other.toMP)
+        else if (isSigned) makeByte(toByte % other.toByte)
+        else umake(toUByte % other.toUByte)
       }
 
-      final def >(other: T): B = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported(">", other)
-          if (isSigned) toByte > other.toByte
-          else toUByte > other.toUByte
-        case _ => unsupported(">", other)
+      final def >(other: T): B = {
+        if (isSigned) toByte > other.toByte
+        else toUByte > other.toUByte
       }
 
-      final def >=(other: T): B = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported(">=", other)
-          if (isSigned) toByte >= other.toByte
-          else toUByte >= other.toUByte
-        case _ => unsupported(">=", other)
+      final def >=(other: T): B = {
+        if (isSigned) toByte >= other.toByte
+        else toUByte >= other.toUByte
       }
 
-      final def <(other: T): B = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("<", other)
-          if (isSigned) toByte < other.toByte
-          else toUByte < other.toUByte
-        case _ => unsupported("<", other)
+      final def <(other: T): B = {
+        if (isSigned) toByte < other.toByte
+        else toUByte < other.toUByte
       }
 
-      final def <=(other: T): B = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("<=", other)
-          if (isSigned) toByte <= other.toByte
-          else toUByte <= other.toUByte
-        case _ => unsupported("<=", other)
+      final def <=(other: T): B = {
+        if (isSigned) toByte <= other.toByte
+        else toUByte <= other.toUByte
       }
 
-      final def >>(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported(">>", other)
-          if (isSigned) makeByte(toByte >> other.toByte)
-          else halt(s"Unsupported '>>' operation on an unsigned value of '$Name'.")
-        case _ => unsupported(">>", other)
+      final def >>(other: T): T = {
+        if (isSigned) makeByte(toByte >> other.toByte)
+        else this >>> other
       }
 
-      final def >>>(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported(">>>", other)
-          if (isSigned) makeByte(toByte >>> other.toByte)
-          else umake(toUByte >>> other.toUByte.toInt)
-        case _ => unsupported(">>>", other)
+      final def >>>(other: T): T = {
+        if (isSigned) makeByte(toByte >>> other.toByte)
+        else umake(toUByte >>> other.toUByte.toInt)
       }
 
-      final def <<(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("<<", other)
-          if (isSigned) makeByte(toByte << other.toByte)
-          else umake(toUByte << other.toUByte.toInt)
-        case _ => unsupported("<<", other)
+      final def <<(other: T): T = {
+        if (isSigned) makeByte(toByte << other.toByte)
+        else umake(toUByte << other.toUByte.toInt)
       }
 
-      final def &(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("&", other)
-          if (isSigned) makeByte(toByte & other.toByte)
-          else umake(toUByte & other.toUByte)
-        case _ => unsupported("&", other)
+      final def &(other: T): T = {
+        if (isSigned) makeByte(toByte & other.toByte)
+        else umake(toUByte & other.toUByte)
       }
 
-      final def |(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("|", other)
-          if (isSigned) makeByte(toByte | other.toByte)
-          else umake(toUByte | other.toUByte)
-        case _ => unsupported("|", other)
+      final def |(other: T): T = {
+        if (isSigned) makeByte(toByte | other.toByte)
+        else umake(toUByte | other.toUByte)
       }
 
-      final def |^(other: T): T = other match {
-        case other: Byte[_] =>
-          if (!isEqType(other)) unsupported("|^", other)
-          if (isSigned) makeByte(toByte ^ other.toByte)
-          else umake(toUByte ^ other.toUByte)
-        case _ => unsupported("^", other)
+      final def |^(other: T): T = {
+        if (isSigned) makeByte(toByte ^ other.toByte)
+        else umake(toUByte ^ other.toUByte)
       }
 
       final def unary_~ : T =
@@ -611,7 +467,7 @@ object Z extends $ZCompanion[Z] {
         if (isSigned) scala.BigInt(toByte)
         else toUByte.toBigInt
 
-      final override def toMP: MP =
+      final override def toMP: Z =
         if (isSigned) MP(toByte)
         else MP(toUByte.toLong)
 
@@ -646,7 +502,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toUShort: UShort = UShort(toShort)
 
-      @inline private final def make(value: MP): T = {
+      @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
         assert(value <= Max.toMP, s"$value should not be greater than $Name.Max ($Max)")
         make(value match {
@@ -659,137 +515,89 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def makeShort(value: scala.Int): T = if (isSigned) make(value.toShort) else make(UShort(value).toShort)
 
-      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
-        halt(s"Unsupported $Name operation '$op' with ${other.Name}")
-
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) makeShort(-toShort)
         else umake(-toUShort)
 
-      final def +(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("+", other)
-          if (!isWrapped) make(toMP + other.toMP)
-          else if (isSigned) makeShort(toShort + other.toShort)
-          else umake(toUShort + other.toUShort)
-        case _ => unsupported("+", other)
+      final def +(other: T): T = {
+        if (!isWrapped) make(toMP + other.toMP)
+        else if (isSigned) makeShort(toShort + other.toShort)
+        else umake(toUShort + other.toUShort)
       }
 
-      final def -(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("-", other)
-          if (!isWrapped) make(toMP - other.toMP)
-          else if (isSigned) makeShort(toShort - other.toShort)
-          else umake(toUShort - other.toUShort)
-        case _ => unsupported("-", other)
+      final def -(other: T): T = {
+        if (!isWrapped) make(toMP - other.toMP)
+        else if (isSigned) makeShort(toShort - other.toShort)
+        else umake(toUShort - other.toUShort)
       }
 
-      final def *(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("*", other)
-          if (!isWrapped) make(toMP * other.toMP)
-          else if (isSigned) makeShort(toShort * other.toShort)
-          else umake(toUShort * other.toUShort)
-        case _ => unsupported("*", other)
+      final def *(other: T): T = {
+        if (!isWrapped) make(toMP * other.toMP)
+        else if (isSigned) makeShort(toShort * other.toShort)
+        else umake(toUShort * other.toUShort)
       }
 
-      final def /(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("/", other)
-          if (!isWrapped) make(toMP / other.toMP)
-          else if (isSigned) makeShort(toShort / other.toShort)
-          else umake(toUShort / other.toUShort)
-        case _ => unsupported("/", other)
+      final def /(other: T): T = {
+        if (!isWrapped) make(toMP / other.toMP)
+        else if (isSigned) makeShort(toShort / other.toShort)
+        else umake(toUShort / other.toUShort)
       }
 
-      final def %(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("%", other)
-          if (!isWrapped) make(toMP % other.toMP)
-          else if (isSigned) makeShort(toShort % other.toShort)
-          else umake(toUShort % other.toUShort)
-        case _ => unsupported("%", other)
+      final def %(other: T): T = {
+        if (!isWrapped) make(toMP % other.toMP)
+        else if (isSigned) makeShort(toShort % other.toShort)
+        else umake(toUShort % other.toUShort)
       }
 
-      final def >(other: T): B = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported(">", other)
-          if (isSigned) toShort > other.toShort
-          else toUShort > other.toUShort
-        case _ => unsupported(">", other)
+      final def >(other: T): B = {
+        if (isSigned) toShort > other.toShort
+        else toUShort > other.toUShort
       }
 
-      final def >=(other: T): B = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported(">=", other)
-          if (isSigned) toShort >= other.toShort
-          else toUShort >= other.toUShort
-        case _ => unsupported(">=", other)
+      final def >=(other: T): B = {
+        if (isSigned) toShort >= other.toShort
+        else toUShort >= other.toUShort
       }
 
-      final def <(other: T): B = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("<", other)
-          if (isSigned) toShort < other.toShort
-          else toUShort < other.toUShort
-        case _ => unsupported("<", other)
+      final def <(other: T): B = {
+        if (isSigned) toShort < other.toShort
+        else toUShort < other.toUShort
       }
 
-      final def <=(other: T): B = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("<=", other)
-          if (isSigned) toShort <= other.toShort
-          else toUShort <= other.toUShort
-        case _ => unsupported("<=", other)
+      final def <=(other: T): B = {
+        if (isSigned) toShort <= other.toShort
+        else toUShort <= other.toUShort
       }
 
-      final def >>(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported(">>", other)
-          if (isSigned) makeShort(toShort >> other.toShort)
-          else halt(s"Unsupported '>>' operation on an unsigned value of '$Name'.")
-        case _ => unsupported(">>", other)
+      final def >>(other: T): T = {
+        if (isSigned) makeShort(toShort >> other.toShort)
+        else this >>> other
       }
 
-      final def >>>(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported(">>>", other)
-          if (isSigned) makeShort(toShort >>> other.toShort)
-          else umake(toUShort >>> other.toUShort.toInt)
-        case _ => unsupported(">>>", other)
+      final def >>>(other: T): T = {
+        if (isSigned) makeShort(toShort >>> other.toShort)
+        else umake(toUShort >>> other.toUShort.toInt)
       }
 
-      final def <<(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("<<", other)
-          if (isSigned) makeShort(toShort << other.toShort)
-          else umake(toUShort << other.toUShort.toInt)
-        case _ => unsupported("<<", other)
+      final def <<(other: T): T = {
+        if (isSigned) makeShort(toShort << other.toShort)
+        else umake(toUShort << other.toUShort.toInt)
       }
 
-      final def &(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("&", other)
-          if (isSigned) makeShort(toShort & other.toShort)
-          else umake(toUShort & other.toUShort)
-        case _ => unsupported("&", other)
+      final def &(other: T): T = {
+        if (isSigned) makeShort(toShort & other.toShort)
+        else umake(toUShort & other.toUShort)
       }
 
-      final def |(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("|", other)
-          if (isSigned) makeShort(toShort | other.toShort)
-          else umake(toUShort | other.toUShort)
-        case _ => unsupported("|", other)
+      final def |(other: T): T = {
+        if (isSigned) makeShort(toShort | other.toShort)
+        else umake(toUShort | other.toUShort)
       }
 
-      final def |^(other: T): T = other match {
-        case other: Short[_] =>
-          if (!isEqType(other)) unsupported("|^", other)
-          if (isSigned) makeShort(toShort ^ other.toShort)
-          else umake(toUShort ^ other.toUShort)
-        case _ => unsupported("^", other)
+      final def |^(other: T): T = {
+        if (isSigned) makeShort(toShort ^ other.toShort)
+        else umake(toUShort ^ other.toUShort)
       }
 
       final def unary_~ : T =
@@ -812,7 +620,7 @@ object Z extends $ZCompanion[Z] {
         if (isSigned) scala.BigInt(toShort)
         else toUShort.toBigInt
 
-      final override def toMP: MP =
+      final override def toMP: Z =
         if (isSigned) MP(toShort)
         else MP(toUShort.toLong)
 
@@ -845,7 +653,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toUInt: UInt = UInt(value)
 
-      @inline private final def make(value: MP): T = {
+      @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
         assert(value <= Max.toMP, s"$value should not be greater than $Name.Max ($Max)")
         make(value match {
@@ -856,137 +664,89 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: UInt): T = make(value.toInt)
 
-      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
-        halt(s"Unsupported $Name operation '$op' with ${other.Name}")
-
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) make(-value)
         else umake(-toUInt)
 
-      final def +(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("+", other)
-          if (!isWrapped) make(toMP + other.toMP)
-          else if (isSigned) make(value + other.value)
-          else umake(toUInt + other.toUInt)
-        case _ => unsupported("+", other)
+      final def +(other: T): T = {
+        if (!isWrapped) make(toMP + other.toMP)
+        else if (isSigned) make(value + other.value)
+        else umake(toUInt + other.toUInt)
       }
 
-      final def -(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("-", other)
-          if (!isWrapped) make(toMP - other.toMP)
-          else if (isSigned) make(value - other.value)
-          else umake(toUInt + other.toUInt)
-        case _ => unsupported("-", other)
+      final def -(other: T): T = {
+        if (!isWrapped) make(toMP - other.toMP)
+        else if (isSigned) make(value - other.value)
+        else umake(toUInt + other.toUInt)
       }
 
-      final def *(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("*", other)
-          if (!isWrapped) make(toMP * other.toMP)
-          else if (isSigned) make(value * other.value)
-          else umake(toUInt * other.toUInt)
-        case _ => unsupported("*", other)
+      final def *(other: T): T = {
+        if (!isWrapped) make(toMP * other.toMP)
+        else if (isSigned) make(value * other.value)
+        else umake(toUInt * other.toUInt)
       }
 
-      final def /(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("/", other)
-          if (!isWrapped) make(toMP / other.toMP)
-          else if (isSigned) make(value / other.value)
-          else umake(toUInt / other.toUInt)
-        case _ => unsupported("/", other)
+      final def /(other: T): T = {
+        if (!isWrapped) make(toMP / other.toMP)
+        else if (isSigned) make(value / other.value)
+        else umake(toUInt / other.toUInt)
       }
 
-      final def %(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("%", other)
-          if (!isWrapped) make(toMP % other.toMP)
-          else if (isSigned) make(value % other.value)
-          else umake(toUInt % other.toUInt)
-        case _ => unsupported("%", other)
+      final def %(other: T): T = {
+        if (!isWrapped) make(toMP % other.toMP)
+        else if (isSigned) make(value % other.value)
+        else umake(toUInt % other.toUInt)
       }
 
-      final def >(other: T): B = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported(">", other)
-          if (isSigned) value > other.value
-          else toUInt > other.toUInt
-        case _ => unsupported(">", other)
+      final def >(other: T): B = {
+        if (isSigned) value > other.value
+        else toUInt > other.toUInt
       }
 
-      final def >=(other: T): B = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported(">=", other)
-          if (isSigned) value >= other.value
-          else toUInt >= other.toUInt
-        case _ => unsupported(">=", other)
+      final def >=(other: T): B = {
+        if (isSigned) value >= other.value
+        else toUInt >= other.toUInt
       }
 
-      final def <(other: T): B = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("<", other)
-          if (isSigned) value < other.value
-          else toUInt < other.toUInt
-        case _ => unsupported("<", other)
+      final def <(other: T): B = {
+        if (isSigned) value < other.value
+        else toUInt < other.toUInt
       }
 
-      final def <=(other: T): B = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("<=", other)
-          if (isSigned) value <= other.value
-          else toUInt <= other.toUInt
-        case _ => unsupported("<=", other)
+      final def <=(other: T): B = {
+        if (isSigned) value <= other.value
+        else toUInt <= other.toUInt
       }
 
-      final def >>(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported(">>", other)
-          if (isSigned) make(value >> other.value)
-          else halt(s"Unsupported '>>' operation on an unsigned value of '$Name'.")
-        case _ => unsupported(">>", other)
+      final def >>(other: T): T = {
+        if (isSigned) make(value >> other.value)
+        else this >>> other
       }
 
-      final def >>>(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported(">>>", other)
-          if (isSigned) make(value >>> other.value)
-          else umake(toUInt >>> other.value)
-        case _ => unsupported(">>>", other)
+      final def >>>(other: T): T = {
+        if (isSigned) make(value >>> other.value)
+        else umake(toUInt >>> other.value)
       }
 
-      final def <<(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("<<", other)
-          if (isSigned) make(value << other.value)
-          else umake(toUInt << other.value)
-        case _ => unsupported("<<", other)
+      final def <<(other: T): T = {
+        if (isSigned) make(value << other.value)
+        else umake(toUInt << other.value)
       }
 
-      final def &(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("&", other)
-          if (isSigned) make(value & other.value)
-          else umake(toUInt & other.toUInt)
-        case _ => unsupported("&", other)
+      final def &(other: T): T = {
+        if (isSigned) make(value & other.value)
+        else umake(toUInt & other.toUInt)
       }
 
-      final def |(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("|", other)
-          if (isSigned) make(value | other.value)
-          else umake(toUInt | other.toUInt)
-        case _ => unsupported("|", other)
+      final def |(other: T): T = {
+        if (isSigned) make(value | other.value)
+        else umake(toUInt | other.toUInt)
       }
 
-      final def |^(other: T): T = other match {
-        case other: Int[_] =>
-          if (!isEqType(other)) unsupported("|^", other)
-          if (isSigned) make(value ^ other.value)
-          else umake(toUInt ^ other.toUInt)
-        case _ => unsupported("^", other)
+      final def |^(other: T): T = {
+        if (isSigned) make(value ^ other.value)
+        else umake(toUInt ^ other.toUInt)
       }
 
       final def unary_~ : T =
@@ -1009,7 +769,7 @@ object Z extends $ZCompanion[Z] {
         if (isSigned) scala.BigInt(value)
         else toUInt.toBigInt
 
-      final override def toMP: MP =
+      final override def toMP: Z =
         if (isSigned) MP(value)
         else MP(toUInt.toLong)
 
@@ -1042,7 +802,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toULong: ULong = ULong(value)
 
-      @inline private final def make(value: MP): T = {
+      @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
         assert(value <= Max.toMP, s"$value should not be greater than $Name.Max ($Max)")
         make(value match {
@@ -1053,137 +813,89 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: ULong): T = make(value.toLong)
 
-      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
-        halt(s"Unsupported $Name operation '$op' with ${other.Name}")
-
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) make(-value)
         else umake(-toULong)
 
-      final def +(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("+", other)
-          if (!isWrapped) make(toMP + other.toMP)
-          else if (isSigned) make(value + other.value)
-          else umake(toULong + other.toULong)
-        case _ => unsupported("+", other)
+      final def +(other: T): T = {
+        if (!isWrapped) make(toMP + other.toMP)
+        else if (isSigned) make(value + other.value)
+        else umake(toULong + other.toULong)
       }
 
-      final def -(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("-", other)
-          if (!isWrapped) make(toMP - other.toMP)
-          else if (isSigned) make(value - other.value)
-          else umake(toULong - other.toULong)
-        case _ => unsupported("-", other)
+      final def -(other: T): T = {
+        if (!isWrapped) make(toMP - other.toMP)
+        else if (isSigned) make(value - other.value)
+        else umake(toULong - other.toULong)
       }
 
-      final def *(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("*", other)
-          if (!isWrapped) make(toMP * other.toMP)
-          else if (isSigned) make(value * other.value)
-          else umake(toULong * other.toULong)
-        case _ => unsupported("*", other)
+      final def *(other: T): T = {
+        if (!isWrapped) make(toMP * other.toMP)
+        else if (isSigned) make(value * other.value)
+        else umake(toULong * other.toULong)
       }
 
-      final def /(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("/", other)
-          if (!isWrapped) make(toMP / other.toMP)
-          else if (isSigned) make(value / other.value)
-          else umake(toULong / other.toULong)
-        case _ => unsupported("/", other)
+      final def /(other: T): T = {
+        if (!isWrapped) make(toMP / other.toMP)
+        else if (isSigned) make(value / other.value)
+        else umake(toULong / other.toULong)
       }
 
-      final def %(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("%", other)
-          if (!isWrapped) make(toMP % other.toMP)
-          else if (isSigned) make(value % other.value)
-          else umake(toULong % other.toULong)
-        case _ => unsupported("%", other)
+      final def %(other: T): T = {
+        if (!isWrapped) make(toMP % other.toMP)
+        else if (isSigned) make(value % other.value)
+        else umake(toULong % other.toULong)
       }
 
-      final def >(other: T): B = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported(">", other)
-          if (isSigned) value > other.value
-          else toULong > other.toULong
-        case _ => unsupported(">", other)
+      final def >(other: T): B = {
+        if (isSigned) value > other.value
+        else toULong > other.toULong
       }
 
-      final def >=(other: T): B = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported(">=", other)
-          if (isSigned) value >= other.value
-          else toULong >= other.toULong
-        case _ => unsupported(">=", other)
+      final def >=(other: T): B = {
+        if (isSigned) value >= other.value
+        else toULong >= other.toULong
       }
 
-      final def <(other: T): B = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("<", other)
-          if (isSigned) value < other.value
-          else toULong < other.toULong
-        case _ => unsupported("<", other)
+      final def <(other: T): B = {
+        if (isSigned) value < other.value
+        else toULong < other.toULong
       }
 
-      final def <=(other: T): B = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("<=", other)
-          if (isSigned) value <= other.value
-          else toULong <= other.toULong
-        case _ => unsupported("<=", other)
+      final def <=(other: T): B = {
+        if (isSigned) value <= other.value
+        else toULong <= other.toULong
       }
 
-      final def >>(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported(">>", other)
-          if (isSigned) make(value >> other.value)
-          else halt(s"Unsupported '>>' operation on an unsigned value of '$Name'.")
-        case _ => unsupported(">>", other)
+      final def >>(other: T): T = {
+        if (isSigned) make(value >> other.value)
+        else this >>> other
       }
 
-      final def >>>(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported(">>>", other)
-          if (isSigned) make(value >>> other.value)
-          else umake(toULong >>> other.toULong.toInt)
-        case _ => unsupported(">>>", other)
+      final def >>>(other: T): T = {
+        if (isSigned) make(value >>> other.value)
+        else umake(toULong >>> other.toULong.toInt)
       }
 
-      final def <<(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("<<", other)
-          if (isSigned) make(value << other.value)
-          else umake(toULong << other.toULong.toInt)
-        case _ => unsupported("<<", other)
+      final def <<(other: T): T = {
+        if (isSigned) make(value << other.value)
+        else umake(toULong << other.toULong.toInt)
       }
 
-      final def &(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("&", other)
-          if (isSigned) make(value & other.value)
-          else umake(toULong & other.toULong)
-        case _ => unsupported("&", other)
+      final def &(other: T): T = {
+        if (isSigned) make(value & other.value)
+        else umake(toULong & other.toULong)
       }
 
-      final def |(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("|", other)
-          if (isSigned) make(value | other.value)
-          else umake(toULong | other.toULong)
-        case _ => unsupported("|", other)
+      final def |(other: T): T = {
+        if (isSigned) make(value | other.value)
+        else umake(toULong | other.toULong)
       }
 
-      final def |^(other: T): T = other match {
-        case other: Long[_] =>
-          if (!isEqType(other)) unsupported("|^", other)
-          if (isSigned) make(value ^ other.value)
-          else umake(toULong ^ other.toULong)
-        case _ => unsupported("^", other)
+      final def |^(other: T): T = {
+        if (isSigned) make(value ^ other.value)
+        else umake(toULong ^ other.toULong)
       }
 
       final def unary_~ : T =
@@ -1206,7 +918,7 @@ object Z extends $ZCompanion[Z] {
         if (isSigned) scala.BigInt(value)
         else toULong.toBigInt
 
-      final override def toMP: MP =
+      final override def toMP: Z =
         if (isSigned) MP(value)
         else MP(toULong.toBigInt)
 
@@ -1219,9 +931,9 @@ object Z extends $ZCompanion[Z] {
   trait Range[T <: Range[T]] extends Any with ZLike[T] with $internal.HasBoxer {
     this: T =>
 
-    def value: MP
+    def value: Z
 
-    def make(n: MP): T
+    def make(n: Z): T
 
     def Min: T
 
@@ -1235,71 +947,44 @@ object Z extends $ZCompanion[Z] {
 
     @inline final def BitWidth: Int = unsupported("BitWidth")
 
-    @inline final def toMP: MP = value
+    @inline final def toMP: Z = value
 
     @inline final def unary_- : T = make(-value)
 
-    @inline final def +(other: T): T = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("+", other)
-        make(value + other.value)
-      case _ => unsupported("+", other)
+    @inline final def +(other: T): T = {
+      make(value + other.value)
     }
 
-    @inline final def -(other: T): T = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("-", other)
-        make(value - other.value)
-      case _ => unsupported("-", other)
+    @inline final def -(other: T): T = {
+      make(value - other.value)
     }
 
-    @inline final def *(other: T): T = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("*", other)
-        make(value * other.value)
-      case _ => unsupported("*", other)
+    @inline final def *(other: T): T = {
+      make(value * other.value)
     }
 
-    @inline final def /(other: T): T = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("/", other)
-        make(value / other.value)
-      case _ => unsupported("/", other)
+    @inline final def /(other: T): T = {
+      make(value / other.value)
     }
 
-    @inline final def %(other: T): T = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("%", other)
-        make(value % other.value)
-      case _ => unsupported("%", other)
+    @inline final def %(other: T): T = {
+      make(value % other.value)
     }
 
-    @inline final def <(other: T): B = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("<", other)
-        value < other.value
-      case _ => unsupported("<", other)
+    @inline final def <(other: T): B = {
+      value < other.value
     }
 
-    @inline final def <=(other: T): B = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported("<=", other)
-        value <= other.value
-      case _ => unsupported("<=", other)
+    @inline final def <=(other: T): B = {
+      value <= other.value
     }
 
-    @inline final def >(other: T): B = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported(">", other)
-        value > other.value
-      case _ => unsupported(">", other)
+    @inline final def >(other: T): B = {
+      value > other.value
     }
 
-    @inline final def >=(other: T): B = other match {
-      case other: Range[_] =>
-        if (!isEqType(other)) unsupported(">=", other)
-        value >= other.value
-      case _ => unsupported(">=", other)
+    @inline final def >=(other: T): B = {
+      value >= other.value
     }
 
     @inline final def decrease: T = make(value - MP.one)
@@ -1308,20 +993,6 @@ object Z extends $ZCompanion[Z] {
 
     @inline final override def toBigInt: BigInt = value.toBigInt
 
-    @inline final def >>(other: T): T = unsupported(">>")
-
-    @inline final def >>>(other: T): T = unsupported(">>>")
-
-    @inline final def <<(other: T): T = unsupported("<<")
-
-    @inline final def &(other: T): T = unsupported("&")
-
-    @inline final def |(other: T): T = unsupported("|")
-
-    @inline final def |^(other: T): T = unsupported("|^")
-
-    @inline final def unary_~ : T = unsupported("~")
-
     @inline final def toIndex: Z.Index = if (isZeroIndex) value else value - Index.value
 
     @inline final override def toString: Predef.String = value.toString
@@ -1329,13 +1000,10 @@ object Z extends $ZCompanion[Z] {
     @inline private final def unsupported(op: Predef.String): Nothing =
       halt(s"Unsupported $Name operation '$op'.")
 
-    @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
-      halt(s"Unsupported $Name operation '$op' with '${other.Name}'.")
-
   }
 
   def apply(n: Z): Z = n match {
-    case n: Z.MP => n
+    case n: Z => n
     case _ => halt(s"Unsupported Z creation from ${n.Name}.")
   }
 
@@ -1348,7 +1016,7 @@ object Z extends $ZCompanion[Z] {
     @inline def apply(n: scala.Int): Z = MP(n)
 
     def unapply(n: Z): scala.Option[scala.Int] = n match {
-      case n: MP => n.toIntOpt
+      case n: Z => n.toIntOpt
       case _ => scala.None
     }
   }
@@ -1357,7 +1025,7 @@ object Z extends $ZCompanion[Z] {
     @inline def apply(n: scala.Long): Z = MP(n)
 
     def unapply(n: Z): scala.Option[scala.Long] = n match {
-      case n: MP => n.toLongOpt
+      case n: Z => n.toLongOpt
       case _ => scala.None
     }
   }
@@ -1366,7 +1034,7 @@ object Z extends $ZCompanion[Z] {
     @inline def apply(s: Predef.String): Z = MP(s)
 
     def unapply(n: Z): scala.Option[Predef.String] = n match {
-      case n: MP => scala.Some(n.toString)
+      case n: Z => scala.Some(n.toString)
       case _ => scala.None
     }
   }
@@ -1375,7 +1043,7 @@ object Z extends $ZCompanion[Z] {
     @inline def apply(n: scala.BigInt): Z = MP(n)
 
     def unapply(n: Z): scala.Option[scala.BigInt] = n match {
-      case n: MP => scala.Some(n.toBigInt)
+      case n: Z => scala.Some(n.toBigInt)
       case _ => scala.None
     }
   }
@@ -1388,7 +1056,7 @@ object Z extends $ZCompanion[Z] {
 
   val isZeroIndex: scala.Boolean = true
 
-  val Index: MP = MP.zero
+  val Index: Z = MP.zero
 
   val hasMin: scala.Boolean = false
 
@@ -1400,12 +1068,12 @@ object Z extends $ZCompanion[Z] {
 
   def BitWidth: scala.Int = halt(s"Unsupported $Name operation 'BitWidth'")
 
-  def random: MP = {
+  def random: Z = {
     val r = new scala.util.Random
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
 
-  def randomSeed(seed: Z): MP = {
+  def randomSeed(seed: Z): Z = {
     val r = new scala.util.Random((seed.toMP % Z.MP(ULong(-1).toBigInt + 1)).toLongOpt.get)
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
@@ -1505,8 +1173,6 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def BitWidth: scala.Int
 
-  final def isEqType(other: ZLike[_]): Boolean = Name == other.Name
-
   def <(other: T): B
 
   def <=(other: T): B
@@ -1531,27 +1197,13 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def unary_- : T
 
-  def >>(other: T): T
-
-  def >>>(other: T): T
-
-  def <<(other: T): T
-
-  def &(other: T): T
-
-  def |(other: T): T
-
-  def |^(other: T): T
-
-  def unary_~ : T
-
   def toIndex: Z.Index
 
   final override def string: String = toString
 
   def toBigInt: scala.BigInt
 
-  def toMP: Z.MP
+  def toMP: Z
 
   def to(n: T): ZRange[T] = ZRange[T](this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
 
@@ -1561,13 +1213,84 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
     if (this < other) -1 else if (this > other) 1 else 0
 }
 
-sealed trait Z extends Any with ZLike[Z]
+sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
+
+  final def Name: Predef.String = Z.Name
+
+  final def isBitVector: scala.Boolean = Z.isBitVector
+
+  final def isSigned: scala.Boolean = Z.isSigned
+
+  final def Index: Z = Z.Index
+
+  final def isZeroIndex: scala.Boolean = Z.isZeroIndex
+
+  final def hasMin: scala.Boolean = Z.hasMin
+
+  final def hasMax: scala.Boolean = Z.hasMax
+
+  final def Min: Z = Z.Min
+
+  final def Max: Z = Z.Max
+
+  final def BitWidth: Int = Z.BitWidth
+
+  final def toIndex: Z.Index = this
+
+  final def unary_- : Z = Z.MP.unary_-(this)
+
+  final def +(other: Z): Z = Z.MP.+(this, other)
+
+  final def -(other: Z): Z = Z.MP.-(this, other)
+
+  final def *(other: Z): Z = Z.MP.*(this, other)
+
+  final def /(other: Z): Z = Z.MP./(this, other)
+
+  final def %(other: Z): Z = Z.MP.%(this, other)
+
+  final def >(other: Z): B = Z.MP.>(this, other)
+
+  final def >=(other: Z): B = Z.MP.>=(this, other)
+
+  final def <(other: Z): B = Z.MP.<(this, other)
+
+  final def <=(other: Z): B = Z.MP.<=(this, other)
+
+  final def increase: Z = this + Z.MP.one
+
+  final def decrease: Z = this - Z.MP.one
+
+  final override def equals(other: scala.Any): scala.Boolean = other match {
+    case other: Z => if (this eq other) true else Z.MP.isEqual(this, other).value
+    case other: scala.Int => Z.MP.isEqual(this, other)
+    case other: scala.Long => Z.MP.isEqual(this, other)
+    case other: scala.BigInt => Z.MP.isEqual(this, other)
+    case other: _root_.java.lang.Integer => Z.MP.isEqual(this, other.intValue)
+    case other: _root_.java.lang.Long => Z.MP.isEqual(this, other.longValue)
+    case other: _root_.java.math.BigInteger => Z.MP.isEqual(this, scala.BigInt(other))
+    case _ => false
+  }
+
+  final def toMP: Z = this
+
+  def toIntOpt: scala.Option[scala.Int]
+
+  def toLongOpt: scala.Option[scala.Long]
+
+  def toInt: scala.Int
+
+  def toLong: scala.Long
+
+  def boxer: $internal.Boxer = Z.Boxer.Z
+
+}
 
 final case class ZRange[I](init: I,
-                          to: I,
-                          @pure cond: I => B,
-                          @pure step: (B, I) => I,
-                          isReverse: B) {
+                           to: I,
+                           @pure cond: I => B,
+                           @pure step: (B, I) => I,
+                           isReverse: B) {
 
   def foreach(f: I => Unit): Unit = {
     if (isReverse) {

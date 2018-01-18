@@ -37,16 +37,16 @@ object C {
       case o: C => o.value
     }
 
-    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copyMut(src: AnyRef, srcPos: Z, dest: AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
 
-    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Char](length)
+    override def create(length: Z): scala.AnyRef = new Array[scala.Char](length)
 
-    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+    override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
       case a: Array[scala.Char] => box(a(i))
     }
 
-    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+    override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Char] => a(i) = unbox(v)
     }
   }

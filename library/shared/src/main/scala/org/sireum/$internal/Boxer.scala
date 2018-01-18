@@ -28,7 +28,7 @@ package org.sireum.$internal
 import org.sireum.{Z, String, helper}
 
 object Boxer {
-  val MaxArraySize: Z.MP = Z.MP(Int.MaxValue - 8)
+  val MaxArraySize: Z = Z.MP(Int.MaxValue - 8)
 
   def boxer(o: scala.Any): Boxer = o match {
     case hb: HasBoxer => hb.boxer
@@ -45,24 +45,24 @@ trait Boxer {
 
   def unbox(o: scala.Any): scala.Any
 
-  def create(length: Z.MP): scala.AnyRef = new Array[scala.Any](length)
+  def create(length: Z): scala.AnyRef = new Array[scala.Any](length)
 
-  def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+  def lookup[T](a: scala.AnyRef, i: Z): T = a match {
     case a: Array[_] => box(a(i))
   }
 
-  def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+  def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
     case a: Array[scala.Any] => a(i) = unbox(v)
   }
 
-  def size(a: scala.AnyRef): Z.MP = a match {
+  def size(a: scala.AnyRef): Z = a match {
     case a: Array[_] => Z.MP(a.length)
   }
 
-  def copy(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+  def copy(src: scala.AnyRef, srcPos: Z, dest: scala.AnyRef, destPos: Z, length: Z): Unit =
     if (length != Z.MP.zero) System.arraycopy(src, srcPos, dest, destPos, length)
 
-  def copyMut(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit = {
+  def copyMut(src: scala.AnyRef, srcPos: Z, dest: scala.AnyRef, destPos: Z, length: Z): Unit = {
     if (length == Z.MP.zero) return
     var srcIndex: scala.Int = srcPos
     var destIndex: scala.Int = destPos
@@ -80,7 +80,7 @@ trait Boxer {
     }
   }
 
-  def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
+  def clone(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef = {
     val size = this.size(a)
     if (newLength <= size) {
       val r = create(size)
@@ -96,7 +96,7 @@ trait Boxer {
     }
   }
 
-  def cloneMut(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = {
+  def cloneMut(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef = {
     val size = this.size(a)
     if (newLength <= size) {
       val r = create(size)
@@ -112,7 +112,7 @@ trait Boxer {
     }
   }
 
-  def toString(a: scala.AnyRef, length: Z.MP): Predef.String = {
+  def toString(a: scala.AnyRef, length: Z): Predef.String = {
     val sb = new java.lang.StringBuilder
     sb.append('[')
     if (length > 0) {
@@ -130,12 +130,12 @@ trait Boxer {
 
   import scala.language.implicitConversions
 
-  protected implicit def toInt(n: Z.MP): scala.Int = n match {
+  protected implicit def toInt(n: Z): scala.Int = n match {
     case n: Z.MP.Long => n.value.toInt
     case n: Z.MP.BigInt => n.value.toInt
   }
 
-  protected implicit def toLong(n: Z.MP): scala.Long = n match {
+  protected implicit def toLong(n: Z): scala.Long = n match {
     case n: Z.MP.Long => n.value
     case n: Z.MP.BigInt => n.value.toLong
   }

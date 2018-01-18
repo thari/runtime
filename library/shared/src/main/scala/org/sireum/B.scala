@@ -60,9 +60,9 @@ object B {
       case F => false
     }
 
-    override def create(length: Z.MP): scala.AnyRef = new BS(length)
+    override def create(length: Z): scala.AnyRef = new BS(length)
 
-    override def copy(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copy(src: scala.AnyRef, srcPos: Z, dest: scala.AnyRef, destPos: Z, length: Z): Unit =
       ((src, dest): @unchecked) match {
         case (src: BS, dest: BS) =>
           val sp: scala.Int = srcPos
@@ -72,22 +72,22 @@ object B {
           }
       }
 
-    override def copyMut(src: scala.AnyRef, srcPos: Z.MP, dest: scala.AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copyMut(src: scala.AnyRef, srcPos: Z, dest: scala.AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
 
-    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+    override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
       case a: BS => box(a(i))
     }
 
-    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+    override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: BS => a.update(i, unbox(v))
     }
 
-    override def size(a: scala.AnyRef): Z.MP = a match {
-      case a: BS => sz
+    override def size(a: scala.AnyRef): Z = a match {
+      case _: BS => sz
     }
 
-    override def clone(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef = a match {
+    override def clone(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef = a match {
       case a: BS =>
         val r = BS()
         for (i <- 0 until length) {
@@ -96,10 +96,10 @@ object B {
         r
     }
 
-    override def cloneMut(a: scala.AnyRef, length: Z.MP, newLength: Z.MP, offset: Z.MP): scala.AnyRef =
+    override def cloneMut(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef =
       clone(a, length, newLength, offset)
 
-    override def toString(a: scala.AnyRef, length: Z.MP): Predef.String = a match {
+    override def toString(a: scala.AnyRef, length: Z): Predef.String = a match {
       case a: BS =>
         val sb = new _root_.java.lang.StringBuilder
         val bs = a.toBitMask
@@ -108,7 +108,7 @@ object B {
           var i = length
           for (b <- bs if i > 0) {
             var m = b
-            for (j <- 0 until 16 if i > 0) {
+            for (_ <- 0 until 16 if i > 0) {
               sb.append(bigEndianHexMap(m & 0xf))
               m = m >>> 4
               i = i - 4

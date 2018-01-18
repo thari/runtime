@@ -47,16 +47,16 @@ object F32 {
       case o: F32 => o.value
     }
 
-    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copyMut(src: AnyRef, srcPos: Z, dest: AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
 
-    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Float](length)
+    override def create(length: Z): scala.AnyRef = new Array[scala.Float](length)
 
-    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+    override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
       case a: Array[scala.Float] => box(a(i))
     }
 
-    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+    override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Float] => a(i) = unbox(v)
     }
   }
@@ -129,16 +129,16 @@ object F64 {
       case o: F64 => o.value
     }
 
-    override def copyMut(src: AnyRef, srcPos: Z.MP, dest: AnyRef, destPos: Z.MP, length: Z.MP): Unit =
+    override def copyMut(src: AnyRef, srcPos: Z, dest: AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
 
-    override def create(length: Z.MP): scala.AnyRef = new Array[scala.Double](length)
+    override def create(length: Z): scala.AnyRef = new Array[scala.Double](length)
 
-    override def lookup[T](a: scala.AnyRef, i: Z.MP): T = a match {
+    override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
       case a: Array[scala.Double] => box(a(i))
     }
 
-    override def store(a: scala.AnyRef, i: Z.MP, v: scala.Any): Unit = a match {
+    override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Double] => a(i) = unbox(v)
     }
   }

@@ -42,7 +42,7 @@ package object sireum extends $internal.PackageTrait {
     object z {
       def apply(args: Any*): Z = macro Macro.zApply
       def unapply(n: Z): scala.Boolean = {
-        assume(n.isInstanceOf[Z.MP] && sc.parts.size == 1)
+        assume(n.isInstanceOf[Z] && sc.parts.size == 1)
         n == Z.$String(sc.parts.head)
       }
     }
