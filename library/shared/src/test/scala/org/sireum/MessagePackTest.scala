@@ -34,6 +34,8 @@ class MessagePackTest extends SireumRuntimeSpec {
 
   check(F, { w => w.writeB(F) }, { r => r.readB() })
 
+  check(-1, { w => w.writeZ(-1) }, { r => r.readZ() })
+
   for (_ <- 0 until 10) {
     {
       val c: C = C.random

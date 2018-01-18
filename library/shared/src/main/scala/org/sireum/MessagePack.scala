@@ -1589,7 +1589,7 @@ object MessagePack {
       def readZ(): Z = {
         val code = read8()
         if (Code.isFixInt(code)) {
-          return conversions.U8.toZ(code)
+          return conversions.S8.toZ(conversions.U8.toRawS8(code))
         }
         code match {
           case Code.INT8 =>
