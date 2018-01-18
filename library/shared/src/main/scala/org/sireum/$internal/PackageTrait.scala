@@ -44,17 +44,17 @@ trait PackageTrait {
 
   object ISZ {
     def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
-    def create[V](size: Z, default: V): ISZ[V] = IS.create[Z, V](size, default)
+    def create[V](size: Z, default: V): ISZ[V] = IS.create(size, default)
   }
 
   object MSZ {
     def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
-    def create[V](size: Z, default: V): MSZ[V] = MS.create[Z, V](size, default)
+    def create[V](size: Z, default: V): MSZ[V] = MS.create(size, default)
   }
 
   object ZS {
     def apply(args: Z*): ZS = MS[Z, Z](args: _*)
-    def create(size: Z, default: Z): ZS = MS.create[Z, Z](size, default)
+    def create(size: Z, default: Z): ZS = MS.create(size, default)
   }
 
   val T: org.sireum.B = true

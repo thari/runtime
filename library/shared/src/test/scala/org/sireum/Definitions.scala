@@ -114,6 +114,7 @@ object F2MessagePack {
       t match {
         case Constants.Foo => return readFooT(typeRead = T)
         case Constants.Bar => return readBarT(typeRead = T)
+        case _ => halt("")
       }
     }
 

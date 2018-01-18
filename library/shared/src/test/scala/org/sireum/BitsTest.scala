@@ -94,10 +94,10 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    val random = new java.util.Random
+    val random = new _root_.java.util.Random
     def rand(): Byte = random.nextInt.toByte
 
-    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => S8, Byte => Byte => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => S8, Byte => Byte => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -107,7 +107,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => S8, Byte => Int => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => S8, Byte => Int => Int)](
       (">>", _.>>, _.>>), (">>>", _.>>>, _.>>>), ("<<", _.<<, _.<<))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -116,7 +116,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, S8 => Z => B, Byte => Byte => scala.Boolean)](
+    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => B, Byte => Byte => scala.Boolean)](
       (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -188,10 +188,10 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    val random = new java.util.Random
+    val random = new _root_.java.util.Random
     def rand(): Short = random.nextInt.toShort
 
-    for ((op, op1, op2) <- List[(Predef.String, U16 => Z => U16, UShort => UShort => UShort)](
+    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => U16, UShort => UShort => UShort)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -203,7 +203,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, U16 => Z => U16, UShort => Int => UShort)](
+    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => U16, UShort => Int => UShort)](
       (">>>", _.>>>, _.>>>), ("<<", _.<<, _.<<))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -214,7 +214,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, U16 => Z => B, UShort => UShort => scala.Boolean)](
+    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => B, UShort => UShort => scala.Boolean)](
       (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -288,10 +288,10 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    val random = new java.util.Random
+    val random = new _root_.java.util.Random
     def rand(): Short = (random.nextInt(16 + 3) - 2).toShort
 
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => Z => S16_m2, Short => Short => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => S16_m2, Short => Short => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -307,7 +307,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => Z => S16_m2, Short => Int => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => S16_m2, Short => Int => Int)](
       (">>", _.>>, _.>>), (">>>", _.>>>, _.>>>), ("*", _.<<, _.<<))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -322,7 +322,7 @@ class BitsTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => Z => B, Short => Short => scala.Boolean)](
+    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => B, Short => Short => scala.Boolean)](
       (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()

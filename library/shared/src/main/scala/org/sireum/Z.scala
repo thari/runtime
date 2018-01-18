@@ -416,7 +416,14 @@ object Z extends $ZCompanion[Z] {
 
   object BV {
 
-    trait Byte[T <: Byte[T]] extends Any with BV {
+    trait Byte[T <: Byte[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+      this: T =>
+
+      final def isBitVector: scala.Boolean = true
+
+      final def hasMin: scala.Boolean = true
+
+      final def hasMax: scala.Boolean = true
 
       def value: scala.Byte
 
@@ -451,7 +458,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def makeByte(value: scala.Int): T = if (isSigned) make(value.toByte) else make(UByte(value).toByte)
 
-      @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
         halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
@@ -459,7 +466,7 @@ object Z extends $ZCompanion[Z] {
         else if (isSigned) makeByte(-toByte)
         else umake(-toUByte)
 
-      final def +(other: Z): T = other match {
+      final def +(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("+", other)
           if (!isWrapped) make(toMP + other.toMP)
@@ -468,7 +475,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("+", other)
       }
 
-      final def -(other: Z): T = other match {
+      final def -(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("-", other)
           if (!isWrapped) make(toMP - other.toMP)
@@ -477,7 +484,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("-", other)
       }
 
-      final def *(other: Z): T = other match {
+      final def *(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("*", other)
           if (!isWrapped) make(toMP * other.toMP)
@@ -486,7 +493,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("*", other)
       }
 
-      final def /(other: Z): T = other match {
+      final def /(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("/", other)
           if (!isWrapped) make(toMP / other.toMP)
@@ -495,7 +502,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("/", other)
       }
 
-      final def %(other: Z): T = other match {
+      final def %(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("%", other)
           if (!isWrapped) make(toMP % other.toMP)
@@ -504,7 +511,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("%", other)
       }
 
-      final def >(other: Z): B = other match {
+      final def >(other: T): B = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported(">", other)
           if (isSigned) toByte > other.toByte
@@ -512,7 +519,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">", other)
       }
 
-      final def >=(other: Z): B = other match {
+      final def >=(other: T): B = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported(">=", other)
           if (isSigned) toByte >= other.toByte
@@ -520,7 +527,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">=", other)
       }
 
-      final def <(other: Z): B = other match {
+      final def <(other: T): B = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("<", other)
           if (isSigned) toByte < other.toByte
@@ -528,7 +535,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<", other)
       }
 
-      final def <=(other: Z): B = other match {
+      final def <=(other: T): B = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("<=", other)
           if (isSigned) toByte <= other.toByte
@@ -536,7 +543,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<=", other)
       }
 
-      final def >>(other: Z): T = other match {
+      final def >>(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported(">>", other)
           if (isSigned) makeByte(toByte >> other.toByte)
@@ -544,7 +551,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>", other)
       }
 
-      final def >>>(other: Z): T = other match {
+      final def >>>(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported(">>>", other)
           if (isSigned) makeByte(toByte >>> other.toByte)
@@ -552,7 +559,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>>", other)
       }
 
-      final def <<(other: Z): T = other match {
+      final def <<(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("<<", other)
           if (isSigned) makeByte(toByte << other.toByte)
@@ -560,7 +567,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<<", other)
       }
 
-      final def &(other: Z): T = other match {
+      final def &(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("&", other)
           if (isSigned) makeByte(toByte & other.toByte)
@@ -568,7 +575,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("&", other)
       }
 
-      final def |(other: Z): T = other match {
+      final def |(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("|", other)
           if (isSigned) makeByte(toByte | other.toByte)
@@ -576,7 +583,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("|", other)
       }
 
-      final def |^(other: Z): T = other match {
+      final def |^(other: T): T = other match {
         case other: Byte[_] =>
           if (!isEqType(other)) unsupported("|^", other)
           if (isSigned) makeByte(toByte ^ other.toByte)
@@ -612,7 +619,14 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Short[T <: Short[T]] extends Any with BV {
+    trait Short[T <: Short[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+      this: T =>
+
+      final def isBitVector: scala.Boolean = true
+
+      final def hasMin: scala.Boolean = true
+
+      final def hasMax: scala.Boolean = true
 
       def value: scala.Short
 
@@ -645,7 +659,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def makeShort(value: scala.Int): T = if (isSigned) make(value.toShort) else make(UShort(value).toShort)
 
-      @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
         halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
@@ -653,7 +667,7 @@ object Z extends $ZCompanion[Z] {
         else if (isSigned) makeShort(-toShort)
         else umake(-toUShort)
 
-      final def +(other: Z): T = other match {
+      final def +(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("+", other)
           if (!isWrapped) make(toMP + other.toMP)
@@ -662,7 +676,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("+", other)
       }
 
-      final def -(other: Z): T = other match {
+      final def -(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("-", other)
           if (!isWrapped) make(toMP - other.toMP)
@@ -671,7 +685,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("-", other)
       }
 
-      final def *(other: Z): T = other match {
+      final def *(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("*", other)
           if (!isWrapped) make(toMP * other.toMP)
@@ -680,7 +694,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("*", other)
       }
 
-      final def /(other: Z): T = other match {
+      final def /(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("/", other)
           if (!isWrapped) make(toMP / other.toMP)
@@ -689,7 +703,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("/", other)
       }
 
-      final def %(other: Z): T = other match {
+      final def %(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("%", other)
           if (!isWrapped) make(toMP % other.toMP)
@@ -698,7 +712,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("%", other)
       }
 
-      final def >(other: Z): B = other match {
+      final def >(other: T): B = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported(">", other)
           if (isSigned) toShort > other.toShort
@@ -706,7 +720,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">", other)
       }
 
-      final def >=(other: Z): B = other match {
+      final def >=(other: T): B = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported(">=", other)
           if (isSigned) toShort >= other.toShort
@@ -714,7 +728,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">=", other)
       }
 
-      final def <(other: Z): B = other match {
+      final def <(other: T): B = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("<", other)
           if (isSigned) toShort < other.toShort
@@ -722,7 +736,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<", other)
       }
 
-      final def <=(other: Z): B = other match {
+      final def <=(other: T): B = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("<=", other)
           if (isSigned) toShort <= other.toShort
@@ -730,7 +744,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<=", other)
       }
 
-      final def >>(other: Z): T = other match {
+      final def >>(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported(">>", other)
           if (isSigned) makeShort(toShort >> other.toShort)
@@ -738,7 +752,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>", other)
       }
 
-      final def >>>(other: Z): T = other match {
+      final def >>>(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported(">>>", other)
           if (isSigned) makeShort(toShort >>> other.toShort)
@@ -746,7 +760,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>>", other)
       }
 
-      final def <<(other: Z): T = other match {
+      final def <<(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("<<", other)
           if (isSigned) makeShort(toShort << other.toShort)
@@ -754,7 +768,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<<", other)
       }
 
-      final def &(other: Z): T = other match {
+      final def &(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("&", other)
           if (isSigned) makeShort(toShort & other.toShort)
@@ -762,7 +776,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("&", other)
       }
 
-      final def |(other: Z): T = other match {
+      final def |(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("|", other)
           if (isSigned) makeShort(toShort | other.toShort)
@@ -770,7 +784,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("|", other)
       }
 
-      final def |^(other: Z): T = other match {
+      final def |^(other: T): T = other match {
         case other: Short[_] =>
           if (!isEqType(other)) unsupported("|^", other)
           if (isSigned) makeShort(toShort ^ other.toShort)
@@ -806,7 +820,14 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Int[T <: Int[T]] extends Any with BV {
+    trait Int[T <: Int[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+      this: T =>
+
+      final def isBitVector: scala.Boolean = true
+
+      final def hasMin: scala.Boolean = true
+
+      final def hasMax: scala.Boolean = true
 
       def value: scala.Int
 
@@ -835,7 +856,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: UInt): T = make(value.toInt)
 
-      @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
         halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
@@ -843,7 +864,7 @@ object Z extends $ZCompanion[Z] {
         else if (isSigned) make(-value)
         else umake(-toUInt)
 
-      final def +(other: Z): T = other match {
+      final def +(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("+", other)
           if (!isWrapped) make(toMP + other.toMP)
@@ -852,7 +873,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("+", other)
       }
 
-      final def -(other: Z): T = other match {
+      final def -(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("-", other)
           if (!isWrapped) make(toMP - other.toMP)
@@ -861,7 +882,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("-", other)
       }
 
-      final def *(other: Z): T = other match {
+      final def *(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("*", other)
           if (!isWrapped) make(toMP * other.toMP)
@@ -870,7 +891,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("*", other)
       }
 
-      final def /(other: Z): T = other match {
+      final def /(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("/", other)
           if (!isWrapped) make(toMP / other.toMP)
@@ -879,7 +900,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("/", other)
       }
 
-      final def %(other: Z): T = other match {
+      final def %(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("%", other)
           if (!isWrapped) make(toMP % other.toMP)
@@ -888,7 +909,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("%", other)
       }
 
-      final def >(other: Z): B = other match {
+      final def >(other: T): B = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported(">", other)
           if (isSigned) value > other.value
@@ -896,7 +917,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">", other)
       }
 
-      final def >=(other: Z): B = other match {
+      final def >=(other: T): B = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported(">=", other)
           if (isSigned) value >= other.value
@@ -904,7 +925,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">=", other)
       }
 
-      final def <(other: Z): B = other match {
+      final def <(other: T): B = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("<", other)
           if (isSigned) value < other.value
@@ -912,7 +933,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<", other)
       }
 
-      final def <=(other: Z): B = other match {
+      final def <=(other: T): B = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("<=", other)
           if (isSigned) value <= other.value
@@ -920,7 +941,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<=", other)
       }
 
-      final def >>(other: Z): T = other match {
+      final def >>(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported(">>", other)
           if (isSigned) make(value >> other.value)
@@ -928,7 +949,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>", other)
       }
 
-      final def >>>(other: Z): T = other match {
+      final def >>>(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported(">>>", other)
           if (isSigned) make(value >>> other.value)
@@ -936,7 +957,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>>", other)
       }
 
-      final def <<(other: Z): T = other match {
+      final def <<(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("<<", other)
           if (isSigned) make(value << other.value)
@@ -944,7 +965,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<<", other)
       }
 
-      final def &(other: Z): T = other match {
+      final def &(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("&", other)
           if (isSigned) make(value & other.value)
@@ -952,7 +973,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("&", other)
       }
 
-      final def |(other: Z): T = other match {
+      final def |(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("|", other)
           if (isSigned) make(value | other.value)
@@ -960,7 +981,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("|", other)
       }
 
-      final def |^(other: Z): T = other match {
+      final def |^(other: T): T = other match {
         case other: Int[_] =>
           if (!isEqType(other)) unsupported("|^", other)
           if (isSigned) make(value ^ other.value)
@@ -996,7 +1017,14 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Long[T <: Long[T]] extends Any with BV {
+    trait Long[T <: Long[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+      this: T =>
+
+      final def isBitVector: scala.Boolean = true
+
+      final def hasMin: scala.Boolean = true
+
+      final def hasMax: scala.Boolean = true
 
       def value: scala.Long
 
@@ -1025,7 +1053,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: ULong): T = make(value.toLong)
 
-      @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+      @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
         halt(s"Unsupported $Name operation '$op' with ${other.Name}")
 
       final def unary_- : T =
@@ -1033,7 +1061,7 @@ object Z extends $ZCompanion[Z] {
         else if (isSigned) make(-value)
         else umake(-toULong)
 
-      final def +(other: Z): T = other match {
+      final def +(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("+", other)
           if (!isWrapped) make(toMP + other.toMP)
@@ -1042,7 +1070,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("+", other)
       }
 
-      final def -(other: Z): T = other match {
+      final def -(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("-", other)
           if (!isWrapped) make(toMP - other.toMP)
@@ -1051,7 +1079,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("-", other)
       }
 
-      final def *(other: Z): T = other match {
+      final def *(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("*", other)
           if (!isWrapped) make(toMP * other.toMP)
@@ -1060,7 +1088,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("*", other)
       }
 
-      final def /(other: Z): T = other match {
+      final def /(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("/", other)
           if (!isWrapped) make(toMP / other.toMP)
@@ -1069,7 +1097,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("/", other)
       }
 
-      final def %(other: Z): T = other match {
+      final def %(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("%", other)
           if (!isWrapped) make(toMP % other.toMP)
@@ -1078,7 +1106,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("%", other)
       }
 
-      final def >(other: Z): B = other match {
+      final def >(other: T): B = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported(">", other)
           if (isSigned) value > other.value
@@ -1086,7 +1114,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">", other)
       }
 
-      final def >=(other: Z): B = other match {
+      final def >=(other: T): B = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported(">=", other)
           if (isSigned) value >= other.value
@@ -1094,7 +1122,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">=", other)
       }
 
-      final def <(other: Z): B = other match {
+      final def <(other: T): B = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("<", other)
           if (isSigned) value < other.value
@@ -1102,7 +1130,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<", other)
       }
 
-      final def <=(other: Z): B = other match {
+      final def <=(other: T): B = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("<=", other)
           if (isSigned) value <= other.value
@@ -1110,7 +1138,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<=", other)
       }
 
-      final def >>(other: Z): T = other match {
+      final def >>(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported(">>", other)
           if (isSigned) make(value >> other.value)
@@ -1118,7 +1146,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>", other)
       }
 
-      final def >>>(other: Z): T = other match {
+      final def >>>(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported(">>>", other)
           if (isSigned) make(value >>> other.value)
@@ -1126,7 +1154,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported(">>>", other)
       }
 
-      final def <<(other: Z): T = other match {
+      final def <<(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("<<", other)
           if (isSigned) make(value << other.value)
@@ -1134,7 +1162,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("<<", other)
       }
 
-      final def &(other: Z): T = other match {
+      final def &(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("&", other)
           if (isSigned) make(value & other.value)
@@ -1142,7 +1170,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("&", other)
       }
 
-      final def |(other: Z): T = other match {
+      final def |(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("|", other)
           if (isSigned) make(value | other.value)
@@ -1150,7 +1178,7 @@ object Z extends $ZCompanion[Z] {
         case _ => unsupported("|", other)
       }
 
-      final def |^(other: Z): T = other match {
+      final def |^(other: T): T = other match {
         case other: Long[_] =>
           if (!isEqType(other)) unsupported("|^", other)
           if (isSigned) make(value ^ other.value)
@@ -1188,17 +1216,8 @@ object Z extends $ZCompanion[Z] {
 
   }
 
-  private[sireum] trait BV extends Any with Z with $internal.HasBoxer {
-
-    final def isBitVector: scala.Boolean = true
-
-    final def hasMin: scala.Boolean = true
-
-    final def hasMax: scala.Boolean = true
-
-  }
-
-  trait Range[T <: Range[T]] extends Any with Z with $internal.HasBoxer {
+  trait Range[T <: Range[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+    this: T =>
 
     def value: MP
 
@@ -1220,63 +1239,63 @@ object Z extends $ZCompanion[Z] {
 
     @inline final def unary_- : T = make(-value)
 
-    @inline final def +(other: Z): T = other match {
+    @inline final def +(other: T): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("+", other)
         make(value + other.value)
       case _ => unsupported("+", other)
     }
 
-    @inline final def -(other: Z): T = other match {
+    @inline final def -(other: T): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("-", other)
         make(value - other.value)
       case _ => unsupported("-", other)
     }
 
-    @inline final def *(other: Z): T = other match {
+    @inline final def *(other: T): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("*", other)
         make(value * other.value)
       case _ => unsupported("*", other)
     }
 
-    @inline final def /(other: Z): T = other match {
+    @inline final def /(other: T): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("/", other)
         make(value / other.value)
       case _ => unsupported("/", other)
     }
 
-    @inline final def %(other: Z): T = other match {
+    @inline final def %(other: T): T = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("%", other)
         make(value % other.value)
       case _ => unsupported("%", other)
     }
 
-    @inline final def <(other: Z): B = other match {
+    @inline final def <(other: T): B = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("<", other)
         value < other.value
       case _ => unsupported("<", other)
     }
 
-    @inline final def <=(other: Z): B = other match {
+    @inline final def <=(other: T): B = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported("<=", other)
         value <= other.value
       case _ => unsupported("<=", other)
     }
 
-    @inline final def >(other: Z): B = other match {
+    @inline final def >(other: T): B = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported(">", other)
         value > other.value
       case _ => unsupported(">", other)
     }
 
-    @inline final def >=(other: Z): B = other match {
+    @inline final def >=(other: T): B = other match {
       case other: Range[_] =>
         if (!isEqType(other)) unsupported(">=", other)
         value >= other.value
@@ -1289,19 +1308,19 @@ object Z extends $ZCompanion[Z] {
 
     @inline final override def toBigInt: BigInt = value.toBigInt
 
-    @inline final def >>(other: Z): T = unsupported(">>")
+    @inline final def >>(other: T): T = unsupported(">>")
 
-    @inline final def >>>(other: Z): T = unsupported(">>>")
+    @inline final def >>>(other: T): T = unsupported(">>>")
 
-    @inline final def <<(other: Z): T = unsupported("<<")
+    @inline final def <<(other: T): T = unsupported("<<")
 
-    @inline final def &(other: Z): T = unsupported("&")
+    @inline final def &(other: T): T = unsupported("&")
 
-    @inline final def |(other: Z): T = unsupported("|")
+    @inline final def |(other: T): T = unsupported("|")
 
-    @inline final def |^(other: Z): T = unsupported("|^")
+    @inline final def |^(other: T): T = unsupported("|^")
 
-    @inline final def unary_~ : Z = unsupported("~")
+    @inline final def unary_~ : T = unsupported("~")
 
     @inline final def toIndex: Z.Index = if (isZeroIndex) value else value - Index.value
 
@@ -1310,7 +1329,7 @@ object Z extends $ZCompanion[Z] {
     @inline private final def unsupported(op: Predef.String): Nothing =
       halt(s"Unsupported $Name operation '$op'.")
 
-    @inline private final def unsupported(op: Predef.String, other: Z): Nothing =
+    @inline private final def unsupported(op: Predef.String, other: ZLike[_]): Nothing =
       halt(s"Unsupported $Name operation '$op' with '${other.Name}'.")
 
   }
@@ -1463,7 +1482,8 @@ trait $ZCompanionBigInt[T] {
   def unapply(n: T): scala.Option[scala.BigInt]
 }
 
-trait Z extends Any with Number with Comparable[Z] {
+trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
+  this: T =>
 
   def Name: Predef.String
 
@@ -1473,57 +1493,57 @@ trait Z extends Any with Number with Comparable[Z] {
 
   def isZeroIndex: scala.Boolean
 
-  def Index: Z
+  def Index: T
 
   def hasMin: scala.Boolean
 
   def hasMax: scala.Boolean
 
-  def Min: Z
+  def Min: T
 
-  def Max: Z
+  def Max: T
 
   def BitWidth: scala.Int
 
-  final def isEqType(other: Z): Boolean = Name == other.Name
+  final def isEqType(other: ZLike[_]): Boolean = Name == other.Name
 
-  def <(other: Z): B
+  def <(other: T): B
 
-  def <=(other: Z): B
+  def <=(other: T): B
 
-  def >(other: Z): B
+  def >(other: T): B
 
-  def >=(other: Z): B
+  def >=(other: T): B
 
-  def +(other: Z): Z
+  def +(other: T): T
 
-  def -(other: Z): Z
+  def -(other: T): T
 
-  def *(other: Z): Z
+  def *(other: T): T
 
-  def /(other: Z): Z
+  def /(other: T): T
 
-  def %(other: Z): Z
+  def %(other: T): T
 
-  def increase: Z
+  def increase: T
 
-  def decrease: Z
+  def decrease: T
 
-  def unary_- : Z
+  def unary_- : T
 
-  def >>(other: Z): Z
+  def >>(other: T): T
 
-  def >>>(other: Z): Z
+  def >>>(other: T): T
 
-  def <<(other: Z): Z
+  def <<(other: T): T
 
-  def &(other: Z): Z
+  def &(other: T): T
 
-  def |(other: Z): Z
+  def |(other: T): T
 
-  def |^(other: Z): Z
+  def |^(other: T): T
 
-  def unary_~ : Z
+  def unary_~ : T
 
   def toIndex: Z.Index
 
@@ -1533,13 +1553,15 @@ trait Z extends Any with Number with Comparable[Z] {
 
   def toMP: Z.MP
 
-  def to[I](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n, _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
+  def to(n: T): ZRange[T] = ZRange[T](this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
 
-  def until[I](n: I): ZRange[I] = ZRange(this.asInstanceOf[I], n.asInstanceOf[Z].decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
+  def until(n: T): ZRange[T] = ZRange[T](this, n.decrease, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
 
-  def compareTo(other: Z): scala.Int =
+  def compareTo(other: T): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0
 }
+
+sealed trait Z extends Any with ZLike[Z]
 
 final case class ZRange[I](init: I,
                           to: I,
@@ -1550,8 +1572,8 @@ final case class ZRange[I](init: I,
   def foreach(f: I => Unit): Unit = {
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] >= initZ) {
+      val initZ = init.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
         if (cond(i)) {
           f(i)
         }
@@ -1559,8 +1581,8 @@ final case class ZRange[I](init: I,
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] <= toZ) {
+      val toZ = to.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
         if (cond(i)) {
           f(i)
         }
@@ -1573,8 +1595,8 @@ final case class ZRange[I](init: I,
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] >= initZ) {
+      val initZ = init.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
         if (cond(i)) {
           r = r :+ f(i)
         }
@@ -1582,8 +1604,8 @@ final case class ZRange[I](init: I,
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] <= toZ) {
+      val toZ = to.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
         if (cond(i)) {
           r = r :+ f(i)
         }
@@ -1597,8 +1619,8 @@ final case class ZRange[I](init: I,
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] >= initZ) {
+      val initZ = init.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
         if (cond(i)) {
           r = r ++ f(i)
         }
@@ -1606,8 +1628,8 @@ final case class ZRange[I](init: I,
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[Z]
-      while (i.asInstanceOf[Z] <= toZ) {
+      val toZ = to.asInstanceOf[ZLike[_]]
+      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
         if (cond(i)) {
           r = r ++ f(i)
         }
@@ -1617,7 +1639,7 @@ final case class ZRange[I](init: I,
     r
   }
 
-  @pure def by(n: I): ZRange[I] = ZRange(init, to, cond, (r: B, i: I) => if (r) (i.asInstanceOf[Z] - n.asInstanceOf[Z]).asInstanceOf[I] else (i.asInstanceOf[Z] + n.asInstanceOf[Z]).asInstanceOf[I], isReverse)
+  @pure def by(n: I): ZRange[I] = ??? //ZRange(init, to, cond, (r: B, i: I) => if (r) (i.asInstanceOf[ZLike[_]] - n.asInstanceOf[Z]).asInstanceOf[I] else (i.asInstanceOf[Z] + n.asInstanceOf[Z]).asInstanceOf[I], isReverse)
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
     ZRange(init, to, (i: I) => cond(i) && filter(i), step, isReverse)

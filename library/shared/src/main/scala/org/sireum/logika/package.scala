@@ -82,7 +82,7 @@ package object logika {
   object BS {
     def apply(values: B*): BS = MSZ[B](values: _*)
 
-    def create(size: Z, default: B): BS = MS.create[Z, B](size, default)
+    def create(size: Z, default: B): BS = MS.create(size, default)
   }
 
   object Z8S {

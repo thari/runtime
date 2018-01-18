@@ -31,7 +31,7 @@ object MS {
 
   def checkSize[I](size: Z.MP)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
-    assert(!companion.hasMax || companion.Index.asInstanceOf[Z].toMP + size <= companion.Max.asInstanceOf[Z].toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
+    assert(!companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max.asInstanceOf[ZLike[_]].toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
   }
 
   def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
@@ -49,6 +49,19 @@ object MS {
 
   def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     val length = size.toMP
+    checkSize(length)(companion)
+    val boxer = Boxer.boxer(default)
+    val a = boxer.create(length)
+    var i = Z.MP.zero
+    while (i < length) {
+      boxer.store(a, i, helper.assign(default))
+      i = i.increase
+    }
+    MS[I, V](companion, a, length, boxer)
+  }
+
+  def create[I, V](size: I, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+    val length = size.asInstanceOf[ZLike[_]].toMP
     checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
     val a = boxer.create(length)
@@ -144,13 +157,13 @@ final class MS[I, V](val companion: $ZCompanion[I],
   def -(e: V): MS[I, V] = if (isEmpty) this else withFilter(_ != e)
 
   def indices: ZRange[I] = {
-    var j: Z = companion.Index.asInstanceOf[Z]
+    var j = companion.Index.asInstanceOf[ZLike[_]]
     var i = Z.MP.zero
     while (i < length) {
       i = i.increase
-      j = j.increase
+      j = j.increase.asInstanceOf[ZLike[_]]
     }
-    ZRange(companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[Z].decrease.asInstanceOf[I] else i.asInstanceOf[Z].increase.asInstanceOf[I], F)
+    ZRange[I](companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I] else i.asInstanceOf[ZLike[_]].increase.asInstanceOf[I], F)
   }
 
   def map[V2](f: V => V2): MS[I, V2] =
@@ -209,13 +222,13 @@ final class MS[I, V](val companion: $ZCompanion[I],
   }
 
   def apply(index: I): V = {
-    val i = index.asInstanceOf[Z].toIndex
+    val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.lookup(data, i)
   }
 
   def update(index: I, value: V): Unit = {
-    val i = index.asInstanceOf[Z].toIndex
+    val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
     isDirty = true
@@ -250,8 +263,9 @@ final class MS[I, V](val companion: $ZCompanion[I],
         val b2 = other.boxer
         val data1 = data
         val data2 = other.data
-        for (i <- Z.MP.zero until length) {
-          if (b1.lookup(data1, i) != b2.lookup(data2, i)) return false
+        for (i<- Z.MP.zero until length) {
+          val iMP = i.toMP
+          if (b1.lookup(data1, iMP) != b2.lookup(data2, iMP)) return false
         }
         true
       case _ => false

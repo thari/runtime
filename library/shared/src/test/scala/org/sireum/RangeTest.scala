@@ -100,11 +100,11 @@ class RangeTest extends SireumRuntimeSpec {
       }
     }
 
-    val random = new java.util.Random
+    val random = new _root_.java.util.Random
 
     def rand(): Int = random.nextInt(10) + 1
 
-    for ((op, op1, op2) <- List[(Predef.String, One10i => Z => One10i, Int => Int => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, One10i => One10i => One10i, Int => Int => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -119,7 +119,7 @@ class RangeTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, One10i => Z => B, Int => Int => scala.Boolean)](
+    for ((op, op1, op2) <- List[(Predef.String, One10i => One10i => B, Int => Int => scala.Boolean)](
       (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -176,11 +176,11 @@ class RangeTest extends SireumRuntimeSpec {
       }
     }
 
-    val random = new java.util.Random
+    val random = new _root_.java.util.Random
 
     def rand(): Int = random.nextInt(18) - 1
 
-    for ((op, op1, op2) <- List[(Predef.String, M1_16 => Z => M1_16, Int => Int => Int)](
+    for ((op, op1, op2) <- List[(Predef.String, M1_16 => M1_16 => M1_16, Int => Int => Int)](
       ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
@@ -195,7 +195,7 @@ class RangeTest extends SireumRuntimeSpec {
       }
     }
 
-    for ((op, op1, op2) <- List[(Predef.String, M1_16 => Z => B, Int => Int => scala.Boolean)](
+    for ((op, op1, op2) <- List[(Predef.String, M1_16 => M1_16 => B, Int => Int => scala.Boolean)](
       (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
       for (_ <- 0 until numOfRandomTests) {
         val n = rand()
