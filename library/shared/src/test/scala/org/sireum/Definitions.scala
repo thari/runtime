@@ -101,10 +101,6 @@ object F2MessagePack {
       return writer.result
     }
 
-    def resultBase64: String = {
-      return writer.resultBase64
-    }
-
   }
 
   @record class Reader(reader: MessagePack.Reader) {
@@ -154,10 +150,6 @@ object F2MessagePack {
 
   def reader(data: ISZ[U8]): Reader = {
     return Reader(MessagePack.reader(data))
-  }
-
-  def readerBase64(data: String): Reader = {
-    return Reader(MessagePack.readerBase64(data))
   }
 }
 

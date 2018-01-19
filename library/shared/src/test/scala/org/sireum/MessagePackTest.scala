@@ -208,21 +208,12 @@ class MessagePackTest extends SireumRuntimeSpec {
   }
 
   def check[T](n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(implicit pos: Position): Unit = {
-    if (B.random)
-      *(s"${n.getClass.getName.substring(11)} $n") {
-        val w = MessagePack.writer
-        f(w)
-        val r = MessagePack.reader(w.result)
-        assert(g(r) == n)
-        true
-      }
-    else
-      *(s"${n.getClass.getName.substring(11)} $n") {
-        val w = MessagePack.writer
-        f(w)
-        val r = MessagePack.readerBase64(w.resultBase64)
-        assert(g(r) == n)
-        true
-      }
+    *(s"${n.getClass.getName.substring(11)} $n") {
+      val w = MessagePack.writer
+      f(w)
+      val r = MessagePack.reader(w.result)
+      assert(g(r) == n)
+      true
+    }
   }
 }

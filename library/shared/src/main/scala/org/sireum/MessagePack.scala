@@ -185,11 +185,6 @@ object MessagePack {
 
     def result: ISZ[U8]
 
-    def resultBase64: String = {
-      val r = result
-      return conversions.String.toBase64(r)
-    }
-
     def writeB(b: B): Unit
 
     def writeC(c: C): Unit = {
@@ -561,7 +556,7 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(var buf: MSZ[U8], var size: Z) extends Writer {
+    @record class Impl(val buf: MSZ[U8], var size: Z) extends Writer {
 
       def result: ISZ[U8] = {
         val r = MSZ.create(size, u8"0")
@@ -575,13 +570,7 @@ object MessagePack {
 
       def addU8(n: U8): Unit = {
         if (size == buf.size) {
-          val newBuf = MSZ.create(size * 3 / 2, u8"0")
-          var i = 0
-          while (i < size) {
-            newBuf(i) = buf(i)
-            i = i + 1
-          }
-          buf = newBuf
+          buf.expand(buf.size, u8"0")
         }
         buf(size) = n
         size = size + 1
@@ -1815,9 +1804,5 @@ object MessagePack {
 
   def reader(data: ISZ[U8]): Reader = {
     return Reader.Impl(data, 0)
-  }
-
-  def readerBase64(data: String): Reader = {
-    return Reader.Impl(conversions.String.fromBase64(data), 0)
   }
 }
