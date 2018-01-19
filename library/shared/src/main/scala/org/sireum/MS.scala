@@ -68,11 +68,17 @@ object MS {
 }
 
 final class MS[I, V](val companion: $ZCompanion[I],
-                     val data: scala.AnyRef,
-                     val length: Z,
+                     d: scala.AnyRef,
+                     l: Z,
                      val boxer: Boxer) extends Mutable with MSMarker {
 
+  private var _data: scala.AnyRef = d
+  private var _length: Z = l
   private var isOwned: scala.Boolean = false
+
+  def data: scala.AnyRef = _data
+
+  def length: Z = _length
 
   def owned: scala.Boolean = isOwned
 
@@ -89,6 +95,14 @@ final class MS[I, V](val companion: $ZCompanion[I],
   def isEmpty: B = length == Z.MP.zero
 
   def nonEmpty: B = length != Z.MP.zero
+
+  def expand(n: Z, default: V): Unit = {
+    val newLength = length + n
+    MS.checkSize(newLength)
+    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+    _data = a
+    _length = newLength
+  }
 
   def :+(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
     val newLength = length.increase
