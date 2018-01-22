@@ -70,15 +70,18 @@ object MS {
 final class MS[I, V](val companion: $ZCompanion[I],
                      d: scala.AnyRef,
                      l: Z,
-                     val boxer: Boxer) extends Mutable with MSMarker {
+                     b: Boxer) extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
 
   private var _data: scala.AnyRef = d
   private var _length: Z = l
+  private var _boxer: Boxer = b
   private var isOwned: scala.Boolean = false
 
   def data: scala.AnyRef = _data
 
   def length: Z = _length
+
+  def boxer: Boxer = _boxer
 
   def owned: scala.Boolean = isOwned
 
@@ -96,13 +99,19 @@ final class MS[I, V](val companion: $ZCompanion[I],
 
   def nonEmpty: B = length != Z.MP.zero
 
-  def expand(n: Z, default: V): Unit = {
-    val newLength = length + n
-    MS.checkSize(newLength)
-    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
-    _data = a
-    _length = newLength
-  }
+  def expand(n: I, default: V): Unit =
+    if (isEmpty) {
+      val a = MS.create(n, default)(companion)
+      this._data = a._data
+      this._length = a._length
+      this._boxer = a._boxer
+    } else {
+      val newLength: Z = length + n.asInstanceOf[ZLike[_]].toMP
+      MS.checkSize(newLength)
+      val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+      _data = a
+      _length = newLength
+    }
 
   def :+(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
     val newLength = length.increase
@@ -166,7 +175,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
   }
 
   def map[V2](f: V => V2): MS[I, V2] =
-    if (isEmpty) this.asInstanceOf[MS[I, V2]] else {
+    if (isEmpty) MS[I, V2]()(companion) else {
       var a: AnyRef = null
       var boxer2: Boxer = null
       var i = Z.MP.zero
@@ -177,13 +186,13 @@ final class MS[I, V](val companion: $ZCompanion[I],
           a = boxer2.cloneMut(data, length, length, Z.MP.zero)
         }
         boxer2.store(a, i, helper.assign(v2))
-        i = i.increase
+        i = i + 1
       }
-      MS[I, V2](companion, a, length, boxer)
+      MS[I, V2](companion, a, length, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
     }
 
   def flatMap[V2](f: V => MS[I, V2]): MS[I, V2] =
-    if (isEmpty) this.asInstanceOf[MS[I, V2]] else {
+    if (isEmpty) MS[I, V2]()(companion) else {
       val es = elements
       var r = f(es.head)
       for (e <- es.tail) {
@@ -198,7 +207,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
     val a = boxer.create(newLength)
     var i = Z.MP.zero
     for (e <- s) {
-      boxer.store(a, i, helper.assign(e))
+      boxer.store(a, i, helper.cloneAssign(e))
       i = i.increase
     }
     MS[I, V](companion, a, newLength, boxer)
@@ -210,6 +219,20 @@ final class MS[I, V](val companion: $ZCompanion[I],
       f(boxer.lookup(data, i))
       i = i.increase
     }
+  }
+
+  def iterator(): _root_.java.util.Iterator[V] = new _root_.java.util.Iterator[V] {
+    var i: scala.Int = 0
+    val es: Seq[V] = elements
+
+    override def next(): V = {
+      assert(hasNext)
+      val r = helper.cloneAssign(es(i))
+      i = i + 1
+      r
+    }
+
+    override def hasNext: scala.Boolean = i <= es.length
   }
 
   def size: I =
@@ -257,7 +280,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
         val b2 = other.boxer
         val data1 = data
         val data2 = other.data
-        for (i<- Z.MP.zero until length) {
+        for (i <- Z.MP.zero until length) {
           val iMP = i.toMP
           if (b1.lookup(data1, iMP) != b2.lookup(data2, iMP)) return false
         }
