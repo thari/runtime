@@ -70,7 +70,7 @@ object IS {
 final class IS[I, V](val companion: $ZCompanion[I],
                      val data: scala.AnyRef,
                      val length: Z,
-                     val boxer: Boxer) extends Immutable with ISMarker {
+                     val boxer: Boxer) extends Immutable with ISMarker with _root_.java.lang.Iterable[V] {
 
   def isEmpty: B = length == Z.MP.zero
 
@@ -151,7 +151,7 @@ final class IS[I, V](val companion: $ZCompanion[I],
         boxer2.store(a, i, v2)
         i = i.increase
       }
-      IS[I, V2](companion, a, length, boxer2)
+      IS[I, V2](companion, a, length, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
     }
 
   def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] =
@@ -182,6 +182,19 @@ final class IS[I, V](val companion: $ZCompanion[I],
       f(boxer.lookup(data, i))
       i = i.increase
     }
+  }
+
+  def iterator(): _root_.java.util.Iterator[V] = new _root_.java.util.Iterator[V] {
+    var i: Z = Z.MP.zero
+
+    override def next(): V = {
+      assert(hasNext)
+      val r = boxer.lookup(data, i)
+      i = i + 1
+      r
+    }
+
+    override def hasNext: scala.Boolean = i <= length
   }
 
   def size: I =
