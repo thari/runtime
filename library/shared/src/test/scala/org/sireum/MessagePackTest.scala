@@ -36,6 +36,10 @@ class MessagePackTest extends SireumRuntimeSpec {
 
   check(-1, { w => w.writeZ(-1) }, { r => r.readZ() })
 
+  for (s <- Seq[String]("∧", "∨", "→", "¬", "≡", "≠", "≥", "≤", "∀", "∃", "⊤", "⊥", "⊢")) {
+    check(s, { w => w.writeString(s) }, { r => r.readString() })
+  }
+
   for (_ <- 0 until 10) {
     {
       val c: C = C.random
@@ -208,7 +212,8 @@ class MessagePackTest extends SireumRuntimeSpec {
   }
 
   def check[T](n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(implicit pos: Position): Unit = {
-    *(s"${n.getClass.getName.substring(11)} $n") {
+    val name = n.getClass.getName
+    *(s"${name.substring(name.lastIndexOf(".") + 1)} $n") {
       val w = MessagePack.writer
       f(w)
       val r = MessagePack.reader(w.result)

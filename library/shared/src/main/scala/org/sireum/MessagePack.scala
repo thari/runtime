@@ -841,7 +841,8 @@ object MessagePack {
       def writeString(s: String): Unit = {
         l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
 
-        val len = s.size
+        val bis = conversions.String.toBis(s)
+        val len = bis.size
         if (len < 32 /* 1 << 5 */ ) {
           addU8(Code.FIXSTR_PREFIX | conversions.Z.toU8(len))
         } else if (len < 256 /* 1 << 8 */ ) {
@@ -854,7 +855,7 @@ object MessagePack {
           addU8(Code.STR32)
           addU32(conversions.Z.toU32(len))
         }
-        for (e <- conversions.String.toBis(s)) {
+        for (e <- bis) {
           addU8(e)
         }
       }
