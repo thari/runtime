@@ -41,6 +41,8 @@ package org.sireum
 
   @pure def getOrElse(default: T): T
 
+  @pure def toMS: MS[Z, T]
+
   def foreach(f: T => Unit): Unit
 }
 
@@ -82,6 +84,11 @@ package org.sireum
     return default
   }
 
+  @pure def toMS: MS[Z, T] = {
+    l""" ensures  result.size ≡ 0 """
+    return MS[Z, T]()
+  }
+
   def foreach(f: T => Unit): Unit = {}
 }
 
@@ -121,6 +128,13 @@ package org.sireum
   @pure def getOrElse(default: T): T = {
     l""" ensures  result ≡ value """
     return value
+  }
+
+  @pure def toMS: MS[Z, T] = {
+    l""" ensures  result.size ≡ 1
+                  result(0) ≡ value """
+
+    return MSZ(value)
   }
 
   def foreach(f: T => Unit): Unit = {
