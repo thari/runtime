@@ -43,6 +43,8 @@ package org.sireum
 
   @pure def getOrElse(default: => T): T
 
+  @pure def toIS: IS[Z, T]
+
   def foreach(f: T => Unit): Unit
 }
 
@@ -89,6 +91,11 @@ package org.sireum
     halt("Invalid 'None' operation 'get'.")
   }
 
+  @pure def toIS: IS[Z, T] = {
+    l""" ensures  result.size ≡ 0 """
+    return IS[Z, T]()
+  }
+
   def foreach(f: T => Unit): Unit = {}
 }
 
@@ -133,6 +140,13 @@ package org.sireum
   @pure def get: T = {
     l""" ensures  result ≡ value """
     return value
+  }
+
+  @pure def toIS: IS[Z, T] = {
+    l""" ensures  result.size ≡ 1
+                  result(0) ≡ value """
+
+    return ISZ(value)
   }
 
   def foreach(f: T => Unit): Unit = {
