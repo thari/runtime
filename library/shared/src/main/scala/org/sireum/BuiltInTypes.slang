@@ -207,6 +207,14 @@ package org.sireum
 
 }
 
+@ext trait ST extends Immutable {
+
+  def render: String
+
+  def renderCompact: String
+
+}
+
 
 @ext trait IS[I, V] extends Immutable {
 
