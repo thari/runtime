@@ -261,9 +261,6 @@ package org.sireum
 @ext trait RichSig extends Immutable
 
 
-@ext trait ST extends Immutable
-
-
 @ext trait Mutable {
 
   @pure def string: String
