@@ -556,21 +556,57 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(val buf: MSZ[U8], var size: Z) extends Writer {
+    @record class Impl(val buf: MSZ[U8],
+                       var size: Z,
+                       val stringPool: MSZ[String],
+                       var stringPoolSize: Z) extends Writer {
 
       def result: ISZ[U8] = {
-        val r = MSZ.create(size, u8"0")
+        val poolBufferSize: Z = {
+          var r: Z = 0
+          var i: Z = 0
+          while (i < stringPoolSize) {
+            r = r + 2 * stringPool(i).size
+            i = i + 1
+          }
+          r
+        }
+        val (stringPoolBuf, stringPoolBufSize) = {
+          val r = Impl(MSZ.create(poolBufferSize, u8"0"), 0, MSZ(), 0)
+          r.writeZ(stringPoolSize)
+          var i: Z = 0
+          while (i < stringPoolSize) {
+            r.writeStringConstant(stringPool(i))
+            i = i + 1
+          }
+          (r.buf, r.size)
+        }
+
+        val r = MSZ.create(stringPoolBufSize + size, u8"0")
         var i = 0
+        while (i < stringPoolBufSize) {
+          r(i) = stringPoolBuf(i)
+          i = i + 1
+        }
+        i = 0
         while (i < size) {
-          r(i) = buf(i)
+          r(stringPoolBufSize + i) = buf(i)
           i = i + 1
         }
         return r.toIS
       }
 
+      def addString(s: String): Unit = {
+        if (stringPoolSize == stringPool.size) {
+          stringPool.expand(stringPoolSize + 1, "")
+        }
+        stringPool(stringPoolSize) = s
+        stringPoolSize = stringPoolSize + 1
+      }
+
       def addU8(n: U8): Unit = {
         if (size == buf.size) {
-          buf.expand(buf.size, u8"0")
+          buf.expand(size + 1, u8"0")
         }
         buf(size) = n
         size = size + 1
@@ -838,9 +874,7 @@ object MessagePack {
         addU8(if (b) Code.TRUE else Code.FALSE)
       }
 
-      def writeString(s: String): Unit = {
-        l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
-
+      def writeStringConstant(s: String): Unit = {
         val bis = conversions.String.toBis(s)
         val len = bis.size
         if (len < 32 /* 1 << 5 */ ) {
@@ -858,6 +892,12 @@ object MessagePack {
         for (e <- bis) {
           addU8(e)
         }
+      }
+
+      def writeString(s: String): Unit = {
+        l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
+        writeZ(stringPoolSize)
+        addString(s)
       }
 
       def writeExtTypeHeader(extType: S8, payloadLen: Z): Unit = {
@@ -1518,13 +1558,30 @@ object MessagePack {
 
   object Reader {
 
-    @record class Impl(buf: ISZ[U8], var curr: Z) extends Reader {
+    @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String]) extends Reader {
+
+      var initialized: B = F
 
       def peek(): U8 = {
         return buf(curr)
       }
 
+      def readStringPool(): Unit = {
+        val size = readZ()
+        stringPool.expand(size, "")
+        var i = 0
+        while (i < size) {
+          val s = readStringConstant()
+          stringPool(i) = s
+          i = i + 1
+        }
+      }
+
       def read8(): U8 = {
+        if (!initialized) {
+          initialized = T
+          readStringPool()
+        }
         val r = peek()
         skip(1)
         return r
@@ -1637,7 +1694,7 @@ object MessagePack {
         return conversions.U64.toRawF64(n)
       }
 
-      def readString(): String = {
+      def readStringConstant(): String = {
         val code = read8()
         val len: Z = {
           var r: Z = 0
@@ -1666,6 +1723,11 @@ object MessagePack {
           i = i + 1
         }
         return conversions.String.fromBms(a)
+      }
+
+      def readString(): String = {
+        val index = readZ()
+        return stringPool(index)
       }
 
       def readArrayHeader(): Z = {
@@ -1800,10 +1862,10 @@ object MessagePack {
   }
 
   def writer: Writer = {
-    return Writer.Impl(MS.create(1024, u8"0"), 0)
+    return Writer.Impl(MS.create(1024, u8"0"), 0, MS.create(1024, ""), 0)
   }
 
   def reader(data: ISZ[U8]): Reader = {
-    return Reader.Impl(data, 0)
+    return Reader.Impl(data, 0, MSZ())
   }
 }
