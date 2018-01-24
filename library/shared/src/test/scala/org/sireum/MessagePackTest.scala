@@ -191,22 +191,24 @@ class MessagePackTest extends SireumRuntimeSpec {
       check(a, (w) => w.writeMSZ(a, w.writeZ _), (r) => r.readMSZ(r.readZ _))
     }
 
-    {
+    * {
       val o = Foo(Z.random, Bar(Z.random, Z.random))
       val w = F2MessagePack.writer
       w.writeF2(o)
       val data = w.writer.result
       val r = F2MessagePack.reader(data)
       assert(o == r.readF2())
+      true
     }
 
-    {
+    * {
       val o = Bar(Z.random, Z.random)
       val w = F2MessagePack.writer
       w.writeF2(o)
       val data = w.writer.result
       val r = F2MessagePack.reader(data)
       assert(o == r.readF2())
+      true
     }
 
   }
@@ -216,7 +218,8 @@ class MessagePackTest extends SireumRuntimeSpec {
     *(s"${name.substring(name.lastIndexOf(".") + 1)} $n") {
       val w = MessagePack.writer
       f(w)
-      val r = MessagePack.reader(w.result)
+      val buf = w.result
+      val r = MessagePack.reader(buf)
       assert(g(r) == n)
       true
     }
