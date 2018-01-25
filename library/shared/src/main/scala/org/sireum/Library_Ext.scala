@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2018, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -23,23 +23,26 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.$internal
+package org.sireum
 
-trait ImmutableMarker extends Any with Clonable {
-  def $clone: ImmutableMarker = this
+import org.sireum.$internal.{RC, Trie}
+
+object Library_Ext {
+  def map: scala.collection.Map[scala.Seq[Predef.String], Predef.String] = RC.text { (p, f) =>
+    val filename = p.last
+    if (filename.endsWith(".slang")) true
+    else if (filename.endsWith(".scala")) {
+      val r = _root_.java.nio.file.Files.newBufferedReader(f.toPath, _root_.java.nio.charset.StandardCharsets.UTF_8)
+      val line: Predef.String = r.readLine
+      r.close()
+      line != null && line.replaceAllLiterally(" ", "").contains("#Sireum")
+    } else false
+  }
+
+  def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(map)
+
+  def files: ISZ[(Option[String], String)] =
+    ISZ(map.toSeq.
+      map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
+
 }
-
-trait MutableMarker extends Any with Clonable {
-  def $owned: Boolean
-  def $owned_=(b: Boolean): MutableMarker
-
-  def $clone: MutableMarker
-}
-
-trait DatatypeMarker extends AnyRef
-
-trait ISMarker extends AnyRef
-
-trait MSMarker extends AnyRef
-
-trait STMarker extends AnyRef

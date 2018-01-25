@@ -46,13 +46,13 @@ object helper {
   }
 
   def cloneAssign[T](o: T): T = o match {
-    case o: MutableMarker => (o.$clone.owned = true).asInstanceOf[T]
+    case o: MutableMarker => (o.$clone.$owned = true).asInstanceOf[T]
     case o: ImmutableMarker => o.$clone.asInstanceOf[T]
     case _ => halt(topValueError + s": $o (of ${o.getClass.getName})")
   }
 
   def assign[T](x: MutableMarker): T =
-    (if (x.owned) x.$clone.owned = true else x.owned = true).asInstanceOf[T]
+    (if (x.$owned) x.$clone.$owned = true else x.$owned = true).asInstanceOf[T]
 
   def assign[T](arg: T): T = {
     arg match {

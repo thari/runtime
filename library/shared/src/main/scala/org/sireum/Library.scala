@@ -1,5 +1,6 @@
+// #Sireum
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2018, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -22,24 +23,10 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.sireum
 
-package org.sireum.$internal
+@ext object Library {
 
-trait ImmutableMarker extends Any with Clonable {
-  def $clone: ImmutableMarker = this
+  def files: ISZ[(Option[String], String)] = $
+
 }
-
-trait MutableMarker extends Any with Clonable {
-  def $owned: Boolean
-  def $owned_=(b: Boolean): MutableMarker
-
-  def $clone: MutableMarker
-}
-
-trait DatatypeMarker extends AnyRef
-
-trait ISMarker extends AnyRef
-
-trait MSMarker extends AnyRef
-
-trait STMarker extends AnyRef
