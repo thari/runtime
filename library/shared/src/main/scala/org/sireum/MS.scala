@@ -83,12 +83,14 @@ final class MS[I, V](val companion: $ZCompanion[I],
 
   def boxer: Boxer = _boxer
 
-  def owned: scala.Boolean = isOwned
+  override def $owned: scala.Boolean = isOwned
 
-  def owned_=(b: scala.Boolean): this.type = {
+  override def $owned_=(b: scala.Boolean): this.type = {
     isOwned = b
     this
   }
+
+  def hash: Z = hashCode
 
   def $clone: MS[I, V] = {
     val a = boxer.cloneMut(data, length, length, Z.MP.zero)

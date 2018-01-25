@@ -72,6 +72,8 @@ final class IS[I, V](val companion: $ZCompanion[I],
                      val length: Z,
                      val boxer: Boxer) extends Immutable with ISMarker with _root_.java.lang.Iterable[V] {
 
+  def hash: Z = hashCode
+
   def isEmpty: B = length == Z.MP.zero
 
   def nonEmpty: B = length != Z.MP.zero
