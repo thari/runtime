@@ -571,7 +571,7 @@ object MessagePack {
           }
           r
         }
-        val (stringPoolBuf, stringPoolBufSize) = {
+        val (stringPoolBuf: MSZ[U8], stringPoolBufSize: Z) = {
           val r = Impl(MSZ.create(poolBufferSize, u8"0"), 0, MSZ(), 0)
           r.writeZ(stringPoolSize)
           var i: Z = 0
