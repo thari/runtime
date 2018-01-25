@@ -32,6 +32,10 @@ import scala.language.implicitConversions
 
 trait Immutable extends Any with ImmutableMarker {
 
+  final protected def $cannotMixImmutableAndMutable: scala.Nothing = halt("")
+
+  protected def $hasEquals: scala.Boolean = false
+
   def string: String
 
 }
@@ -47,7 +51,7 @@ trait EnumSig extends Immutable {
 }
 
 trait DatatypeSig extends Immutable with DatatypeMarker {
-  def content: scala.Seq[(java.lang.String, scala.Any)]
+  def $content: scala.Seq[(_root_.java.lang.String, scala.Any)]
 
   def hash: Z = hashCode
 }
@@ -58,23 +62,27 @@ trait RichSig extends Immutable
 
 trait Mutable extends Any with MutableMarker {
 
+  final protected def $cannotMixImmutableAndMutable: scala.Nothing = halt("")
+
   def string: String
+
+  protected def $hasEquals: scala.Boolean = false
 
 }
 
 
 trait RecordSig extends Mutable {
 
-  private var isOwned: Boolean = false
+  private var $isOwned: Boolean = false
 
-  def owned: Boolean = isOwned
+  final override def $owned: Boolean = $isOwned
 
-  def owned_=(b: Boolean): this.type = {
-    isOwned = b
+  final override def $owned_=(b: Boolean): this.type = {
+    $isOwned = b
     this
   }
 
-  def content: scala.Seq[(java.lang.String, scala.Any)]
+  def $content: scala.Seq[(_root_.java.lang.String, scala.Any)]
 
   def hash: Z = hashCode
 }
