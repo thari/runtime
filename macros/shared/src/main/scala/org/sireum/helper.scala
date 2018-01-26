@@ -90,7 +90,7 @@ object helper {
     else None
 
   def normNum(s: Predef.String): Predef.String = {
-    val sb = new java.lang.StringBuilder(s.length)
+    val sb = new _root_.java.lang.StringBuilder(s.length)
     for (c <- s) c match {
       case ',' | ' ' | '_' =>
       case _ => sb.append(c)
@@ -99,7 +99,7 @@ object helper {
   }
 
   def escape(raw: Predef.String): Predef.String = {
-    val sb = new java.lang.StringBuilder
+    val sb = new _root_.java.lang.StringBuilder
 
     def escapeChar(ch: Char): Unit = ch match {
       case '\b' => sb.append("\\b")
