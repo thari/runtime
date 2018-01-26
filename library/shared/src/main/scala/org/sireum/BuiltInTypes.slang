@@ -26,14 +26,11 @@
 package org.sireum
 
 
-@ext trait Immutable {
+@ext trait B {
+
+  @pure def hash: Z
 
   @pure def string: String
-
-}
-
-
-@ext trait B extends Immutable {
 
   @pure def &(other: B): B
 
@@ -52,29 +49,36 @@ package org.sireum
 }
 
 
-@ext trait C extends Immutable {
-  def <(other: C): B
+@ext trait C {
 
-  def <=(other: C): B
+  @pure def hash: Z
 
-  def >(other: C): B
+  @pure def string: String
 
-  def >=(other: C): B
+  @pure def <(other: C): B
 
-  def >>>(other: C): C
+  @pure def <=(other: C): B
 
-  def <<(other: C): C
+  @pure def >(other: C): B
 
-  def &(other: C): C
+  @pure def >=(other: C): B
 
-  def |(other: C): C
+  @pure def >>>(other: C): C
 
-  def |^(other: C): C
+  @pure def <<(other: C): C
+
+  @pure def &(other: C): C
+
+  @pure def |(other: C): C
+
+  @pure def |^(other: C): C
 }
 
-@ext trait Number extends Immutable
+@ext trait Z {
 
-@ext trait Z extends Number {
+  @pure def hash: Z
+
+  @pure def string: String
 
   @pure def <(other: Z): B
 
@@ -117,10 +121,11 @@ package org.sireum
 }
 
 
-@ext trait FloatingPoint extends Number
+@ext trait F32 {
 
+  @pure def hash: Z
 
-@ext trait F32 extends FloatingPoint {
+  @pure def string: String
 
   @pure def <(other: F32): B
 
@@ -145,7 +150,11 @@ package org.sireum
 }
 
 
-@ext trait F64 extends FloatingPoint {
+@ext trait F64 {
+
+  @pure def hash: Z
+
+  @pure def string: String
 
   @pure def <(other: F64): B
 
@@ -170,7 +179,11 @@ package org.sireum
 }
 
 
-@ext trait R extends Number {
+@ext trait R {
+
+  @pure def hash: Z
+
+  @pure def string: String
 
   @pure def <(other: R): B
 
@@ -195,28 +208,40 @@ package org.sireum
 }
 
 
-@ext trait String extends Immutable {
+@ext trait String {
 
-  def at(i: Z): C
+  @pure def hash: Z
 
-  def size: Z
+  @pure def string: String
 
-  def toCis: IS[Z, C]
+  @pure def at(i: Z): C
 
-  def toCms: MS[Z, C]
+  @pure def size: Z
 
-}
+  @pure def toCis: IS[Z, C]
 
-@ext trait ST extends Immutable {
-
-  def render: String
-
-  def renderCompact: String
+  @pure def toCms: MS[Z, C]
 
 }
 
+@ext trait ST {
 
-@ext trait IS[I, V] extends Immutable {
+  @pure def hash: Z
+
+  @pure def string: String
+
+  @pure def render: String
+
+  @pure def renderCompact: String
+
+}
+
+
+@ext trait IS[I, V] {
+
+  @pure def hash: Z
+
+  @pure def string: String
 
   @pure def isEmpty: B
 
@@ -248,27 +273,11 @@ package org.sireum
 
 }
 
-@ext trait EnumSig extends Immutable {
-  def numOfElements: Z
-}
+@ext trait MS[I, V] {
 
-@ext trait DatatypeSig extends Immutable {
-
-  def hash: Z
-
-}
-
-@ext trait RichSig extends Immutable
-
-
-@ext trait Mutable {
+  @pure def hash: Z
 
   @pure def string: String
-
-}
-
-
-@ext trait MS[I, V] extends Mutable {
 
   @pure def isEmpty: B
 
@@ -298,9 +307,4 @@ package org.sireum
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
 
-}
-
-
-@ext trait RecordSig extends Mutable {
-  def hash: Z
 }
