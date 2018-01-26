@@ -69,3 +69,46 @@ object ISZOpsUtil_Ext {
 
   @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] = ISOps_Ext.sortWith(s, lt)
 }
+
+object MSOps_Ext {
+  def mParMapFoldLeft[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+    val elements = s.elements
+    val ies = elements.indices.zip(elements)
+    val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+    val a = new Array[scala.Any](irs.length)
+    irs.foreach { p => a(p._1) = p._2 }
+    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+  }
+
+  def mParMapFoldRight[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+    val elements = s.elements
+    val ies = elements.indices.zip(elements)
+    val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+    val a = new Array[scala.Any](irs.length)
+    irs.foreach { p => a(p._1) = p._2 }
+    a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+  }
+
+  @pure def sortWith[I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
+    val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
+    val a = s.boxer.create(s.length)
+    var i = Z.MP.zero
+    for (e <- es) {
+      s.boxer.store(a, i, helper.cloneAssign(e))
+      i = i.increase
+    }
+    new MS[I, V](s.companion, a, s.length, s.boxer)
+  }
+}
+
+object MSZOpsUtil_Ext {
+  def mParMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldLeft(s, f, g, init)
+
+  def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldLeft(s, f, g, init)
+
+  def mParMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldRight(s, f, g, init)
+
+  def parMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldRight(s, f, g, init)
+
+  @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B): MS[Z, V] = MSOps_Ext.sortWith(s, lt)
+}

@@ -92,6 +92,42 @@ import org.sireum._
 
 }
 
+@sig trait MSOps[I, V] {
+
+  @pure def :+(e: V): MS[I, V]
+
+  @pure def +:(e: V): MS[I, V]
+
+  @pure def ++(other: MS[I, V]): MS[I, V]
+
+  @pure def chunk(size: Z): MS[Z, MS[I, V]]
+
+  @pure def drop(size: Z): MS[I, V]
+
+  @pure def dropRight(size: Z): MS[I, V]
+
+  @pure def insert(i: I, e: V): MS[I, V]
+
+  @pure def laxSlice(from: I, til: I): MS[I, V]
+
+  @pure def map[U](f: V => U): MS[I, U]
+
+  @pure def remove(i: I): MS[I, V]
+
+  @pure def reverse: MS[I, V]
+
+  @pure def slice(from: I, til: I): MS[I, V]
+
+  @pure def sortWith(lt: (V, V) => B): MS[I, V]
+
+  @pure def tail: MS[I, V]
+
+  @pure def take(size: Z): MS[I, V]
+
+  @pure def takeRight(size: Z): MS[Z, V]
+
+}
+
 @ext object ISZOpsUtil {
   @pure def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
     l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
@@ -258,7 +294,7 @@ import org.sireum._
                  ∃i: [0, s.size) s(i) ≡ e ∧ (∀j: [0, i) s(j) ≠ e) → result ≡ i
                  0 ≤ result
                  result ≤ s.size                                """
-    for (i <- 0 until s.size if e == s(i)) {
+    for (i <- z"0" until s.size if e == s(i)) {
       return i
     }
     return s.size
@@ -355,6 +391,290 @@ import org.sireum._
   }
 
   @pure def takeRight(size: Z): IS[Z, V] = {
+    l""" requires 0 ≤ size
+                  size ≤ s.size
+         ensures  result.size ≡ size
+                  ∀i: [0, result.size)  result(i) ≡ s(s.size - size + i) """
+
+    return laxSlice(s.size - size, s.size)
+  }
+}
+
+
+@ext object MSZOpsUtil {
+  @pure def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
+
+  def mParMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+
+  @pure def parMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+    l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
+
+  def mParMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+
+  @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B): MS[Z, V] =
+    l""" ensures result.size ≡ s.size
+                 ∀i: [0, result.size - 1) lt(i, i + 1)
+                 SOps.isPermutation(s, result)         """
+}
+
+@datatype class MSZOps[V](s: MS[Z, V]) extends SOps[Z, V] with MSOps[Z, V] {
+
+  @pure def :+(e: V): MS[Z, V] = {
+    l""" ensures result.size ≡ s.size + 1
+                 ∀i: [0, result.size)  result(i) ≡ s(i)
+                 result(result.size - 1) ≡ e            """
+
+    return s :+ e
+  }
+
+  @pure def +:(e: V): MS[Z, V] = {
+    l""" ensures result.size ≡ s.size + 1
+                 ∀i: [1, result.size)  result(i) ≡ s(i - 1)
+                 result(0) ≡ e                              """
+
+    return e +: s
+  }
+
+  @pure def ++(other: MS[Z, V]): MS[Z, V] = {
+    l""" ensures result.size ≡ s.size + other.size
+                 ∀i: [0, s.size)  result(i) ≡ s(i)
+                 ∀i: [0, other.size)  result(s.size + i) ≡ other(i) """
+
+    return s ++ other
+  }
+
+  @pure def chunk(size: Z): MS[Z, MS[Z, V]] = {
+    l""" requires 0 < size
+                  size <= s.size
+         ensures  if (s.size % size ≡ 0) result.size * size ≡ s.size
+                    else (result.size - 1) * size + s.size % size ≡ s.size
+                  if (s.size % size ≡ 0) ∀i: [0, result.size)  result(i).size ≡ size
+                    else ∀i: [0, result.size - 1)  result(i).size ≡ size
+                  s.size % size ≠ 0 → result(result.size - 1).size ≡ s.size % size
+                  ∀i: [0, result.size)
+                    ∀j: [0, result(i).size)
+                      s(i * result.size + j) ≡ result(i)(j)                          """
+
+    var r = MS[Z, MS[Z, V]]()
+    var chunk = MS[Z, V]()
+    for (e <- s) {
+      if (chunk.size == size) {
+        r = r :+ chunk
+        chunk = MS[Z, V]()
+      }
+      chunk = chunk :+ e
+    }
+    if (chunk.nonEmpty) {
+      r = r :+ chunk
+    }
+    return r
+  }
+
+  @pure def contains(e: V): B = {
+    l""" ensures result ≡ (∃i: [0, s.size) s(i) ≡ e) """
+
+    return exists((x: V) => x == e)
+  }
+
+  @pure def drop(size: Z): MS[Z, V] = {
+    l""" requires 0 ≤ size
+                  size ≤ s.size
+         ensures  result.size ≡ s.size - size
+                  ∀i: [0, s.size - size)  result(i) ≡ s(size + i) """
+
+    return laxSlice(size, s.size)
+  }
+
+  @pure def dropRight(size: Z): MS[Z, V] = {
+    l""" requires 0 ≤ size
+                  size ≤ s.size
+         ensures  result.size ≡ s.size - size
+                  ∀i: [0, s.size - size)  result(i) ≡ s(i) """
+
+    return laxSlice(0, s.size - size)
+  }
+
+  @pure def exists(p: V => B): B = {
+    l""" ensures result ≡ (∃i: [0, s.size) p(i)) """
+
+    for (e <- s) {
+      if (p(e)) {
+        return T
+      }
+    }
+    return F
+  }
+
+  @pure def first: V = {
+    l""" requires s.size > 0
+         ensures  result ≡ s(0) """
+
+    return s(0)
+  }
+
+  @pure def forall(p: V => B): B = {
+    l""" ensures result ≡ (∀i: [0, s.size) p(i)) """
+
+    for (e <- s) {
+      if (!p(e)) {
+        return F
+      }
+    }
+    return T
+  }
+
+  @pure def foldLeft[R](f: (R, V) => R, init: R): R = {
+    l""" ensures result ≡ ISOps.foldLeftSpec(s, f, init, s.size - 1) """
+
+    var r = init
+    for (e <- s) {
+      r = f(r, e)
+    }
+    return r
+  }
+
+  @pure def foldRight[R](f: (R, V) => R, init: R): R = {
+    l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
+
+    var r = init
+    for (i <- s.indices.reverse) {
+      r = f(r, s(i))
+    }
+    return r
+  }
+
+  @pure def insert(i: Z, e: V): MS[Z, V] = {
+    l""" requires 0 ≤ i
+                  i <= s.size
+         ensures  result.size ≡ s.size + 1
+                  ∀j: [0, i) result(j) ≡ s(j)
+                  result(i) ≡ e
+                  ∀j: [j, s.size) result(j + 1) ≡ s(j) """
+    return (laxSlice(0, i) :+ e) ++ laxSlice(i, s.size)
+  }
+
+  @pure def last: V = {
+    l""" requires s.size > 0
+         ensures  result ≡ s(s.size - 1) """
+
+    return s(s.size - 1)
+  }
+
+  @pure def indexOf(e: V): Z = {
+    l""" ensures (0 ≤ result ∧ result < s.size) → s(result) ≡ e
+                 (result ≡ s.size) ≡ (∀i: [0, s.size) s(i) ≠ e)
+                 ∃i: [0, s.size) s(i) ≡ e ∧ (∀j: [0, i) s(j) ≠ e) → result ≡ i
+                 0 ≤ result
+                 result ≤ s.size                                """
+    for (i <- z"0" until s.size if e == s(i)) {
+      return i
+    }
+    return s.size
+  }
+
+  @pure def laxSlice(from: Z, til: Z): MS[Z, V] = {
+    l""" ensures if (til > from) result.size ≡ NO(til).min(s.size) - NO(0).max(from)
+                   else result.size ≡ 0
+                 ∀i: [i, result.size) result(i) ≡ s(NO(0).max(from) + i)               """
+
+    var r = MS[Z, V]()
+    for (i <- from until til if 0 <= i && i < s.size) {
+      r = r :+ s(i)
+    }
+    return r
+  }
+
+  @pure def map[U](f: V => U): MS[Z, U] = {
+    l""" ensures result.size ≡ s.size
+                 ∀i: [0, result.size)  result(i) ≡ f(s(i)) """
+
+    return s.map(f)
+  }
+
+  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = MSZOpsUtil.parMapFoldLeft(s, f, g, init)
+    return r
+  }
+
+  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = MSZOpsUtil.mParMapFoldLeft(s, f, g, init)
+    return r
+  }
+
+  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = MSZOpsUtil.parMapFoldRight(s, f, g, init)
+    return r
+  }
+
+  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+    val r = MSZOpsUtil.mParMapFoldRight(s, f, g, init)
+    return r
+  }
+
+  @pure def remove(i: Z): MS[Z, V] = {
+    l""" requires 0 ≤ i
+                  i < s.size
+         ensures  result.size ≡ s.size - 1
+                  ∀j: [0, i)  result(j) ≡ s(j)
+                  ∀j: [i, result.size)  result(j) ≡ s(j + 1)
+     """
+    return laxSlice(0, i) ++ laxSlice(i + 1, s.size)
+  }
+
+  @pure def reverse: MS[Z, V] = {
+    l""" ensures  result.size ≡ s.size
+                  ∀i: [0, s.size)  result(i) ≡ s(s.size - 1 - i)
+     """
+
+    val r = s
+    var i = 0
+    var j = s.size - 1
+    val half = s.size / 2
+    while (i < half) {
+      val t = r(i)
+      r(i) = r(j)
+      r(j) = t
+      i = i + 1
+      j = j - 1
+    }
+    return r
+  }
+
+
+  @pure def slice(from: Z, til: Z): MS[Z, V] = {
+    l""" requires 0 ≤ from
+                  from < s.size
+                  0 ≤ til
+                  til ≤ s.size
+                  from ≤ til
+         ensures  result.size ≡ til - from
+                  ∀i: [0, result.size) result(i) ≡ s(from + i) """
+
+    return laxSlice(from, til)
+  }
+
+  @pure def sortWith(lt: (V, V) => B): MS[Z, V] = {
+    return MSZOpsUtil.sortWith(s, lt)
+  }
+
+  @pure def tail: MS[Z, V] = {
+    l""" requires s.size > 0
+         ensures  result.size ≡ s.size - 1
+                  ∀i: [0, result.size)  result(i) ≡ s(i + 1) """
+    return drop(1)
+  }
+
+  @pure def take(size: Z): MS[Z, V] = {
+    l""" requires 0 ≤ size
+                  size ≤ s.size
+         ensures  result.size ≡ size
+                  ∀i: [0, result.size)  result(i) ≡ s(i) """
+
+    return laxSlice(0, size)
+  }
+
+  @pure def takeRight(size: Z): MS[Z, V] = {
     l""" requires 0 ≤ size
                   size ≤ s.size
          ensures  result.size ≡ size
