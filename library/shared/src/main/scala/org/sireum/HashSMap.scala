@@ -44,10 +44,6 @@ object HashSMap {
     return keys.size
   }
 
-  @pure override def hash: Z = {
-    return map.hash
-  }
-
   @pure def entries: ISZ[(K, V)] = {
     var r = ISZ[(K, V)]()
     for (k <- keys.elements) {
@@ -104,10 +100,6 @@ object HashSMap {
     return HashSMap(map.remove(key, value), keys.remove(key))
   }
 
-  @pure def isEqual(other: HashSMap[K, V]): B = {
-    return map.isEqual(other.map)
-  }
-
   @pure def contains(key: K): B = {
     return map.contains(key)
   }
@@ -118,6 +110,22 @@ object HashSMap {
 
   @pure def nonEmpty: B = {
     return size != z"0"
+  }
+
+  @pure def string: String = {
+    val r =
+      st"""{
+          |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+          |}"""
+    return r.render
+  }
+
+  @pure override def hash: Z = {
+    return map.hash
+  }
+
+  @pure def isEqual(other: HashSMap[K, V]): B = {
+    return map.isEqual(other.map)
   }
 
 }

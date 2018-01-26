@@ -108,4 +108,12 @@ object Set {
   @pure def elements: ISZ[T] = {
     return map.keys
   }
+
+  @pure def string: String = {
+    val r =
+      st"""{
+          |  ${(elements, ",\n")}
+          |}"""
+    return r.render
+  }
 }

@@ -39,9 +39,6 @@ object HashMap {
 }
 
 @datatype class HashMap[K, V](mapEntries: ISZ[Map[K, V]], size: Z) {
-  @pure override def hash: Z = {
-    return size
-  }
 
   @pure def entries: ISZ[(K, V)] = {
     var r = ISZ[(K, V)]()
@@ -143,7 +140,31 @@ object HashMap {
 
   @pure def remove(key: K, value: V): HashMap[K, V] = {
     val i = hashIndex(key)
-    return this(mapEntries = mapEntries(i -> mapEntries(i).remove(key, value)), size = size - 1)
+    return this (mapEntries = mapEntries(i -> mapEntries(i).remove(key, value)), size = size - 1)
+  }
+
+  @pure def contains(key: K): B = {
+    return get(key).nonEmpty
+  }
+
+  @pure def isEmpty: B = {
+    return size == z"0"
+  }
+
+  @pure def nonEmpty: B = {
+    return size != z"0"
+  }
+
+  @pure def string: String = {
+    val r =
+      st"""{
+          |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+          |}"""
+    return r.render
+  }
+
+  @pure override def hash: Z = {
+    return size
   }
 
   @pure def isEqual(other: HashMap[K, V]): B = {
@@ -180,17 +201,5 @@ object HashMap {
     }
 
     return T
-  }
-
-  @pure def contains(key: K): B = {
-    return get(key).nonEmpty
-  }
-
-  @pure def isEmpty: B = {
-    return size == z"0"
-  }
-
-  @pure def nonEmpty: B = {
-    return size != z"0"
   }
 }

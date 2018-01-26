@@ -34,10 +34,6 @@ object Map {
 
 @datatype class Map[K, V](entries: ISZ[(K, V)]) {
 
-  @pure override def hash: Z = {
-    return entries.size
-  }
-
   @pure def keys: ISZ[K] = {
     var r = ISZ[K]()
     for (kv <- entries) {
@@ -109,6 +105,49 @@ object Map {
     return Map(entries - ((key, value)))
   }
 
+  @pure def contains(key: K): B = {
+    return indexOf(key) >= 0
+  }
+
+  @pure def isEmpty: B = {
+    return size == z"0"
+  }
+
+  @pure def nonEmpty: B = {
+    return size != z"0"
+  }
+
+  @pure def size: Z = {
+    return entries.size
+  }
+
+  @pure def toHashMap: HashMap[K, V] = {
+    var r = HashMap.emptyInit[K, V](size)
+    for (kv <- entries) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
+
+  @pure def toHashSMap: HashSMap[K, V] = {
+    var r = HashSMap.emptyInit[K, V](size)
+    for (kv <- entries) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
+
+  @pure def string: String = {
+    val r = st"""{
+                |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+                |}"""
+    return r.render
+  }
+
+  @pure override def hash: Z = {
+    return entries.size
+  }
+
   @pure def isEqual(other: Map[K, V]): B = {
     if (size != other.size) {
       return F
@@ -140,37 +179,5 @@ object Map {
     }
 
     return T
-  }
-
-  @pure def contains(key: K): B = {
-    return indexOf(key) >= 0
-  }
-
-  @pure def isEmpty: B = {
-    return size == z"0"
-  }
-
-  @pure def nonEmpty: B = {
-    return size != z"0"
-  }
-
-  @pure def size: Z = {
-    return entries.size
-  }
-
-  @pure def toHashMap: HashMap[K, V] = {
-    var r = HashMap.emptyInit[K, V](size)
-    for (kv <- entries) {
-      r = r.put(kv._1, kv._2)
-    }
-    return r
-  }
-
-  @pure def toHashSMap: HashSMap[K, V] = {
-    var r = HashSMap.emptyInit[K, V](size)
-    for (kv <- entries) {
-      r = r.put(kv._1, kv._2)
-    }
-    return r
   }
 }

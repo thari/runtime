@@ -112,4 +112,12 @@ object HashSSet {
   @pure def elements: ISZ[T] = {
     return map.keys.elements
   }
+
+  @pure def string: String = {
+    val r =
+      st"""{
+          |  ${(elements, ",\n")}
+          |}"""
+    return r.render
+  }
 }
