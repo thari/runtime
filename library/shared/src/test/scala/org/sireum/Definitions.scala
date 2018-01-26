@@ -144,8 +144,8 @@ object F2MessagePack {
 
   }
 
-  def writer: Writer = {
-    return Writer(MessagePack.writer)
+  def writer(poolString: B): Writer = {
+    return Writer(MessagePack.writer(poolString))
   }
 
   def reader(data: ISZ[U8]): Reader = {

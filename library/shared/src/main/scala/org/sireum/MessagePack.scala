@@ -556,52 +556,66 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(val buf: MSZ[U8],
+    @record class Impl(val poolString: B,
+                       val buf: MSZ[U8],
                        var size: Z,
-                       val stringPool: MSZ[String],
-                       var stringPoolSize: Z) extends Writer {
+                       var stringPool: HashSMap[String, Z]) extends Writer {
 
       def result: ISZ[U8] = {
-        val poolBufferSize: Z = {
-          var r: Z = 0
-          var i: Z = 0
-          while (i < stringPoolSize) {
-            r = r + 2 * stringPool(i).size
-            i = i + 1
+        if (poolString) {
+          val strings = stringPool.keys.elements
+          val poolBufferSize: Z = {
+            var r: Z = 0
+            for (s <- strings) {
+              r = r + s.size * 2
+            }
+            r + 4
           }
-          r
-        }
-        val (stringPoolBuf: MSZ[U8], stringPoolBufSize: Z) = {
-          val r = Impl(MSZ.create(poolBufferSize, u8"0"), 0, MSZ(), 0)
-          r.writeZ(stringPoolSize)
-          var i: Z = 0
-          while (i < stringPoolSize) {
-            r.writeStringConstant(stringPool(i))
-            i = i + 1
+          val (stringPoolBuf: MSZ[U8], stringPoolBufSize: Z) = {
+            val r = Impl(F, MSZ.create(poolBufferSize, u8"0"), 0, HashSMap.empty)
+            r.writeZ(strings.size)
+            for (s <- strings) {
+              r.writeStringConstant(s)
+            }
+            (r.buf, r.size)
           }
-          (r.buf, r.size)
-        }
 
-        val r = MSZ.create(stringPoolBufSize + size, u8"0")
-        var i = 0
-        while (i < stringPoolBufSize) {
-          r(i) = stringPoolBuf(i)
-          i = i + 1
+          val r = MSZ.create(stringPoolBufSize + size + 1, u8"0")
+          r(0) = Code.TRUE
+          var i = 0
+          var j = 1
+          while (i < stringPoolBufSize) {
+            r(j) = stringPoolBuf(i)
+            i = i + 1
+            j = j + 1
+          }
+          i = 0
+          while (i < size) {
+            r(j) = buf(i)
+            i = i + 1
+            j = j + 1
+          }
+          return r.toIS
+        } else {
+          val r = MSZ.create(size + 1, u8"0")
+          r(0) = Code.FALSE
+          var i = 0
+          while (i < size) {
+            r(i + 1) = buf(i)
+            i = i + 1
+          }
+          return r.toIS
         }
-        i = 0
-        while (i < size) {
-          r(stringPoolBufSize + i) = buf(i)
-          i = i + 1
-        }
-        return r.toIS
       }
 
-      def addString(s: String): Unit = {
-        if (stringPoolSize == stringPool.size) {
-          stringPool.expand(stringPoolSize + 1, "")
+      def addString(s: String): Z = {
+        stringPool.get(s) match {
+          case Some(i) => return i
+          case _ =>
+            val i = stringPool.size
+            stringPool = stringPool.put(s, i)
+            return i
         }
-        stringPool(stringPoolSize) = s
-        stringPoolSize = stringPoolSize + 1
       }
 
       def addU8(n: U8): Unit = {
@@ -896,8 +910,13 @@ object MessagePack {
 
       def writeString(s: String): Unit = {
         l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
-        writeZ(stringPoolSize)
-        addString(s)
+
+        if (poolString) {
+          val i = addString(s)
+          writeZ(i)
+        } else {
+          writeStringConstant(s)
+        }
       }
 
       def writeExtTypeHeader(extType: S8, payloadLen: Z): Unit = {
@@ -1560,28 +1579,26 @@ object MessagePack {
 
     @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String]) extends Reader {
 
-      var initialized: B = F
+      val poolString: B = {
+        val r = readB()
+        if (r) {
+          val size = readZ()
+          stringPool.expand(size, "")
+          var i = 0
+          while (i < size) {
+            val s = readStringConstant()
+            stringPool(i) = s
+            i = i + 1
+          }
+        }
+        r
+      }
 
       def peek(): U8 = {
         return buf(curr)
       }
 
-      def readStringPool(): Unit = {
-        val size = readZ()
-        stringPool.expand(size, "")
-        var i = 0
-        while (i < size) {
-          val s = readStringConstant()
-          stringPool(i) = s
-          i = i + 1
-        }
-      }
-
       def read8(): U8 = {
-        if (!initialized) {
-          initialized = T
-          readStringPool()
-        }
         val r = peek()
         skip(1)
         return r
@@ -1726,8 +1743,13 @@ object MessagePack {
       }
 
       def readString(): String = {
-        val index = readZ()
-        return stringPool(index)
+        if (poolString) {
+          val index = readZ()
+          return stringPool(index)
+        } else {
+          val r = readStringConstant()
+          return r
+        }
       }
 
       def readArrayHeader(): Z = {
@@ -1861,8 +1883,8 @@ object MessagePack {
 
   }
 
-  def writer: Writer = {
-    return Writer.Impl(MS.create(1024, u8"0"), 0, MS.create(1024, ""), 0)
+  def writer(poolString: B): Writer = {
+    return Writer.Impl(poolString, MS.create(1024, u8"0"), 0, HashSMap.emptyInit(1024))
   }
 
   def reader(data: ISZ[U8]): Reader = {
