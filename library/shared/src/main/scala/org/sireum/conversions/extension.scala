@@ -1585,9 +1585,17 @@ object String_Ext {
   @pure def toBms(s: String): MS[Z, U8] =
     MS[Z, U8](s.value.getBytes("UTF-8").map(org.sireum.U8(_)): _*)
 
-  @pure def toCis(s: String): IS[Z, C] =
-    IS[Z, C](s.value.codePoints.toArray.map(org.sireum.C.apply): _*)
+  @pure def toCis(s: String): IS[Z, C] = {
+    toCms(s).toIS
+  }
 
-  @pure def toCms(s: String): MS[Z, C] =
-    MS[Z, C](s.value.codePoints.toArray.map(org.sireum.C.apply): _*)
+  @pure def toCms(s: String): MS[Z, C] = {
+    val str = s.value
+    val n = str.codePointCount(0, str.length)
+    val ms = MSZ.create[C](n, '\u0000')
+    for (i <- 0 until n) {
+      ms(i) = org.sireum.C(str.codePointAt(i))
+    }
+    ms
+  }
 }
