@@ -429,7 +429,7 @@ object Json {
           return F
         }
         val p = computeLineColumn(offset)
-        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input.at(offset)}' found."))
+        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input(offset)}' found."))
         return F
       } else {
         return T
@@ -1289,7 +1289,7 @@ object Json {
 
     def at(i: Z): C = {
       if (0 <= i && i < input.size && errorOpt.isEmpty) {
-        return input.at(i)
+        return input(i)
       }
       return '\u0000'
     }

@@ -1556,12 +1556,12 @@ object String_Ext {
 
   @pure def fromCis[I](cs: IS[I, C]): String = {
     if (cs.isEmpty) return ""
-    new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt)
+    new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Int]], 0, cs.length.toInt)
   }
 
   @pure def fromCms[I](cs: MS[I, C]): String = {
     if (cs.isEmpty) return ""
-    new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Char]], 0, cs.length.toInt)
+    new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Int]], 0, cs.length.toInt)
   }
 
   @pure def fromBase64(s: String): IS[Z, U8] = {
@@ -1586,8 +1586,8 @@ object String_Ext {
     MS[Z, U8](s.value.getBytes("UTF-8").map(org.sireum.U8(_)): _*)
 
   @pure def toCis(s: String): IS[Z, C] =
-    IS[Z, C](s.value.map(org.sireum.C.apply): _*)
+    IS[Z, C](s.value.codePoints.toArray.map(org.sireum.C.apply): _*)
 
   @pure def toCms(s: String): MS[Z, C] =
-    MS[Z, C](s.value.map(org.sireum.C.apply): _*)
+    MS[Z, C](s.value.codePoints.toArray.map(org.sireum.C.apply): _*)
 }

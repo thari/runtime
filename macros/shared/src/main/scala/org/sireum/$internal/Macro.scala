@@ -88,8 +88,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang c\"...\" should not contain $$ arguments.")
     val s = Macro.eval[String](c)(parts.head)
-    if (s.length != 1) c.abort(c.prefix.tree.pos, "Slang c\"...\" can only have a single character.")
-    q"_root_.org.sireum.C(${parts.head}.head)"
+    if (s.codePointCount(0, s.length) != 1) c.abort(c.prefix.tree.pos, "Slang c\"...\" can only have a single character.")
+    q"_root_.org.sireum.C(${parts.head}.codePointAt(0))"
   }
 
   def f32Apply(args: c.Tree*): c.Tree = {

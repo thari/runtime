@@ -32,11 +32,18 @@ import org.sireum._
   def toUnicodeHex: (C, C, C, C) = {
     return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))
   }
+  def toUpper: C = {
+    if ('a' <= c && c <= 'z') {
+      return c - '\u0020'
+    } else {
+      return c
+    }
+  }
 }
 
 object COps {
   def c2hex(c: C): Option[C] = {
-    c match {
+    c.native match {
       case '0' => return Some('\u0000')
       case '1' => return Some('\u0001')
       case '2' => return Some('\u0002')
@@ -64,7 +71,7 @@ object COps {
   }
 
   def hex2c(c: C): C = {
-    val r: C = c match {
+    val r: C = c.native match {
       case '\u0000' => '0'
       case '\u0001' => '1'
       case '\u0002' => '2'

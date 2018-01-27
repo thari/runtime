@@ -30,40 +30,52 @@ object C {
 
   object Boxer extends $internal.Boxer {
     def box[T](o: scala.Any): T = o match {
-      case o: scala.Char => C(o).asInstanceOf[T]
+      case o: scala.Int => C(o).asInstanceOf[T]
     }
 
-    def unbox(o: scala.Any): scala.Char = o match {
+    def unbox(o: scala.Any): scala.Int = o match {
       case o: C => o.value
     }
 
     override def copyMut(src: AnyRef, srcPos: Z, dest: AnyRef, destPos: Z, length: Z): Unit =
       copy(src, srcPos, dest, destPos, length)
 
-    override def create(length: Z): scala.AnyRef = new Array[scala.Char](length)
+    override def create(length: Z): scala.AnyRef = new Array[scala.Int](length)
 
     override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
-      case a: Array[scala.Char] => box(a(i))
+      case a: Array[scala.Int] => box(a(i))
     }
 
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
-      case a: Array[scala.Char] => a(i) = unbox(v)
+      case a: Array[scala.Int] => a(i) = unbox(v)
     }
   }
 
-  def random: C = new _root_.java.util.Random().nextInt.toChar
+  def random: C = C(new _root_.java.util.Random().nextInt.toChar.toInt)
 
-  def unapply(c: C): scala.Option[scala.Char] = scala.Some(c.value)
+  def unapply(c: C): scala.Option[scala.Int] = scala.Some(c.value)
 
   import scala.language.implicitConversions
 
-  @inline implicit def apply(c: scala.Char): C = new C(c)
+  @inline def apply(c: scala.Int): C = new C(c)
+
+  @inline implicit def apply(c: scala.Char): C = {
+    require(!(0xD800 <= c && c <= 0xDFFF))
+    new C(c.toInt)
+  }
 
 }
 
-final class C(val value: scala.Char) extends AnyVal with Immutable with $internal.HasBoxer {
+final class C(val value: scala.Int) extends AnyVal with Immutable with $internal.HasBoxer {
 
-  @inline def native: scala.Char = value
+  @inline def native: scala.Char = {
+    require(!(0xD800 <= value && value <= 0xDFFF))
+    value.toChar
+  }
+
+  @inline def +(other: C): C = C(value + other.value)
+
+  @inline def -(other: C): C = C(value - other.value)
 
   @inline def <(other: C): B = value < other.value
 
@@ -73,19 +85,21 @@ final class C(val value: scala.Char) extends AnyVal with Immutable with $interna
 
   @inline def >=(other: C): B = value >= other.value
 
-  @inline def >>>(other: C): C = (value >>> other.value).toChar
+  @inline def >>>(other: C): C = C(value >>> other.value)
 
-  @inline def <<(other: C): C = (value << other.value).toChar
+  @inline def >>(other: C): C = C(value >>> other.value)
 
-  @inline def &(other: C): C = (value & other.value).toChar
+  @inline def <<(other: C): C = C(value << other.value)
 
-  @inline def |(other: C): C = (value | other.value).toChar
+  @inline def &(other: C): C = C(value & other.value)
 
-  @inline def |^(other: C): C = (value ^ other.value).toChar
+  @inline def |(other: C): C = C(value | other.value)
+
+  @inline def |^(other: C): C = C(value ^ other.value)
 
   @inline override def string: String = toString
 
-  @inline override def toString: Predef.String = value.toString
+  @inline override def toString: Predef.String = new Predef.String(Array(value), 0, 1)
 
   def boxer: $internal.Boxer = C.Boxer
 

@@ -50,8 +50,10 @@ package object sireum extends $internal.PackageTrait {
     object c {
       def apply(args: Any*): C = macro Macro.cApply
       def unapply(c: C): scala.Boolean = {
-        assume(sc.parts.size == 1)
-        c.value.toString == sc.parts.head
+        require(sc.parts.length == 1)
+        val part = StringContext.treatEscapes(sc.parts.head)
+        require(part.codePointCount(0, part.length) == 1)
+        c.value == part.codePointAt(0)
       }
     }
 
@@ -83,7 +85,9 @@ package object sireum extends $internal.PackageTrait {
       def apply(args: Any*): String = macro Macro.stringApply
       def unapply(s: String): scala.Boolean = {
         assume(sc.parts.size == 1)
-        s.value == sc.parts.head
+        val other = StringContext.treatEscapes(sc.parts.head)
+        val r = s.value == other
+        r
       }
     }
 

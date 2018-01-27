@@ -77,16 +77,15 @@ final class String(val value: Predef.String) extends AnyVal with Immutable with 
 
   @inline override def toString: Predef.String = value
 
-  @inline def at(i: Z): C = {
-    val index = i.toIndex
-    assert(0 <= index && index <= value.length, s"String indexing out of bound: $i")
-    value.charAt(index.toInt)
+  @inline def apply(i: Z): C = {
+    require(0 <= i && i <= size, s"String indexing out of bound: $i")
+    C(value.codePointAt(i.toInt))
   }
 
   def stripPrefix(prefix: Predef.String): Predef.String = value.stripPrefix(prefix)
 
   @inline def boxer: $internal.Boxer = String.Boxer
 
-  @inline def size: Z = value.length
+  @inline def size: Z = value.codePointCount(0, value.length)
 
 }
