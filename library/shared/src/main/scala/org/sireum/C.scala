@@ -51,7 +51,14 @@ object C {
     }
   }
 
-  def random: C = C(new _root_.java.util.Random().nextInt.toChar.toInt)
+  def random: C = {
+    val r = new _root_.java.util.Random
+    var c = r.nextInt.toChar
+    while (0xD800 <= c && c <= 0xDFFF) {
+      c = r.nextInt.toChar
+    }
+    C(c.toInt)
+  }
 
   def unapply(c: C): scala.Option[scala.Int] = scala.Some(c.value)
 
