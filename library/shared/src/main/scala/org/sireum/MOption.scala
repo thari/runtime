@@ -41,6 +41,8 @@ package org.sireum
 
   @pure def getOrElse(default: T): T
 
+  @pure def get: T
+
   @pure def toMS: MS[Z, T]
 
   def foreach(f: T => Unit): Unit
@@ -82,6 +84,11 @@ package org.sireum
   @pure def getOrElse(default: T): T = {
     l""" ensures  result ≡ default """
     return default
+  }
+
+  @pure def get: T = {
+    l""" requires  F """
+    halt("Invalid 'MNone' operation 'get'.")
   }
 
   @pure def toMS: MS[Z, T] = {
@@ -126,6 +133,11 @@ package org.sireum
   }
 
   @pure def getOrElse(default: T): T = {
+    l""" ensures  result ≡ value """
+    return value
+  }
+
+  @pure def get: T = {
     l""" ensures  result ≡ value """
     return value
   }
