@@ -149,7 +149,7 @@ class STest extends SireumRuntimeSpec {
 
     *(ISZOps(s).contains(s(2)))
 
-    *(ISZOps(s :+ 1).forall(_ >= z"1"))
+    *(ISZOps(ISZOps(s :+ 1).drop(4)).forall(_ >= z"1"))
 
     *(ISZOps(s :+ 2).exists(_ == z"2"))
 
