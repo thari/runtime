@@ -966,6 +966,8 @@ object MessagePack {
 
   @record trait Reader {
 
+    def init(): Unit
+
     def readB(): B
 
     def readC(): C = {
@@ -1577,9 +1579,12 @@ object MessagePack {
 
   object Reader {
 
-    @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String]) extends Reader {
+    @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String], var poolString: B) extends Reader {
 
-      val poolString: B = {
+      var initialized: B = F
+
+      def init(): Unit = {
+        initialized = T
         val r = readB()
         if (r) {
           val size = readZ()
@@ -1591,7 +1596,7 @@ object MessagePack {
             i = i + 1
           }
         }
-        r
+        poolString = r
       }
 
       def peek(): U8 = {
@@ -1599,6 +1604,7 @@ object MessagePack {
       }
 
       def read8(): U8 = {
+        require(initialized, "MessagePack.Reader.init() has not been called.")
         val r = peek()
         skip(1)
         return r
@@ -1888,6 +1894,6 @@ object MessagePack {
   }
 
   def reader(data: ISZ[U8]): Reader = {
-    return Reader.Impl(data, 0, MSZ())
+    return Reader.Impl(data, 0, MSZ(), F)
   }
 }

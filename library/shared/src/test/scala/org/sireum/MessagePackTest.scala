@@ -198,6 +198,7 @@ class MessagePackTest extends SireumRuntimeSpec {
         w.writeF2(o)
         val data = w.writer.result
         val r = F2MessagePack.reader(data)
+        r.reader.init()
         assert(o == r.readF2())
         true
       }
@@ -207,6 +208,7 @@ class MessagePackTest extends SireumRuntimeSpec {
         w.writeF2(o)
         val data = w.writer.result
         val r = F2MessagePack.reader(data)
+        r.reader.init()
         assert(o == r.readF2())
         true
       }
@@ -220,6 +222,7 @@ class MessagePackTest extends SireumRuntimeSpec {
       f(w)
       val buf = w.result
       val r = MessagePack.reader(buf)
+      r.init()
       assert(g(r) == n)
       true
     }
