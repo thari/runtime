@@ -60,7 +60,7 @@ import org.sireum._
       return F
     }
     val cis = conversions.String.toCis(s)
-    val otherCis = conversions.String.toCis(s)
+    val otherCis = conversions.String.toCis(other)
     for (i <- z"0" until other.size) {
       if (otherCis(i) != cis(i)) {
         return F
@@ -76,7 +76,7 @@ import org.sireum._
       return F
     }
     val cis = conversions.String.toCis(s)
-    val otherCis = conversions.String.toCis(s)
+    val otherCis = conversions.String.toCis(other)
     for (i <- other.size - 1 to 0 by -1) {
       if (otherCis(i) != cis(i)) {
         return F
