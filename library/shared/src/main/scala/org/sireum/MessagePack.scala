@@ -188,7 +188,7 @@ object MessagePack {
     def writeB(b: B): Unit
 
     def writeC(c: C): Unit = {
-      writeU16(conversions.C.toU16(c))
+      writeU32(conversions.C.toU32(c))
     }
 
     def writeZ(n: Z): Unit
@@ -889,6 +889,15 @@ object MessagePack {
       }
 
       def writeStringConstant(s: String): Unit = {
+        val size = s.size
+        writeZ(size)
+        for (i <- z"0" until size) {
+          writeU32(conversions.C.toU32(s(i)))
+        }
+      }
+
+      /*
+      def writeStringConstant(s: String): Unit = {
         val bis = conversions.String.toBis(s)
         val len = bis.size
         if (len < 32 /* 1 << 5 */ ) {
@@ -907,6 +916,7 @@ object MessagePack {
           addU8(e)
         }
       }
+      */
 
       def writeString(s: String): Unit = {
         l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
@@ -971,8 +981,8 @@ object MessagePack {
     def readB(): B
 
     def readC(): C = {
-      val n = readU16()
-      return conversions.U16.toC(n)
+      val n = readU32()
+      return conversions.U32.toC(n)
     }
 
     def readZ(): Z
@@ -1718,6 +1728,17 @@ object MessagePack {
       }
 
       def readStringConstant(): String = {
+        val size = readZ()
+        val ms = MSZ.create[C](size, '\u0000')
+        for (i <- z"0" until size) {
+          val c = readU32()
+          ms(i) = conversions.U32.toC(c)
+        }
+        return conversions.String.fromCms(ms)
+      }
+
+      /*
+      def readStringConstant(): String = {
         val code = read8()
         val len: Z = {
           var r: Z = 0
@@ -1747,6 +1768,7 @@ object MessagePack {
         }
         return conversions.String.fromBms(a)
       }
+      */
 
       def readString(): String = {
         if (poolString) {
