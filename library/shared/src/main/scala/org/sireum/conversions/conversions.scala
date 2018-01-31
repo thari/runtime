@@ -2112,10 +2112,6 @@ import org.sireum._
 
   @pure def toBase64(data: IS[Z, U8]): String = $
 
-  @pure def fromBis[I](bs: IS[I, U8]): String = $
-
-  @pure def fromBms[I](bs: MS[I, U8]): String = $
-
   @pure def fromCis[I](cs: IS[I, C]): String = $
 
   @pure def fromCms[I](cs: MS[I, C]): String = $
