@@ -2,10 +2,6 @@ language: none
 
 services:
 
-env:
-  global:
-    - JAVA_OPTIONS="-Xmx2G -XX:+UseG1GC -XX:ReservedCodeCacheSize=1G -Xss2m
-
 build:
   pre_ci:
   pre_ci_boot:
