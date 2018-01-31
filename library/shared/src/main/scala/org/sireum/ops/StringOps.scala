@@ -30,6 +30,23 @@ import org.sireum._
 
 @datatype class StringOps(s: String) {
 
+  def substring(start: Z, until: Z): String = {
+    l""" requires 0 ≤ start ∧ start < s.size
+                  start ≤ until
+                  until ≤ s.size
+         ensures  result.size ≡ until - start
+                  ∀i: [0, result.size) result(i) ≡ s(start + i) """
+    var ms = MSZ.create[C](until - start, '\u0000')
+    var i = start
+    var j = 0
+    while (i < until) {
+      ms(j) = s(i)
+      i = i + 1
+      j = j + 1
+    }
+    return conversions.String.fromCms(ms)
+  }
+
   def startsWith(other: String): B = {
     l""" ensures  result ≡ ((size >= other.size) ∧
                             ∀i: [0, other.size) s(i) ≡ other(i)) """
