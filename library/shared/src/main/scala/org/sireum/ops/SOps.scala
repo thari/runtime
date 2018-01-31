@@ -36,19 +36,19 @@ import org.sireum._
 
   @pure def first: V
 
-  @pure def foldLeft[R](f: (R, V) => R, init: R): R
+  @pure def foldLeft[R](f: (R, V) => R @pure, init: R): R
 
-  @pure def foldRight[R](f: (R, V) => R, init: R): R
+  @pure def foldRight[R](f: (R, V) => R @pure, init: R): R
 
-  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+  @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
+  def mParMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R
+  @pure def parMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R
+  def mParMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  @pure def forall(p: V => B): B
+  @pure def forall(p: V => B @pure): B
 
   @pure def indexOf(e: V): I
 
@@ -74,7 +74,7 @@ import org.sireum._
 
   @pure def laxSlice(from: I, til: I): IS[I, V]
 
-  @pure def map[U](f: V => U): IS[I, U]
+  @pure def map[U](f: V => U @pure): IS[I, U]
 
   @pure def remove(i: I): IS[I, V]
 
@@ -82,7 +82,7 @@ import org.sireum._
 
   @pure def slice(from: I, til: I): IS[I, V]
 
-  @pure def sortWith(lt: (V, V) => B): IS[I, V]
+  @pure def sortWith(lt: (V, V) => B @pure): IS[I, V]
 
   @pure def tail: IS[I, V]
 
@@ -110,7 +110,7 @@ import org.sireum._
 
   @pure def laxSlice(from: I, til: I): MS[I, V]
 
-  @pure def map[U](f: V => U): MS[I, U]
+  @pure def map[U](f: V => U @pure): MS[I, U]
 
   @pure def remove(i: I): MS[I, V]
 
@@ -118,7 +118,7 @@ import org.sireum._
 
   @pure def slice(from: I, til: I): MS[I, V]
 
-  @pure def sortWith(lt: (V, V) => B): MS[I, V]
+  @pure def sortWith(lt: (V, V) => B @pure): MS[I, V]
 
   @pure def tail: MS[I, V]
 
@@ -129,17 +129,17 @@ import org.sireum._
 }
 
 @ext object ISZOpsUtil {
-  @pure def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+  @pure def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R =
     l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
-  def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+  def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R = $
 
-  @pure def parMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+  @pure def parMapFoldRight[V, U, R](s: IS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R =
     l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
-  def mParMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
+  def mParMapFoldRight[V, U, R](s: IS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R = $
 
-  @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] =
+  @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B @pure): IS[Z, V] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size - 1) lt(i, i + 1)
                  SOps.isPermutation(s, result)         """
@@ -222,7 +222,7 @@ import org.sireum._
     return laxSlice(0, s.size - size)
   }
 
-  @pure def exists(p: V => B): B = {
+  @pure def exists(p: V => B @pure): B = {
     l""" ensures result ≡ (∃i: [0, s.size) p(i)) """
 
     for (e <- s) {
@@ -240,7 +240,7 @@ import org.sireum._
     return s(0)
   }
 
-  @pure def forall(p: V => B): B = {
+  @pure def forall(p: V => B @pure): B = {
     l""" ensures result ≡ (∀i: [0, s.size) p(i)) """
 
     for (e <- s) {
@@ -251,7 +251,7 @@ import org.sireum._
     return T
   }
 
-  @pure def foldLeft[R](f: (R, V) => R, init: R): R = {
+  @pure def foldLeft[R](f: (R, V) => R @pure, init: R): R = {
     l""" ensures result ≡ ISOps.foldLeftSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -261,7 +261,7 @@ import org.sireum._
     return r
   }
 
-  @pure def foldRight[R](f: (R, V) => R, init: R): R = {
+  @pure def foldRight[R](f: (R, V) => R @pure, init: R): R = {
     l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -312,14 +312,14 @@ import org.sireum._
     return r
   }
 
-  @pure def map[U](f: V => U): IS[Z, U] = {
+  @pure def map[U](f: V => U @pure): IS[Z, U] = {
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ f(s(i)) """
 
     return s.map(f)
   }
 
-  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+  @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R = {
     val r = ISZOpsUtil.parMapFoldLeft(s, f, g, init)
     return r
   }
@@ -329,7 +329,7 @@ import org.sireum._
     return r
   }
 
-  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+  @pure def parMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R = {
     val r = ISZOpsUtil.parMapFoldRight(s, f, g, init)
     return r
   }
@@ -370,7 +370,7 @@ import org.sireum._
     return laxSlice(from, til)
   }
 
-  @pure def sortWith(lt: (V, V) => B): IS[Z, V] = {
+  @pure def sortWith(lt: (V, V) => B @pure): IS[Z, V] = {
     return ISZOpsUtil.sortWith(s, lt)
   }
 
@@ -402,17 +402,17 @@ import org.sireum._
 
 
 @ext object MSZOpsUtil {
-  @pure def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+  @pure def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R =
     l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
 
-  @pure def parMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
+  @pure def parMapFoldRight[V, U, R](s: MS[Z, V], f: V => U @pure, g: (R, U) => R @pure, init: R): R =
     l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = $
 
-  @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B): MS[Z, V] =
+  @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B @pure): MS[Z, V] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size - 1) lt(i, i + 1)
                  SOps.isPermutation(s, result)         """
@@ -495,7 +495,7 @@ import org.sireum._
     return laxSlice(0, s.size - size)
   }
 
-  @pure def exists(p: V => B): B = {
+  @pure def exists(p: V => B @pure): B = {
     l""" ensures result ≡ (∃i: [0, s.size) p(i)) """
 
     for (e <- s) {
@@ -513,7 +513,7 @@ import org.sireum._
     return s(0)
   }
 
-  @pure def forall(p: V => B): B = {
+  @pure def forall(p: V => B @pure): B = {
     l""" ensures result ≡ (∀i: [0, s.size) p(i)) """
 
     for (e <- s) {
@@ -524,7 +524,7 @@ import org.sireum._
     return T
   }
 
-  @pure def foldLeft[R](f: (R, V) => R, init: R): R = {
+  @pure def foldLeft[R](f: (R, V) => R @pure, init: R): R = {
     l""" ensures result ≡ ISOps.foldLeftSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -534,7 +534,7 @@ import org.sireum._
     return r
   }
 
-  @pure def foldRight[R](f: (R, V) => R, init: R): R = {
+  @pure def foldRight[R](f: (R, V) => R @pure, init: R): R = {
     l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -585,14 +585,14 @@ import org.sireum._
     return r
   }
 
-  @pure def map[U](f: V => U): MS[Z, U] = {
+  @pure def map[U](f: V => U @pure): MS[Z, U] = {
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ f(s(i)) """
 
     return s.map(f)
   }
 
-  @pure def parMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+  @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R, init: R): R = {
     val r = MSZOpsUtil.parMapFoldLeft(s, f, g, init)
     return r
   }
@@ -602,7 +602,7 @@ import org.sireum._
     return r
   }
 
-  @pure def parMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R = {
+  @pure def parMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R = {
     val r = MSZOpsUtil.parMapFoldRight(s, f, g, init)
     return r
   }
@@ -654,7 +654,7 @@ import org.sireum._
     return laxSlice(from, til)
   }
 
-  @pure def sortWith(lt: (V, V) => B): MS[Z, V] = {
+  @pure def sortWith(lt: (V, V) => B @pure): MS[Z, V] = {
     return MSZOpsUtil.sortWith(s, lt)
   }
 

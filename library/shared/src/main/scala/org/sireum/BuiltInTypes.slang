@@ -257,11 +257,11 @@ package org.sireum
 
   @pure def -(e: V): IS[I, V]
 
-  @pure def map[V2](f: V => V2): IS[I, V2]
+  @pure def map[V2](f: V => V2 @pure): IS[I, V2]
 
-  @pure def flatMap[V2](f: V => IS[I, V2]): IS[I, V2]
+  @pure def flatMap[V2](f: V => IS[I, V2] @pure): IS[I, V2]
 
-  @pure def withFilter(p: V => B): IS[I, V]
+  @pure def withFilter(p: V => B @pure): IS[I, V]
 
   @pure def foreach(p: V => Unit): Unit
 
@@ -293,11 +293,11 @@ package org.sireum
 
   @pure def -(e: V): MS[I, V]
 
-  @pure def map[V2](f: V => V2): MS[I, V2]
+  @pure def map[V2](f: V => V2 @pure): MS[I, V2]
 
-  @pure def flatMap[V2](f: V => MS[I, V2]): MS[I, V2]
+  @pure def flatMap[V2](f: V => MS[I, V2] @pure): MS[I, V2]
 
-  @pure def withFilter(p: V => B): MS[I, V]
+  @pure def withFilter(p: V => B @pure): MS[I, V]
 
   @pure def foreach(p: V => Unit): Unit
 

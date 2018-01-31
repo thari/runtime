@@ -31,13 +31,13 @@ package org.sireum
 
   @pure def nonEmpty: B
 
-  @pure def map[T2](f: T => T2): MOption[T2]
+  @pure def map[T2](f: T => T2 @pure): MOption[T2]
 
-  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2]
+  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2]
 
-  @pure def forall(f: T => B): B
+  @pure def forall(f: T => B @pure): B
 
-  @pure def exists(f: T => B): B
+  @pure def exists(f: T => B @pure): B
 
   @pure def getOrElse(default: T): T
 
@@ -61,22 +61,22 @@ package org.sireum
     return F
   }
 
-  @pure def map[T2](f: T => T2): MOption[T2] = {
+  @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
     l""" ensures  result ≡ MNone[T2]() """
     return MNone[T2]()
   }
 
-  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2] = {
+  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
     l""" ensures  result ≡ MNone[T2]() """
     return MNone[T2]()
   }
 
-  @pure def forall(f: T => B): B = {
+  @pure def forall(f: T => B @pure): B = {
     l""" ensures  result ≡ T """ // or simply: result
     return T
   }
 
-  @pure def exists(f: T => B): B = {
+  @pure def exists(f: T => B @pure): B = {
     l""" ensures  result ≡ F """ // or simply: ¬result
     return F
   }
@@ -112,22 +112,22 @@ package org.sireum
     return T
   }
 
-  @pure def map[T2](f: T => T2): MOption[T2] = {
+  @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
     l""" ensures  result ≡ f(value) """
     return MSome(f(value))
   }
 
-  @pure def flatMap[T2](f: T => MOption[T2]): MOption[T2] = {
+  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
     l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
-  @pure def forall(f: T => B): B = {
+  @pure def forall(f: T => B @pure): B = {
     l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
-  @pure def exists(f: T => B): B = {
+  @pure def exists(f: T => B @pure): B = {
     l""" ensures  result ≡ f(value) """
     return f(value)
   }
