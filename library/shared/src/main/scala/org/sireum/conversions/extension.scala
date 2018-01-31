@@ -92,7 +92,7 @@ object B_Ext {
 }
 
 object C_Ext {
-  @pure def toU16(c: C): U16 = org.sireum.U16(c.value)
+  @pure def toU32(c: C): U32 = org.sireum.U32(c.value)
 }
 
 
@@ -1343,8 +1343,6 @@ object U16_Ext {
   @pure def toR(n: U16): R = org.sireum.R.$String(n.toString)
 
   @pure def toRawS16(n: U16): S16 = org.sireum.S16(n.value)
-
-  @pure def toC(n: U16): C = org.sireum.C(n.value.toChar)
 }
 
 
@@ -1425,6 +1423,8 @@ object U32_Ext {
   @pure def toRawS32(n: U32): S32 = org.sireum.S32(n.value)
 
   @pure def toRawF32(n: U32): F32 = org.sireum.F32(_root_.java.lang.Float.intBitsToFloat(n.value))
+
+  @pure def toC(n: U32): C = org.sireum.C(n.value)
 }
 
 

@@ -98,7 +98,7 @@ import org.sireum._
 }
 
 @ext object C {
-  @pure def toU16(c: C): U16 = $
+  @pure def toU32(c: C): U32 = $
 }
 
 
@@ -1711,8 +1711,6 @@ import org.sireum._
 
   /* @first */
   @pure def toU64(n: U16): U64 = $
-
-  @pure def toC(n: U16): C = $
 }
 
 
@@ -1852,6 +1850,8 @@ import org.sireum._
 
   /* @first */
   @pure def toRawF32(n: U32): F32 = $
+
+  @pure def toC(n: U32): C = $
 }
 
 
@@ -2119,10 +2119,6 @@ import org.sireum._
   @pure def fromCis[I](cs: IS[I, C]): String = $
 
   @pure def fromCms[I](cs: MS[I, C]): String = $
-
-  @pure def toBis(s: String): IS[Z, U8] = $
-
-  @pure def toBms(s: String): MS[Z, U8] = $
 
   @pure def toCis(s: String): IS[Z, C] = $
 
