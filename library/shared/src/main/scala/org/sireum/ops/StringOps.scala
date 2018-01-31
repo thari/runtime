@@ -30,6 +30,11 @@ import org.sireum._
 
 @datatype class StringOps(s: String) {
 
+  def first: C = {
+    l""" requires s.size > 0 """
+    return conversions.String.toCis(s)(0)
+  }
+
   def substring(start: Z, until: Z): String = {
     l""" requires 0 ≤ start ∧ start < s.size
                   start ≤ until
@@ -39,8 +44,9 @@ import org.sireum._
     var ms = MSZ.create[C](until - start, '\u0000')
     var i = start
     var j = 0
+    val cis = conversions.String.toCis(s)
     while (i < until) {
-      ms(j) = s(i)
+      ms(j) = cis(i)
       i = i + 1
       j = j + 1
     }
@@ -53,8 +59,10 @@ import org.sireum._
     if (s.size < other.size) {
       return F
     }
+    val cis = conversions.String.toCis(s)
+    val otherCis = conversions.String.toCis(s)
     for (i <- z"0" until other.size) {
-      if (other(i) != s(i)) {
+      if (otherCis(i) != cis(i)) {
         return F
       }
     }
@@ -67,8 +75,10 @@ import org.sireum._
     if (s.size < other.size) {
       return F
     }
+    val cis = conversions.String.toCis(s)
+    val otherCis = conversions.String.toCis(s)
     for (i <- other.size - 1 to 0 by -1) {
-      if (other(i) != s(i)) {
+      if (otherCis(i) != cis(i)) {
         return F
       }
     }

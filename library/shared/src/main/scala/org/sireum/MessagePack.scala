@@ -891,8 +891,9 @@ object MessagePack {
       def writeStringConstant(s: String): Unit = {
         val size = s.size
         writeZ(size)
+        val cis = conversions.String.toCis(s)
         for (i <- z"0" until size) {
-          writeU32(conversions.C.toU32(s(i)))
+          writeU32(conversions.C.toU32(cis(i)))
         }
       }
 
