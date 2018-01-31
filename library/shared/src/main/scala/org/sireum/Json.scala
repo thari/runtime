@@ -406,11 +406,11 @@ object Json {
 
   object Parser {
     @pure def create(input: String): Parser = {
-      return Parser(input, 0, None())
+      return Parser(conversions.String.toCis(input), 0, None())
     }
   }
 
-  @record class Parser(input: String,
+  @record class Parser(input: ISZ[C],
                        var offset: Z,
                        var errorOpt: Option[ErrorMsg]) {
 
