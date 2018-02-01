@@ -119,7 +119,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def $assign(arg: c.Tree): c.Tree = {
     def args(n: Int): c.Tree = {
       val l = (for (i <- 1 to n) yield
-        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(Ident(TermName("x")), TermName(s"_$i"))))).toList
+        Apply(q"_root_.org.sireum.helper.assign", List(Select(Ident(TermName("x")), TermName(s"_$i"))))).toList
       Block(List(q"val x = $arg"),
         Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), l))
     }
@@ -129,7 +129,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val r = arg match {
       case q"(..$args)" if args.size > 1 => arg
       case _ =>
-        if (arg.tpe <:< mm) q"helper.assign($arg)"
+        if (arg.tpe <:< mm) q"_root_.org.sireum.helper.assign($arg)"
         else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
           val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
           args(n)
@@ -144,7 +144,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def $tmatch(arg: c.Tree): c.Tree = {
     def args(n: Int): c.Tree = {
       val l = (for (i <- 1 to n) yield
-        Apply(Select(Ident(TermName("helper")), TermName("assign")), List(Select(Ident(TermName("x")), TermName(s"_$i"))))).toList
+        Apply(q"_root_.org.sireum.helper.assign", List(Select(Ident(TermName("x")), TermName(s"_$i"))))).toList
       Block(List(q"val x = $arg"),
         Apply(Select(Ident(TermName("scala")), TermName(s"Tuple$n")), l))
     }
