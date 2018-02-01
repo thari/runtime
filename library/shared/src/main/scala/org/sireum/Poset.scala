@@ -146,13 +146,18 @@ object Poset {
   }
 
   @pure def lub(ns: ISZ[T]): Option[T] = {
-    if (ns.isEmpty) {
-      return None()
+    ns.size match {
+      case z"0" => return None()
+      case z"1" => return  Some(ns(0))
+      case _ =>
+    }
+    if (HashSet.empty[T].addAll(ns).size == 1) {
+      return Some(ns(0))
     }
     val p0 = ancestorsCache(ns(0), HashMap.empty)
     var commons = p0._1.add(ns(0))
     var acc = p0._2
-    for (i <- 1 until ns.size) {
+    for (i <- z"1" until ns.size) {
       val p = ancestorsCache(ns(i), acc)
       acc = p._2
       commons = commons.intersect(p._1.add(ns(i)))
@@ -200,13 +205,18 @@ object Poset {
   }
 
   @pure def glb(ns: ISZ[T]): Option[T] = {
-    if (ns.isEmpty) {
-      return None()
+    ns.size match {
+      case z"0" => return None()
+      case z"1" => return  Some(ns(0))
+      case _ =>
+    }
+    if (HashSet.empty[T].addAll(ns).size == 1) {
+      return Some(ns(0))
     }
     val p0 = descendantsCache(ns(0), HashMap.empty)
     var commons = p0._1.add(ns(0))
     var acc = p0._2
-    for (i <- 1 until ns.size) {
+    for (i <- z"1" until ns.size) {
       val p = descendantsCache(ns(i), acc)
       acc = p._2
       commons = commons.intersect(p._1.add(ns(i)))
