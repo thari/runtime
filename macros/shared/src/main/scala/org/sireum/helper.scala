@@ -57,8 +57,9 @@ object helper {
   def assign[T](arg: T): T = {
     arg match {
       case x: MutableMarker => assign[T](x)
-      case _: ImmutableMarker => arg
-      case _ => halt(topValueError + s": $arg (of ${arg.getClass.getName})")
+      case _ => arg
+      //case _: ImmutableMarker => arg
+      //case _ => halt(topValueError + s": $arg (of ${arg.getClass.getName})")
     }
   }
 
