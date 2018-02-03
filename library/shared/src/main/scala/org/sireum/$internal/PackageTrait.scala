@@ -34,14 +34,6 @@ trait PackageTrait {
   type MSZ[T] = MS[Z, T]
   type ZS = MS[Z, Z]
 
-  object up {
-    def update[T](lhs: T, rhs: T): Unit = macro Macro.up
-  }
-
-  object pat {
-    def update(args: scala.Any*): Unit = macro Macro.pat
-  }
-
   object ISZ {
     def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
     def create[V](size: Z, default: V): ISZ[V] = IS.create(size, default)

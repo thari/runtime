@@ -1,4 +1,3 @@
-// #Sireum
 /*
  * Copyright (c) 2017, Robby, Kansas State University
  * All rights reserved.
@@ -37,7 +36,7 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
 
   * {
     assert(foo.x =~= 1)
-    val fooClone: Foo = foo
+    val fooClone: Foo = foo.$clone
     foo.bar.y = 4
     fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
   }
@@ -45,9 +44,9 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
   * {
     var a = $Foo(5, $Bar(4, ISZ(1, 2, 3)))
 
-    up(a.x) = 6
-    up(a.y.z) = 7
-    up(a.y.zz(0)) = 8
+    a = a(x = 6)
+    a = a(y = a.y(z = 7))
+    a = a(y = a.y(zz = a.y.zz(z"0" -> z"8")))
 
     a =~= $Foo(6, $Bar(7, ISZ(8, 2, 3)))
   }
@@ -60,7 +59,7 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
 
   * {
     val p = (Bar(1, 2), Bar(3, 4))
-    val q = p
+    val q = (p._1.$clone, p._2.$clone)
     assert(q ne p)
     p._1.y = 3
     p !~= q
