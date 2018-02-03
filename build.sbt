@@ -9,6 +9,8 @@ ThisBuild / scalaVersion := scalaVer
 ThisBuild / scalacOptions := Seq("-target:jvm-1.8", "-deprecation", "-Yrangepos",
   "-Ydelambdafy:method", "-feature", "-unchecked", "-Xfatal-warnings")
 
+ThisBuild / javacOptions := Seq("-source", "1.8", "-target", "1.8", "-encoding", "utf8")
+
 val commonSettings = Seq(
   organization := "org.sireum",
   incOptions := incOptions.value.withLogRecompileOnMacro(false),
