@@ -49,6 +49,9 @@ object MessagePack {
     'NONE
   }
 
+  val TimestampExtType: S8 = s8"-1"
+  val StringPoolExtType: S8 = s8"0"
+
   object Code {
     val POSFIXINT_MASK: U8 = u8"0x80"
     val FIXMAP_PREFIX: U8 = u8"0x80"
@@ -88,7 +91,7 @@ object MessagePack {
     val NEGFIXINT_PREFIX: U8 = u8"0xE0"
 
     val formatTable: IS[U8, Kind.Type] = {
-      def getType0(n: U8): Kind.Type = {
+      @pure def getType0(n: U8): Kind.Type = {
         if (isPosFixInt(n) || isNegFixInt(n)) {
           return Kind.INTEGER
         } else if (Code.isFixStr(n)) {
@@ -146,37 +149,51 @@ object MessagePack {
       a
     }
 
-    def getType(n: U8): Kind.Type = {
+    @pure def getType(n: U8): Kind.Type = {
       return formatTable(n)
     }
 
-    def isFixInt(n: U8): B = {
+    @pure def isFixInt(n: U8): B = {
       val v = n & u8"0xFF"
       return v <= u8"0x7F" || v >= u8"0xE0"
     }
 
-    def isPosFixInt(n: U8): B = {
+    @pure def isPosFixInt(n: U8): B = {
       return (n & POSFIXINT_MASK) == u8"0"
     }
 
-    def isNegFixInt(n: U8): B = {
+    @pure def isNegFixInt(n: U8): B = {
       return (n & NEGFIXINT_PREFIX) == NEGFIXINT_PREFIX
     }
 
-    def isFixStr(n: U8): B = {
+    @pure def isFixStr(n: U8): B = {
       return (n & u8"0xE0") == Code.FIXSTR_PREFIX
     }
 
-    def isFixedArray(n: U8): B = {
+    @pure def isFixedArray(n: U8): B = {
       return (n & u8"0xF0") == Code.FIXARRAY_PREFIX
     }
 
-    def isFixedMap(n: U8): B = {
+    @pure def isFixedMap(n: U8): B = {
       return (n & u8"0xF0") == Code.FIXMAP_PREFIX
     }
 
-    def isFixedRaw(n: U8): B = {
+    @pure def isFixedRaw(n: U8): B = {
       return (n & u8"0xE0") == Code.FIXSTR_PREFIX
+    }
+
+    @pure def isExt(n: U8): B = {
+      n match {
+        case Code.EXT8 => return T
+        case Code.EXT16 => return T
+        case Code.EXT32 => return T
+        case Code.FIXEXT1 => return T
+        case Code.FIXEXT2 => return T
+        case Code.FIXEXT4 => return T
+        case Code.FIXEXT8 => return T
+        case Code.FIXEXT16 => return T
+        case _ => return F
+      }
     }
 
   }
@@ -573,35 +590,30 @@ object MessagePack {
           }
           val (stringPoolBuf: MSZ[U8], stringPoolBufSize: Z) = {
             val r = Impl(F, MSZ.create(poolBufferSize, u8"0"), 0, HashSMap.empty)
-            r.writeZ(strings.size)
+            r.writeExtTypeHeader(StringPoolExtType, strings.size)
             for (s <- strings) {
               r.writeStringConstant(s)
             }
             (r.buf, r.size)
           }
 
-          val r = MSZ.create(stringPoolBufSize + size + 1, u8"0")
-          r(0) = Code.TRUE
+          val r = MSZ.create(stringPoolBufSize + size, u8"0")
           var i = 0
-          var j = 1
           while (i < stringPoolBufSize) {
-            r(j) = stringPoolBuf(i)
+            r(i) = stringPoolBuf(i)
             i = i + 1
-            j = j + 1
           }
           i = 0
           while (i < size) {
-            r(j) = buf(i)
+            r(i + stringPoolBufSize) = buf(i)
             i = i + 1
-            j = j + 1
           }
           return r.toIS
         } else {
-          val r = MSZ.create(size + 1, u8"0")
-          r(0) = Code.FALSE
+          val r = MSZ.create(size, u8"0")
           var i = 0
           while (i < size) {
-            r(i + 1) = buf(i)
+            r(i) = buf(i)
             i = i + 1
           }
           return r.toIS
@@ -936,31 +948,31 @@ object MessagePack {
         if (payloadLen < 256 /* 1 << 8 */ ) {
           payloadLen match {
             case z"1" =>
-              addU8(u8"0xD4")
+              addU8(Code.FIXEXT1)
               addS8(extType)
             case z"2" =>
-              addU8(u8"0xD5")
+              addU8(Code.FIXEXT2)
               addS8(extType)
             case z"4" =>
-              addU8(u8"0xD6")
+              addU8(Code.FIXEXT4)
               addS8(extType)
             case z"8" =>
-              addU8(u8"0xD7")
+              addU8(Code.FIXEXT8)
               addS8(extType)
             case z"16" =>
-              addU8(u8"0xD8")
+              addU8(Code.FIXEXT16)
               addS8(extType)
             case _ =>
-              addU8(u8"0xC7")
+              addU8(Code.EXT8)
               addU8(conversions.Z.toU8(payloadLen))
               addS8(extType)
           }
         } else if (payloadLen < 65536 /* 1 << 16 */ ) {
-          addU8(u8"0xC8")
+          addU8(Code.EXT16)
           addU16(conversions.Z.toU16(payloadLen))
           addS8(extType)
         } else {
-          addU8(u8"0xC9")
+          addU8(Code.EXT32)
           addU32(conversions.Z.toU32(payloadLen))
           addS8(extType)
         }
@@ -1596,9 +1608,11 @@ object MessagePack {
 
       def init(): Unit = {
         initialized = T
-        val r = readB()
-        if (r) {
-          val size = readZ()
+        val r = peek()
+        poolString = Code.isExt(r)
+        if (poolString) {
+          val (t, size) = readExtTypeHeader()
+          assert(t == StringPoolExtType)
           stringPool.expand(size, "")
           var i = 0
           while (i < size) {
@@ -1607,7 +1621,6 @@ object MessagePack {
             i = i + 1
           }
         }
-        poolString = r
       }
 
       def peek(): U8 = {
