@@ -1393,7 +1393,7 @@ object Json {
       }
     }
 
-    def parseObjectBegin(): Boolean = {
+    def parseObjectBegin(): B = {
       errorIfEof(offset)
       at(offset).native match {
         case '{' =>
@@ -1413,7 +1413,7 @@ object Json {
       }
     }
 
-    def parseObjectNext(): Boolean = {
+    def parseObjectNext(): B = {
       parseWhitespace()
       errorIfEof(offset)
       at(offset).native match {
@@ -1431,7 +1431,7 @@ object Json {
       }
     }
 
-    def parseArrayBegin(): Boolean = {
+    def parseArrayBegin(): B = {
       errorIfEof(offset)
       at(offset).native match {
         case '[' =>
@@ -1451,7 +1451,7 @@ object Json {
       }
     }
 
-    def parseArrayNext(): Boolean = {
+    def parseArrayNext(): B = {
       parseWhitespace()
       errorIfEof(offset)
       at(offset).native match {
