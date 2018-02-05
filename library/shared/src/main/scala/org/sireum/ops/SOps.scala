@@ -32,7 +32,7 @@ import org.sireum._
 
   @pure def contains(e: V): B
 
-  @pure def exists(p: V => B): B
+  @pure def exists(p: V => B @pure): B
 
   @pure def first: V
 
@@ -42,11 +42,11 @@ import org.sireum._
 
   @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
+  def mParMapFoldLeft[U, R](f: V => U, g: (R, U) => R, init: R): R
 
   @pure def parMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldRight[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R
+  def mParMapFoldRight[U, R](f: V => U, g: (R, U) => R, init: R): R
 
   @pure def forall(p: V => B @pure): B
 
@@ -592,7 +592,7 @@ import org.sireum._
     return s.map(f)
   }
 
-  @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R, init: R): R = {
+  @pure def parMapFoldLeft[U, R](f: V => U @pure, g: (R, U) => R @pure, init: R): R = {
     val r = MSZOpsUtil.parMapFoldLeft(s, f, g, init)
     return r
   }
