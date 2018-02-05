@@ -46,7 +46,7 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
 
     a = a(x = 6)
     a = a(y = a.y(z = 7))
-    a = a(y = a.y(zz = a.y.zz(z"0" -> z"8")))
+    a = a(y = a.y(zz = a.y.zz(z"0" ~> z"8")))
 
     a =~= $Foo(6, $Bar(7, ISZ(8, 2, 3)))
   }

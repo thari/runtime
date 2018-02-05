@@ -83,7 +83,7 @@ object HashMap {
     val i = r.hashIndex(key)
     val m = r.mapEntries(i)
     val newSize: Z = if (m.contains(key)) size else size + 1
-    return r(mapEntries = r.mapEntries(i -> m.put(key, value)), size = newSize)
+    return r(mapEntries = r.mapEntries(i ~> m.put(key, value)), size = newSize)
   }
 
   @pure def putAll(entries: ISZ[(K, V)]): HashMap[K, V] = {
@@ -140,7 +140,7 @@ object HashMap {
 
   @pure def remove(key: K, value: V): HashMap[K, V] = {
     val i = hashIndex(key)
-    return this (mapEntries = mapEntries(i -> mapEntries(i).remove(key, value)), size = size - 1)
+    return this (mapEntries = mapEntries(i ~> mapEntries(i).remove(key, value)), size = size - 1)
   }
 
   @pure def contains(key: K): B = {

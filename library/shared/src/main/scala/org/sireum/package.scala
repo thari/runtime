@@ -31,6 +31,12 @@ package object sireum extends $internal.PackageTrait {
 
   import $internal.Macro
 
+  implicit class $Arrow[T1](val t1: T1) extends AnyVal {
+    def ~>[T2](t2: T2): (T1, T2) = (t1, t2)
+
+    def ->[T2](t2: T2): Nothing = throw new RuntimeException("Please use ~> instead of ->")
+  }
+
   implicit class $Slang(val sc: StringContext) {
 
     def l[T](args: Any*): T = macro Macro.l[T]
