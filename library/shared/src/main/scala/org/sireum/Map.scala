@@ -66,6 +66,14 @@ object Map {
     return Map(newEntries)
   }
 
+  @pure def putAll(kvs: ISZ[(K, V)]): Map[K, V] = {
+    var r = this
+    for (kv <- kvs) {
+      r = r.put(kv._1, kv._2)
+    }
+    return r
+  }
+
   @pure def get(key: K): Option[V] = {
     val index = indexOf(key)
     return if (index < 0) None[V]() else Some(entries(index)._2)
