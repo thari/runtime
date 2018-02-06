@@ -558,6 +558,10 @@ object MessagePack {
       }
     }
 
+    def writeZS(s: ZS): Unit = {
+      writeMSZ(s, writeZ _)
+    }
+
     def writeMap[K, V](m: Map[K, V], k: K => Unit, v: V => Unit): Unit = {
       writeMapHeader(m.size)
       for (e <- m.entries) {
@@ -1627,6 +1631,11 @@ object MessagePack {
         r = r :+ o
         i = i + 1
       }
+      return r
+    }
+
+    def readZS(): ZS = {
+      val r = readMSZ(readZ _)
       return r
     }
 

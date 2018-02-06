@@ -313,37 +313,68 @@ object Json {
       return printMS(isSimple, s.map(f))
     }
 
+    @pure def printZS(isSimple: B, s: ZS): ST = {
+      return printMS(isSimple, s.map(printZ _))
+    }
+
     @pure def printOption[T](o: Option[T], f: T => ST): ST = {
       o match {
-        case Some(t) => return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
+        case Some(t) =>
+          return printObject(
+            ISZ(("type", printString("Some")), ("value", f(t))))
         case _ => return printObject(ISZ(("type", printString("None"))))
       }
     }
 
     @pure def printMOption[T](o: MOption[T], f: T => ST): ST = {
       o match {
-        case MSome(t) => return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
+        case MSome(t) =>
+          return printObject(
+            ISZ(("type", printString("Some")), ("value", f(t))))
         case _ => return printObject(ISZ(("type", printString("None"))))
       }
     }
 
-    @pure def printEither[L, R](o: Either[L, R], f0: L => ST, f1: R => ST): ST = {
+    @pure def printEither[L, R](o: Either[L, R],
+                                f0: L => ST,
+                                f1: R => ST): ST = {
       o match {
-        case Either(Some(l), _) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
-        case Either(_, Some(r)) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
+        case Either(Some(l), _) =>
+          return printObject(
+            ISZ(("type", printString("Or")),
+                ("i", printZ(0)),
+                ("value", f0(l))))
+        case Either(_, Some(r)) =>
+          return printObject(
+            ISZ(("type", printString("Or")),
+                ("i", printZ(1)),
+                ("value", f1(r))))
         case _ => assume(F); return nullSt
       }
     }
 
-    @pure def printMEither[L, R](o: MEither[L, R], f0: L => ST, f1: R => ST): ST = {
+    @pure def printMEither[L, R](o: MEither[L, R],
+                                 f0: L => ST,
+                                 f1: R => ST): ST = {
       o match {
-        case MEither(MSome(l), _) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
-        case MEither(_, MSome(r)) => return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
+        case MEither(MSome(l), _) =>
+          return printObject(
+            ISZ(("type", printString("Or")),
+                ("i", printZ(0)),
+                ("value", f0(l))))
+        case MEither(_, MSome(r)) =>
+          return printObject(
+            ISZ(("type", printString("Or")),
+                ("i", printZ(1)),
+                ("value", f1(r))))
         case _ => assume(F); return nullSt
       }
     }
 
-    @pure def printMap[K, V](isSimple: B, o: Map[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printMap[K, V](isSimple: B,
+                             o: Map[K, V],
+                             k: K => ST,
+                             v: V => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -367,19 +398,26 @@ object Json {
             |  ${(es, ",\n")}
             |]"""
       }
-      return printObject(ISZ(("type", printString("Map")), ("entries", entries)))
+      return printObject(
+        ISZ(("type", printString("Map")), ("entries", entries)))
     }
 
     @pure def printSet[V](isSimple: B, o: Set[V], f: V => ST): ST = {
-      return printObject(ISZ(("type", printString("Set")),
-        ("elements",
-          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
-          else st"""[
+      return printObject(
+        ISZ(
+          ("type", printString("Set")),
+          ("elements",
+           if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+           else st"""[
                     |  ${(o.elements.map(f), ",\n")}
-                    |]""")))
+                    |]""")
+        ))
     }
 
-    @pure def printHashMap[K, V](isSimple: B, o: HashMap[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printHashMap[K, V](isSimple: B,
+                                 o: HashMap[K, V],
+                                 k: K => ST,
+                                 v: V => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -403,19 +441,29 @@ object Json {
             |  ${(es, ",\n")}
             |]"""
       }
-      return printObject(ISZ(("type", printString("HashMap")), ("size", printZ(o.size)), ("entries", entries)))
+      return printObject(
+        ISZ(("type", printString("HashMap")),
+            ("size", printZ(o.size)),
+            ("entries", entries)))
     }
 
     @pure def printHashSet[V](isSimple: B, o: HashSet[V], f: V => ST): ST = {
-      return printObject(ISZ(("type", printString("HashSet")), ("size", printZ(o.size)),
-        ("elements",
-          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
-          else st"""[
+      return printObject(
+        ISZ(
+          ("type", printString("HashSet")),
+          ("size", printZ(o.size)),
+          ("elements",
+           if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+           else st"""[
                    |  ${(o.elements.map(f), ",\n")}
-                   |]""")))
+                   |]""")
+        ))
     }
 
-    @pure def printHashSMap[K, V](isSimple: B, o: HashSMap[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printHashSMap[K, V](isSimple: B,
+                                  o: HashSMap[K, V],
+                                  k: K => ST,
+                                  v: V => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -439,30 +487,37 @@ object Json {
             |  ${(es, ",\n")}
             |]"""
       }
-      return printObject(ISZ(("type", printString("HashSMap")), ("size", printZ(o.size)), ("entries", entries)))
+      return printObject(
+        ISZ(("type", printString("HashSMap")),
+            ("size", printZ(o.size)),
+            ("entries", entries)))
     }
 
     @pure def printHashSSet[V](isSimple: B, o: HashSSet[V], f: V => ST): ST = {
-      return printObject(ISZ(("type", printString("HashSSet")), ("size", printZ(o.size)),
-        ("elements",
-          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
-          else st"""[
+      return printObject(
+        ISZ(
+          ("type", printString("HashSSet")),
+          ("size", printZ(o.size)),
+          ("elements",
+           if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+           else st"""[
                    |  ${(o.elements.map(f), ",\n")}
-                   |]""")))
+                   |]""")
+        ))
     }
 
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
       for (c <- conversions.String.toCis(s)) {
         c.native match {
-          case '"' => r = r :+ '\\' :+ '\"'
-          case '\\' => r = r :+ '\\' :+ '\\'
-          case '/' => r = r :+ '\\' :+ '/'
-          case '\b' => r = r :+ '\\' :+ 'b'
-          case '\f' => r = r :+ '\\' :+ 'f'
-          case '\n' => r = r :+ '\\' :+ 'n'
-          case '\r' => r = r :+ '\\' :+ 'r'
-          case '\t' => r = r :+ '\\' :+ 't'
+          case '"'                                                 => r = r :+ '\\' :+ '\"'
+          case '\\'                                                => r = r :+ '\\' :+ '\\'
+          case '/'                                                 => r = r :+ '\\' :+ '/'
+          case '\b'                                                => r = r :+ '\\' :+ 'b'
+          case '\f'                                                => r = r :+ '\\' :+ 'f'
+          case '\n'                                                => r = r :+ '\\' :+ 'n'
+          case '\r'                                                => r = r :+ '\\' :+ 'r'
+          case '\t'                                                => r = r :+ '\\' :+ 't'
           case _ if '\u0020' <= c && c < '\u00FF' && c != '\u007f' => r = r :+ c
           case _ =>
             val q = COps(c).toUnicodeHex
@@ -474,9 +529,9 @@ object Json {
 
     @pure def printConstant(s: String): ST = {
       s.native match {
-        case "true" => return trueSt
+        case "true"  => return trueSt
         case "false" => return falseSt
-        case "null" => return nullSt
+        case "null"  => return nullSt
       }
     }
 
@@ -493,16 +548,16 @@ object Json {
 
     @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
       return if (isSimple) st"[${(elements, ", ")}]"
-        else st"""[
-                 |  ${(elements, ",\n")}
-                 |]"""
+      else st"""[
+               |  ${(elements, ",\n")}
+               |]"""
     }
 
     @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
       return if (isSimple) st"[${(elements, ", ")}]"
       else st"""[
-                |  ${(elements, ",\n")}
-                |]"""
+               |  ${(elements, ",\n")}
+               |]"""
     }
   }
 
@@ -521,7 +576,7 @@ object Json {
     def errorMessage: String = {
       errorOpt match {
         case Some(e) => return s"[${e.line}, ${e.column}] ${e.message}"
-        case _ => return ""
+        case _       => return ""
       }
     }
 
@@ -531,7 +586,10 @@ object Json {
           return F
         }
         val p = computeLineColumn(offset)
-        errorOpt = Some(ErrorMsg(p._1, p._2, s"Expected end-of-file, but '${input(offset)}' found."))
+        errorOpt = Some(
+          ErrorMsg(p._1,
+                   p._2,
+                   s"Expected end-of-file, but '${input(offset)}' found."))
         return F
       } else {
         return T
@@ -543,7 +601,10 @@ object Json {
       at(offset).native match {
         case 't' => parseConstant("true"); return T
         case 'f' => parseConstant("false"); return F
-        case c => parseException(offset, s"Expected 'true' or 'false', but '$c...' found."); return F
+        case c =>
+          parseException(offset,
+                         s"Expected 'true' or 'false', but '$c...' found.");
+          return F
       }
     }
 
@@ -1329,6 +1390,11 @@ object Json {
       return r
     }
 
+    def parseZS(): ZS = {
+      val r = parseMSZ(parseZ _)
+      return r
+    }
+
     def parseOption[T](f: () => T): Option[T] = {
       val tpe = parseObjectTypes(typesOption)
       tpe.native match {
@@ -1610,9 +1676,19 @@ object Json {
       parseObjectNext()
       if (expectedTypes.nonEmpty && !ISZOps(expectedTypes).contains(value)) {
         expectedTypes.size match {
-          case z"1" => parseException(i, s"Expected '${expectedTypes(0)}', but '$value' found.")
-          case z"2" => parseException(i, s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
-          case _ => parseException(i, s"Expected ${st"'${(ISZOps(expectedTypes).dropRight(1), "', '")}', or '${expectedTypes(expectedTypes.size - 1)}'".render} , but '$value' found.")
+          case z"1" =>
+            parseException(
+              i,
+              s"Expected '${expectedTypes(0)}', but '$value' found.")
+          case z"2" =>
+            parseException(
+              i,
+              s"Expected '${expectedTypes(0)}' or '${expectedTypes(1)}' , but '$value' found.")
+          case _ =>
+            parseException(
+              i,
+              s"Expected ${st"'${(ISZOps(expectedTypes).dropRight(1), "', '")}', or '${expectedTypes(
+                expectedTypes.size - 1)}'".render} , but '$value' found.")
         }
       }
       return value
@@ -1644,9 +1720,18 @@ object Json {
       val key = parseString()
       if (expectedKeys.nonEmpty && !ISZOps(expectedKeys).contains(key)) {
         expectedKeys.size match {
-          case z"1" => parseException(i, s"Expected '${expectedKeys(0)}', but '$key' found.")
-          case z"2" => parseException(i, s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
-          case _ => parseException(i, s"Expected ${st"'${(ISZOps(expectedKeys).dropRight(1), "', '")}', or '${expectedKeys(expectedKeys.size - 1)}'".render} , but '$key' found.")
+          case z"1" =>
+            parseException(i,
+                           s"Expected '${expectedKeys(0)}', but '$key' found.")
+          case z"2" =>
+            parseException(
+              i,
+              s"Expected '${expectedKeys(0)}' or '${expectedKeys(1)}' , but '$key' found.")
+          case _ =>
+            parseException(
+              i,
+              s"Expected ${st"'${(ISZOps(expectedKeys).dropRight(1), "', '")}', or '${expectedKeys(
+                expectedKeys.size - 1)}'".render} , but '$key' found.")
         }
       }
       parseWhitespace()
@@ -1732,7 +1817,8 @@ object Json {
           offset = offset + 1
           parseWhitespace()
           return F
-        case c => parseException(offset, s"Expected ',' or ']', but '$c' found.")
+        case c =>
+          parseException(offset, s"Expected ',' or ']', but '$c' found.")
           return F
       }
     }
@@ -1749,7 +1835,8 @@ object Json {
           c = incOffset(1)
         case _ =>
           if (!isDigit(c)) {
-            parseException(offset, s"""Expected a '-' or a digit but '$c' found.""")
+            parseException(offset,
+                           s"""Expected a '-' or a digit but '$c' found.""")
           }
       }
 
@@ -1796,14 +1883,14 @@ object Json {
       c.native match {
         case 'e' =>
         case 'E' =>
-        case _ => return conversions.String.fromCis(r)
+        case _   => return conversions.String.fromCis(r)
       }
       r = r :+ c
       c = incOffset(1)
       val hasPlusMinus: B = c.native match {
         case '+' => T
         case '-' => T
-        case _ => F
+        case _   => F
       }
       if (hasPlusMinus) {
         r = r :+ c
@@ -1834,22 +1921,28 @@ object Json {
               case '\\' =>
                 c = incOffset(1)
                 c.native match {
-                  case '"' => r = r :+ '"'
+                  case '"'  => r = r :+ '"'
                   case '\\' => r = r :+ '\\'
-                  case '/' => r = r :+ '/'
-                  case 'b' => r = r :+ '\b'
-                  case 'f' => r = r :+ '\f'
-                  case 'n' => r = r :+ '\n'
-                  case 'r' => r = r :+ '\r'
-                  case 't' => r = r :+ '\t'
+                  case '/'  => r = r :+ '/'
+                  case 'b'  => r = r :+ '\b'
+                  case 'f'  => r = r :+ '\f'
+                  case 'n'  => r = r :+ '\n'
+                  case 'r'  => r = r :+ '\r'
+                  case 't'  => r = r :+ '\t'
                   case 'u' =>
                     incOffset(4)
                     val hex = slice(offset - 3, offset + 1)
                     COps.fromUnicodeHex(hex) match {
                       case Some(ch) => r = r :+ ch
-                      case _ => parseException(offset - 3, s"Expected a character hex but '$hex' found.")
+                      case _ =>
+                        parseException(
+                          offset - 3,
+                          s"Expected a character hex but '$hex' found.")
                     }
-                  case _ => parseException(offset, s"Expected an escaped character but '$c' found.")
+                  case _ =>
+                    parseException(
+                      offset,
+                      s"Expected an escaped character but '$c' found.")
                 }
               case _ => r = r :+ c
             }
@@ -1871,10 +1964,10 @@ object Json {
       }
       offset = offset + text.size
       text.native match {
-        case "true" =>
+        case "true"  =>
         case "false" =>
-        case "null" =>
-        case _ => parseException(offset, s"Invalid constant value '$text'.")
+        case "null"  =>
+        case _       => parseException(offset, s"Invalid constant value '$text'.")
       }
     }
 
@@ -1944,17 +2037,17 @@ object Json {
         case '7' => return T
         case '8' => return T
         case '9' => return T
-        case _ => return F
+        case _   => return F
       }
     }
 
     @pure def isWhitespace(c: C): B = {
       c.native match {
-        case ' ' => return T
+        case ' '  => return T
         case '\n' => return T
         case '\r' => return T
         case '\t' => return T
-        case _ => return F
+        case _    => return F
       }
     }
 
@@ -1967,7 +2060,8 @@ object Json {
     }
   }
 
-  def parseAst[V](binding: JsonAstBinding[V], input: String): Either[V, ErrorMsg] = {
+  def parseAst[V](binding: JsonAstBinding[V],
+                  input: String): Either[V, ErrorMsg] = {
     val parser = Parser.create(input)
     val emptyKeys = ISZ[String]()
 
@@ -2035,10 +2129,10 @@ object Json {
       k match {
         case ValueKind.String => val r = parseString(); return r
         case ValueKind.Object => val r = parseObject(); return r
-        case ValueKind.Array => val r = parseArray(); return r
-        case ValueKind.True => val r = parseTrue(); return r
-        case ValueKind.False => val r = parseFalse(); return r
-        case ValueKind.Null => val r = parseNull(); return r
+        case ValueKind.Array  => val r = parseArray(); return r
+        case ValueKind.True   => val r = parseTrue(); return r
+        case ValueKind.False  => val r = parseFalse(); return r
+        case ValueKind.Null   => val r = parseNull(); return r
         case ValueKind.Number => val r = parseNumber(); return r
       }
     }
@@ -2047,7 +2141,7 @@ object Json {
     parser.eof()
     parser.errorOpt match {
       case Some(_) => return Either(None(), parser.errorOpt)
-      case _ => return Either(Some(r), None())
+      case _       => return Either(Some(r), None())
     }
   }
 
@@ -2055,23 +2149,27 @@ object Json {
     @pure def isSimple(o: V): B = {
       binding.kind(o) match {
         case ValueKind.Object => return F
-        case ValueKind.Array => return F
-        case _ => return T
+        case ValueKind.Array  => return F
+        case _                => return T
       }
     }
 
     @pure def printValue(o: V): ST = {
       binding.kind(o) match {
-        case ValueKind.String => return Printer.printString(binding.fromString(o))
-        case ValueKind.Number => return Printer.printNumber(binding.fromNumber(o))
+        case ValueKind.String =>
+          return Printer.printString(binding.fromString(o))
+        case ValueKind.Number =>
+          return Printer.printNumber(binding.fromNumber(o))
         case ValueKind.Object =>
-          return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
+          return Printer.printObject(
+            for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(ISZOps(es).forall(isSimple), es.map(printValue))
-        case ValueKind.True => return Printer.trueSt
+          return Printer.printIS(ISZOps(es).forall(isSimple),
+                                 es.map(printValue))
+        case ValueKind.True  => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
-        case ValueKind.Null => return Printer.nullSt
+        case ValueKind.Null  => return Printer.nullSt
       }
     }
 
