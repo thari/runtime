@@ -213,6 +213,62 @@ class MessagePackTest extends SireumRuntimeSpec {
         true
       }
     }
+
+    {
+      val o = Either[Z, String](Some(Z.random), None())
+      check(poolString, o,
+        (w) => w.writeEither(o, w.writeZ _, w.writeString _),
+        (r) => r.readEither(r.readZ _, r.readString _))
+    }
+
+    {
+      val o = MEither[Z, String](MNone(), MSome(String.random))
+      check(poolString, o,
+        (w) => w.writeMEither(o, w.writeZ _, w.writeString _),
+        (r) => r.readMEither(r.readZ _, r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+      val o = Map.empty[String, Z].putAll(is)
+      check(poolString, o,
+        (w) => w.writeMap(o, w.writeString _, w.writeZ _),
+        (r) => r.readMap(r.readString _, r.readZ _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = Set.empty[String].addAll(is)
+      check(poolString, o,
+        (w) => w.writeSet(o, w.writeString _),
+        (r) => r.readSet(r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+      val o = HashMap.empty[String, Z].putAll(is)
+      check(poolString, o,
+        (w) => w.writeHashMap(o, w.writeString _, w.writeZ _),
+        (r) => r.readHashMap(r.readString _, r.readZ _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = HashSet.empty[String].addAll(is)
+      check(poolString, o,
+        (w) => w.writeHashSet(o, w.writeString _),
+        (r) => r.readHashSet(r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+      val o = HashSMap.empty[String, Z].putAll(is)
+      check(poolString, o,
+        (w) => w.writeHashSMap(o, w.writeString _, w.writeZ _),
+        (r) => r.readHashSMap(r.readString _, r.readZ _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = HashSSet.empty[String].addAll(is)
+      check(poolString, o,
+        (w) => w.writeHashSSet(o, w.writeString _),
+        (r) => r.readHashSSet(r.readString _))
+    }
   }
 
   def check[T](poolString: B, n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(implicit pos: Position): Unit = {

@@ -77,6 +77,82 @@ class JsonTest extends SireumRuntimeSpec {
 
   *(parseTopObject(oPrettyParse(oPrettyParse(oString))) =~= oJson)
 
+  * {
+    val o = Either[Z, String](Some(Z.random), None())
+    val s = Json.Printer.printEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
+    val p = Json.Parser.create(s)
+    val o2 = p.parseEither[Z, String](p.parseZ _, p.parseString _)
+    p.errorOpt.isEmpty && o == o2
+  }
+
+  * {
+    val o = MEither[Z, String](MNone(), MSome(String.random))
+    val s = Json.Printer.printMEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
+    val p = Json.Parser.create(s)
+    val o2 = p.parseMEither[Z, String](p.parseZ _, p.parseString _)
+    p.errorOpt.isEmpty && o == o2
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+    * {
+      val o = Map.empty[String, Z].putAll(is)
+      val s = Json.Printer.printMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseMap[String, Z](p.parseString _, p.parseZ _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+    * {
+      val o = Set.empty[String].addAll(is)
+      val s = Json.Printer.printSet(B.random, o, Json.Printer.printString _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseSet[String](p.parseString _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+    * {
+      val o = HashMap.empty[String, Z].putAll(is)
+      val s = Json.Printer.printHashMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseHashMap[String, Z](p.parseString _, p.parseZ _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+    * {
+      val o = HashSet.empty[String].addAll(is)
+      val s = Json.Printer.printHashSet(B.random, o, Json.Printer.printString _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseHashSet[String](p.parseString _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
+    * {
+      val o = HashSMap.empty[String, Z].putAll(is)
+      val s = Json.Printer.printHashSMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
+  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+    * {
+      val o = HashSSet.empty[String].addAll(is)
+      val s = Json.Printer.printHashSSet(B.random, o, Json.Printer.printString _).render
+      val p = Json.Parser.create(s)
+      val o2 = p.parseHashSSet[String](p.parseString _)
+      p.errorOpt.isEmpty && o == o2
+    }
+  }
+
   def oPrettyParse(s: Predef.String): Predef.String = Json.printAst(JsonAst.Binding, parseTopObject(s)).render.value
 
   def parseTopObject(s: Predef.String): JObject =

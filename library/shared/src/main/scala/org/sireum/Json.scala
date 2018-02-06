@@ -343,6 +343,114 @@ object Json {
       }
     }
 
+    @pure def printMap[K, V](isSimple: B, o: Map[K, V], k: K => ST, v: V => ST): ST = {
+      val entries: ST = if (isSimple) {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+ st"""[ $key, $value ]"""
+        }
+        st"""[ ${(es, ",")} ]"""
+      } else {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+
+            st"""[
+                |  $key,
+                |  $value
+                |]"""
+        }
+        st"""[
+            |  ${(es, ",\n")}
+            |]"""
+      }
+      return printObject(ISZ(("type", printString("Map")), ("entries", entries)))
+    }
+
+    @pure def printSet[V](isSimple: B, o: Set[V], f: V => ST): ST = {
+      return printObject(ISZ(("type", printString("Set")),
+        ("elements",
+          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+          else st"""[
+                    |  ${(o.elements.map(f), ",\n")}
+                    |]""")))
+    }
+
+    @pure def printHashMap[K, V](isSimple: B, o: HashMap[K, V], k: K => ST, v: V => ST): ST = {
+      val entries: ST = if (isSimple) {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+ st"""[ $key, $value ]"""
+        }
+        st"""[ ${(es, ",")} ]"""
+      } else {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+
+            st"""[
+                |  $key,
+                |  $value
+                |]"""
+        }
+        st"""[
+            |  ${(es, ",\n")}
+            |]"""
+      }
+      return printObject(ISZ(("type", printString("HashMap")), ("size", printZ(o.size)), ("entries", entries)))
+    }
+
+    @pure def printHashSet[V](isSimple: B, o: HashSet[V], f: V => ST): ST = {
+      return printObject(ISZ(("type", printString("HashSet")), ("size", printZ(o.size)),
+        ("elements",
+          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+          else st"""[
+                   |  ${(o.elements.map(f), ",\n")}
+                   |]""")))
+    }
+
+    @pure def printHashSMap[K, V](isSimple: B, o: HashSMap[K, V], k: K => ST, v: V => ST): ST = {
+      val entries: ST = if (isSimple) {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+ st"""[ $key, $value ]"""
+        }
+        st"""[ ${(es, ",")} ]"""
+      } else {
+        var es = ISZ[ST]()
+        for (e <- o.entries) {
+          val key = k(e._1)
+          val value = v(e._2)
+          es = es :+
+            st"""[
+                |  $key,
+                |  $value
+                |]"""
+        }
+        st"""[
+            |  ${(es, ",\n")}
+            |]"""
+      }
+      return printObject(ISZ(("type", printString("HashSMap")), ("size", printZ(o.size)), ("entries", entries)))
+    }
+
+    @pure def printHashSSet[V](isSimple: B, o: HashSSet[V], f: V => ST): ST = {
+      return printObject(ISZ(("type", printString("HashSSet")), ("size", printZ(o.size)),
+        ("elements",
+          if (isSimple) st"[${(o.elements.map(f), ", ")}]"
+          else st"""[
+                   |  ${(o.elements.map(f), ",\n")}
+                   |]""")))
+    }
+
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
       for (c <- conversions.String.toCis(s)) {
@@ -384,23 +492,17 @@ object Json {
     }
 
     @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
-      if (isSimple) {
-        return st"[${(elements, ", ")}]"
-      } else {
-        return st"""[
-                   |  ${(elements, ",\n")}
-                   |]"""
-      }
+      return if (isSimple) st"[${(elements, ", ")}]"
+        else st"""[
+                 |  ${(elements, ",\n")}
+                 |]"""
     }
 
     @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
-      if (isSimple) {
-        return st"[${(elements, ", ")}]"
-      } else {
-        return st"""[
-                   |  ${(elements, ",\n")}
-                   |]"""
-      }
+      return if (isSimple) st"[${(elements, ", ")}]"
+      else st"""[
+                |  ${(elements, ",\n")}
+                |]"""
     }
   }
 
@@ -410,7 +512,7 @@ object Json {
     }
   }
 
-  @record class Parser(input: ISZ[C],
+  @record class Parser(val input: ISZ[C],
                        var offset: Z,
                        var errorOpt: Option[ErrorMsg]) {
 
@@ -1257,6 +1359,7 @@ object Json {
       parseObjectType("Or")
       parseObjectKey("i")
       val i = parseZ()
+      parseObjectNext()
       parseObjectKey("value")
       i match {
         case z"0" =>
@@ -1274,6 +1377,7 @@ object Json {
       parseObjectType("Or")
       parseObjectKey("i")
       val i = parseZ()
+      parseObjectNext()
       parseObjectKey("value")
       i match {
         case z"0" =>
@@ -1285,6 +1389,171 @@ object Json {
           parseObjectNext()
           return MEither(MNone(), MSome(r))
       }
+    }
+
+    def parseMap[K, V](k: () => K, v: () => V): Map[K, V] = {
+      parseObjectType("Map")
+
+      var r = Map.empty[K, V]
+      parseObjectKey("entries")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      def parseEntry(): Unit = {
+        parseArrayBegin()
+        val key = k()
+        parseArrayNext()
+        val value = v()
+        parseArrayNext()
+        r = r.put(key, value)
+      }
+
+      parseEntry()
+      var continue = parseArrayNext()
+      while (continue) {
+        parseEntry()
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
+    }
+
+    def parseSet[V](f: () => V): Set[V] = {
+      parseObjectType("Set")
+
+      var r = Set.empty[V]
+      parseObjectKey("elements")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      var e = f()
+      r = r.add(e)
+      var continue = parseArrayNext()
+      while (continue) {
+        e = f()
+        r = r.add(e)
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
+    }
+
+    def parseHashMap[K, V](k: () => K, v: () => V): HashMap[K, V] = {
+      parseObjectType("HashMap")
+      parseObjectKey("size")
+      val size = parseZ()
+      parseObjectNext()
+
+      var r = HashMap.emptyInit[K, V](size)
+      parseObjectKey("entries")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      def parseEntry(): Unit = {
+        parseArrayBegin()
+        val key = k()
+        parseArrayNext()
+        val value = v()
+        parseArrayNext()
+        r = r.put(key, value)
+      }
+
+      parseEntry()
+      var continue = parseArrayNext()
+      while (continue) {
+        parseEntry()
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
+    }
+
+    def parseHashSet[V](f: () => V): HashSet[V] = {
+      parseObjectType("HashSet")
+      parseObjectKey("size")
+      val size = parseZ()
+      parseObjectNext()
+
+      var r = HashSet.emptyInit[V](size)
+      parseObjectKey("elements")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      var e = f()
+      r = r.add(e)
+      var continue = parseArrayNext()
+      while (continue) {
+        e = f()
+        r = r.add(e)
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
+    }
+
+    def parseHashSMap[K, V](k: () => K, v: () => V): HashSMap[K, V] = {
+      parseObjectType("HashSMap")
+      parseObjectKey("size")
+      val size = parseZ()
+      parseObjectNext()
+
+      var r = HashSMap.emptyInit[K, V](size)
+      parseObjectKey("entries")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      def parseEntry(): Unit = {
+        parseArrayBegin()
+        val key = k()
+        parseArrayNext()
+        val value = v()
+        parseArrayNext()
+        r = r.put(key, value)
+      }
+
+      parseEntry()
+      var continue = parseArrayNext()
+      while (continue) {
+        parseEntry()
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
+    }
+
+    def parseHashSSet[V](f: () => V): HashSSet[V] = {
+      parseObjectType("HashSSet")
+      parseObjectKey("size")
+      val size = parseZ()
+      parseObjectNext()
+
+      var r = HashSSet.emptyInit[V](size)
+      parseObjectKey("elements")
+      if (!parseArrayBegin()) {
+        parseObjectNext()
+        return r
+      }
+
+      var e = f()
+      r = r.add(e)
+      var continue = parseArrayNext()
+      while (continue) {
+        e = f()
+        r = r.add(e)
+        continue = parseArrayNext()
+      }
+      parseObjectNext()
+      return r
     }
 
     def at(i: Z): C = {

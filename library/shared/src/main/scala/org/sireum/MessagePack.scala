@@ -558,6 +558,51 @@ object MessagePack {
       }
     }
 
+    def writeMap[K, V](m: Map[K, V], k: K => Unit, v: V => Unit): Unit = {
+      writeMapHeader(m.size)
+      for (e <- m.entries) {
+        k(e._1)
+        v(e._2)
+      }
+    }
+
+    def writeSet[V](m: Set[V], f: V => Unit): Unit = {
+      writeArrayHeader(m.size)
+      for (e <- m.elements) {
+        f(e)
+      }
+    }
+
+    def writeHashMap[K, V](m: HashMap[K, V], k: K => Unit, v: V => Unit): Unit = {
+      writeMapHeader(m.size)
+      for (e <- m.entries) {
+        k(e._1)
+        v(e._2)
+      }
+    }
+
+    def writeHashSet[V](m: HashSet[V], f: V => Unit): Unit = {
+      writeArrayHeader(m.size)
+      for (e <- m.elements) {
+        f(e)
+      }
+    }
+
+    def writeHashSMap[K, V](m: HashSMap[K, V], k: K => Unit, v: V => Unit): Unit = {
+      writeMapHeader(m.size)
+      for (e <- m.entries) {
+        k(e._1)
+        v(e._2)
+      }
+    }
+
+    def writeHashSSet[V](m: HashSSet[V], f: V => Unit): Unit = {
+      writeArrayHeader(m.size)
+      for (e <- m.elements) {
+        f(e)
+      }
+    }
+
     def writeArrayHeader(n: Z): Unit
 
     def writeBinary(array: ISZ[U8]): Unit
@@ -1580,6 +1625,81 @@ object MessagePack {
       while (i < size) {
         val o = f()
         r = r :+ o
+        i = i + 1
+      }
+      return r
+    }
+
+    def readMap[K, V](k: () => K, v: () => V): Map[K, V] = {
+      val size = readMapHeader()
+      var r = Map.empty[K, V]
+      var i = 0
+      while (i < size) {
+        val key = k()
+        val value = v()
+        r = r.put(key, value)
+        i = i + 1
+      }
+      return r
+    }
+
+    def readSet[V](f: () => V): Set[V] = {
+      val size = readArrayHeader()
+      var r = Set.empty[V]
+      var i = 0
+      while (i < size) {
+        val value = f()
+        r = r.add(value)
+        i = i + 1
+      }
+      return r
+    }
+
+    def readHashMap[K, V](k: () => K, v: () => V): HashMap[K, V] = {
+      val size = readMapHeader()
+      var r = HashMap.emptyInit[K, V](size)
+      var i = 0
+      while (i < size) {
+        val key = k()
+        val value = v()
+        r = r.put(key, value)
+        i = i + 1
+      }
+      return r
+    }
+
+    def readHashSet[V](f: () => V): HashSet[V] = {
+      val size = readArrayHeader()
+      var r = HashSet.emptyInit[V](size)
+      var i = 0
+      while (i < size) {
+        val value = f()
+        r = r.add(value)
+        i = i + 1
+      }
+      return r
+    }
+
+    def readHashSMap[K, V](k: () => K, v: () => V): HashSMap[K, V] = {
+      val size = readMapHeader()
+      var r = HashSMap.emptyInit[K, V](size)
+      var i = 0
+      while (i < size) {
+        val key = k()
+        val value = v()
+        r = r.put(key, value)
+        i = i + 1
+      }
+      return r
+    }
+
+    def readHashSSet[V](f: () => V): HashSSet[V] = {
+      val size = readArrayHeader()
+      var r = HashSSet.emptyInit[V](size)
+      var i = 0
+      while (i < size) {
+        val value = f()
+        r = r.add(value)
         i = i + 1
       }
       return r
