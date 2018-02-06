@@ -40,8 +40,6 @@ class STest extends SireumRuntimeSpec {
 
     *(ISZ[Z](z"1", z"2", z"3") =~= IS[Z, Z](z"1", z"2", z"3"))
 
-    *(ISU16[U16](u16"-1", u16"-2", u16"-3") =~= IS[U16, U16](u16"-1", u16"-2", u16"-3"))
-
     *(ISZ[Z](z"1", z"2", z"3") !~= ISZ[U16](u16"-1", u16"-2", u16"-3"))
 
     "ISZ[B]" - {
