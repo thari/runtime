@@ -26,6 +26,9 @@
 package org.sireum
 
 
+object B {
+}
+
 @ext trait B {
 
   @pure def hash: Z
@@ -48,6 +51,9 @@ package org.sireum
 
 }
 
+
+object C {
+}
 
 @ext trait C {
 
@@ -72,6 +78,10 @@ package org.sireum
   @pure def |(other: C): C
 
   @pure def |^(other: C): C
+}
+
+
+object Z {
 }
 
 @ext trait Z {
@@ -121,6 +131,9 @@ package org.sireum
 }
 
 
+object F32 {
+}
+
 @ext trait F32 {
 
   @pure def hash: Z
@@ -150,6 +163,9 @@ package org.sireum
 }
 
 
+object F64 {
+}
+
 @ext trait F64 {
 
   @pure def hash: Z
@@ -178,6 +194,9 @@ package org.sireum
 
 }
 
+
+object R {
+}
 
 @ext trait R {
 
@@ -224,6 +243,7 @@ package org.sireum
 
 }
 
+
 @ext trait ST {
 
   @pure def hash: Z
@@ -236,6 +256,9 @@ package org.sireum
 
 }
 
+
+object IS {
+}
 
 @ext trait IS[I, V] {
 
@@ -273,6 +296,13 @@ package org.sireum
 
 }
 
+object ISZ {
+}
+
+
+object MS {
+}
+
 @ext trait MS[I, V] {
 
   @pure def hash: Z
@@ -307,4 +337,10 @@ package org.sireum
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
 
+}
+
+object MSZ {
+}
+
+object ZS {
 }
