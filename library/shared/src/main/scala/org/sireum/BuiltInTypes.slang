@@ -257,7 +257,8 @@ object R {
 }
 
 
-object IS {
+@ext object IS {
+  def create[I, V](size: I, default: V): IS[I, V] = $
 }
 
 @ext trait IS[I, V] {
@@ -296,11 +297,13 @@ object IS {
 
 }
 
-object ISZ {
+@ext object ISZ {
+  def create[V](size: Z, default: V): ISZ[V] =
+    l""" requires size ≥ 0 """
 }
 
-
-object MS {
+@ext object MS {
+  def create[I, V](size: I, default: V): MS[I, V] = $
 }
 
 @ext trait MS[I, V] {
@@ -339,8 +342,12 @@ object MS {
 
 }
 
-object MSZ {
+@ext object MSZ {
+  def create[V](size: Z, default: V): MSZ[V] =
+    l""" requires size ≥ 0 """
 }
 
-object ZS {
+@ext object ZS {
+  def create(size: Z, default: Z): ZS =
+    l""" requires size ≥ 0 """
 }
