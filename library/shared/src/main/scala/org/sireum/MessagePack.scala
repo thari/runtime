@@ -637,7 +637,7 @@ object MessagePack {
             }
             r + 4
           }
-          val (stringPoolBuf: MSZ[U8], stringPoolBufSize: Z) = {
+          val (stringPoolBuf, stringPoolBufSize): (MSZ[U8], Z) = {
             val r = Impl(F, MSZ.create(poolBufferSize, u8"0"), 0, HashSMap.empty)
             r.writeExtTypeHeader(StringPoolExtType, strings.size)
             for (s <- strings) {
