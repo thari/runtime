@@ -35,8 +35,9 @@ object helper {
   private val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
 
   def halt(msg: Any): Nothing = {
-    assume(assumption = false, msg.toString)
-    throw new Error
+    val e = new Error(msg.toString)
+    e.printStackTrace()
+    throw e
   }
 
   def clone[T](o: T): T = o match {
