@@ -26,7 +26,10 @@
 package org.sireum
 
 
-object B {
+@ext object B {
+
+  def random: B = $
+
 }
 
 @ext trait B {
@@ -52,7 +55,10 @@ object B {
 }
 
 
-object C {
+@ext object C {
+
+  def random: C = $
+
 }
 
 @ext trait C {
@@ -81,7 +87,10 @@ object C {
 }
 
 
-object Z {
+@ext object Z {
+
+  def random: Z = $
+
 }
 
 @ext trait Z {
@@ -131,7 +140,10 @@ object Z {
 }
 
 
-object F32 {
+@ext object F32 {
+
+  def random: F32 = $
+
 }
 
 @ext trait F32 {
@@ -163,7 +175,10 @@ object F32 {
 }
 
 
-object F64 {
+@ext object F64 {
+
+  def random: F64 = $
+
 }
 
 @ext trait F64 {
@@ -195,7 +210,10 @@ object F64 {
 }
 
 
-object R {
+@ext object R {
+
+  def random: R = $
+
 }
 
 @ext trait R {
@@ -226,6 +244,11 @@ object R {
 
 }
 
+@ext object String {
+
+  def random: String = $
+
+}
 
 @ext trait String {
 
@@ -258,7 +281,9 @@ object R {
 
 
 @ext object IS {
+
   def create[I, V](size: I, default: V): IS[I, V] = $
+
 }
 
 @ext trait IS[I, V] {
@@ -298,12 +323,16 @@ object R {
 }
 
 @ext object ISZ {
+
   def create[V](size: Z, default: V): ISZ[V] =
     l""" requires size ≥ 0 """
+
 }
 
 @ext object MS {
+
   def create[I, V](size: I, default: V): MS[I, V] = $
+
 }
 
 @ext trait MS[I, V] {
@@ -343,11 +372,16 @@ object R {
 }
 
 @ext object MSZ {
+
   def create[V](size: Z, default: V): MSZ[V] =
     l""" requires size ≥ 0 """
+
 }
 
 @ext object ZS {
+
+  def random: ZS = $
+
   def create(size: Z, default: Z): ZS =
     l""" requires size ≥ 0 """
 }
