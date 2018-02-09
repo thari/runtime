@@ -37,16 +37,19 @@ trait PackageTrait {
   object ISZ {
     def apply[V](args: V*): ISZ[V] = IS[Z, V](args: _*)
     def create[V](size: Z, default: V): ISZ[V] = IS.create(size, default)
+    def unapplySeq[V](o: ISZ[V]): scala.Option[scala.Seq[V]] = IS.unapplySeq(o)
   }
 
   object MSZ {
     def apply[V](args: V*): MSZ[V] = MS[Z, V](args: _*)
     def create[V](size: Z, default: V): MSZ[V] = MS.create(size, default)
+    def unapplySeq[V](o: MSZ[V]): scala.Option[scala.Seq[V]] = MS.unapplySeq(o)
   }
 
   object ZS {
     def apply(args: Z*): ZS = MS[Z, Z](args: _*)
     def create(size: Z, default: Z): ZS = MS.create(size, default)
+    def unapplySeq(o: ZS): scala.Option[scala.Seq[Z]] = MS.unapplySeq(o)
   }
 
   val T: org.sireum.B = true

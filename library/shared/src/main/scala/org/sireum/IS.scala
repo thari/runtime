@@ -65,6 +65,7 @@ object IS {
                   length: Z,
                   boxer: Boxer): IS[I, V] = new IS[I, V](companion, data, length, boxer)
 
+  def unapplySeq[I, V](o: IS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements)
 }
 
 final class IS[I, V](val companion: $ZCompanion[I],

@@ -65,6 +65,7 @@ object MS {
                   length: Z,
                   boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
 
+  def unapplySeq[I, V](o: MS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements.map(helper.cloneAssign))
 }
 
 final class MS[I, V](val companion: $ZCompanion[I],
