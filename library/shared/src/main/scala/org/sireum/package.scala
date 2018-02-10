@@ -99,4 +99,8 @@ package object sireum extends $internal.PackageTrait {
 
     def st(args: Any*): ST = macro Macro.st
   }
+
+  implicit class Any2Hash(val o: Any) extends AnyVal {
+    def hash: Z = o.hashCode
+  }
 }
