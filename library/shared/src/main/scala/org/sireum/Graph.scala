@@ -62,7 +62,7 @@ object Graph {
 
   }
 
-  def empty[V, E]: Graph[V, E] = {
+  @pure def empty[V, E]: Graph[V, E] = {
     return Graph(HashMap.empty, HashMap.empty, HashMap.empty, 0)
   }
 }
@@ -170,8 +170,8 @@ object Graph {
     return ISZ()
   }
 
-  def string: String = {
-    def e2st(e: Graph.Edge.Internal[E]): ST = {
+  @pure def string: String = {
+    @pure def e2st(e: Graph.Edge.Internal[E]): ST = {
       e match {
         case Graph.Edge.Internal.Data(source, dest, data) => return st"""n$source -> n$dest [label = "$data"]"""
         case Graph.Edge.Internal.Plain(source, dest) => return st"""n$source -> n$dest"""
