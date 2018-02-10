@@ -48,6 +48,15 @@ object HashBag {
     return r
   }
 
+  @pure def elements: ISZ[T] = {
+    var r = ISZ[T]()
+    for (entry <- entries) {
+      val (e, size) = entry
+      r = r ++ (for (_ <- z"0" until size) yield e)
+    }
+    return r
+  }
+
   @pure def isEmpty: B = {
     return size == 0
   }
