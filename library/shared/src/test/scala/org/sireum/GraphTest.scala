@@ -32,12 +32,12 @@ class GraphTest extends SireumRuntimeSpec {
   {
     implicit val _spec: SireumSpec = this
 
-    val graph = Graph.empty[Z, Unit]
+    val graph = Graph.empty[Z, String]
 
     * {
       val n1 = Z.random
       val n2 = Z.random
-      val g = graph.add(n1 ~> n2)
+      val g = graph.addData(n1 ~> n2 ~> "out")
       g.incoming(n1).isEmpty && g.outgoing(n1).elements.exists(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).isEmpty && g.incoming(n1) == g.outgoing(1)
     }

@@ -29,48 +29,100 @@ package org.sireum
 object Graph {
 
   @datatype trait Edge[V, E] {
-    def source: V
-    def dest: V
+    @pure def source: V
+    @pure def dest: V
+    @pure def toInternal(map: HashMap[V, Z]): Internal.Edge[E]
   }
 
   object Edge {
-    @datatype class Plain[V, E](val source: V, val dest: V) extends Edge[V, E]
-    @datatype class Data[V, E](val source: V, val dest: V, val data: E) extends Edge[V, E]
 
-    @datatype trait Internal[E] {
-      def source: Z
-      def dest: Z
-      def toEdge[V](map: HashMap[Z, V]): Edge[V, E]
-    }
+    @datatype class Plain[V, E](val source: V, val dest: V) extends Edge[V, E] {
 
-    object Internal {
-
-      @datatype class Plain[E](val source: Z, val dest: Z) extends Internal[E] {
-
-        @pure def toEdge[V](map: HashMap[Z, V]): Edge[V, E] = {
-          return Edge.Plain(map.get(source).get, map.get(dest).get)
-        }
+      @pure override def toInternal(map: HashMap[V, Z]): Internal.Edge[E] = {
+        return Internal.Edge.Plain(map.get(source).get, map.get(dest).get)
       }
 
-      @datatype class Data[E](val source: Z, val dest: Z, val data: E) extends Internal[E] {
+    }
 
-        @pure def toEdge[V](map: HashMap[Z, V]): Edge[V, E] = {
-          return Edge.Data(map.get(source).get, map.get(dest).get, data)
+    @datatype class Data[V, E](val source: V, val dest: V, val data: E) extends Edge[V, E] {
+
+      @pure override def toInternal(map: HashMap[V, Z]): Internal.Edge[E] = {
+        return Internal.Edge.Data(map.get(source).get, map.get(dest).get, data)
+      }
+
+    }
+
+  }
+
+  object Internal {
+
+    @datatype trait Edge[E] {
+      @pure def source: Z
+      @pure def dest: Z
+      @pure def toEdge[V](map: ISZ[V]): Graph.Edge[V, E]
+    }
+
+    object Edge {
+
+      @datatype class Plain[E](val source: Z, val dest: Z) extends Edge[E] {
+
+        @pure override def toEdge[V](map: ISZ[V]): Graph.Edge[V, E] = {
+          return Graph.Edge.Plain(map(source), map(dest))
         }
+
+      }
+
+      @datatype class Data[E](val source: Z, val dest: Z, val data: E) extends Edge[E] {
+
+        @pure override def toEdge[V](map: ISZ[V]): Graph.Edge[V, E] = {
+          return Graph.Edge.Data(map(source), map(dest), data)
+        }
+
+      }
+
+    }
+
+    @pure def addEdge[V, E](g: Graph[V, E], e: Internal.Edge[E]): Graph[V, E] = {
+      return g(
+        incomingEdges = g.incomingEdges.put(e.dest, g.incomingEdges.get(e.dest).getOrElse(HashSet.empty).add(e)),
+        outgoingEdges = g.outgoingEdges.put(e.source, g.outgoingEdges.get(e.source).getOrElse(HashSet.empty).add(e))
+      )
+    }
+
+    @pure def addPlainEdge[V, E](g: Graph[V, E], src: Z, dst: Z): Graph[V, E] = {
+      return addEdge(g, Graph.Internal.Edge.Plain[E](src, dst))
+    }
+
+    @pure def addDataEdge[V, E](g: Graph[V, E], data: E, src: Z, dst: Z): Graph[V, E] = {
+      return addEdge(g, Graph.Internal.Edge.Data(src, dst, data))
+    }
+
+    @pure def incoming[V, E](g: Graph[V, E], dst: Z): ISZ[Graph.Internal.Edge[E]] = {
+      g.incomingEdges.get(dst) match {
+        case Some(s) => return s.elements
+        case _ => return ISZ()
+      }
+    }
+
+    @pure def outgoing[V, E](g: Graph[V, E], src: Z): ISZ[Graph.Internal.Edge[E]] = {
+      g.outgoingEdges.get(src) match {
+        case Some(s) => return s.elements
+        case _ => return ISZ()
       }
     }
 
   }
 
   @pure def empty[V, E]: Graph[V, E] = {
-    return Graph(HashMap.empty, HashMap.empty, HashMap.empty, 0)
+    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0)
   }
 }
 
 @datatype class Graph[V, E](
   val nodes: HashMap[V, Z],
-  val incomingEdges: HashMap[Z, HashSet[Graph.Edge.Internal[E]]],
-  val outgoingEdges: HashMap[Z, HashSet[Graph.Edge.Internal[E]]],
+  val nodesInverse: ISZ[V],
+  val incomingEdges: HashMap[Z, HashSet[Graph.Internal.Edge[E]]],
+  val outgoingEdges: HashMap[Z, HashSet[Graph.Internal.Edge[E]]],
   nextNodeId: Z
 ) {
 
@@ -85,59 +137,61 @@ object Graph {
     if (nodes.keySet != other.nodes.keySet) {
       return F
     }
-    val m = nodesInverse
-    val thisEdges: ISZ[Graph.Edge[V, E]] = for (ess <- incomingEdges.values; es <- ess.elements) yield es.toEdge(m)
-    val otherM = other.nodesInverse
-    val otherEdges: ISZ[Graph.Edge[V, E]] = for (ess <- other.incomingEdges.values; es <- ess.elements)
-      yield es.toEdge(otherM)
+    val thisEdges: ISZ[Graph.Edge[V, E]] =
+      for (ess <- incomingEdges.values; es <- ess.elements) yield es.toEdge(nodesInverse)
+    val otherEdges: ISZ[Graph.Edge[V, E]] =
+      for (ess <- other.incomingEdges.values; es <- ess.elements) yield es.toEdge(other.nodesInverse)
     return HashSet.empty[Graph.Edge[V, E]].addAll(thisEdges).addAll(otherEdges).size == thisEdges.size
+  }
+
+  @pure def deleteNodes(ns: ISZ[V]): Graph[V, E] = {
+    var r = Graph.empty[V, E]
+    val ins = HashSet.emptyInit[Z](ns.size).addAll(ns.map(n => nodes.get(n).get))
+    for (es <- incomingEdges.values) {
+      for (e <- es.elements) {
+        if (ins.contains(e.source) && ins.contains(e.dest)) {
+          r = r.addEdge(e.toEdge(nodesInverse))
+        }
+      }
+    }
+    return r
   }
 
   @pure def addNode(node: V): Graph[V, E] = {
     nodes.get(node) match {
       case Some(_) => return this
-      case _ => return this(nodes = nodes.put(node, nextNodeId), nextNodeId = nextNodeId + 1)
+      case _ =>
+        return this(
+          nodes = nodes.put(node, nextNodeId),
+          nodesInverse = nodesInverse :+ node,
+          nextNodeId = nextNodeId + 1
+        )
     }
   }
 
   @pure def add(edge: (V, V)): Graph[V, E] = {
-    return addEdge(edge._1, edge._2)
+    return addPlainEdge(edge._1, edge._2)
   }
 
-  @pure def addEdge(source: V, dest: V): Graph[V, E] = {
-    var r = addNode(source)
-    r = r.addNode(dest)
-    val src = r.nodes.get(source).get
-    val dst = r.nodes.get(dest).get
-    val e = Graph.Edge.Internal.Plain[E](src, dst)
-    return r(
-      incomingEdges = r.incomingEdges.put(dst, r.incomingEdges.get(dst).getOrElse(HashSet.empty).add(e)),
-      outgoingEdges = r.outgoingEdges.put(src, r.outgoingEdges.get(src).getOrElse(HashSet.empty).add(e))
-    )
+  @pure def addData(edge: ((V, V), E)): Graph[V, E] = {
+    return addDataEdge(edge._2, edge._1._1, edge._1._2)
+  }
+
+  @pure def addEdge(edge: Graph.Edge[V, E]): Graph[V, E] = {
+    return Graph.Internal.addEdge(addNode(edge.source).addNode(edge.dest), edge.toInternal(nodes))
+  }
+
+  @pure def addPlainEdge(source: V, dest: V): Graph[V, E] = {
+    val r = addNode(source).addNode(dest)
+    return Graph.Internal.addPlainEdge(r, r.nodes.get(source).get, r.nodes.get(dest).get)
   }
 
   @pure def addDataEdge(data: E, source: V, dest: V): Graph[V, E] = {
-    var r = addNode(source)
-    r = addNode(dest)
-    val src = nodes.get(source).get
-    val dst = nodes.get(dest).get
-    val e = Graph.Edge.Internal.Data(src, dst, data)
-    return r(
-      incomingEdges = r.incomingEdges.put(dst, r.incomingEdges.get(dst).getOrElse(HashSet.empty).add(e)),
-      outgoingEdges = r.outgoingEdges.put(src, r.outgoingEdges.get(src).getOrElse(HashSet.empty).add(e))
-    )
-  }
-
-  @pure def nodesInverse: HashMap[Z, V] = {
-    var r = HashMap.emptyInit[Z, V](nodes.size)
-    for (e <- nodes.entries) {
-      r = r.put(e._2, e._1)
-    }
-    return r
+    val r = addNode(source).addNode(dest)
+    return Graph.Internal.addDataEdge(r, data, r.nodes.get(source).get, r.nodes.get(dest).get)
   }
 
   @pure def edges(source: V, dest: V): ISZ[Graph.Edge[V, E]] = {
-    val m = nodesInverse
     nodes.get(dest) match {
       case Some(d) => return outgoing(source).withFilter(e => e.dest == d)
       case _ => return ISZ()
@@ -145,36 +199,24 @@ object Graph {
   }
 
   @pure def incoming(dest: V): ISZ[Graph.Edge[V, E]] = {
-    val m = nodesInverse
     nodes.get(dest) match {
-      case Some(d) =>
-        incomingEdges.get(d) match {
-          case Some(s) => return s.elements.map(e => e.toEdge(m))
-          case _ =>
-        }
-      case _ =>
+      case Some(dst) => return Graph.Internal.incoming(this, dst).map(e => e.toEdge(nodesInverse))
+      case _ => return ISZ()
     }
-    return ISZ()
   }
 
   @pure def outgoing(source: V): ISZ[Graph.Edge[V, E]] = {
-    val m = nodesInverse
     nodes.get(source) match {
-      case Some(d) =>
-        outgoingEdges.get(d) match {
-          case Some(s) => return s.elements.map(e => e.toEdge(m))
-          case _ =>
-        }
-      case _ =>
+      case Some(src) => Graph.Internal.outgoing(this, src).map(e => e.toEdge(nodesInverse))
+      case _ => return ISZ()
     }
-    return ISZ()
   }
 
-  @pure def string: String = {
-    @pure def e2st(e: Graph.Edge.Internal[E]): ST = {
+  @pure override def string: String = {
+    @pure def e2st(e: Graph.Internal.Edge[E]): ST = {
       e match {
-        case Graph.Edge.Internal.Data(source, dest, data) => return st"""n$source -> n$dest [label = "$data"]"""
-        case Graph.Edge.Internal.Plain(source, dest) => return st"""n$source -> n$dest"""
+        case Graph.Internal.Edge.Data(source, dest, data) => return st"""n$source -> n$dest [label = "$data"]"""
+        case Graph.Internal.Edge.Plain(source, dest) => return st"""n$source -> n$dest"""
       }
     }
     val nodes: ISZ[ST] = for (e <- this.nodes.entries) yield st"""n${e._2} [label="${e._1}"]"""
