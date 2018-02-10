@@ -27,18 +27,20 @@
 package org.sireum
 
 object Graph {
+  
+  type Index = Z
 
   @datatype trait Edge[V, E] {
     @pure def source: V
     @pure def dest: V
-    @pure def toInternal(map: HashMap[V, Z]): Internal.Edge[E]
+    @pure def toInternal(map: HashMap[V, Graph.Index]): Internal.Edge[E]
   }
 
   object Edge {
 
     @datatype class Plain[V, E](val source: V, val dest: V) extends Edge[V, E] {
 
-      @pure override def toInternal(map: HashMap[V, Z]): Internal.Edge[E] = {
+      @pure override def toInternal(map: HashMap[V, Graph.Index]): Internal.Edge[E] = {
         return Internal.Edge.Plain(map.get(source).get, map.get(dest).get)
       }
 
@@ -46,7 +48,7 @@ object Graph {
 
     @datatype class Data[V, E](val source: V, val dest: V, val data: E) extends Edge[V, E] {
 
-      @pure override def toInternal(map: HashMap[V, Z]): Internal.Edge[E] = {
+      @pure override def toInternal(map: HashMap[V, Graph.Index]): Internal.Edge[E] = {
         return Internal.Edge.Data(map.get(source).get, map.get(dest).get, data)
       }
 
@@ -57,14 +59,14 @@ object Graph {
   object Internal {
 
     @datatype trait Edge[E] {
-      @pure def source: Z
-      @pure def dest: Z
+      @pure def source: Graph.Index
+      @pure def dest: Graph.Index
       @pure def toEdge[V](map: ISZ[V]): Graph.Edge[V, E]
     }
 
     object Edge {
 
-      @datatype class Plain[E](val source: Z, val dest: Z) extends Edge[E] {
+      @datatype class Plain[E](val source: Graph.Index, val dest: Graph.Index) extends Edge[E] {
 
         @pure override def toEdge[V](map: ISZ[V]): Graph.Edge[V, E] = {
           return Graph.Edge.Plain(map(source), map(dest))
@@ -72,7 +74,7 @@ object Graph {
 
       }
 
-      @datatype class Data[E](val source: Z, val dest: Z, val data: E) extends Edge[E] {
+      @datatype class Data[E](val source: Graph.Index, val dest: Graph.Index, val data: E) extends Edge[E] {
 
         @pure override def toEdge[V](map: ISZ[V]): Graph.Edge[V, E] = {
           return Graph.Edge.Data(map(source), map(dest), data)
@@ -89,22 +91,22 @@ object Graph {
       )
     }
 
-    @pure def addPlainEdge[V, E](g: Graph[V, E], src: Z, dst: Z): Graph[V, E] = {
+    @pure def addPlainEdge[V, E](g: Graph[V, E], src: Graph.Index, dst: Graph.Index): Graph[V, E] = {
       return addEdge(g, Graph.Internal.Edge.Plain[E](src, dst))
     }
 
-    @pure def addDataEdge[V, E](g: Graph[V, E], data: E, src: Z, dst: Z): Graph[V, E] = {
+    @pure def addDataEdge[V, E](g: Graph[V, E], data: E, src: Graph.Index, dst: Graph.Index): Graph[V, E] = {
       return addEdge(g, Graph.Internal.Edge.Data(src, dst, data))
     }
 
-    @pure def incoming[V, E](g: Graph[V, E], dst: Z): ISZ[Graph.Internal.Edge[E]] = {
+    @pure def incoming[V, E](g: Graph[V, E], dst: Graph.Index): ISZ[Graph.Internal.Edge[E]] = {
       g.incomingEdges.get(dst) match {
         case Some(s) => return s.elements
         case _ => return ISZ()
       }
     }
 
-    @pure def outgoing[V, E](g: Graph[V, E], src: Z): ISZ[Graph.Internal.Edge[E]] = {
+    @pure def outgoing[V, E](g: Graph[V, E], src: Graph.Index): ISZ[Graph.Internal.Edge[E]] = {
       g.outgoingEdges.get(src) match {
         case Some(s) => return s.elements
         case _ => return ISZ()
@@ -119,11 +121,11 @@ object Graph {
 }
 
 @datatype class Graph[V, E](
-  val nodes: HashMap[V, Z],
+  val nodes: HashMap[V, Graph.Index],
   val nodesInverse: ISZ[V],
-  val incomingEdges: HashMap[Z, HashSet[Graph.Internal.Edge[E]]],
-  val outgoingEdges: HashMap[Z, HashSet[Graph.Internal.Edge[E]]],
-  nextNodeId: Z
+  val incomingEdges: HashMap[Graph.Index, HashSet[Graph.Internal.Edge[E]]],
+  val outgoingEdges: HashMap[Graph.Index, HashSet[Graph.Internal.Edge[E]]],
+  nextNodeId: Graph.Index
 ) {
 
   @pure override def hash: Z = {
@@ -146,7 +148,7 @@ object Graph {
 
   @pure def deleteNodes(ns: ISZ[V]): Graph[V, E] = {
     var r = Graph.empty[V, E]
-    val ins = HashSet.emptyInit[Z](ns.size).addAll(ns.map(n => nodes.get(n).get))
+    val ins = HashSet.emptyInit[Graph.Index](ns.size).addAll(ns.map(n => nodes.get(n).get))
     for (es <- incomingEdges.values) {
       for (e <- es.elements) {
         if (ins.contains(e.source) && ins.contains(e.dest)) {
