@@ -326,11 +326,11 @@ object Graph {
   @pure def toST(f: V => ST @pure, g: E => ST @pure): ST = {
     @pure def e2st(e: Graph.Internal.Edge[E]): ST = {
       e match {
-        case Graph.Internal.Edge.Data(source, dest, data) =>  return st"""n$source -> n$dest [label = "${g(data)}"]"""
+        case Graph.Internal.Edge.Data(source, dest, data) =>  return st"""n$source -> n$dest ${g(data)}"""
         case Graph.Internal.Edge.Plain(source, dest) => return st"""n$source -> n$dest"""
       }
     }
-    val nodes: ISZ[ST] = for (e <- this.nodes.entries) yield st"""n${e._2} [label="${f(e._1)}"]"""
+    val nodes: ISZ[ST] = for (e <- this.nodes.entries) yield st"""n${e._2} ${f(e._1)}"""
     val edges: ISZ[ST] = for (es <- incomingEdges.values; e <- es.elements) yield e2st(e)
     val r =
       st"""digraph G {
@@ -345,6 +345,6 @@ object Graph {
   }
 
   @pure override def string: String = {
-    return toST(v => st"$v", e => st"$e").render
+    return toST(v => st"""[label="$v"]""", e => st"""[label="$e"]""").render
   }
 }
