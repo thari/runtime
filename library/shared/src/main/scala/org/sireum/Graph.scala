@@ -64,6 +64,68 @@ object Graph {
       @pure def toEdge[V](map: ISZ[V]): Graph.Edge[V, E]
     }
 
+    @datatype trait Edges[E] {
+      @pure def elements: ISZ[Edge[E]]
+      @pure def size: Z
+      @pure def add(e: Edge[E]): Edges[E]
+      @pure def addAll(es: ISZ[Edge[E]]): Edges[E]
+      @pure def removeN(e: Edge[E], n: Z): Edges[E]
+    }
+
+    object Edges {
+
+      @datatype class Set[E](set: HashSet[Edge[E]]) extends Edges[E] {
+
+        @pure override def elements: ISZ[Edge[E]] = {
+          return set.elements
+        }
+
+        @pure override def size: Z = {
+          return set.size
+        }
+
+        @pure override def add(e: Edge[E]): Edges[E] = {
+          return this(set = set.add(e))
+        }
+
+        @pure override def addAll(es: ISZ[Edge[E]]): Edges[E] = {
+          return this(set = set.addAll(es))
+        }
+
+        @pure override def removeN(e: Edge[E], n: Z): Edges[E] = {
+          return this(set = set.remove(e))
+        }
+      }
+
+      @datatype class Bag[E](set: HashBag[Edge[E]]) extends Edges[E] {
+
+        @pure override def elements: ISZ[Edge[E]] = {
+          return set.elements
+        }
+
+        @pure override def size: Z = {
+          return set.size
+        }
+
+        @pure override def add(e: Edge[E]): Edges[E] = {
+          return this(set = set.add(e))
+        }
+
+        @pure override def addAll(es: ISZ[Edge[E]]): Edges[E] = {
+          return this(set = set.addAll(es))
+        }
+
+        @pure override def removeN(e: Edge[E], n: Z): Edges[E] = {
+          return this(set = set.removeN(e, n))
+        }
+      }
+
+      def empty[E](multi: B): Edges[E] = {
+        return if (multi) Bag(HashBag.empty) else Set(HashSet.empty)
+      }
+
+    }
+
     object Edge {
 
       @datatype class Plain[E](val source: Graph.Index, val dest: Graph.Index) extends Edge[E] {
@@ -86,8 +148,8 @@ object Graph {
 
     @pure def addEdge[V, E](g: Graph[V, E], e: Internal.Edge[E]): Graph[V, E] = {
       return g(
-        incomingEdges = g.incomingEdges.put(e.dest, g.incomingEdges.get(e.dest).getOrElse(HashSet.empty).add(e)),
-        outgoingEdges = g.outgoingEdges.put(e.source, g.outgoingEdges.get(e.source).getOrElse(HashSet.empty).add(e))
+        incomingEdges = g.incomingEdges.put(e.dest, g.incomingEdges.get(e.dest).getOrElse(Edges.empty(g.multi)).add(e)),
+        outgoingEdges = g.outgoingEdges.put(e.source, g.outgoingEdges.get(e.source).getOrElse(Edges.empty(g.multi)).add(e))
       )
     }
 
@@ -97,6 +159,16 @@ object Graph {
 
     @pure def addDataEdge[V, E](g: Graph[V, E], data: E, src: Graph.Index, dst: Graph.Index): Graph[V, E] = {
       return addEdge(g, Graph.Internal.Edge.Data(src, dst, data))
+    }
+
+    @pure def removeEdge[V, E](g: Graph[V, E], e: Graph.Internal.Edge[E], n: Z): Graph[V, E] = {
+      if (g.incomingEdges.get(e.dest).isEmpty) {
+        return g
+      }
+      return g(
+        incomingEdges = g.incomingEdges.put(e.dest, g.incomingEdges.get(e.dest).get.removeN(e, n)),
+        outgoingEdges = g.outgoingEdges.put(e.source, g.outgoingEdges.get(e.source).get.removeN(e, n))
+      )
     }
 
     @pure def incoming[V, E](g: Graph[V, E], dst: Graph.Index): ISZ[Graph.Internal.Edge[E]] = {
@@ -116,20 +188,37 @@ object Graph {
   }
 
   @pure def empty[V, E]: Graph[V, E] = {
-    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0)
+    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0, F)
+  }
+
+  @pure def emptyMulti[V, E]: Graph[V, E] = {
+    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0, T)
   }
 }
 
 @datatype class Graph[V, E](
   val nodes: HashMap[V, Graph.Index],
   val nodesInverse: ISZ[V],
-  val incomingEdges: HashMap[Graph.Index, HashSet[Graph.Internal.Edge[E]]],
-  val outgoingEdges: HashMap[Graph.Index, HashSet[Graph.Internal.Edge[E]]],
-  nextNodeId: Graph.Index
+  val incomingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
+  val outgoingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
+  val nextNodeId: Graph.Index,
+  val multi: B
 ) {
 
+  @pure def numOfNodes: Z = {
+    return nodes.size
+  }
+
+  @pure def numOfEdges: Z = {
+    var r = z"0"
+    for (n <- incomingEdges.values.map(s => s.size)) {
+      r = r + n
+    }
+    return r
+  }
+
   @pure override def hash: Z = {
-    return (nodes.size, incomingEdges.values.map(s => s.size)).hash
+    return (numOfNodes, numOfEdges).hash
   }
 
   @pure def isEqual(other: Graph[V, E]): B = {
@@ -147,7 +236,7 @@ object Graph {
   }
 
   @pure def deleteNodes(ns: ISZ[V]): Graph[V, E] = {
-    var r = Graph.empty[V, E]
+    var r: Graph[V, E] = if (multi) Graph.emptyMulti[V, E] else Graph.empty[V, E]
     val ins = HashSet.emptyInit[Graph.Index](ns.size).addAll(ns.map(n => nodes.get(n).get))
     for (es <- incomingEdges.values) {
       for (e <- es.elements) {
@@ -193,6 +282,26 @@ object Graph {
     return Graph.Internal.addDataEdge(r, data, r.nodes.get(source).get, r.nodes.get(dest).get)
   }
 
+  @pure def allEdges: ISZ[Graph.Edge[V, E]] = {
+    return for (es <- incomingEdges.values; e <- es.elements) yield e.toEdge(nodesInverse)
+  }
+
+  @pure def removeEdges(edges: ISZ[Graph.Edge[V, E]]): Graph[V, E] = {
+    var r = this
+    for (e <- edges) {
+      r = r.removeEdge(e)
+    }
+    return r
+  }
+
+  @pure def removeEdge(edge: Graph.Edge[V, E]): Graph[V, E] = {
+    return removeEdgeN(edge, 1)
+  }
+
+  @pure def removeEdgeN(edge: Graph.Edge[V, E], n: Z): Graph[V, E] = {
+    return Graph.Internal.removeEdge(this, edge.toInternal(nodes), n)
+  }
+
   @pure def edges(source: V, dest: V): ISZ[Graph.Edge[V, E]] = {
     nodes.get(dest) match {
       case Some(d) => return outgoing(source).withFilter(e => e.dest == d)
@@ -214,21 +323,28 @@ object Graph {
     }
   }
 
-  @pure override def string: String = {
+  @pure def toST(f: V => ST @pure, g: E => ST @pure): ST = {
     @pure def e2st(e: Graph.Internal.Edge[E]): ST = {
       e match {
-        case Graph.Internal.Edge.Data(source, dest, data) => return st"""n$source -> n$dest [label = "$data"]"""
+        case Graph.Internal.Edge.Data(source, dest, data) =>  return st"""n$source -> n$dest [label = "${g(data)}"]"""
         case Graph.Internal.Edge.Plain(source, dest) => return st"""n$source -> n$dest"""
       }
     }
-    val nodes: ISZ[ST] = for (e <- this.nodes.entries) yield st"""n${e._2} [label="${e._1}"]"""
-    val edges: ISZ[ST] = for (es <- this.incomingEdges.values; e <- es.elements) yield e2st(e)
+    val nodes: ISZ[ST] = for (e <- this.nodes.entries) yield st"""n${e._2} [label="${f(e._1)}"]"""
+    val edges: ISZ[ST] = for (es <- incomingEdges.values; e <- es.elements) yield e2st(e)
     val r =
       st"""digraph G {
-      |  ${(nodes, "\n")}
-      |
-      |  ${(edges, "\n")}
-      |}"""
-    return r.render
+          |
+          |  ${(nodes, "\n")}
+          |
+          |  ${(edges, "\n")}
+
+          |}"""
+    return r
+
+  }
+
+  @pure override def string: String = {
+    return toST(v => st"$v", e => st"$e").render
   }
 }

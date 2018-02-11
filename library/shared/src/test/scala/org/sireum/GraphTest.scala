@@ -32,23 +32,47 @@ class GraphTest extends SireumRuntimeSpec {
   {
     implicit val _spec: SireumSpec = this
 
-    val graph = Graph.empty[Z, String]
-
     * {
+      val graph = Graph.empty[Z, String]
       val n1 = Z.random
       val n2 = Z.random
       val g = graph.addData(n1 ~> n2 ~> "out")
-      g.incoming(n1).isEmpty && g.outgoing(n1).elements.exists(e => e.source == n1 && e.dest == n2) &&
+      g.incoming(n1).isEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).isEmpty && g.incoming(n1) == g.outgoing(1)
     }
 
     * {
+      val graph = Graph.empty[Z, String]
       val n1 = Z.random
       val n2 = Z.random
       var g = graph.add(n1 ~> n2)
       g = g.add(n2 ~> n1)
-      g.incoming(n1).nonEmpty && g.outgoing(n1).elements.exists(e => e.source == n1 && e.dest == n2) &&
+      g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2)
+    }
+
+    * {
+      val graph = Graph.empty[Z, String]
+      val n1 = Z.random
+      val n2 = Z.random
+      var g = graph.add(n1 ~> n2)
+      g = g.add(n2 ~> n1)
+      g = g.add(n1 ~> n2)
+      g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
+        g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2) &&
+        g.outgoing(n1).elements.size == 1
+    }
+
+    * {
+      val graph = Graph.emptyMulti[Z, String]
+      val n1 = Z.random
+      val n2 = Z.random
+      var g = graph.add(n1 ~> n2)
+      g = g.add(n2 ~> n1)
+      g = g.add(n1 ~> n2)
+      g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
+        g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2) &&
+        g.outgoing(n1).elements.size == 2
     }
   }
 }
