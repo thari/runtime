@@ -120,7 +120,7 @@ object Graph {
         }
       }
 
-      def empty[E](multi: B): Edges[E] = {
+      @pure def empty[E](multi: B): Edges[E] = {
         return if (multi) Bag(HashBag.empty) else Set(HashSet.empty)
       }
 
