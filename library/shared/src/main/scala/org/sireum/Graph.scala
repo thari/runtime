@@ -338,7 +338,7 @@ object Graph {
           |  ${(nodes, "\n")}
           |
           |  ${(edges, "\n")}
-
+          |
           |}"""
     return r
 
