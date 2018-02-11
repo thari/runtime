@@ -186,7 +186,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
         val v2 = f(boxer.lookup(data, i))
         if (boxer2 == null) {
           boxer2 = Boxer.boxer(v2)
-          a = boxer2.cloneMut(data, length, length, Z.MP.zero)
+          a = boxer2.create(length)
         }
         boxer2.store(a, i, helper.assign(v2))
         i = i + 1
