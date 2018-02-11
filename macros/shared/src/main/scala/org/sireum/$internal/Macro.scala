@@ -129,7 +129,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val r = arg match {
       case q"(..$args)" if args.size > 1 => arg
       case _ =>
-        if (arg.tpe <:< mm) q"_root_.org.sireum.helper.assign($arg)"
+        if (arg.tpe <:< mm) q"_root_.org.sireum.helper.assignMut($arg)"
         else if (arg.tpe.typeSymbol.fullName.startsWith("scala.Tuple")) {
           val n = arg.tpe.typeSymbol.fullName.substring("scala.Tuple".length).toInt
           args(n)
