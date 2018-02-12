@@ -88,10 +88,20 @@ import org.sireum._
   def firstToUpper: String = {
     l""" requires s.size > 0
          ensures  result.size ≡ s.size
-                  result(0) ≡ conversions.COps(s(0))
+                  result(0) ≡ conversions.COps(s(0)).toUpper
                   ∀i: [1, s.size) result(i) ≡ s(i)   """
     val cms = conversions.String.toCms(s)
     cms(0) = COps(cms(0)).toUpper
+    return conversions.String.fromCms(cms)
+  }
+
+  def firstToLower: String = {
+    l""" requires s.size > 0
+         ensures  result.size ≡ s.size
+                  result(0) ≡ conversions.COps(s(0)).toLower
+                  ∀i: [1, s.size) result(i) ≡ s(i)   """
+    val cms = conversions.String.toCms(s)
+    cms(0) = COps(cms(0)).toLower
     return conversions.String.fromCms(cms)
   }
 }
