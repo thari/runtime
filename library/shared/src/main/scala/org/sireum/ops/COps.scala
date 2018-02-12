@@ -29,9 +29,11 @@ package org.sireum.ops
 import org.sireum._
 
 @datatype class COps(c: C) {
+
   def toUnicodeHex: (C, C, C, C) = {
     return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))
   }
+
   def toUpper: C = {
     if ('a' <= c && c <= 'z') {
       return c - '\u0020'
@@ -39,6 +41,15 @@ import org.sireum._
       return c
     }
   }
+
+  def toLower: C = {
+    if ('A' <= c && c <= 'Z') {
+      return c + '\u0020'
+    } else {
+      return c
+    }
+  }
+
 }
 
 object COps {
