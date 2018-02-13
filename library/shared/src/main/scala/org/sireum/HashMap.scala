@@ -27,13 +27,18 @@
 package org.sireum
 
 object HashMap {
+
   @pure def empty[K, V]: HashMap[K, V] = {
-    return emptyInit[K, V](16)
+    return emptyInit[K, V](12)
   }
 
   @pure def emptyInit[K, V](initialCapacity: Z): HashMap[K, V] = {
     val sz: Z = if (initialCapacity <= 0) 4 else initialCapacity * 4 / 3 + 1
     return HashMap[K, V](ISZ.create(sz, Map.empty), 0)
+  }
+
+  @pure def ++[I, K, V](s: IS[I, (K, V)]): HashMap[K, V] = {
+    return HashMap.emptyInit[K, V](s.zize) ++ s
   }
 
 }
@@ -71,28 +76,29 @@ object HashMap {
   }
 
   @pure def keySet: Set[K] = {
-    return Set.empty[K].addAll(keys)
+    return Set.empty[K] ++ keys
   }
 
   @pure def valueSet: Set[V] = {
-    return Set.empty[V].addAll(values)
+    return Set.empty[V] ++ values
   }
 
-  @pure def put(key: K, value: V): HashMap[K, V] = {
+  @pure def +(p: (K, V)): HashMap[K, V] = {
+    val (key, value) = p
     val r = ensureCapacity(size + 1)
     val i = r.hashIndex(key)
     val m = r.mapEntries(i)
     val newSize: Z = if (m.contains(key)) size else size + 1
-    return r(mapEntries = r.mapEntries(i ~> m.put(key, value)), size = newSize)
+    return r(mapEntries = r.mapEntries(i ~> (m + key ~> value)), size = newSize)
   }
 
-  @pure def putAll(entries: ISZ[(K, V)]): HashMap[K, V] = {
+  @pure def ++[I](entries: IS[I, (K, V)]): HashMap[K, V] = {
     if (entries.isEmpty) {
       return this
     }
-    var r = ensureCapacity(size + entries.size)
+    var r = ensureCapacity(size + entries.zize)
     for (kv <- entries) {
-      r = r.put(kv._1, kv._2)
+      r = r + kv._1 ~> kv._2
     }
     return r
   }
@@ -105,7 +111,7 @@ object HashMap {
     var r = HashMap.emptyInit[K, V](init)
     for (ms <- mapEntries) {
       for (kv <- ms.entries) {
-        r = r.put(kv._1, kv._2)
+        r = r + kv._1 ~> kv._2
       }
     }
     return r
@@ -127,20 +133,21 @@ object HashMap {
     return m.entry(key)
   }
 
-  @pure def removeAll(keys: ISZ[K]): HashMap[K, V] = {
+  @pure def --[I](keys: IS[I, K]): HashMap[K, V] = {
     var r = this
     for (k <- keys) {
       r.get(k) match {
-        case Some(v) => r = r.remove(k, v)
+        case Some(v) => r = r - k ~> v
         case _ =>
       }
     }
     return r
   }
 
-  @pure def remove(key: K, value: V): HashMap[K, V] = {
+  @pure def -(p: (K, V)): HashMap[K, V] = {
+    val (key, value) = p
     val i = hashIndex(key)
-    return this (mapEntries = mapEntries(i ~> mapEntries(i).remove(key, value)), size = size - 1)
+    return this(mapEntries(i ~> (mapEntries(i) - key ~> value)), size - 1)
   }
 
   @pure def contains(key: K): B = {
@@ -158,8 +165,8 @@ object HashMap {
   @pure def string: String = {
     val r =
       st"""{
-          |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
-          |}"""
+      |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+      |}"""
     return r.render
   }
 
@@ -175,7 +182,7 @@ object HashMap {
     for (ms <- mapEntries) {
       for (kv <- ms.entries) {
         val k = kv._1
-        seen = seen.add(k)
+        seen = seen + k
         other.get(k) match {
           case Some(v) =>
             if (kv._2 != v) {

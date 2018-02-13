@@ -35,30 +35,34 @@ object HashSSet {
   @pure def emptyInit[T](initialCapacity: Z): HashSSet[T] = {
     return HashSSet(HashSMap.emptyInit(initialCapacity))
   }
+
+  @pure def ++[I, T](s: IS[I, T]): HashSSet[T] = {
+    return HashSSet.emptyInit[T](s.zize) ++ s
+  }
 }
 
 @datatype class HashSSet[T](map: HashSMap[T, B]) {
 
-  @pure def add(e: T): HashSSet[T] = {
-    return HashSSet(map.put(e, T))
+  @pure def +(e: T): HashSSet[T] = {
+    return HashSSet(map + e ~> T)
   }
 
-  @pure def addAll(is: ISZ[T]): HashSSet[T] = {
+  @pure def ++[I](is: IS[I, T]): HashSSet[T] = {
     var r = this
     for (e <- is) {
-      r = r.add(e)
+      r = r + e
     }
     return r
   }
 
-  @pure def remove(e: T): HashSSet[T] = {
-    return HashSSet(map.remove(e, T))
+  @pure def -(e: T): HashSSet[T] = {
+    return HashSSet(map - e ~> T)
   }
 
-  @pure def removeAll(is: ISZ[T]): HashSSet[T] = {
+  @pure def --[I](is: IS[I, T]): HashSSet[T] = {
     var r = this
     for (e <- is) {
-      r = r.remove(e)
+      r = r - e
     }
     return r
   }
@@ -68,29 +72,29 @@ object HashSSet {
   }
 
   @pure def union(other: HashSSet[T]): HashSSet[T] = {
-    var r = this
-    for (e <- other.map.keys.elements) {
-      r = r.add(e)
-    }
-    return r
+    return this ∪ other
+  }
+
+  @pure def ∪(other: HashSSet[T]): HashSSet[T] = {
+    return this ++ other.elements
   }
 
   @pure def intersect(other: HashSSet[T]): HashSSet[T] = {
+    return this ∩ other
+  }
+
+  @pure def ∩(other: HashSSet[T]): HashSSet[T] = {
     var r = HashSSet.emptyInit[T](size)
     for (e <- other.map.keys.elements) {
       if (contains(e)) {
-        r = r.add(e)
+        r = r + e
       }
     }
     return r
   }
 
-  @pure def substract(other: HashSSet[T]): HashSSet[T] = {
-    var r = this
-    for (e <- other.map.keys.elements) {
-      r = r.remove(e)
-    }
-    return r
+  @pure def \(other: HashSSet[T]): HashSSet[T] = {
+    return this -- other.elements
   }
 
   @pure def isEqual(other: HashSSet[T]): B = {
@@ -116,8 +120,8 @@ object HashSSet {
   @pure def string: String = {
     val r =
       st"""{
-          |  ${(elements, ",\n")}
-          |}"""
+      |  ${(elements, ",\n")}
+      |}"""
     return r.render
   }
 }

@@ -300,9 +300,9 @@ package org.sireum
 
   @pure def +:(e: V): IS[I, V]
 
-  @pure def ++(other: IS[I, V]): IS[I, V]
+  @pure def ++[I2](other: IS[I2, V]): IS[I, V]
 
-  @pure def --(other: IS[I, V]): IS[I, V]
+  @pure def --[I2](other: IS[I2, V]): IS[I, V]
 
   @pure def -(e: V): IS[I, V]
 
@@ -315,6 +315,8 @@ package org.sireum
   @pure def foreach(p: V => Unit): Unit
 
   @pure def size: I
+
+  @pure def zize: I
 
   @pure def toMS: MS[I, V] =
     l""" ensures result.size ≡ s.size
@@ -349,9 +351,9 @@ package org.sireum
 
   @pure def +:(e: V): MS[I, V]
 
-  @pure def ++(other: MS[I, V]): MS[I, V]
+  @pure def ++[I2](other: MS[I2, V]): MS[I, V]
 
-  @pure def --(other: MS[I, V]): MS[I, V]
+  @pure def --[I2](other: MS[I2, V]): MS[I, V]
 
   @pure def -(e: V): MS[I, V]
 
@@ -364,6 +366,8 @@ package org.sireum
   @pure def foreach(p: V => Unit): Unit
 
   @pure def size: I
+
+  @pure def zize: Z
 
   @pure def toIS: IS[I, V] =
     l""" ensures result.size ≡ s.size

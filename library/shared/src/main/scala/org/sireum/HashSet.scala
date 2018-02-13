@@ -27,6 +27,7 @@
 package org.sireum
 
 object HashSet {
+
   @pure def empty[T]: HashSet[T] = {
     return HashSet(HashMap.empty[T, B])
   }
@@ -34,30 +35,34 @@ object HashSet {
   @pure def emptyInit[T](initialCapacity: Z): HashSet[T] = {
     return HashSet(HashMap.emptyInit(initialCapacity))
   }
+
+  @pure def ++[I, T](s: IS[I, T]): HashSet[T] = {
+    return HashSet.emptyInit[T](s.zize) ++ s
+  }
 }
 
 @datatype class HashSet[T](map: HashMap[T, B]) {
 
-  @pure def add(e: T): HashSet[T] = {
-    return HashSet(map.put(e, T))
+  @pure def +(e: T): HashSet[T] = {
+    return HashSet(map + e ~> T)
   }
 
-  @pure def addAll(is: ISZ[T]): HashSet[T] = {
+  @pure def ++[I](is: IS[I, T]): HashSet[T] = {
     var r = this
     for (e <- is) {
-      r = r.add(e)
+      r = r + e
     }
     return r
   }
 
-  @pure def remove(e: T): HashSet[T] = {
-    return HashSet(map.remove(e, T))
+  @pure def -(e: T): HashSet[T] = {
+    return HashSet(map - e ~> T)
   }
 
-  @pure def removeAll(is: ISZ[T]): HashSet[T] = {
+  @pure def --[I](is: IS[I, T]): HashSet[T] = {
     var r = this
     for (e <- is) {
-      r = r.remove(e)
+      r = r - e
     }
     return r
   }
@@ -67,29 +72,29 @@ object HashSet {
   }
 
   @pure def union(other: HashSet[T]): HashSet[T] = {
-    var r = this
-    for (e <- other.map.keys) {
-      r = r.add(e)
-    }
-    return r
+    return this ∪ other
+  }
+
+  @pure def ∪(other: HashSet[T]): HashSet[T] = {
+    return this ++ other.elements
   }
 
   @pure def intersect(other: HashSet[T]): HashSet[T] = {
+    return this ∩ other
+  }
+
+  @pure def ∩(other: HashSet[T]): HashSet[T] = {
     var r = HashSet.emptyInit[T](size)
     for (e <- other.map.keys) {
       if (contains(e)) {
-        r = r.add(e)
+        r = r + e
       }
     }
     return r
   }
 
-  @pure def substract(other: HashSet[T]): HashSet[T] = {
-    var r = this
-    for (e <- other.map.keys) {
-      r = r.remove(e)
-    }
-    return r
+  @pure def \(other: HashSet[T]): HashSet[T] = {
+    return this -- other.elements
   }
 
   @pure def isEqual(other: HashSet[T]): B = {
@@ -115,8 +120,8 @@ object HashSet {
   @pure def string: String = {
     val r =
       st"""{
-          |  ${(elements, ",\n")}
-          |}"""
+      |  ${(elements, ",\n")}
+      |}"""
     return r.render
   }
 }

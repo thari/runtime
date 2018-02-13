@@ -32,21 +32,21 @@ class HashMapTest extends SireumRuntimeSpec {
 
   *(HashMap.empty[String, Z].get("a") =~= None())
 
-  *(HashMap.empty[String, Z].put("a", 1).get("a") =~= Some(1))
+  *(HashMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
 
-  *(HashMap.empty[String, Z].put("a", 1).get("A") =~= None())
+  *(HashMap.empty[String, Z].+("a", 1).get("A") =~= None())
 
-  *(HashMap.empty[String, Z].put("a", 1).put("a", 2).get("a") =~= Some(2))
+  *(HashMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2).get("a") =~= Some(1))
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2).get("b") =~= Some(2))
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2) =~= HashMap.empty[String, Z].put("b", 2).put("a", 1))
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashMap.empty[String, Z].+("b", 2).+("a", 1))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2).remove("a", 1) =~= HashMap.empty[String, Z].put("b", 2))
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashMap.empty[String, Z].+("b", 2))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2).remove("b", 2) =~= HashMap.empty[String, Z].put("a", 1))
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashMap.empty[String, Z].+("a", 1))
 
-  *(HashMap.empty[String, Z].put("a", 1).put("b", 2).removeAll(ISZ("a", "b")) =~= HashMap.empty[String, Z])
+  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).--(ISZ("a", "b")) =~= HashMap.empty[String, Z])
 }

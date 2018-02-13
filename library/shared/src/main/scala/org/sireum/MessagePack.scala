@@ -622,10 +622,8 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(val poolString: B,
-                       val buf: MSZ[U8],
-                       var size: Z,
-                       var stringPool: HashSMap[String, Z]) extends Writer {
+    @record class Impl(val poolString: B, val buf: MSZ[U8], var size: Z, var stringPool: HashSMap[String, Z])
+        extends Writer {
 
       def result: ISZ[U8] = {
         if (poolString) {
@@ -674,7 +672,7 @@ object MessagePack {
           case Some(i) => return i
           case _ =>
             val i = stringPool.size
-            stringPool = stringPool.put(s, i)
+            stringPool = stringPool + s ~> i
             return i
         }
       }
@@ -779,8 +777,7 @@ object MessagePack {
           if (n < (s16"1" << s16"8")) {
             addU8(Code.UINT8)
             addU8(conversions.S16.toU8(n))
-          }
-          else {
+          } else {
             addU8(Code.UINT16)
             addU16(conversions.S16.toU16(n))
           }
@@ -978,7 +975,7 @@ object MessagePack {
           addU8(e)
         }
       }
-      */
+       */
 
       def writeString(s: String): Unit = {
         l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
@@ -1646,7 +1643,7 @@ object MessagePack {
       while (i < size) {
         val key = k()
         val value = v()
-        r = r.put(key, value)
+        r = r + key ~> value
         i = i + 1
       }
       return r
@@ -1658,7 +1655,7 @@ object MessagePack {
       var i = 0
       while (i < size) {
         val value = f()
-        r = r.add(value)
+        r = r + value
         i = i + 1
       }
       return r
@@ -1671,7 +1668,7 @@ object MessagePack {
       while (i < size) {
         val key = k()
         val value = v()
-        r = r.put(key, value)
+        r = r + key ~> value
         i = i + 1
       }
       return r
@@ -1683,7 +1680,7 @@ object MessagePack {
       var i = 0
       while (i < size) {
         val value = f()
-        r = r.add(value)
+        r = r + value
         i = i + 1
       }
       return r
@@ -1696,7 +1693,7 @@ object MessagePack {
       while (i < size) {
         val key = k()
         val value = v()
-        r = r.put(key, value)
+        r = r + key ~> value
         i = i + 1
       }
       return r
@@ -1708,7 +1705,7 @@ object MessagePack {
       var i = 0
       while (i < size) {
         val value = f()
-        r = r.add(value)
+        r = r + value
         i = i + 1
       }
       return r
@@ -1911,7 +1908,7 @@ object MessagePack {
         }
         return conversions.String.fromBms(a)
       }
-      */
+       */
 
       def readString(): String = {
         if (poolString) {

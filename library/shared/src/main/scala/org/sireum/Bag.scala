@@ -27,16 +27,12 @@ package org.sireum
 
 object Bag {
 
-  @pure def of[T]: Bag[T] = {
+  @pure def empty[T]: Bag[T] = {
     return Bag(Map.empty)
   }
 
   @pure def ++[I, T](s: IS[I, T]): Bag[T] = {
-    var r = Bag.of[T]
-    for (e <- s) {
-      r = r + e
-    }
-    return r
+    return Bag.empty[T] ++ s
   }
 
 }
@@ -87,7 +83,7 @@ object Bag {
     if (n <= 0) {
       return this
     }
-    return this(map.put(e, count(e) + n))
+    return this(map + e ~> (count(e) + n))
   }
 
   @pure def +#(p: (T, Z)): Bag[T] = {
@@ -128,9 +124,9 @@ object Bag {
     val current = count(e)
     val newN = current - n
     if (newN <= 0) {
-      return this(map.remove(e, current))
+      return this(map - e ~> current)
     } else {
-      return this(map.put(e, newN))
+      return this(map + e ~> newN)
     }
   }
 
@@ -155,7 +151,7 @@ object Bag {
   }
 
   @pure def ∩(other: Bag[T]): Bag[T] = {
-    var r = Bag.of[T]
+    var r = Bag.empty[T]
     for (e <- entries) {
       val n = e._2
       val m = other.count(e._1)

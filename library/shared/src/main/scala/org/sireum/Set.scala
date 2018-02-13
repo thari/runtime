@@ -27,33 +27,39 @@
 package org.sireum
 
 object Set {
+
   @pure def empty[T]: Set[T] = {
     return Set(Map.empty[T, B])
   }
+
+  @pure def ++[I, T](s: IS[I, T]): Set[T] = {
+    return Set.empty[T] ++ s
+  }
+
 }
 
 @datatype class Set[T](map: Map[T, B]) {
 
-  @pure def add(e: T): Set[T] = {
-    return Set(map.put(e, T))
+  @pure def +(e: T): Set[T] = {
+    return Set(map + e ~> T)
   }
 
-  @pure def addAll(is: ISZ[T]): Set[T] = {
+  @pure def ++[I](is: IS[I, T]): Set[T] = {
     var r = this
     for (e <- is) {
-      r = r.add(e)
+      r = r + e
     }
     return r
   }
 
-  @pure def remove(e: T): Set[T] = {
-    return Set(map.remove(e, T))
+  @pure def -(e: T): Set[T] = {
+    return Set(map - e ~> T)
   }
 
-  @pure def removeAll(is: ISZ[T]): Set[T] = {
+  @pure def --[I](is: IS[I, T]): Set[T] = {
     var r = this
     for (e <- is) {
-      r = r.remove(e)
+      r = r - e
     }
     return r
   }
@@ -63,30 +69,30 @@ object Set {
   }
 
   @pure def union(other: Set[T]): Set[T] = {
-    var r = this
-    for (p <- other.map.entries) {
-      r = r.add(p._1)
-    }
-    return r
+    return this ∪ other
+  }
+
+  @pure def ∪(other: Set[T]): Set[T] = {
+    return this ++ other.elements
   }
 
   @pure def intersect(other: Set[T]): Set[T] = {
+    return this ∩ other
+  }
+
+  @pure def ∩(other: Set[T]): Set[T] = {
     var r = Set.empty[T]
     for (p <- other.map.entries) {
       val e = p._1
       if (contains(e)) {
-        r = r.add(e)
+        r = r + e
       }
     }
     return r
   }
 
-  @pure def substract(other: Set[T]): Set[T] = {
-    var r = this
-    for (p <- other.map.entries) {
-      r = r.remove(p._1)
-    }
-    return r
+  @pure def \(other: Set[T]): Set[T] = {
+    return this -- other.map.keys
   }
 
   @pure def isEqual(other: Set[T]): B = {
@@ -112,8 +118,8 @@ object Set {
   @pure def string: String = {
     val r =
       st"""{
-          |  ${(elements, ",\n")}
-          |}"""
+      |  ${(elements, ",\n")}
+      |}"""
     return r.render
   }
 }

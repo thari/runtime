@@ -28,6 +28,7 @@ package org.sireum
 import org.sireum.test._
 
 class PosetTest extends SireumRuntimeSpec {
+
   /*
         A   H     I
        / \  | \  / \
@@ -41,33 +42,34 @@ class PosetTest extends SireumRuntimeSpec {
              L
    */
   val poset: Poset[String] = {
-    Poset.empty[String].
-      addChildren("A", ISZ[String]("B", "C")).
-      addChildren("B", ISZ[String]("D", "E")).
-      addChildren("C", ISZ[String]("E", "F")).
-      addNode("D").
-      addChildren("E", ISZ[String]("L")).
-      addNode("E").
-      addChildren("G", ISZ[String]("F", "J")).
-      addChildren("H", ISZ[String]("F", "G")).
-      addChildren("I", ISZ[String]("G", "J")).
-      addChildren("J", ISZ[String]("K")).
-      addChildren("K", ISZ[String]("L", "M")).
-      addNode("M").
-      addChildren("N", ISZ[String]("M"))
+    Poset
+      .empty[String]
+      .addChildren("A", ISZ[String]("B", "C"))
+      .addChildren("B", ISZ[String]("D", "E"))
+      .addChildren("C", ISZ[String]("E", "F"))
+      .addNode("D")
+      .addChildren("E", ISZ[String]("L"))
+      .addNode("E")
+      .addChildren("G", ISZ[String]("F", "J"))
+      .addChildren("H", ISZ[String]("F", "G"))
+      .addChildren("I", ISZ[String]("G", "J"))
+      .addChildren("J", ISZ[String]("K"))
+      .addChildren("K", ISZ[String]("L", "M"))
+      .addNode("M")
+      .addChildren("N", ISZ[String]("M"))
   }
 
   *(poset.isParentOf("B", "A"))
 
   *(poset.isChildOf("A", "C"))
 
-  *(poset.parentsOf("F") =~= HashSet.empty[String].addAll(ISZ[String]("C", "G", "H")))
+  *(poset.parentsOf("F") =~= HashSet.empty[String].++(ISZ[String]("C", "G", "H")))
 
-  *(poset.ancestorsOf("J") =~= HashSet.empty[String].addAll(ISZ[String]("G", "H", "I")))
+  *(poset.ancestorsOf("J") =~= HashSet.empty[String].++(ISZ[String]("G", "H", "I")))
 
-  *(poset.ancestorsOf("F") =~= HashSet.empty[String].addAll(ISZ[String]("A", "C", "G", "H", "I")))
+  *(poset.ancestorsOf("F") =~= HashSet.empty[String].++(ISZ[String]("A", "C", "G", "H", "I")))
 
-  *(poset.ancestorsOf("L") =~= HashSet.empty[String].addAll(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
+  *(poset.ancestorsOf("L") =~= HashSet.empty[String].++(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
   *(poset.lub(ISZ[String]("A", "A")) =~= Some[String]("A"))
 

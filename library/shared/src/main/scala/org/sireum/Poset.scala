@@ -33,8 +33,7 @@ object Poset {
   }
 }
 
-@datatype class Poset[T](parents: HashMap[T, HashSet[T]],
-                         children: HashMap[T, HashSet[T]]) {
+@datatype class Poset[T](parents: HashMap[T, HashSet[T]], children: HashMap[T, HashSet[T]]) {
   val emptySet: HashSet[T] = HashSet.empty
 
   @pure def isEqual(other: Poset[T]): B = {
@@ -51,20 +50,20 @@ object Poset {
     parents.get(n) match {
       case Some(_) => return this
       case _ =>
-        return Poset(parents.put(n, emptySet), children.put(n, emptySet))
+        return Poset(parents + n ~> emptySet, children + n ~> emptySet)
     }
   }
 
   @pure def addParents(n: T, ns: ISZ[T]): Poset[T] = {
     val newParents: HashMap[T, HashSet[T]] = parents.get(n) match {
-      case Some(s) => parents.put(n, s.addAll(ns))
-      case _ => parents.put(n, emptySet.addAll(ns))
+      case Some(s) => parents + n ~> (s ++ ns)
+      case _ => parents + n ~> (emptySet ++ ns)
     }
     var newChildren: HashMap[T, HashSet[T]] = children
     for (c <- ns) {
       newChildren = newChildren.get(c) match {
-        case Some(s) => newChildren.put(c, s.add(n))
-        case _ => newChildren.put(c, emptySet.add(n))
+        case Some(s) => newChildren + c ~> (s + n)
+        case _ => newChildren + c ~> (emptySet + n)
       }
     }
     return Poset(newParents, newChildren)
@@ -73,9 +72,7 @@ object Poset {
   @pure def removeParent(n: T, parent: T): Poset[T] = {
     parents.get(n) match {
       case Some(s) =>
-        return Poset(
-          parents.put(n, s.remove(parent)),
-          children.put(parent, children.get(parent).getOrElse(emptySet).remove(n)))
+        return Poset(parents + n ~> (s - parent), children + parent ~> (children.get(parent).getOrElse(emptySet) - n))
       case _ => return this
     }
   }
@@ -86,14 +83,14 @@ object Poset {
 
   @pure def addChildren(n: T, ns: ISZ[T]): Poset[T] = {
     val newChildren: HashMap[T, HashSet[T]] = children.get(n) match {
-      case Some(s) => children.put(n, s.addAll(ns))
-      case _ => children.put(n, emptySet.addAll(ns))
+      case Some(s) => children + n ~> (s ++ ns)
+      case _ => children + n ~> (emptySet ++ ns)
     }
     var newParents: HashMap[T, HashSet[T]] = parents
     for (c <- ns) {
       newParents = newParents.get(c) match {
-        case Some(s) => newParents.put(c, s.add(n))
-        case _ => newParents.put(c, emptySet.add(n))
+        case Some(s) => newParents + c ~> (s + n)
+        case _ => newParents + c ~> (emptySet + n)
       }
     }
     return Poset(newParents, newChildren)
@@ -130,7 +127,7 @@ object Poset {
     var r = emptySet
     for (nParent <- parentsOf(n).elements) {
       mAcc = ancestorsRec(nParent, mAcc)
-      r = r.add(nParent).union(mAcc.get(nParent).getOrElse(emptySet))
+      r = (r + nParent) ∪ mAcc.get(nParent).getOrElse(emptySet)
     }
     return (r, mAcc)
   }
@@ -139,28 +136,28 @@ object Poset {
     if (acc.contains(m)) {
       return acc
     }
-    val p = ancestorsCache(m, acc.put(m, emptySet))
+    val p = ancestorsCache(m, acc + m ~> emptySet)
     val mAncestors = p._1
     val mAcc = p._2
-    return mAcc.put(m, mAncestors)
+    return mAcc + m ~> mAncestors
   }
 
   @pure def lub(ns: ISZ[T]): Option[T] = {
     ns.size match {
       case z"0" => return None()
-      case z"1" => return  Some(ns(0))
+      case z"1" => return Some(ns(0))
       case _ =>
     }
-    if (HashSet.empty[T].addAll(ns).size == 1) {
+    if ((HashSet.empty[T] ++ ns).size == 1) {
       return Some(ns(0))
     }
     val p0 = ancestorsCache(ns(0), HashMap.empty)
-    var commons = p0._1.add(ns(0))
+    var commons = p0._1 + ns(0)
     var acc = p0._2
     for (i <- z"1" until ns.size) {
       val p = ancestorsCache(ns(i), acc)
       acc = p._2
-      commons = commons.intersect(p._1.add(ns(i)))
+      commons = commons ∩ (p._1 + ns(i))
     }
     if (commons.isEmpty) {
       return None()
@@ -168,7 +165,7 @@ object Poset {
     for (b1 <- commons.elements) {
       for (b2 <- commons.elements if b1 != b2) {
         if (ancestorsCache(b1, acc)._1.contains(b2)) {
-          commons = commons.remove(b2)
+          commons = commons - b2
         }
       }
     }
@@ -179,7 +176,6 @@ object Poset {
     }
   }
 
-
   @pure def descendantsOf(n: T): HashSet[T] = {
     return descendantsCache(n, HashMap.empty)._1
   }
@@ -189,7 +185,7 @@ object Poset {
     var r = emptySet
     for (nChild <- childrenOf(n).elements) {
       mAcc = descendantsRec(nChild, mAcc)
-      r = r.add(nChild).union(mAcc.get(nChild).getOrElse(emptySet))
+      r = (r + nChild) ∪ mAcc.get(nChild).getOrElse(emptySet)
     }
     return (r, mAcc)
   }
@@ -198,28 +194,28 @@ object Poset {
     if (acc.contains(m)) {
       return acc
     }
-    val p = descendantsCache(m, acc.put(m, emptySet))
+    val p = descendantsCache(m, acc + m ~> emptySet)
     val mDescendants = p._1
     val mAcc = p._2
-    return mAcc.put(m, mDescendants)
+    return mAcc + m ~> mDescendants
   }
 
   @pure def glb(ns: ISZ[T]): Option[T] = {
     ns.size match {
       case z"0" => return None()
-      case z"1" => return  Some(ns(0))
+      case z"1" => return Some(ns(0))
       case _ =>
     }
-    if (HashSet.empty[T].addAll(ns).size == 1) {
+    if ((HashSet.empty[T] ++ ns).size == 1) {
       return Some(ns(0))
     }
     val p0 = descendantsCache(ns(0), HashMap.empty)
-    var commons = p0._1.add(ns(0))
+    var commons = p0._1 + ns(0)
     var acc = p0._2
     for (i <- z"1" until ns.size) {
       val p = descendantsCache(ns(i), acc)
       acc = p._2
-      commons = commons.intersect(p._1.add(ns(i)))
+      commons = commons ∩ (p._1 + ns(i))
     }
     if (commons.isEmpty) {
       return None()
@@ -227,7 +223,7 @@ object Poset {
     for (b1 <- commons.elements) {
       for (b2 <- commons.elements if b1 != b2) {
         if (descendantsCache(b1, acc)._1.contains(b2)) {
-          commons = commons.remove(b2)
+          commons = commons - b2
         }
       }
     }

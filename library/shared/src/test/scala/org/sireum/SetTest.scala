@@ -32,21 +32,21 @@ class SetTest extends SireumRuntimeSpec {
 
   *(!Set.empty[String].contains("a"))
 
-  *(Set.empty[String].add("a").contains("a"))
+  *(Set.empty[String].+("a").contains("a"))
 
-  *(!Set.empty[String].add("a").contains("A"))
+  *(!Set.empty[String].+("a").contains("A"))
 
-  *(Set.empty[String].add("a").add("b").contains("a"))
+  *(Set.empty[String].+("a").+("b").contains("a"))
 
-  *(Set.empty[String].add("a").add("b").contains("b"))
+  *(Set.empty[String].+("a").+("b").contains("b"))
 
-  *(Set.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *(Set.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(Set.empty[String].addAll(ISZ("a","b")) =~= Set.empty[String].add("b").add("a"))
+  *(Set.empty[String].++(ISZ("a", "b")) =~= Set.empty[String].+("b").+("a"))
 
-  *(Set.empty[String].union(Set.empty[String].add("A")) =~= Set.empty[String].add("A"))
+  *(Set.empty[String].∪(Set.empty[String].+("A")) =~= Set.empty[String].+("A"))
 
-  *(Set.empty[String].intersect(Set.empty[String].add("A")) =~= Set.empty[String])
+  *(Set.empty[String].∩(Set.empty[String].+("A")) =~= Set.empty[String])
 
-  *(Set.empty[String].add("a").intersect(Set.empty[String].add("A")) =~= Set.empty[String])
+  *(Set.empty[String].+("a").∩(Set.empty[String].+("A")) =~= Set.empty[String])
 }

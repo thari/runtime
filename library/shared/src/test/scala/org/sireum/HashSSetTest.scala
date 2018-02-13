@@ -32,21 +32,21 @@ class HashSSetTest extends SireumRuntimeSpec {
 
   *(!HashSSet.empty[String].contains("a"))
 
-  *(HashSSet.empty[String].add("a").contains("a"))
+  *(HashSSet.empty[String].+("a").contains("a"))
 
-  *(!HashSSet.empty[String].add("a").contains("A"))
+  *(!HashSSet.empty[String].+("a").contains("A"))
 
-  *(HashSSet.empty[String].add("a").add("b").contains("a"))
+  *(HashSSet.empty[String].+("a").+("b").contains("a"))
 
-  *(HashSSet.empty[String].add("a").add("b").contains("b"))
+  *(HashSSet.empty[String].+("a").+("b").contains("b"))
 
-  *(HashSSet.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *(HashSSet.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(HashSSet.empty[String].addAll(ISZ("a","b")) =~= HashSSet.empty[String].add("b").add("a"))
+  *(HashSSet.empty[String].++(ISZ("a", "b")) =~= HashSSet.empty[String].+("b").+("a"))
 
-  *(HashSSet.empty[String].union(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String].add("A"))
+  *(HashSSet.empty[String].∪(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String].+("A"))
 
-  *(HashSSet.empty[String].intersect(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String])
+  *(HashSSet.empty[String].∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
 
-  *(HashSSet.empty[String].add("a").intersect(HashSSet.empty[String].add("A")) =~= HashSSet.empty[String])
+  *(HashSSet.empty[String].+("a").∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
 }

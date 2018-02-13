@@ -31,7 +31,12 @@ object MS {
 
   def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
-    assert(!companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max.asInstanceOf[ZLike[_]].toMP, s"Slang MS requires its index plus its size less than or equal to it max.")
+    assert(
+      !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max
+        .asInstanceOf[ZLike[_]]
+        .toMP,
+      s"Slang MS requires its index plus its size less than or equal to it max."
+    )
   }
 
   def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
@@ -60,18 +65,14 @@ object MS {
     MS[I, V](companion, a, length, boxer)
   }
 
-  def apply[I, V](companion: $ZCompanion[I],
-                  data: scala.AnyRef,
-                  length: Z,
-                  boxer: Boxer): MS[I, V] = new MS[I, V](companion, data, length, boxer)
+  def apply[I, V](companion: $ZCompanion[I], data: scala.AnyRef, length: Z, boxer: Boxer): MS[I, V] =
+    new MS[I, V](companion, data, length, boxer)
 
   def unapplySeq[I, V](o: MS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements.map(helper.cloneAssign))
 }
 
-final class MS[I, V](val companion: $ZCompanion[I],
-                     d: scala.AnyRef,
-                     l: Z,
-                     b: Boxer) extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
+final class MS[I, V](val companion: $ZCompanion[I], d: scala.AnyRef, l: Z, b: Boxer)
+    extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
 
   private var _data: scala.AnyRef = d
   private var _length: Z = l
@@ -116,39 +117,45 @@ final class MS[I, V](val companion: $ZCompanion[I],
       _length = newLength
     }
 
-  def :+(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
-    val newLength = length.increase
-    MS.checkSize(newLength)
-    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
-    boxer.store(a, length, helper.assign(e))
-    MS[I, V](companion, a, newLength, boxer)
-  }
+  def :+(e: V): MS[I, V] =
+    if (isEmpty) MS[I, V](e)(companion)
+    else {
+      val newLength = length.increase
+      MS.checkSize(newLength)
+      val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+      boxer.store(a, length, helper.assign(e))
+      MS[I, V](companion, a, newLength, boxer)
+    }
 
-  def +:(e: V): MS[I, V] = if (isEmpty) MS[I, V](e)(companion) else {
-    val newLength = length.increase
-    MS.checkSize(newLength)
-    val a = boxer.cloneMut(data, length, newLength, Z.MP.one)
-    boxer.store(a, Z.MP.zero, helper.assign(e))
-    MS[I, V](companion, a, newLength, boxer)
-  }
+  def +:(e: V): MS[I, V] =
+    if (isEmpty) MS[I, V](e)(companion)
+    else {
+      val newLength = length.increase
+      MS.checkSize(newLength)
+      val a = boxer.cloneMut(data, length, newLength, Z.MP.one)
+      boxer.store(a, Z.MP.zero, helper.assign(e))
+      MS[I, V](companion, a, newLength, boxer)
+    }
 
-  def ++(other: MS[I, V]): MS[I, V] = if (isEmpty) other else {
+  def ++[I2](other: MS[I2, V]): MS[I, V] = {
+    val bxr = if (isEmpty) other.boxer else boxer
     if (other.length == Z.MP.zero) return this
     val newLength = length + other.length
     MS.checkSize(newLength)
-    val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
+    val a = bxr.cloneMut(data, length, newLength, Z.MP.zero)
     var i = length
     var j = Z.MP.zero
     while (i < newLength) {
-      boxer.store(a, i, helper.assign(boxer.lookup(other.data, j)))
+      bxr.store(a, i, helper.assign(other.boxer.lookup(other.data, j)))
       i = i.increase
       j = j.increase
     }
-    MS[I, V](companion, a, newLength, boxer)
+    MS[I, V](companion, a, newLength, bxr)
   }
 
-  def --(other: MS[I, V]): MS[I, V] =
-    if (isEmpty || other.length == Z.MP.zero) this else {
+  def --[I2](other: MS[I2, V]): MS[I, V] =
+    if (isEmpty || other.length == Z.MP.zero) this
+    else {
       val otherElements = other.elements
       var sm = elements.withFilter(_ != otherElements.head)
       for (e <- other.elements.tail) {
@@ -174,11 +181,19 @@ final class MS[I, V](val companion: $ZCompanion[I],
       i = i.increase
       j = j.increase.asInstanceOf[ZLike[_]]
     }
-    ZRange[I](companion.Index, j.decrease.asInstanceOf[I], _ => T, (r, i) => if (r) i.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I] else i.asInstanceOf[ZLike[_]].increase.asInstanceOf[I], F)
+    ZRange[I](
+      companion.Index,
+      j.decrease.asInstanceOf[I],
+      _ => T,
+      (r, i) =>
+        if (r) i.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I] else i.asInstanceOf[ZLike[_]].increase.asInstanceOf[I],
+      F
+    )
   }
 
   def map[V2](f: V => V2): MS[I, V2] =
-    if (isEmpty) MS[I, V2]()(companion) else {
+    if (isEmpty) MS[I, V2]()(companion)
+    else {
       var a: AnyRef = null
       var boxer2: Boxer = null
       var i = Z.MP.zero
@@ -195,7 +210,8 @@ final class MS[I, V](val companion: $ZCompanion[I],
     }
 
   def flatMap[V2](f: V => MS[I, V2]): MS[I, V2] =
-    if (isEmpty) MS[I, V2]()(companion) else {
+    if (isEmpty) MS[I, V2]()(companion)
+    else {
       val es = elements
       var r = f(es.head)
       for (e <- es.tail) {
@@ -219,7 +235,7 @@ final class MS[I, V](val companion: $ZCompanion[I],
   def foreach(f: V => Unit): Unit = {
     var i = Z.MP.zero
     while (i < length) {
-      f(boxer.lookup(data, i))
+      f(helper.cloneAssign(boxer.lookup(data, i)))
       i = i.increase
     }
   }
@@ -241,6 +257,8 @@ final class MS[I, V](val companion: $ZCompanion[I],
   def size: I =
     if (companion.isZeroIndex) companion(length)
     else halt(s"Operation 'size' can only be used on zero-indexed MS.")
+
+  def zize: Z = length
 
   def toIS: IS[I, V] = {
     new IS[I, V](companion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
@@ -274,22 +292,23 @@ final class MS[I, V](val companion: $ZCompanion[I],
 
   override def equals(other: scala.Any): scala.Boolean =
     if (this eq other.asInstanceOf[scala.AnyRef]) true
-    else other match {
-      case other: MS[_, _] =>
-        if (companion ne other.companion) return false
-        if (length != other.length) return false
-        if (data eq other.data) return true
-        val b1 = boxer
-        val b2 = other.boxer
-        val data1 = data
-        val data2 = other.data
-        for (i <- Z.MP.zero until length) {
-          val iMP = i.toMP
-          if (b1.lookup(data1, iMP) != b2.lookup(data2, iMP)) return false
-        }
-        true
-      case _ => false
-    }
+    else
+      other match {
+        case other: MS[_, _] =>
+          if (companion ne other.companion) return false
+          if (length != other.length) return false
+          if (data eq other.data) return true
+          val b1 = boxer
+          val b2 = other.boxer
+          val data1 = data
+          val data2 = other.data
+          for (i <- Z.MP.zero until length) {
+            val iMP = i.toMP
+            if (b1.lookup(data1, iMP) != b2.lookup(data2, iMP)) return false
+          }
+          true
+        case _ => false
+      }
 
   def string: String = toString
 

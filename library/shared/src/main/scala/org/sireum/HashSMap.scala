@@ -36,10 +36,14 @@ object HashSMap {
     return HashSMap(HashMap.emptyInit(initialCapacity), Set.empty)
   }
 
+  @pure def ++[I, K, V](s: IS[I, (K, V)]): HashSMap[K, V] = {
+    return HashSMap.emptyInit(s.zize) ++ s
+  }
+
 }
 
-@datatype class HashSMap[K, V](map: HashMap[K, V],
-                               keys: Set[K]) {
+@datatype class HashSMap[K, V](map: HashMap[K, V], keys: Set[K]) {
+
   @pure def size: Z = {
     return keys.size
   }
@@ -64,22 +68,22 @@ object HashSMap {
   }
 
   @pure def valueSet: Set[V] = {
-    return Set.empty[V].addAll(values)
+    return Set.empty[V] ++ values
   }
 
-  @pure def put(key: K, value: V): HashSMap[K, V] = {
-    val newMap = map.put(key, value)
-    return HashSMap(newMap, keys.add(key))
+  @pure def +(p: (K, V)): HashSMap[K, V] = {
+    val newMap = map + p
+    return HashSMap(newMap, keys + p._1)
   }
 
-  @pure def putAll(entries: ISZ[(K, V)]): HashSMap[K, V] = {
+  @pure def ++[I](entries: IS[I, (K, V)]): HashSMap[K, V] = {
     if (entries.isEmpty) {
       return this
     }
-    val newMap = map.putAll(entries)
+    val newMap = map ++ entries
     var newKeys = keys
     for (kv <- entries) {
-      newKeys = newKeys.add(kv._1)
+      newKeys = newKeys + kv._1
     }
     return HashSMap(newMap, newKeys)
   }
@@ -92,12 +96,12 @@ object HashSMap {
     return map.entry(key)
   }
 
-  @pure def removeAll(keys: ISZ[K]): HashSMap[K, V] = {
-    return HashSMap(map.removeAll(keys), this.keys.removeAll(keys))
+  @pure def --(keys: ISZ[K]): HashSMap[K, V] = {
+    return HashSMap(map -- keys, this.keys -- keys)
   }
 
-  @pure def remove(key: K, value: V): HashSMap[K, V] = {
-    return HashSMap(map.remove(key, value), keys.remove(key))
+  @pure def -(p: (K, V)): HashSMap[K, V] = {
+    return HashSMap(map - p, keys - p._1)
   }
 
   @pure def contains(key: K): B = {
@@ -115,8 +119,8 @@ object HashSMap {
   @pure def string: String = {
     val r =
       st"""{
-          |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
-          |}"""
+      |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+      |}"""
     return r.render
   }
 

@@ -63,11 +63,13 @@ class JsonTest extends SireumRuntimeSpec {
 
   val oString = "  { \"key\" : [ { \"prop\" : true } ], \"foo\" : false, \"bar\" : [ null, [] ] }  "
 
-  val oJson = JObject(Array(
-    JField("key", JArray(JObject(Array(JField("prop", JTrue))))),
-    JField("foo", JFalse),
-    JField("bar", JArray(Array[JValue](JNull, JArray())))
-  ))
+  val oJson = JObject(
+    Array(
+      JField("key", JArray(JObject(Array(JField("prop", JTrue))))),
+      JField("foo", JFalse),
+      JField("bar", JArray(Array[JValue](JNull, JArray())))
+    )
+  )
 
   *(parseTopObject(oString) =~= oJson)
 
@@ -95,7 +97,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
     * {
-      val o = Map.empty[String, Z].putAll(is)
+      val o = Map.empty[String, Z].++(is)
       val s = Json.Printer.printMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseMap[String, Z](p.parseString _, p.parseZ _)
@@ -105,7 +107,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
     * {
-      val o = Set.empty[String].addAll(is)
+      val o = Set.empty[String].++(is)
       val s = Json.Printer.printSet(B.random, o, Json.Printer.printString _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseSet[String](p.parseString _)
@@ -115,7 +117,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
     * {
-      val o = HashMap.empty[String, Z].putAll(is)
+      val o = HashMap.empty[String, Z].++(is)
       val s = Json.Printer.printHashMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseHashMap[String, Z](p.parseString _, p.parseZ _)
@@ -125,7 +127,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
     * {
-      val o = HashSet.empty[String].addAll(is)
+      val o = HashSet.empty[String].++(is)
       val s = Json.Printer.printHashSet(B.random, o, Json.Printer.printString _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseHashSet[String](p.parseString _)
@@ -135,7 +137,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
     * {
-      val o = HashSMap.empty[String, Z].putAll(is)
+      val o = HashSMap.empty[String, Z].++(is)
       val s = Json.Printer.printHashSMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
@@ -145,7 +147,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
     * {
-      val o = HashSSet.empty[String].addAll(is)
+      val o = HashSSet.empty[String].++(is)
       val s = Json.Printer.printHashSSet(B.random, o, Json.Printer.printString _).render
       val p = Json.Parser.create(s)
       val o2 = p.parseHashSSet[String](p.parseString _)

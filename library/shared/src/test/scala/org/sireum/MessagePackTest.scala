@@ -31,130 +31,238 @@ import org.sireum.test.SireumRuntimeSpec
 class MessagePackTest extends SireumRuntimeSpec {
 
   for (poolString <- Seq(T, F)) {
-    check(poolString, T, { w => w.writeB(T) }, { r => r.readB() })
+    check(poolString, T, { w =>
+      w.writeB(T)
+    }, { r =>
+      r.readB()
+    })
 
-    check(poolString, F, { w => w.writeB(F) }, { r => r.readB() })
+    check(poolString, F, { w =>
+      w.writeB(F)
+    }, { r =>
+      r.readB()
+    })
 
-    check(poolString, -1, { w => w.writeZ(-1) }, { r => r.readZ() })
+    check(poolString, -1, { w =>
+      w.writeZ(-1)
+    }, { r =>
+      r.readZ()
+    })
 
     for (s <- Seq[String]("∧", "∨", "→", "¬", "≡", "≠", "≥", "≤", "∀", "∃", "⊤", "⊥", "⊢")) {
-      check(poolString, s, { w => w.writeString(s) }, { r => r.readString() })
+      check(poolString, s, { w =>
+        w.writeString(s)
+      }, { r =>
+        r.readString()
+      })
     }
 
     for (_ <- 0 until 10) {
       {
         val c: C = C.random
-        check(poolString, c, { w => w.writeC(c) }, { r => r.readC() })
+        check(poolString, c, { w =>
+          w.writeC(c)
+        }, { r =>
+          r.readC()
+        })
       }
 
       {
         val n: Z = Z.random
-        check(poolString, n, { w => w.writeZ(n) }, { r => r.readZ() })
+        check(poolString, n, { w =>
+          w.writeZ(n)
+        }, { r =>
+          r.readZ()
+        })
       }
 
       {
         val n: Z8 = Z8(-21)
-        check(poolString, n, { w => w.writeZ8(n) }, { r => r.readZ8() })
+        check(poolString, n, { w =>
+          w.writeZ8(n)
+        }, { r =>
+          r.readZ8()
+        })
       }
 
       {
         val n: Z16 = Z16.random
-        check(poolString, n, { w => w.writeZ16(n) }, { r => r.readZ16() })
+        check(poolString, n, { w =>
+          w.writeZ16(n)
+        }, { r =>
+          r.readZ16()
+        })
       }
 
       {
         val n: Z32 = Z32.random
-        check(poolString, n, { w => w.writeZ32(n) }, { r => r.readZ32() })
+        check(poolString, n, { w =>
+          w.writeZ32(n)
+        }, { r =>
+          r.readZ32()
+        })
       }
 
       {
         val n: Z64 = Z64.random
-        check(poolString, n, { w => w.writeZ64(n) }, { r => r.readZ64() })
+        check(poolString, n, { w =>
+          w.writeZ64(n)
+        }, { r =>
+          r.readZ64()
+        })
       }
 
       {
         val n: N = N.random
-        check(poolString, n, { w => w.writeN(n) }, { r => r.readN() })
+        check(poolString, n, { w =>
+          w.writeN(n)
+        }, { r =>
+          r.readN()
+        })
       }
 
       {
         val n: N8 = N8.random
-        check(poolString, n, { w => w.writeN8(n) }, { r => r.readN8() })
+        check(poolString, n, { w =>
+          w.writeN8(n)
+        }, { r =>
+          r.readN8()
+        })
       }
 
       {
         val n: N16 = N16.random
-        check(poolString, n, { w => w.writeN16(n) }, { r => r.readN16() })
+        check(poolString, n, { w =>
+          w.writeN16(n)
+        }, { r =>
+          r.readN16()
+        })
       }
 
       {
         val n: N32 = N32.random
-        check(poolString, n, { w => w.writeN32(n) }, { r => r.readN32() })
+        check(poolString, n, { w =>
+          w.writeN32(n)
+        }, { r =>
+          r.readN32()
+        })
       }
 
       {
         val n: N64 = N64.random
-        check(poolString, n, { w => w.writeN64(n) }, { r => r.readN64() })
+        check(poolString, n, { w =>
+          w.writeN64(n)
+        }, { r =>
+          r.readN64()
+        })
       }
 
       {
         val n: S8 = S8.random
-        check(poolString, n, { w => w.writeS8(n) }, { r => r.readS8() })
+        check(poolString, n, { w =>
+          w.writeS8(n)
+        }, { r =>
+          r.readS8()
+        })
       }
 
       {
         val n: S16 = S16.random
-        check(poolString, n, { w => w.writeS16(n) }, { r => r.readS16() })
+        check(poolString, n, { w =>
+          w.writeS16(n)
+        }, { r =>
+          r.readS16()
+        })
       }
 
       {
         val n: S32 = S32.random
-        check(poolString, n, { w => w.writeS32(n) }, { r => r.readS32() })
+        check(poolString, n, { w =>
+          w.writeS32(n)
+        }, { r =>
+          r.readS32()
+        })
       }
 
       {
         val n: S64 = S64.random
-        check(poolString, n, { w => w.writeS64(n) }, { r => r.readS64() })
+        check(poolString, n, { w =>
+          w.writeS64(n)
+        }, { r =>
+          r.readS64()
+        })
       }
 
       {
         val n: U8 = U8.random
-        check(poolString, n, { w => w.writeU8(n) }, { r => r.readU8() })
+        check(poolString, n, { w =>
+          w.writeU8(n)
+        }, { r =>
+          r.readU8()
+        })
       }
 
       {
         val n: U16 = U16.random
-        check(poolString, n, { w => w.writeU16(n) }, { r => r.readU16() })
+        check(poolString, n, { w =>
+          w.writeU16(n)
+        }, { r =>
+          r.readU16()
+        })
       }
 
       {
         val n: U32 = U32.random
-        check(poolString, n, { w => w.writeU32(n) }, { r => r.readU32() })
+        check(poolString, n, { w =>
+          w.writeU32(n)
+        }, { r =>
+          r.readU32()
+        })
       }
 
       {
         val n: U64 = U64.random
-        check(poolString, n, { w => w.writeU64(n) }, { r => r.readU64() })
+        check(poolString, n, { w =>
+          w.writeU64(n)
+        }, { r =>
+          r.readU64()
+        })
       }
 
       {
         val n: R = R.random
-        check(poolString, n, { w => w.writeR(n) }, { r => r.readR() })
+        check(poolString, n, { w =>
+          w.writeR(n)
+        }, { r =>
+          r.readR()
+        })
       }
 
       {
         val n: F32 = F32.random
-        check(poolString, n, { w => w.writeF32(n) }, { r => r.readF32() })
+        check(poolString, n, { w =>
+          w.writeF32(n)
+        }, { r =>
+          r.readF32()
+        })
       }
 
       {
         val n: F64 = F64.random
-        check(poolString, n, { w => w.writeF64(n) }, { r => r.readF64() })
+        check(poolString, n, { w =>
+          w.writeF64(n)
+        }, { r =>
+          r.readF64()
+        })
       }
 
       {
         val s: String = String.random
-        check(poolString, s, { w => w.writeString(s) }, { r => r.readString() })
+        check(poolString, s, { w =>
+          w.writeString(s)
+        }, { r =>
+          r.readString()
+        })
       }
 
       {
@@ -216,62 +324,73 @@ class MessagePackTest extends SireumRuntimeSpec {
 
     {
       val o = Either[Z, String](Some(Z.random), None())
-      check(poolString, o,
+      check(
+        poolString,
+        o,
         (w) => w.writeEither(o, w.writeZ _, w.writeString _),
-        (r) => r.readEither(r.readZ _, r.readString _))
+        (r) => r.readEither(r.readZ _, r.readString _)
+      )
     }
 
     {
       val o = MEither[Z, String](MNone(), MSome(String.random))
-      check(poolString, o,
+      check(
+        poolString,
+        o,
         (w) => w.writeMEither(o, w.writeZ _, w.writeString _),
-        (r) => r.readMEither(r.readZ _, r.readString _))
+        (r) => r.readMEither(r.readZ _, r.readString _)
+      )
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = Map.empty[String, Z].putAll(is)
-      check(poolString, o,
+      val o = Map.empty[String, Z].++(is)
+      check(
+        poolString,
+        o,
         (w) => w.writeMap(o, w.writeString _, w.writeZ _),
-        (r) => r.readMap(r.readString _, r.readZ _))
+        (r) => r.readMap(r.readString _, r.readZ _)
+      )
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = Set.empty[String].addAll(is)
-      check(poolString, o,
-        (w) => w.writeSet(o, w.writeString _),
-        (r) => r.readSet(r.readString _))
+      val o = Set.empty[String].++(is)
+      check(poolString, o, (w) => w.writeSet(o, w.writeString _), (r) => r.readSet(r.readString _))
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = HashMap.empty[String, Z].putAll(is)
-      check(poolString, o,
+      val o = HashMap.empty[String, Z].++(is)
+      check(
+        poolString,
+        o,
         (w) => w.writeHashMap(o, w.writeString _, w.writeZ _),
-        (r) => r.readHashMap(r.readString _, r.readZ _))
+        (r) => r.readHashMap(r.readString _, r.readZ _)
+      )
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = HashSet.empty[String].addAll(is)
-      check(poolString, o,
-        (w) => w.writeHashSet(o, w.writeString _),
-        (r) => r.readHashSet(r.readString _))
+      val o = HashSet.empty[String].++(is)
+      check(poolString, o, (w) => w.writeHashSet(o, w.writeString _), (r) => r.readHashSet(r.readString _))
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = HashSMap.empty[String, Z].putAll(is)
-      check(poolString, o,
+      val o = HashSMap.empty[String, Z].++(is)
+      check(
+        poolString,
+        o,
         (w) => w.writeHashSMap(o, w.writeString _, w.writeZ _),
-        (r) => r.readHashSMap(r.readString _, r.readZ _))
+        (r) => r.readHashSMap(r.readString _, r.readZ _)
+      )
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = HashSSet.empty[String].addAll(is)
-      check(poolString, o,
-        (w) => w.writeHashSSet(o, w.writeString _),
-        (r) => r.readHashSSet(r.readString _))
+      val o = HashSSet.empty[String].++(is)
+      check(poolString, o, (w) => w.writeHashSSet(o, w.writeString _), (r) => r.readHashSSet(r.readString _))
     }
   }
 
-  def check[T](poolString: B, n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(implicit pos: Position): Unit = {
+  def check[T](poolString: B, n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(
+    implicit pos: Position
+  ): Unit = {
     val name = n.getClass.getName
     *(s"${name.substring(name.lastIndexOf(".") + 1)} $n") {
       val w = MessagePack.writer(poolString)

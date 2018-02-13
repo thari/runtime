@@ -25,7 +25,6 @@
  */
 package org.sireum
 
-
 object HashBag {
 
   @pure def empty[T]: HashBag[T] = {
@@ -76,37 +75,57 @@ object HashBag {
     return count(e) > 0
   }
 
-  @pure def add(e: T): HashBag[T] = {
+  @pure def +(e: T): HashBag[T] = {
     return addN(e, 1)
+  }
+
+  @pure def +#(p: (T, Z)): HashBag[T] = {
+    return addN(p._1, p._2)
   }
 
   @pure def addN(e: T, n: Z): HashBag[T] = {
     if (n <= 0) {
       return this
     }
-    return this(map = map.put(e, count(e) + n))
+    return this(map + e ~> (count(e) + n))
   }
 
-  @pure def addAll(es: ISZ[T]): HashBag[T] = {
+  @pure def ++[I](es: IS[I, T]): HashBag[T] = {
     var r = this
     for (e <- es) {
-      r = r.add(e)
+      r = r + e
     }
     return r
   }
 
-  @pure def remove(e: T): HashBag[T] = {
+  @pure def -(e: T): HashBag[T] = {
     return removeN(e, 1)
+  }
+
+  @pure def --[I](s: IS[I, T]): HashBag[T] = {
+    var r = this
+    for (e <- s) {
+      r = r - e
+    }
+    return r
+  }
+
+  @pure def -#(p: (T, Z)): HashBag[T] = {
+    return removeN(p._1, p._2)
   }
 
   @pure def removeN(e: T, n: Z): HashBag[T] = {
     val current = count(e)
     val newN = current - n
     if (newN <= 0) {
-      return this(map = map.remove(e, current))
+      return this(map - e ~> current)
     } else {
-      return this(map = map.put(e, newN))
+      return this(map + e ~> newN)
     }
+  }
+
+  @pure def \(other: HashBag[T]): HashBag[T] = {
+    return this -- other.elements
   }
 
   @pure def entries: ISZ[(T, Z)] = {
@@ -114,14 +133,18 @@ object HashBag {
   }
 
   @pure def union(other: HashBag[T]): HashBag[T] = {
-    var r = this
-    for (e <- other.entries) {
-      r = r.addN(e._1, e._2)
-    }
-    return r
+    return this ∪ other
+  }
+
+  @pure def ∪(other: HashBag[T]): HashBag[T] = {
+    return this ++ other.elements
   }
 
   @pure def intersect(other: HashBag[T]): HashBag[T] = {
+    return this ∩ other
+  }
+
+  @pure def ∩(other: HashBag[T]): HashBag[T] = {
     var r = HashBag.empty[T]
     for (e <- entries) {
       val n = e._2

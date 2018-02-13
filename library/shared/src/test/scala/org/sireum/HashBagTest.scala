@@ -33,30 +33,30 @@ class HashBagTest extends SireumRuntimeSpec {
 
   *(!HashBag.empty[String].contains("a"))
 
-  *(HashBag.empty[String].add("a").contains("a"))
+  *(HashBag.empty[String].+("a").contains("a"))
 
-  *(HashBag.empty[String].add("a").add("a").count("a") == 2)
+  *(HashBag.empty[String].+("a").+("a").count("a") == 2)
 
-  *(HashBag.empty[String].addN("a", 4).add("a").count("a") == 5)
+  *(HashBag.empty[String].addN("a", 4).+("a").count("a") == 5)
 
-  *(HashBag.empty[String].addN("a", 4).remove("a").count("a") == 3)
+  *(HashBag.empty[String].addN("a", 4).-("a").count("a") == 3)
 
   *(HashBag.empty[String].addN("a", 4).removeN("a", 10).count("a") == 0)
 
-  *(!HashBag.empty[String].add("a").contains("A"))
+  *(!HashBag.empty[String].+("a").contains("A"))
 
-  *(HashBag.empty[String].add("a").add("b").contains("a"))
+  *(HashBag.empty[String].+("a").+("b").contains("a"))
 
-  *(HashBag.empty[String].add("a").add("b").contains("b"))
+  *(HashBag.empty[String].+("a").+("b").contains("b"))
 
-  *(HashBag.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *(HashBag.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(HashBag.empty[String].addAll(ISZ("a","b")) =~= HashBag.empty[String].add("b").add("a"))
+  *(HashBag.empty[String].++(ISZ("a", "b")) =~= HashBag.empty[String].+("b").+("a"))
 
-  *(HashBag.empty[String].union(HashBag.empty[String].add("A")) =~= HashBag.empty[String].add("A"))
+  *(HashBag.empty[String].∪(HashBag.empty[String].+("A")) =~= HashBag.empty[String].+("A"))
 
-  *(HashBag.empty[String].intersect(HashBag.empty[String].add("A")) =~= HashBag.empty[String])
+  *(HashBag.empty[String].∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
 
-  *(HashBag.empty[String].add("a").intersect(HashBag.empty[String].add("A")) =~= HashBag.empty[String])
+  *(HashBag.empty[String].+("a").∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
 
 }

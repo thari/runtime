@@ -27,9 +27,19 @@
 package org.sireum
 
 object Map {
+
   @pure def empty[K, V]: Map[K, V] = {
-    return Map[K, V](ISZ[(K, V)]())
+    return Map[K, V](ISZ())
   }
+
+  @pure def of[K, V]: Map[K, V] = {
+    return Map.empty
+  }
+
+  @pure def ++[K, V, I](s: IS[I, (K, V)]): Map[K, V] = {
+    return Map.empty[K, V] ++ s
+  }
+
 }
 
 @datatype class Map[K, V](entries: ISZ[(K, V)]) {
@@ -51,14 +61,15 @@ object Map {
   }
 
   @pure def keySet: Set[K] = {
-    return Set.empty[K].addAll(keys)
+    return Set.empty[K] ++ keys
   }
 
   @pure def valueSet: Set[V] = {
-    return Set.empty[V].addAll(values)
+    return Set.empty[V] ++ values
   }
 
-  @pure def put(key: K, value: V): Map[K, V] = {
+  @pure def +(p: (K, V)): Map[K, V] = {
+    val (key, value) = p
     val index = indexOf(key)
     val newEntries: ISZ[(K, V)] =
       if (index < 0) entries :+ ((key, value))
@@ -66,10 +77,10 @@ object Map {
     return Map(newEntries)
   }
 
-  @pure def putAll(kvs: ISZ[(K, V)]): Map[K, V] = {
+  @pure def ++[I](kvs: IS[I, (K, V)]): Map[K, V] = {
     var r = this
     for (kv <- kvs) {
-      r = r.put(kv._1, kv._2)
+      r = r + kv._1 ~> kv._2
     }
     return r
   }
@@ -77,6 +88,11 @@ object Map {
   @pure def get(key: K): Option[V] = {
     val index = indexOf(key)
     return if (index < 0) None[V]() else Some(entries(index)._2)
+  }
+
+  @pure def getOrElse(key: K, default: => V): V = {
+    val index = indexOf(key)
+    return if (index < 0) default else entries(index)._2
   }
 
   @pure def entry(key: K): Option[(K, V)] = {
@@ -94,7 +110,7 @@ object Map {
     return index
   }
 
-  @pure def removeAll(keys: ISZ[K]): Map[K, V] = {
+  @pure def --[I](keys: IS[I, K]): Map[K, V] = {
     var deletedMappings = ISZ[(K, V)]()
     for (key <- keys) {
       get(key) match {
@@ -109,8 +125,8 @@ object Map {
     }
   }
 
-  @pure def remove(key: K, value: V): Map[K, V] = {
-    return Map(entries - ((key, value)))
+  @pure def -(p: (K, V)): Map[K, V] = {
+    return Map(entries - p)
   }
 
   @pure def contains(key: K): B = {
@@ -132,7 +148,7 @@ object Map {
   @pure def toHashMap: HashMap[K, V] = {
     var r = HashMap.emptyInit[K, V](size)
     for (kv <- entries) {
-      r = r.put(kv._1, kv._2)
+      r = r + kv._1 ~> kv._2
     }
     return r
   }
@@ -140,15 +156,15 @@ object Map {
   @pure def toHashSMap: HashSMap[K, V] = {
     var r = HashSMap.emptyInit[K, V](size)
     for (kv <- entries) {
-      r = r.put(kv._1, kv._2)
+      r = r + kv._1 ~> kv._2
     }
     return r
   }
 
   @pure def string: String = {
     val r = st"""{
-                |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
-                |}"""
+    |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+    |}"""
     return r.render
   }
 
@@ -164,7 +180,7 @@ object Map {
     var seen = Set.empty[K]
     for (kv <- entries) {
       val k = kv._1
-      seen = seen.add(k)
+      seen = seen + k
       other.get(k) match {
         case Some(v) =>
           if (v != kv._2) {
