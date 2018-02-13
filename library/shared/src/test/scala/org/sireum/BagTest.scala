@@ -29,34 +29,34 @@ import org.sireum.test._
 
 class BagTest extends SireumRuntimeSpec {
 
-  *(Bag.empty[String].size =~= z"0")
+  *(Bag.of[String].size =~= z"0")
 
-  *(!Bag.empty[String].contains("a"))
+  *(!Bag.of[String].contains("a"))
 
-  *(Bag.empty[String].add("a").contains("a"))
+  *((Bag ++ ISZ("a")).contains("a"))
 
-  *(Bag.empty[String].add("a").add("a").count("a") == 2)
+  *((Bag.of[String] + "a" + "a").count("a") == 2)
 
-  *(Bag.empty[String].addN("a", 4).add("a").count("a") == 5)
+  *((Bag.of[String] +# (string"a" ~> z"4") + "a").count("a") == 5)
 
-  *(Bag.empty[String].addN("a", 4).remove("a").count("a") == 3)
+  *((Bag.of[String] +# (string"a" ~> z"4") - "a").count("a") == 3)
 
-  *(Bag.empty[String].addN("a", 4).removeN("a", 10).count("a") == 0)
+  *((Bag.of[String] +# (string"a" ~> z"4") -# (string"a" ~> z"10")).count("a") == 0)
 
-  *(!Bag.empty[String].add("a").contains("A"))
+  *(!(Bag.of[String] + "a").contains("A"))
 
-  *(Bag.empty[String].add("a").add("b").contains("a"))
+  *((Bag.of[String] + "a" + "b").contains("a"))
 
-  *(Bag.empty[String].add("a").add("b").contains("b"))
+  *((Bag.of[String] + "a" + "b").contains("b"))
 
-  *(Bag.empty[String].addAll(ISZ("a","b")).remove("a").remove("b").isEmpty)
+  *((Bag.of[String] ++ ISZ("a", "b") - "a" - "b").isEmpty)
 
-  *(Bag.empty[String].addAll(ISZ("a","b")) =~= Bag.empty[String].add("b").add("a"))
+  *(Bag.of[String] ++ ISZ("a", "b") =~= Bag.of[String] + "b" + "a")
 
-  *(Bag.empty[String].union(Bag.empty[String].add("A")) =~= Bag.empty[String].add("A"))
+  *((Bag.of[String] ∪ Bag.of[String] + "A") =~= Bag.of[String] + "A")
 
-  *(Bag.empty[String].intersect(Bag.empty[String].add("A")) =~= Bag.empty[String])
+  *((Bag.of[String] ∩ (Bag.of[String] + "A")) =~= Bag.of[String])
 
-  *(Bag.empty[String].add("a").intersect(Bag.empty[String].add("A")) =~= Bag.empty[String])
+  *(((Bag.of[String] + "a") ∩ (Bag.of[String] + "A")) =~= Bag.of[String])
 
 }

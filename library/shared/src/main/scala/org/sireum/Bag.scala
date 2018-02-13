@@ -27,8 +27,16 @@ package org.sireum
 
 object Bag {
 
-  @pure def empty[T]: Bag[T] = {
+  @pure def of[T]: Bag[T] = {
     return Bag(Map.empty)
+  }
+
+  @pure def ++[I, T](s: IS[I, T]): Bag[T] = {
+    var r = Bag.of[T]
+    for (e <- s) {
+      r = r + e
+    }
+    return r
   }
 
 }
@@ -71,7 +79,7 @@ object Bag {
     return count(e) > 0
   }
 
-  @pure def add(e: T): Bag[T] = {
+  @pure def +(e: T): Bag[T] = {
     return addN(e, 1)
   }
 
@@ -79,28 +87,50 @@ object Bag {
     if (n <= 0) {
       return this
     }
-    return this(map = map.put(e, count(e) + n))
+    return this(map.put(e, count(e) + n))
   }
 
-  @pure def addAll(es: ISZ[T]): Bag[T] = {
+  @pure def +#(p: (T, Z)): Bag[T] = {
+    val (e, n) = p
+    return addN(e, n)
+  }
+
+  @pure def ++[I](es: IS[I, T]): Bag[T] = {
     var r = this
     for (e <- es) {
-      r = r.add(e)
+      r = r + e
     }
     return r
   }
 
-  @pure def remove(e: T): Bag[T] = {
+  @pure def -(e: T): Bag[T] = {
     return removeN(e, 1)
+  }
+
+  @pure def --[I](es: IS[I, T]): Bag[T] = {
+    var r = this
+    for (e <- es) {
+      r = r - e
+    }
+    return r
+  }
+
+  @pure def \(other: Bag[T]): Bag[T] = {
+    return this -- other.elements
+  }
+
+  @pure def -#(p: (T, Z)): Bag[T] = {
+    val (e, n) = p
+    return removeN(e, n)
   }
 
   @pure def removeN(e: T, n: Z): Bag[T] = {
     val current = count(e)
     val newN = current - n
     if (newN <= 0) {
-      return this(map = map.remove(e, current))
+      return this(map.remove(e, current))
     } else {
-      return this(map = map.put(e, newN))
+      return this(map.put(e, newN))
     }
   }
 
@@ -109,22 +139,30 @@ object Bag {
   }
 
   @pure def union(other: Bag[T]): Bag[T] = {
+    return this ∪ other
+  }
+
+  @pure def ∪(other: Bag[T]): Bag[T] = {
     var r = this
     for (e <- other.entries) {
-      r = r.addN(e._1, e._2)
+      r = r +# e._1 ~> e._2
     }
     return r
   }
 
   @pure def intersect(other: Bag[T]): Bag[T] = {
-    var r = Bag.empty[T]
+    return this ∩ other
+  }
+
+  @pure def ∩(other: Bag[T]): Bag[T] = {
+    var r = Bag.of[T]
     for (e <- entries) {
       val n = e._2
       val m = other.count(e._1)
       if (n < m) {
-        r = r.addN(e._1, n)
+        r = r +# e._1 ~> n
       } else {
-        r = r.addN(e._1, m)
+        r = r +# e._1 ~> m
       }
     }
     return r
