@@ -36,7 +36,7 @@ class GraphTest extends SireumRuntimeSpec {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
       val n2 = Z.random
-      val g = graph.addData(n1 ~> n2 ~> "out")
+      val g = graph +@ n1 ~> n2 ~> "out"
       g.incoming(n1).isEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).isEmpty && g.incoming(n1) == g.outgoing(1)
     }
@@ -45,8 +45,8 @@ class GraphTest extends SireumRuntimeSpec {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
       val n2 = Z.random
-      var g = graph.add(n1 ~> n2)
-      g = g.add(n2 ~> n1)
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
       g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2)
     }
@@ -55,9 +55,9 @@ class GraphTest extends SireumRuntimeSpec {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
       val n2 = Z.random
-      var g = graph.add(n1 ~> n2)
-      g = g.add(n2 ~> n1)
-      g = g.add(n1 ~> n2)
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n2
       g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2) &&
         g.outgoing(n1).elements.size == 1
@@ -67,9 +67,9 @@ class GraphTest extends SireumRuntimeSpec {
       val graph = Graph.emptyMulti[Z, String]
       val n1 = Z.random
       val n2 = Z.random
-      var g = graph.add(n1 ~> n2)
-      g = g.add(n2 ~> n1)
-      g = g.add(n1 ~> n2)
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n2
       g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2) &&
         g.outgoing(n1).elements.size == 2
