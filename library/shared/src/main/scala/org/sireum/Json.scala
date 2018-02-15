@@ -27,6 +27,23 @@
 package org.sireum
 
 import org.sireum.ops._
+import Z8._
+import Z16._
+import Z32._
+import Z64._
+import N._
+import N8._
+import N16._
+import N32._
+import N64._
+import S8._
+import S16._
+import S32._
+import S64._
+import U8._
+import U16._
+import U32._
+import U64._
 
 object Json {
 
@@ -605,7 +622,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z8, but '$s' found.")
-          return Z8(0)
+          return z8"0"
       }
     }
 
@@ -616,7 +633,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z16, but '$s' found.")
-          return Z16(0)
+          return z16"0"
       }
     }
 
@@ -627,7 +644,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z32, but '$s' found.")
-          return Z32(0)
+          return z32"0"
       }
     }
 
@@ -638,7 +655,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a Z64, but '$s' found.")
-          return Z64(0)
+          return z64"0"
       }
     }
 
@@ -649,7 +666,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N, but '$s' found.")
-          return N(0)
+          return n"0"
       }
     }
 
@@ -660,7 +677,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N8, but '$s' found.")
-          return N8(0)
+          return n8"0"
       }
     }
 
@@ -671,7 +688,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N16, but '$s' found.")
-          return N16(0)
+          return n16"0"
       }
     }
 
@@ -682,7 +699,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N32, but '$s' found.")
-          return N32(0)
+          return n32"0"
       }
     }
 
@@ -693,7 +710,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a N64, but '$s' found.")
-          return N64(0)
+          return n64"0"
       }
     }
 
@@ -704,7 +721,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S8, but '$s' found.")
-          return S8(0)
+          return s8"0"
       }
     }
 
@@ -715,7 +732,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S16, but '$s' found.")
-          return S16(0)
+          return s16"0"
       }
     }
 
@@ -726,7 +743,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S32, but '$s' found.")
-          return S32(0)
+          return s32"0"
       }
     }
 
@@ -737,7 +754,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a S64, but '$s' found.")
-          return S64(0)
+          return s64"0"
       }
     }
 
@@ -748,7 +765,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U8, but '$s' found.")
-          return U8(0)
+          return u8"0"
       }
     }
 
@@ -759,7 +776,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U16, but '$s' found.")
-          return U16(0)
+          return u16"0"
       }
     }
 
@@ -770,7 +787,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U32, but '$s' found.")
-          return U32(0)
+          return u32"0"
       }
     }
 
@@ -781,7 +798,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a U64, but '$s' found.")
-          return U64(0)
+          return u64"0"
       }
     }
 
@@ -2119,7 +2136,7 @@ object Json {
           return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(ISZOps(es).forall(isSimple), es.map(printValue))
+          return Printer.printIS(ISZOps(es).forall(isSimple), es.map(printValue _))
         case ValueKind.True => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
         case ValueKind.Null => return Printer.nullSt
