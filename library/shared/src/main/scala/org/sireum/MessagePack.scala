@@ -2051,11 +2051,11 @@ object MessagePack {
 
   }
 
-  def writer(poolString: B): Writer = {
+  def writer(poolString: B): Writer.Impl = {
     return Writer.Impl(poolString, MS.create(1024, u8"0"), 0, HashSMap.emptyInit(1024))
   }
 
-  def reader(data: ISZ[U8]): Reader = {
+  def reader(data: ISZ[U8]): Reader.Impl = {
     return Reader.Impl(data, 0, MSZ(), F)
   }
 }
