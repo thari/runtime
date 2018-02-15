@@ -119,20 +119,6 @@ package org.sireum
 
   @pure def unary_- : Z
 
-  @pure def >>(other: Z): Z
-
-  @pure def >>>(other: Z): Z
-
-  @pure def <<(other: Z): Z
-
-  @pure def &(other: Z): Z
-
-  @pure def |(other: Z): Z
-
-  @pure def |^(other: Z): Z
-
-  @pure def unary_~ : Z
-
   @pure def increase: Z
 
   @pure def decrease: Z
@@ -316,7 +302,7 @@ package org.sireum
 
   @pure def size: I
 
-  @pure def zize: I
+  @pure def zize: Z
 
   @pure def toMS: MS[I, V] =
     l""" ensures result.size ≡ s.size
@@ -368,6 +354,8 @@ package org.sireum
   @pure def size: I
 
   @pure def zize: Z
+
+  def expand(n: I, default: V): Unit
 
   @pure def toIS: IS[I, V] =
     l""" ensures result.size ≡ s.size
