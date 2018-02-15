@@ -1295,21 +1295,27 @@ final case class ZRange[I](init: I,
   def foreach(f: I => Unit): Unit = {
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (toZ >= iZ && iZ >= initZ) {
         if (cond(i)) {
           f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (initZ <= iZ && iZ <= toZ) {
         if (cond(i)) {
           f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     }
   }
@@ -1318,21 +1324,27 @@ final case class ZRange[I](init: I,
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (toZ >= iZ && iZ >= initZ) {
         if (cond(i)) {
           r = r :+ f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (initZ <= iZ && iZ <= toZ) {
         if (cond(i)) {
           r = r :+ f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     }
     r
@@ -1342,21 +1354,27 @@ final case class ZRange[I](init: I,
     var r = ISZ[V]()
     if (isReverse) {
       var i = to
-      val initZ = init.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP >= initZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (toZ >= iZ && iZ >= initZ) {
         if (cond(i)) {
           r = r ++ f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     } else {
       var i = init
-      val toZ = to.asInstanceOf[ZLike[_]]
-      while (i.asInstanceOf[ZLike[_]].toMP <= toZ.toMP) {
+      val initZ = init.asInstanceOf[ZLike[_]].toMP
+      val toZ = to.asInstanceOf[ZLike[_]].toMP
+      var iZ = i.asInstanceOf[ZLike[_]].toMP
+      while (initZ <= iZ && iZ <= toZ) {
         if (cond(i)) {
           r = r ++ f(i)
         }
         i = step(isReverse, i)
+        iZ = i.asInstanceOf[ZLike[_]].toMP
       }
     }
     r
