@@ -194,6 +194,7 @@ object Z extends $ZCompanion[Z] {
   object Boxer {
 
     trait Byte extends $internal.Boxer {
+
       def box[T](o: scala.Any): T = o match {
         case o: scala.Byte => make(o).asInstanceOf[T]
       }
@@ -222,6 +223,7 @@ object Z extends $ZCompanion[Z] {
     }
 
     trait Short extends $internal.Boxer {
+
       def box[T](o: scala.Any): T = o match {
         case o: scala.Short => make(o).asInstanceOf[T]
       }
@@ -250,6 +252,7 @@ object Z extends $ZCompanion[Z] {
     }
 
     trait Int extends $internal.Boxer {
+
       def box[T](o: scala.Any): T = o match {
         case o: scala.Int => make(o).asInstanceOf[T]
       }
@@ -276,6 +279,7 @@ object Z extends $ZCompanion[Z] {
     }
 
     trait Long extends $internal.Boxer {
+
       def box[T](o: scala.Any): T = o match {
         case o: scala.Long => make(o).asInstanceOf[T]
       }
@@ -302,6 +306,7 @@ object Z extends $ZCompanion[Z] {
     }
 
     object Z extends $internal.Boxer {
+
       def box[T](o: scala.Any): T = o match {
         case o: MP.Long => o.asInstanceOf[T]
         case o: scala.BigInt => MP.BigInt(o).asInstanceOf[T]
@@ -360,7 +365,8 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: UByte): T = make(value.toByte)
 
-      @inline private final def makeByte(value: scala.Int): T = if (isSigned) make(value.toByte) else make(UByte(value).toByte)
+      @inline private final def makeByte(value: scala.Int): T =
+        if (isSigned) make(value.toByte) else make(UByte(value).toByte)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
@@ -513,7 +519,8 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def umake(value: UShort): T = make(value.toShort)
 
-      @inline private final def makeShort(value: scala.Int): T = if (isSigned) make(value.toShort) else make(UShort(value).toShort)
+      @inline private final def makeShort(value: scala.Int): T =
+        if (isSigned) make(value.toShort) else make(UShort(value).toShort)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
@@ -678,7 +685,7 @@ object Z extends $ZCompanion[Z] {
       final def -(other: T): T = {
         if (!isWrapped) make(toMP - other.toMP)
         else if (isSigned) make(value - other.value)
-        else umake(toUInt + other.toUInt)
+        else umake(toUInt - other.toUInt)
       }
 
       final def *(other: T): T = {
@@ -1008,7 +1015,8 @@ object Z extends $ZCompanion[Z] {
   }
 
   def apply(s: String): Option[Z] =
-    try Some(Z.$String(s.value)) catch {
+    try Some(Z.$String(s.value))
+    catch {
       case _: Throwable => None[Z]()
     }
 
@@ -1286,11 +1294,7 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
 
 }
 
-final case class ZRange[I](init: I,
-                           to: I,
-                           @pure cond: I => B,
-                           @pure step: (B, I) => I,
-                           isReverse: B) {
+final case class ZRange[I](init: I, to: I, @pure cond: I => B, @pure step: (B, I) => I, isReverse: B) {
 
   def foreach(f: I => Unit): Unit = {
     if (isReverse) {
@@ -1383,7 +1387,10 @@ final case class ZRange[I](init: I,
   @pure def by(n: I): ZRange[I] = {
     val nMP = n.asInstanceOf[ZLike[_]].toMP
     require(nMP != 0, "Cannot iterate by 0.")
-    ZRange[I](init, to, cond,
+    ZRange[I](
+      init,
+      to,
+      cond,
       (r: B, i: I) => {
         val count = if (r) -nMP else nMP
         if (count > 0) {
@@ -1404,7 +1411,8 @@ final case class ZRange[I](init: I,
           r.asInstanceOf[I]
         }
       },
-      isReverse)
+      isReverse
+    )
   }
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
