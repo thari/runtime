@@ -28,7 +28,7 @@ package org.sireum
 object Bag {
 
   @pure def empty[T]: Bag[T] = {
-    return Bag(Map.empty)
+    return Bag(Map.empty[T, Z])
   }
 
   @pure def ++[I, T](s: IS[I, T]): Bag[T] = {

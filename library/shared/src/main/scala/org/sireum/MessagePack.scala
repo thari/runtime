@@ -1754,7 +1754,7 @@ object MessagePack {
       }
 
       def read8(): U8 = {
-        require(initialized, "MessagePack.Reader.init() has not been called.")
+        assert(initialized, "MessagePack.Reader.init() has not been called.")
         val r = peek()
         skip(1)
         return r

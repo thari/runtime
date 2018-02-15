@@ -37,7 +37,7 @@ object HashSMap {
   }
 
   @pure def ++[I, K, V](s: IS[I, (K, V)]): HashSMap[K, V] = {
-    return HashSMap.emptyInit(s.zize) ++ s
+    return HashSMap.emptyInit[K, V](s.zize) ++ s
   }
 
 }
