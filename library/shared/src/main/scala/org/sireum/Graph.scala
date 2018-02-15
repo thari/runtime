@@ -148,10 +148,10 @@ object Graph {
 
     @pure def addEdge[V, E](g: Graph[V, E], e: Internal.Edge[E]): Graph[V, E] = {
       return g(
-        incomingEdges = g.incomingEdges + e.dest ~> (g.incomingEdges.get(e.dest).getOrElse(Edges.empty(g.multi)) + e),
+        incomingEdges = g.incomingEdges + e.dest ~> (g.incomingEdges.get(e.dest).getOrElse(Edges.empty[E](g.multi)) + e),
         outgoingEdges = g.outgoingEdges + e.source ~> (g.outgoingEdges
           .get(e.source)
-          .getOrElse(Edges.empty(g.multi)) + e)
+          .getOrElse(Edges.empty[E](g.multi)) + e)
       )
     }
 
@@ -224,7 +224,7 @@ object Graph {
 
   @pure def --*[I](ns: IS[I, V]): Graph[V, E] = {
     var r: Graph[V, E] = if (multi) Graph.emptyMulti[V, E] else Graph.empty[V, E]
-    val ins = HashSet ++ ns.map(n => nodes.get(n).get)
+    val ins = HashSet ++ ns.map[Z](n => nodes.get(n).get)
     for (es <- incomingEdges.values) {
       for (e <- es.elements) {
         if (ins.contains(e.source) && ins.contains(e.dest)) {
@@ -268,7 +268,7 @@ object Graph {
 
   @pure def outgoing(source: V): ISZ[Graph.Edge[V, E]] = {
     nodes.get(source) match {
-      case Some(src) => Graph.Internal.outgoing(this, src).map(e => e.toEdge(nodesInverse))
+      case Some(src) => Graph.Internal.outgoing(this, src).map[Graph.Edge[V, E]](e => e.toEdge(nodesInverse))
       case _ => return ISZ()
     }
   }
@@ -296,10 +296,7 @@ object Graph {
   }
 
   @pure def edges(source: V, dest: V): ISZ[Graph.Edge[V, E]] = {
-    nodes.get(dest) match {
-      case Some(d) => return outgoing(source).withFilter(e => e.dest == d)
-      case _ => return ISZ()
-    }
+    return outgoing(source).withFilter(e => e.dest == dest)
   }
 
   @pure def numOfNodes: Z = {
@@ -308,7 +305,7 @@ object Graph {
 
   @pure def numOfEdges: Z = {
     var r = z"0"
-    for (n <- incomingEdges.values.map(s => s.size)) {
+    for (n <- incomingEdges.values.map[Z](s => s.size)) {
       r = r + n
     }
     return r

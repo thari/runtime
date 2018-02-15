@@ -119,7 +119,7 @@ object HashMap {
 
   @pure def hashIndex(key: K): Z = {
     val sz = mapEntries.size
-    val i = key.hashCode % sz
+    val i = key.hash % sz
     return if (i < 0) i + sz else i
   }
 

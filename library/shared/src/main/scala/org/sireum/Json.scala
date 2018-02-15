@@ -814,7 +814,7 @@ object Json {
         case Some(n) => return n
         case _ =>
           parseException(i, s"Expected a R, but '$s' found.")
-          return R(0)
+          return r"0"
       }
     }
 
