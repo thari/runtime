@@ -28,10 +28,14 @@ package org.sireum.ops
 import org.sireum._
 
 object ISOps_Ext {
+  val MinimumParallelThreshold: Int = 8
+
   def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+    val irs =
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+      else ies.map { p => (p._1, f(p._2)) }
     val a = new Array[scala.Any](irs.length)
     irs.foreach { p => a(p._1) = p._2 }
     a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
@@ -40,7 +44,9 @@ object ISOps_Ext {
   def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+    val irs =
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
+      else ies.map { p => (p._1, f(p._2)) }
     val a = new Array[scala.Any](irs.length)
     irs.foreach { p => a(p._1) = p._2 }
     a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
