@@ -55,18 +55,37 @@ object Poset {
   }
 
   @pure def addParents(n: T, ns: ISZ[T]): Poset[T] = {
+    var changed = F
     val newParents: HashMap[T, HashSet[T]] = parents.get(n) match {
-      case Some(s) => parents + n ~> (s ++ ns)
-      case _ => parents + n ~> (emptySet ++ ns)
+      case Some(s) =>
+        val newS = s ++ ns
+        if (newS.size != s.size) {
+          changed = T
+          parents + n ~> newS
+        } else {
+          parents
+        }
+      case _ =>
+        changed = T
+        parents + n ~> (emptySet ++ ns)
     }
     var newChildren: HashMap[T, HashSet[T]] = children
     for (c <- ns) {
       newChildren = newChildren.get(c) match {
-        case Some(s) => newChildren + c ~> (s + n)
-        case _ => newChildren + c ~> (emptySet + n)
+        case Some(s) =>
+          val newS = s + n
+          if (newS.size != s.size) {
+            changed = T
+            newChildren + c ~> newS
+          } else {
+            newChildren
+          }
+        case _ =>
+          changed = T
+          newChildren + c ~> (emptySet + n)
       }
     }
-    return Poset(newParents, newChildren)
+    return if (changed) Poset(newParents, newChildren) else this
   }
 
   @pure def removeParent(n: T, parent: T): Poset[T] = {
@@ -82,18 +101,37 @@ object Poset {
   }
 
   @pure def addChildren(n: T, ns: ISZ[T]): Poset[T] = {
+    var changed = F
     val newChildren: HashMap[T, HashSet[T]] = children.get(n) match {
-      case Some(s) => children + n ~> (s ++ ns)
-      case _ => children + n ~> (emptySet ++ ns)
+      case Some(s) =>
+        val newS = s ++ ns
+        if (newS.size != s.size) {
+          changed = T
+          children + n ~> newS
+        } else {
+          children
+        }
+      case _ =>
+        changed = T
+        children + n ~> (emptySet ++ ns)
     }
     var newParents: HashMap[T, HashSet[T]] = parents
     for (c <- ns) {
       newParents = newParents.get(c) match {
-        case Some(s) => newParents + c ~> (s + n)
-        case _ => newParents + c ~> (emptySet + n)
+        case Some(s) =>
+          val newS = s + n
+          if (newS.size != s.size) {
+            changed = T
+            newParents + c ~> newS
+          } else {
+            newParents
+          }
+        case _ =>
+          changed = T
+          newParents + c ~> (emptySet + n)
       }
     }
-    return Poset(newParents, newChildren)
+    return if (changed) Poset(newParents, newChildren) else this
   }
 
   @pure def childrenOf(n: T): HashSet[T] = {
