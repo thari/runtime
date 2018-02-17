@@ -1044,10 +1044,7 @@ object MessagePack {
 
     def readZ(): Z
 
-    def expectZ(n: Z): Unit = {
-      val m = readZ()
-      assert(n == m, s"Expecting $n, but found $m.")
-    }
+    def expectZ(n: Z): Unit
 
     @pure def fix8(n: Z): Z = {
       if (n > 127) {
@@ -1141,13 +1138,7 @@ object MessagePack {
       return conversions.Z.toU64(n)
     }
 
-    def readR(): R = {
-      val s = readString()
-      R(s) match {
-        case Some(r) => return r
-        case _ => halt(s"Expecting a R, but found $s.")
-      }
-    }
+    def readR(): R
 
     def readF32(): F32
 
@@ -1717,16 +1708,20 @@ object MessagePack {
 
     def readMapHeader(): Z
 
-    def readExtTypeHeader(): (S8, Z)
+    def readExtTypeHeader(): Option[(S8, Z)]
 
     def readPayload(n: Z): ISZ[U8]
 
     def skip(n: Z): Unit
   }
 
+  @datatype class ErrorMsg(offset: Z, message: String)
+
   object Reader {
 
     @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String], var poolString: B) extends Reader {
+
+      var errorOpt: Option[ErrorMsg] = None()
 
       var initialized: B = F
 
@@ -1735,19 +1730,26 @@ object MessagePack {
         val r = peek()
         poolString = Code.isExt(r)
         if (poolString) {
-          val (t, size) = readExtTypeHeader()
-          assert(t == StringPoolExtType)
-          stringPool.expand(size, "")
-          var i = 0
-          while (i < size) {
-            val s = readStringConstant()
-            stringPool(i) = s
-            i = i + 1
+          val pOpt = readExtTypeHeader()
+          pOpt match {
+            case Some((t, size)) =>
+              assert(t == StringPoolExtType)
+              stringPool.expand(size, "")
+              var i = 0
+              while (i < size) {
+                val s = readStringConstant()
+                stringPool(i) = s
+                i = i + 1
+              }
+            case _ =>
           }
         }
       }
 
       def peek(): U8 = {
+        if (errorOpt.nonEmpty) {
+          return u8"0"
+        }
         return buf(curr)
       }
 
@@ -1795,12 +1797,19 @@ object MessagePack {
           conversions.U8.toU64(ch8)
       }
 
+      def error(offset: Z, msg: String): Unit = {
+        errorOpt match {
+          case Some(_) =>
+          case _ => errorOpt = Some(ErrorMsg(offset, msg))
+        }
+      }
+
       def readB(): B = {
         val code = read8()
         code match {
           case Code.TRUE => return T
           case Code.FALSE => return F
-          case _ => halt(s"Expecting a B, but found code $code.")
+          case _ => error(curr - 1, s"Expecting a B, but found code $code."); return F
         }
       }
 
@@ -1840,8 +1849,26 @@ object MessagePack {
               val bin = readBinary()
               return conversions.Z.fromBinary(bin)
             } else {
-              halt(s"Expecting an integer, but found code $code.")
+              error(curr - 1, s"Expecting an integer, but found code $code.")
+              return 0
             }
+        }
+      }
+
+      def expectZ(n: Z): Unit = {
+        val start = curr
+        val m = readZ()
+        if (n != m) {
+          error(start, s"Expecting $n, but found $m.")
+        }
+      }
+
+      def readR(): R = {
+        val start = curr
+        val s = readString()
+        R(s) match {
+          case Some(r) => return r
+          case _ => error(start, s"Expecting a R, but found $s."); return r"0"
         }
       }
 
@@ -1849,7 +1876,7 @@ object MessagePack {
         val code = read8()
         code match {
           case Code.FLOAT32 =>
-          case _ => halt(s"Expecting a F32, but found code $code.")
+          case _ => error(curr - 1, s"Expecting a F32, but found code $code."); return 0f
         }
         val n = read32()
         return conversions.U32.toRawF32(n)
@@ -1859,7 +1886,7 @@ object MessagePack {
         val code = read8()
         code match {
           case Code.FLOAT64 =>
-          case _ => halt(s"Expecting a F64, but found code $code.")
+          case _ => error(curr - 1, s"Expecting a F64, but found code $code."); return 0d
         }
         val n = read64()
         return conversions.U64.toRawF64(n)
@@ -1930,8 +1957,7 @@ object MessagePack {
             case Code.ARRAY32 =>
               val r = read32()
               return conversions.U32.toZ(r)
-            case _ =>
-              halt(s"Expecting an array, but found code $code")
+            case _ => error(curr - 1, s"Expecting an array, but found code $code"); return 0
           }
         }
       }
@@ -1953,7 +1979,7 @@ object MessagePack {
               case Code.BIN32 =>
                 val n = read32()
                 r = conversions.U32.toZ(n)
-              case _ => halt(s"Expecting a binary, but found $code")
+              case _ => error(curr - 1, s"Expecting a binary, but found $code"); return ISZ()
             }
           }
           r
@@ -1968,6 +1994,9 @@ object MessagePack {
       }
 
       def skipIfNil(): B = {
+        if (errorOpt.nonEmpty) {
+          return T
+        }
         val n = peek()
         val r = n == Code.NIL
         if (r) {
@@ -1988,46 +2017,44 @@ object MessagePack {
             case Code.MAP32 =>
               val r = read32()
               return conversions.U32.toZ(r)
-            case _ =>
-              halt(s"Expecting a map, but found code $code")
+            case _ => error(curr - 1, s"Expecting a map, but found code $code"); return 0
           }
         }
       }
 
-      def readExtTypeHeader(): (S8, Z) = {
+      def readExtTypeHeader(): Option[(S8, Z)] = {
         val code = read8()
         code match {
           case Code.FIXEXT1 =>
             val extType = readS8()
-            return (extType, 1)
+            return Some((extType, 1))
           case Code.FIXEXT2 =>
             val extType = readS8()
-            return (extType, 2)
+            return Some((extType, 2))
           case Code.FIXEXT4 =>
             val extType = readS8()
-            return (extType, 4)
+            return Some((extType, 4))
           case Code.FIXEXT8 =>
             val extType = readS8()
-            return (extType, 8)
+            return Some((extType, 8))
           case Code.FIXEXT16 =>
             val extType = readS8()
-            return (extType, 16)
+            return Some((extType, 16))
           case Code.EXT8 =>
             val n = read8()
             val length = conversions.U8.toZ(n & u8"0xFF")
             val extType = readS8()
-            return (extType, length)
+            return Some((extType, length))
           case Code.EXT16 =>
             val n = read16()
             val length = conversions.U16.toZ(n & u16"0xFFFF")
             val extType = readS8()
-            return (extType, length)
+            return Some((extType, length))
           case Code.EXT32 =>
             val length = conversions.U32.toZ(read32())
             val extType = readS8()
-            return (extType, length)
-          case _ =>
-            halt(s"Expecting an ext type, but found code $code")
+            return Some((extType, length))
+          case _ => error(curr - 1, s"Expecting an ext type, but found code $code"); return None()
         }
       }
 
