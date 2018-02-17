@@ -352,9 +352,9 @@ object Json {
 
     @pure def printEither[L, R](o: Either[L, R], f0: L => ST, f1: R => ST): ST = {
       o match {
-        case Either(Some(l), _) =>
+        case Either.Left(l) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
-        case Either(_, Some(r)) =>
+        case Either.Right(r) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
         case _ => assume(F); return nullSt
       }
@@ -362,9 +362,9 @@ object Json {
 
     @pure def printMEither[L, R](o: MEither[L, R], f0: L => ST, f1: R => ST): ST = {
       o match {
-        case MEither(MSome(l), _) =>
+        case MEither.Left(l) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
-        case MEither(_, MSome(r)) =>
+        case MEither.Right(r) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(1)), ("value", f1(r))))
         case _ => assume(F); return nullSt
       }
@@ -1416,11 +1416,11 @@ object Json {
         case z"0" =>
           val l = f0()
           parseObjectNext()
-          return Either(Some(l), None())
+          return Either.Left(l)
         case z"1" =>
           val r = f1()
           parseObjectNext()
-          return Either(None(), Some(r))
+          return Either.Right(r)
       }
     }
 
@@ -1434,11 +1434,11 @@ object Json {
         case z"0" =>
           val l = f0()
           parseObjectNext()
-          return MEither(MSome(l), MNone())
+          return MEither.Left(l)
         case z"1" =>
           val r = f1()
           parseObjectNext()
-          return MEither(MNone(), MSome(r))
+          return MEither.Right(r)
       }
     }
 
@@ -2112,8 +2112,8 @@ object Json {
     val r = parseValue()
     parser.eof()
     parser.errorOpt match {
-      case Some(_) => return Either(None(), parser.errorOpt)
-      case _ => return Either(Some(r), None())
+      case Some(e) => return Either.Right(e)
+      case _ => return Either.Left(r)
     }
   }
 

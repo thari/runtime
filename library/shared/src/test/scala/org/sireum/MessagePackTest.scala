@@ -323,7 +323,7 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     {
-      val o = Either[Z, String](Some(Z.random), None())
+      val o = Either.Left[Z, String](Z.random)
       check(
         poolString,
         o,
@@ -333,7 +333,7 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     {
-      val o = MEither[Z, String](MNone(), MSome(String.random))
+      val o = MEither.Right[Z, String](String.random)
       check(
         poolString,
         o,

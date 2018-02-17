@@ -288,9 +288,8 @@ object MessagePack {
 
     def writeEither[L, R](o: Either[L, R], l: L => Unit, r: R => Unit): Unit = {
       o match {
-        case Either(Some(e), _) =>
-          l(e)
-        case Either(_, Some(e)) =>
+        case Either.Left(e) => l(e)
+        case Either.Right(e) =>
           writeNil()
           r(e)
       }
@@ -298,9 +297,8 @@ object MessagePack {
 
     def writeMEither[L, R](o: MEither[L, R], l: L => Unit, r: R => Unit): Unit = {
       o match {
-        case MEither(MSome(e), _) =>
-          l(e)
-        case MEither(_, MSome(e)) =>
+        case MEither.Left(e) => l(e)
+        case MEither.Right(e) =>
           writeNil()
           r(e)
       }
@@ -1181,10 +1179,10 @@ object MessagePack {
       val isNil = skipIfNil()
       if (isNil) {
         val o = r()
-        return Either[L, R](None[L](), Some(o))
+        return Either.Right(o)
       } else {
         val o = l()
-        return Either[L, R](Some(o), None[R]())
+        return Either.Left(o)
       }
     }
 
@@ -1192,10 +1190,10 @@ object MessagePack {
       val isNil = skipIfNil()
       if (isNil) {
         val o = r()
-        return MEither[L, R](MNone[L](), MSome(o))
+        return MEither.Right(o)
       } else {
         val o = l()
-        return MEither[L, R](MSome(o), MNone[R]())
+        return MEither.Left(o)
       }
     }
 

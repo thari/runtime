@@ -80,7 +80,7 @@ class JsonTest extends SireumRuntimeSpec {
   *(parseTopObject(oPrettyParse(oPrettyParse(oString))) =~= oJson)
 
   * {
-    val o = Either[Z, String](Some(Z.random), None())
+    val o = Either.Left[Z, String](Z.random)
     val s = Json.Printer.printEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
     val p = Json.Parser.create(s)
     val o2 = p.parseEither[Z, String](p.parseZ _, p.parseString _)
@@ -88,7 +88,7 @@ class JsonTest extends SireumRuntimeSpec {
   }
 
   * {
-    val o = MEither[Z, String](MNone(), MSome(String.random))
+    val o = MEither.Right[Z, String](String.random)
     val s = Json.Printer.printMEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
     val p = Json.Parser.create(s)
     val o2 = p.parseMEither[Z, String](p.parseZ _, p.parseString _)
@@ -159,16 +159,16 @@ class JsonTest extends SireumRuntimeSpec {
 
   def parseTopObject(s: Predef.String): JObject =
     Json.parseAst(JsonAst.Binding, String(s)) match {
-      case Either(Some(o: JObject), _) => o
-      case Either(_, Some(errMsg)) =>
+      case Either.Left(o: JObject) => o
+      case Either.Right(errMsg) =>
         assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
       case _ => assert(F); null
     }
 
   def parseValue(s: Predef.String): JValue =
     Json.parseAst(JsonAst.Binding, String(s)) match {
-      case Either(Some(o), _) => o
-      case Either(_, Some(errMsg)) =>
+      case Either.Left(o) => o
+      case Either.Right(errMsg) =>
         assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
       case _ => assert(F); null
     }

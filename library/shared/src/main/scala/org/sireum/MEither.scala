@@ -26,7 +26,83 @@
 
 package org.sireum
 
-@datatype class MEither[L, R](leftOpt: MOption[L],
-                              rightOpt: MOption[R]) {
-  l""" invariant leftOpt.nonEmpty || rightOpt.nonEmpty """
+@record trait MEither[L, R] {
+  @pure def isLeft: B
+  @pure def isRight: B
+  @pure def leftOpt: Option[L]
+  @pure def left: L
+  @pure def rightOpt: Option[R]
+  @pure def right: R
+}
+
+object MEither {
+
+  @record class Left[L, R](value: L) extends MEither[L, R] {
+
+    @pure override def isLeft: B = {
+      l""" ensures result ≡ T """
+      return T
+    }
+
+    @pure override def isRight: B = {
+      l""" ensures result ≡ F """
+      return F
+    }
+
+    @pure override def leftOpt: Option[L] = {
+      l""" ensures result ≡ Some(value) """
+      return Some(value)
+    }
+
+    @pure override def left: L = {
+      l""" ensures result ≡ value """
+      return value
+    }
+
+    @pure override def rightOpt: Option[R] = {
+      l""" ensures result ≡ None[R]() """
+      return None()
+    }
+
+    @pure override def right: R = {
+      l""" requires F """
+      halt("Invalid 'MEither.Left' operation 'right'.")
+    }
+
+  }
+
+  @record class Right[L, R](value: R) extends MEither[L, R] {
+
+    @pure override def isLeft: B = {
+      l""" ensures result ≡ F """
+      return F
+    }
+
+    @pure override def isRight: B = {
+      l""" ensures result ≡ T """
+      return T
+    }
+
+    @pure override def leftOpt: Option[L] = {
+      l""" ensures result ≡ None[L]() """
+      return None()
+    }
+
+    @pure override def left: L = {
+      l""" requires F """
+      halt("Invalid 'MEither.Right' operation 'left'.")
+    }
+
+    @pure override def rightOpt: Option[R] = {
+      l""" ensures result ≡ Some(value) """
+      return Some(value)
+    }
+
+    @pure override def right: R = {
+      l""" ensures result ≡ value """
+      return value
+    }
+
+  }
+
 }
