@@ -1564,13 +1564,17 @@ object String_Ext {
     new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Int]], 0, cs.length.toInt)
   }
 
-  @pure def fromBase64(s: String): IS[Z, U8] = {
-    val array = _root_.java.util.Base64.getDecoder.decode(s.value)
-    val r = MSZ.create(array.size, u8"0")
-    for (i <- 0 until array.length) {
-      r(i) = org.sireum.U8(array(i))
+  @pure def fromBase64(s: String): Either[IS[Z, U8], String] = {
+    try {
+      val array = _root_.java.util.Base64.getDecoder.decode(s.value)
+      val r = MSZ.create(array.size, u8"0")
+      for (i <- 0 until array.length) {
+        r(i) = org.sireum.U8(array(i))
+      }
+      Either.Left(r.toIS)
+    } catch {
+      case e: Throwable => Either.Right(e.getMessage)
     }
-    r.toIS
   }
 
   @pure def toBase64(data: IS[Z, U8]): String = {

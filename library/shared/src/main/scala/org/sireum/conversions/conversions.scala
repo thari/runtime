@@ -2108,7 +2108,7 @@ import org.sireum._
 
 @ext object String {
 
-  @pure def fromBase64(s: String): IS[Z, U8] = $
+  @pure def fromBase64(s: String): Either[IS[Z, U8], String] = $
 
   @pure def toBase64(data: IS[Z, U8]): String = $
 
