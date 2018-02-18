@@ -65,18 +65,18 @@ object Graph {
     }
 
     @datatype trait Edges[E] {
-      @pure def elements: ISZ[Edge[E]]
+      @pure def elements: ISZ[Internal.Edge[E]]
       @pure def size: Z
-      @pure def +(e: Edge[E]): Edges[E]
-      @pure def ++(es: ISZ[Edge[E]]): Edges[E]
-      @pure def -#(p: (Edge[E], Z)): Edges[E]
+      @pure def +(e: Internal.Edge[E]): Edges[E]
+      @pure def ++(es: ISZ[Internal.Edge[E]]): Edges[E]
+      @pure def -#(p: (Internal.Edge[E], Z)): Edges[E]
     }
 
     object Edges {
 
-      @datatype class Set[E](set: HashSet[Edge[E]]) extends Edges[E] {
+      @datatype class Set[E](set: HashSet[Internal.Edge[E]]) extends Edges[E] {
 
-        @pure override def elements: ISZ[Edge[E]] = {
+        @pure override def elements: ISZ[Internal.Edge[E]] = {
           return set.elements
         }
 
@@ -84,22 +84,22 @@ object Graph {
           return set.size
         }
 
-        @pure override def +(e: Edge[E]): Edges[E] = {
+        @pure override def +(e: Graph.Internal.Edge[E]): Edges[E] = {
           return this(set + e)
         }
 
-        @pure override def ++(es: ISZ[Edge[E]]): Edges[E] = {
+        @pure override def ++(es: ISZ[Internal.Edge[E]]): Edges[E] = {
           return this(set ++ es)
         }
 
-        @pure override def -#(p: (Edge[E], Z)): Edges[E] = {
+        @pure override def -#(p: (Internal.Edge[E], Z)): Edges[E] = {
           return this(set - p._1)
         }
       }
 
-      @datatype class Bag[E](set: HashBag[Edge[E]]) extends Edges[E] {
+      @datatype class Bag[E](set: HashBag[Internal.Edge[E]]) extends Edges[E] {
 
-        @pure override def elements: ISZ[Edge[E]] = {
+        @pure override def elements: ISZ[Internal.Edge[E]] = {
           return set.elements
         }
 
@@ -107,15 +107,15 @@ object Graph {
           return set.size
         }
 
-        @pure override def +(e: Edge[E]): Edges[E] = {
+        @pure override def +(e: Internal.Edge[E]): Edges[E] = {
           return this(set + e)
         }
 
-        @pure override def ++(es: ISZ[Edge[E]]): Edges[E] = {
+        @pure override def ++(es: ISZ[Internal.Edge[E]]): Edges[E] = {
           return this(set ++ es)
         }
 
-        @pure override def -#(p: (Edge[E], Z)): Edges[E] = {
+        @pure override def -#(p: (Internal.Edge[E], Z)): Edges[E] = {
           return this(set -# p)
         }
       }
@@ -148,7 +148,9 @@ object Graph {
 
     @pure def addEdge[V, E](g: Graph[V, E], e: Internal.Edge[E]): Graph[V, E] = {
       return g(
-        incomingEdges = g.incomingEdges + e.dest ~> (g.incomingEdges.get(e.dest).getOrElse(Edges.empty[E](g.multi)) + e),
+        incomingEdges = g.incomingEdges + e.dest ~> (g.incomingEdges
+          .get(e.dest)
+          .getOrElse(Edges.empty[E](g.multi)) + e),
         outgoingEdges = g.outgoingEdges + e.source ~> (g.outgoingEdges
           .get(e.source)
           .getOrElse(Edges.empty[E](g.multi)) + e)
@@ -200,7 +202,7 @@ object Graph {
 
 @datatype class Graph[V, E](
   val nodes: HashMap[V, Graph.Index],
-  val nodesInverse: ISZ[V],
+  val nodesInverse: IS[Graph.Index, V],
   val incomingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
   val outgoingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
   val nextNodeId: Graph.Index,
