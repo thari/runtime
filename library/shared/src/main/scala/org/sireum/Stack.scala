@@ -30,21 +30,26 @@ import org.sireum.ops.ISZOps
 
 
 object Stack {
-  def empty[T]: Stack[T] = {
+  @pure def empty[T]: Stack[T] = {
     return Stack[T](ISZ())
   }
 }
 
 @datatype class Stack[T](elements: ISZ[T]) {
-  def isEmpty: B = {
+
+  @pure def size: Z = {
+    return elements.size
+  }
+
+  @pure def isEmpty: B = {
     return elements.isEmpty
   }
 
-  def nonEmpty: B = {
+  @pure def nonEmpty: B = {
     return elements.nonEmpty
   }
 
-  def peek: Option[T] = {
+  @pure def peek: Option[T] = {
     if (nonEmpty) {
       return Some(elements(elements.size - 1))
     } else {
@@ -52,11 +57,11 @@ object Stack {
     }
   }
 
-  def push(e: T): Stack[T] = {
+  @pure def push(e: T): Stack[T] = {
     return Stack(elements :+ e)
   }
 
-  def pop(): Option[(T, Stack[T])] = {
+  @pure def pop(): Option[(T, Stack[T])] = {
     if (nonEmpty) {
       return Some((elements(elements.size - 1), Stack(ISZOps(elements).dropRight(1))))
     } else {
