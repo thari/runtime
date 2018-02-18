@@ -30,12 +30,12 @@ import org.sireum._
 
 @datatype class StringOps(s: String) {
 
-  def first: C = {
+  @pure def first: C = {
     l""" requires s.size > 0 """
     return conversions.String.toCis(s)(0)
   }
 
-  def substring(start: Z, until: Z): String = {
+  @pure def substring(start: Z, until: Z): String = {
     l""" requires 0 ≤ start ∧ start < s.size
                   start ≤ until
                   until ≤ s.size
@@ -53,7 +53,7 @@ import org.sireum._
     return conversions.String.fromCms(ms)
   }
 
-  def startsWith(other: String): B = {
+  @pure def startsWith(other: String): B = {
     l""" ensures  result ≡ ((size >= other.size) ∧
                             ∀i: [0, other.size) s(i) ≡ other(i)) """
     if (s.size < other.size) {
@@ -69,7 +69,7 @@ import org.sireum._
     return T
   }
 
-  def endsWith(other: String): B = {
+  @pure def endsWith(other: String): B = {
     l""" ensures  result ≡ ((size >= other.size) ∧
                             ∀i: [0, other.size) s(i + other.size - s.size) ≡ other(i)) """
     if (s.size < other.size) {
@@ -86,7 +86,7 @@ import org.sireum._
     return T
   }
 
-  def firstToUpper: String = {
+  @pure def firstToUpper: String = {
     l""" requires s.size > 0
          ensures  result.size ≡ s.size
                   result(0) ≡ conversions.COps(s(0)).toUpper
@@ -96,7 +96,7 @@ import org.sireum._
     return conversions.String.fromCms(cms)
   }
 
-  def firstToLower: String = {
+  @pure def firstToLower: String = {
     l""" requires s.size > 0
          ensures  result.size ≡ s.size
                   result(0) ≡ conversions.COps(s(0)).toLower
@@ -104,5 +104,39 @@ import org.sireum._
     val cms = conversions.String.toCms(s)
     cms(0) = COps(cms(0)).toLower
     return conversions.String.fromCms(cms)
+  }
+
+  @pure def indexOf(c: C): Z = {
+    return indexOfFrom(c, 0)
+  }
+
+  @pure def indexOfFrom(c: C, offset: Z): Z = {
+    if (!(0 <= offset && offset < s.size)) {
+      return -1
+    }
+    val cis = conversions.String.toCis(s)
+    for (i <- z"0" to offset) {
+      if (cis(i) == c) {
+        return i
+      }
+    }
+    return -1
+  }
+
+  @pure def lastIndexOf(c: C): Z = {
+    return lastIndexOfFrom(c, s.size)
+  }
+
+  @pure def lastIndexOfFrom(c: C, offset: Z): Z = {
+    if (!(0 <= offset && offset < s.size)) {
+      return -1
+    }
+    val cis = conversions.String.toCis(s)
+    for (i <- offset to 0 by -1) {
+      if (cis(i) == c) {
+        return i
+      }
+    }
+    return -1
   }
 }
