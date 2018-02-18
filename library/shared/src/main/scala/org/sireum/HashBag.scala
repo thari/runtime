@@ -35,6 +35,10 @@ object HashBag {
     return HashBag(HashMap.emptyInit(initialCapacity))
   }
 
+  @pure def ++[I, T](s: IS[I, T]): HashBag[T] = {
+    return HashBag.empty[T] ++ s
+  }
+
 }
 
 @datatype class HashBag[T](val map: HashMap[T, Z]) {
