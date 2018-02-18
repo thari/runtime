@@ -36,6 +36,8 @@ trait Immutable extends Any with ImmutableMarker {
 
   protected def $hasEquals: scala.Boolean = false
 
+  protected def $hasString: scala.Boolean = false
+
   def string: String
 
 }
@@ -67,6 +69,8 @@ trait Mutable extends Any with MutableMarker {
   def string: String
 
   protected def $hasEquals: scala.Boolean = false
+
+  protected def $hasString: scala.Boolean = false
 
 }
 
