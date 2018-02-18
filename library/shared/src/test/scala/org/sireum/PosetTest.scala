@@ -27,8 +27,7 @@ package org.sireum
 
 import org.sireum.test._
 
-class PosetTest extends SireumRuntimeSpec {
-
+object PosetTest {
   /*
         A   H     I
        / \  | \  / \
@@ -58,6 +57,11 @@ class PosetTest extends SireumRuntimeSpec {
       .addNode("M")
       .addChildren("N", ISZ[String]("M"))
   }
+}
+
+import PosetTest._
+
+class PosetTest extends SireumRuntimeSpec {
 
   *(poset.isParentOf("B", "A"))
 
