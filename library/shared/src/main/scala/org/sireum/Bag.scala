@@ -164,10 +164,6 @@ object Bag {
     return r
   }
 
-  @pure def toHashBag: HashBag[T] = {
-    return HashBag(map.toHashMap)
-  }
-
   @pure override def string: String = {
     return map.string
   }

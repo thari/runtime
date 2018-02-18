@@ -145,22 +145,6 @@ object Map {
     return entries.size
   }
 
-  @pure def toHashMap: HashMap[K, V] = {
-    var r = HashMap.emptyInit[K, V](size)
-    for (kv <- entries) {
-      r = r + kv._1 ~> kv._2
-    }
-    return r
-  }
-
-  @pure def toHashSMap: HashSMap[K, V] = {
-    var r = HashSMap.emptyInit[K, V](size)
-    for (kv <- entries) {
-      r = r + kv._1 ~> kv._2
-    }
-    return r
-  }
-
   @pure def string: String = {
     val r = st"""{
     |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
