@@ -560,49 +560,86 @@ object MessagePack {
       writeMSZ(s, writeZ _)
     }
 
-    def writeMap[K, V](m: Map[K, V], k: K => Unit, v: V => Unit): Unit = {
-      writeMapHeader(m.size)
-      for (e <- m.entries) {
-        k(e._1)
-        v(e._2)
+    def writeMap[K, V](o: Map[K, V], f: K => Unit, g: V => Unit): Unit = {
+      writeMapHeader(o.size)
+      for (e <- o.entries) {
+        f(e._1)
+        g(e._2)
       }
     }
 
-    def writeSet[V](m: Set[V], f: V => Unit): Unit = {
-      writeArrayHeader(m.size)
-      for (e <- m.elements) {
-        f(e)
+    def writeSet[T](o: Set[T], f: T => Unit): Unit = {
+      writeISZ(o.elements, f)
+    }
+
+    def writeHashMap[K, V](o: HashMap[K, V], f: K => Unit, g: V => Unit): Unit = {
+      writeMapHeader(o.size)
+      for (e <- o.entries) {
+        f(e._1)
+        g(e._2)
       }
     }
 
-    def writeHashMap[K, V](m: HashMap[K, V], k: K => Unit, v: V => Unit): Unit = {
-      writeMapHeader(m.size)
-      for (e <- m.entries) {
-        k(e._1)
-        v(e._2)
+    def writeHashSet[T](o: HashSet[T], f: T => Unit): Unit = {
+      writeISZ(o.elements, f)
+    }
+
+    def writeHashSMap[K, V](o: HashSMap[K, V], f: K => Unit, g: V => Unit): Unit = {
+      writeMapHeader(o.size)
+      for (e <- o.entries) {
+        f(e._1)
+        g(e._2)
       }
     }
 
-    def writeHashSet[V](m: HashSet[V], f: V => Unit): Unit = {
-      writeArrayHeader(m.size)
-      for (e <- m.elements) {
-        f(e)
-      }
+    def writeHashSSet[T](o: HashSSet[T], f: T => Unit): Unit = {
+      writeISZ(o.elements, f)
     }
 
-    def writeHashSMap[K, V](m: HashSMap[K, V], k: K => Unit, v: V => Unit): Unit = {
-      writeMapHeader(m.size)
-      for (e <- m.entries) {
-        k(e._1)
-        v(e._2)
-      }
+    def writeStack[T](o: Stack[T], f: T => Unit): Unit = {
+      writeISZ(o.elements, f)
     }
 
-    def writeHashSSet[V](m: HashSSet[V], f: V => Unit): Unit = {
-      writeArrayHeader(m.size)
-      for (e <- m.elements) {
-        f(e)
+    def writeBag[T](o: Bag[T], f: T => Unit): Unit = {
+      writeMap(o.map, f, writeZ _)
+    }
+
+    def writeHashBag[T](o: HashBag[T], f: T => Unit): Unit = {
+      writeHashMap(o.map, f, writeZ _)
+    }
+
+    def writePoset[T](o: Poset[T], f: T => Unit): Unit = {
+      def g(s: HashSet[Poset.Index]): Unit = {
+        writeHashSet(s, writeZ _)
       }
+      writeISZ(o.nodesInverse, f)
+      writeHashMap(o.parents, writeZ _, g _)
+    }
+
+    def writeGraph[V, E](o: Graph[V, E], f: V => Unit, g: E => Unit): Unit = {
+      def writeEdge(edge: Graph.Internal.Edge[E]): Unit = {
+        edge match {
+          case Graph.Internal.Edge.Plain(src, dest) =>
+            writeZ(src)
+            writeZ(dest)
+            writeNil()
+          case Graph.Internal.Edge.Data(src, dest, data) =>
+            writeZ(src)
+            writeZ(dest)
+            g(data)
+        }
+      }
+      val edges: ISZ[Graph.Internal.Edge[E]] =
+        for (es <- o.outgoingEdges.values; e <- es.elements) yield e
+      writeB(o.multi)
+      writeISZ(o.nodesInverse, f)
+      writeISZ(edges, writeEdge _)
+    }
+
+    def writeUnionFind[T](o: UnionFind[T], f: T => Unit): Unit = {
+      writeISZ(o.elementsInverse, f)
+      writeISZ(o.parentOf, writeZ _)
+      writeISZ(o.sizeOf, writeZ _)
     }
 
     def writeArrayHeader(n: Z): Unit
@@ -1625,22 +1662,22 @@ object MessagePack {
       return r
     }
 
-    def readMap[K, V](k: () => K, v: () => V): Map[K, V] = {
+    def readMap[K, V](f: () => K, g: () => V): Map[K, V] = {
       val size = readMapHeader()
       var r = Map.empty[K, V]
       var i = 0
       while (i < size) {
-        val key = k()
-        val value = v()
+        val key = f()
+        val value = g()
         r = r + key ~> value
         i = i + 1
       }
       return r
     }
 
-    def readSet[V](f: () => V): Set[V] = {
+    def readSet[T](f: () => T): Set[T] = {
       val size = readArrayHeader()
-      var r = Set.empty[V]
+      var r = Set.empty[T]
       var i = 0
       while (i < size) {
         val value = f()
@@ -1650,22 +1687,22 @@ object MessagePack {
       return r
     }
 
-    def readHashMap[K, V](k: () => K, v: () => V): HashMap[K, V] = {
+    def readHashMap[K, V](f: () => K, g: () => V): HashMap[K, V] = {
       val size = readMapHeader()
       var r = HashMap.emptyInit[K, V](size)
       var i = 0
       while (i < size) {
-        val key = k()
-        val value = v()
+        val key = f()
+        val value = g()
         r = r + key ~> value
         i = i + 1
       }
       return r
     }
 
-    def readHashSet[V](f: () => V): HashSet[V] = {
+    def readHashSet[T](f: () => T): HashSet[T] = {
       val size = readArrayHeader()
-      var r = HashSet.emptyInit[V](size)
+      var r = HashSet.emptyInit[T](size)
       var i = 0
       while (i < size) {
         val value = f()
@@ -1675,22 +1712,22 @@ object MessagePack {
       return r
     }
 
-    def readHashSMap[K, V](k: () => K, v: () => V): HashSMap[K, V] = {
+    def readHashSMap[K, V](f: () => K, g: () => V): HashSMap[K, V] = {
       val size = readMapHeader()
       var r = HashSMap.emptyInit[K, V](size)
       var i = 0
       while (i < size) {
-        val key = k()
-        val value = v()
+        val key = f()
+        val value = g()
         r = r + key ~> value
         i = i + 1
       }
       return r
     }
 
-    def readHashSSet[V](f: () => V): HashSSet[V] = {
+    def readHashSSet[T](f: () => T): HashSSet[T] = {
       val size = readArrayHeader()
-      var r = HashSSet.emptyInit[V](size)
+      var r = HashSSet.emptyInit[T](size)
       var i = 0
       while (i < size) {
         val value = f()
@@ -1698,6 +1735,83 @@ object MessagePack {
         i = i + 1
       }
       return r
+    }
+
+    def readStack[T](f: () => T): Stack[T] = {
+      val s = readISZ(f)
+      return Stack(s)
+    }
+
+    def readBag[T](f: () => T): Bag[T] = {
+      val map = readMap(f, readZ _)
+      return Bag(map)
+    }
+
+    def readHashBag[T](f: () => T): HashBag[T] = {
+      val map = readHashMap(f, readZ _)
+      return HashBag(map)
+    }
+
+    def readPoset[T](f: () => T): Poset[T] = {
+      def g(): HashSet[Poset.Index] = {
+        val r = readHashSet(readZ _)
+        return r
+      }
+      val nodesInverse = readISZ(f)
+      val map = readHashMap(readZ _, g _)
+      val size = nodesInverse.size
+      var nodes = HashMap.emptyInit[T, Poset.Index](size)
+      var parents = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var children = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var i: Z = 0
+      for (node <- nodesInverse) {
+        nodes = nodes + node ~> nodes.size
+        parents = parents + i ~> Poset.Internal.emptySet
+        children = children + i ~> Poset.Internal.emptySet
+        i = i + 1
+      }
+      var r = Poset[T](nodes, nodesInverse, parents, children)
+      for (e <- map.entries) {
+        val (n, s) = e
+        r = Poset.Internal.addParents(r, n, s.elements)
+      }
+      return r
+    }
+
+    def readGraph[V, E](f: () => V, g: () => E): Graph[V, E] = {
+      def readEdge(): Graph.Internal.Edge[E] = {
+        val src = readZ()
+        val dest = readZ()
+        val isPlain = skipIfNil()
+        if (isPlain) {
+          return Graph.Internal.Edge.Plain(src, dest)
+        } else {
+          val data = g()
+          return Graph.Internal.Edge.Data(src, dest, data)
+        }
+      }
+      val multi = readB()
+      val nodesInverse = readISZ(f)
+      val edges = readISZ(readEdge _)
+      var r: Graph[V, E] = if (multi) Graph.emptyMulti else Graph.empty
+      for (node <- nodesInverse) {
+        r = r * node
+      }
+      for (e <- edges) {
+        r = Graph.Internal.addEdge(r, e)
+      }
+      return r
+    }
+
+    def readUnionFind[T](f: () => T): UnionFind[T] = {
+      val elementsInverse = readISZ(f)
+      val parentOf = readISZ(readZ _)
+      val sizeOf = readISZ(readZ _)
+      var elements = HashMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
+      for (e <- elementsInverse) {
+        elements = elements + e ~> elements.size
+      }
+      return UnionFind(elements, elementsInverse, parentOf, sizeOf)
     }
 
     def readArrayHeader(): Z

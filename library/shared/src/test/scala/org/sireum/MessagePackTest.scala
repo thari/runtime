@@ -343,7 +343,7 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = Map.empty[String, Z].++(is)
+      val o = Map ++ is
       check(
         poolString,
         o,
@@ -353,12 +353,12 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = Set.empty[String].++(is)
+      val o = Set ++ is
       check(poolString, o, (w) => w.writeSet(o, w.writeString _), (r) => r.readSet(r.readString _))
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = HashMap.empty[String, Z].++(is)
+      val o = HashMap ++ is
       check(
         poolString,
         o,
@@ -368,12 +368,12 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = HashSet.empty[String].++(is)
+      val o = HashSet ++ is
       check(poolString, o, (w) => w.writeHashSet(o, w.writeString _), (r) => r.readHashSet(r.readString _))
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-      val o = HashSMap.empty[String, Z].++(is)
+      val o = HashSMap ++ is
       check(
         poolString,
         o,
@@ -383,8 +383,58 @@ class MessagePackTest extends SireumRuntimeSpec {
     }
 
     for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-      val o = HashSSet.empty[String].++(is)
+      val o = HashSSet ++ is
       check(poolString, o, (w) => w.writeHashSSet(o, w.writeString _), (r) => r.readHashSSet(r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = {
+        var s = Stack.empty[String]
+        for (e <- is) {
+          s = s.push(e)
+        }
+        s
+      }
+      check(poolString, o, (w) => w.writeStack(o, w.writeString _), (r) => r.readStack(r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = Bag ++ is
+      check(poolString, o, (w) => w.writeBag(o, w.writeString _), (r) => r.readBag(r.readString _))
+    }
+
+    for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+      val o = HashBag ++ is
+      check(poolString, o, (w) => w.writeHashBag(o, w.writeString _), (r) => r.readHashBag(r.readString _))
+    }
+
+    {
+      val o = PosetTest.poset
+      check(poolString, o, (w) => w.writePoset(o, w.writeString _), (r) => r.readPoset(r.readString _))
+    }
+
+    {
+      val o = {
+        val graph = Graph.empty[Z, String]
+        val n1 = Z.random
+        val n2 = Z.random
+        var g = graph + n1 ~> n2
+        g = g + n2 ~> n1
+        g = g + n1 ~> n2
+        g
+      }
+      check(poolString, o, (w) => w.writeGraph(o, w.writeZ _, w.writeString _), (r) => r.readGraph(r.readZ _, r.readString _))
+    }
+
+    {
+      val o = {
+        var uf = UnionFind.create[Z](ISZ(1, 2, 3, 4, 5))
+        uf = uf.merge(1, 2)
+        uf = uf.merge(3, 4)
+        uf = uf.merge(4, 5)
+        uf
+      }
+      check(poolString, o, (w) => w.writeUnionFind(o, w.writeZ _), (r) => r.readUnionFind(r.readZ _))
     }
   }
 

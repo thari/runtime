@@ -397,7 +397,7 @@ object Json {
       return printObject(ISZ(("type", printString("Map")), ("entries", entries)))
     }
 
-    @pure def printSet[V](isSimple: B, o: Set[V], f: V => ST): ST = {
+    @pure def printSet[T](isSimple: B, o: Set[T], f: T => ST): ST = {
       return printObject(
         ISZ(
           ("type", printString("Set")),
@@ -439,7 +439,7 @@ object Json {
       return printObject(ISZ(("type", printString("HashMap")), ("size", printZ(o.size)), ("entries", entries)))
     }
 
-    @pure def printHashSet[V](isSimple: B, o: HashSet[V], f: V => ST): ST = {
+    @pure def printHashSet[T](isSimple: B, o: HashSet[T], f: T => ST): ST = {
       return printObject(
         ISZ(
           ("type", printString("HashSet")),
@@ -482,7 +482,7 @@ object Json {
       return printObject(ISZ(("type", printString("HashSMap")), ("size", printZ(o.size)), ("entries", entries)))
     }
 
-    @pure def printHashSSet[V](isSimple: B, o: HashSSet[V], f: V => ST): ST = {
+    @pure def printHashSSet[T](isSimple: B, o: HashSSet[T], f: T => ST): ST = {
       return printObject(
         ISZ(
           ("type", printString("HashSSet")),
@@ -494,6 +494,60 @@ object Json {
             |  ${(o.elements.map(f), ",\n")}
             |]"""
           )
+        )
+      )
+    }
+
+    @pure def printStack[T](isSimple: B, o: Stack[T], f: T => ST): ST = {
+      return printISZ(isSimple, o.elements, f)
+    }
+
+    @pure def printBag[T](isSimple: B, o: Bag[T], f: T => ST): ST = {
+      return printMap(isSimple, o.map, f, printZ _)
+    }
+
+    @pure def printHashBag[T](isSimple: B, o: HashBag[T], f: T => ST): ST = {
+      return printHashMap(isSimple, o.map, f, printZ _)
+    }
+
+    @pure def printPoset[T](isSimple: B, o: Poset[T], f: T => ST): ST = {
+      val g: HashSet[Poset.Index] => ST = (s) => printHashSet(isSimple, s, printZ _)
+      return printObject(
+        ISZ(
+          ("type", printString("Poset")),
+          ("nodes", printISZ(isSimple, o.nodesInverse, f)),
+          ("parents", printHashMap(isSimple, o.parents, printZ _, g))
+        )
+      )
+    }
+
+    @pure def printGraph[V, E](isSimple: B, o: Graph[V, E], f: V => ST, g: E => ST): ST = {
+      @pure def printEdge(edge: Graph.Internal.Edge[E]): ST = {
+        edge match {
+          case Graph.Internal.Edge.Plain(src, dest) =>
+            return printObject(ISZ(("src", printZ(src)), ("dest", printZ(dest))))
+          case Graph.Internal.Edge.Data(src, dest, data) =>
+            return printObject(ISZ(("src", printZ(src)), ("dest", printZ(dest)), ("data", g(data))))
+        }
+      }
+      val edges: ISZ[Graph.Internal.Edge[E]] =
+        for (es <- o.outgoingEdges.values; e <- es.elements) yield e
+      return printObject(
+        ISZ(
+          ("type", printString(if (o.multi) "MultiGraph" else "Graph")),
+          ("nodes", printISZ(isSimple, o.nodesInverse, f)),
+          ("edges", printISZ(isSimple, edges, printEdge _))
+        )
+      )
+    }
+
+    @pure def printUnionFind[T](isSimple: B, o: UnionFind[T], f: T => ST): ST = {
+      return printObject(
+        ISZ(
+          ("type", printString("UnionFind")),
+          ("elements", printISZ(isSimple, o.elementsInverse, f)),
+          ("parentOf", printISZ(T, o.parentOf, printZ _)),
+          ("sizeOf", printISZ(T, o.sizeOf, printZ _))
         )
       )
     }
@@ -1471,10 +1525,10 @@ object Json {
       return r
     }
 
-    def parseSet[V](f: () => V): Set[V] = {
+    def parseSet[T](f: () => T): Set[T] = {
       parseObjectType("Set")
 
-      var r = Set.empty[V]
+      var r = Set.empty[T]
       parseObjectKey("elements")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1525,13 +1579,13 @@ object Json {
       return r
     }
 
-    def parseHashSet[V](f: () => V): HashSet[V] = {
+    def parseHashSet[T](f: () => T): HashSet[T] = {
       parseObjectType("HashSet")
       parseObjectKey("size")
       val size = parseZ()
       parseObjectNext()
 
-      var r = HashSet.emptyInit[V](size)
+      var r = HashSet.emptyInit[T](size)
       parseObjectKey("elements")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1582,13 +1636,13 @@ object Json {
       return r
     }
 
-    def parseHashSSet[V](f: () => V): HashSSet[V] = {
+    def parseHashSSet[T](f: () => T): HashSSet[T] = {
       parseObjectType("HashSSet")
       parseObjectKey("size")
       val size = parseZ()
       parseObjectNext()
 
-      var r = HashSSet.emptyInit[V](size)
+      var r = HashSSet.emptyInit[T](size)
       parseObjectKey("elements")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1605,6 +1659,109 @@ object Json {
       }
       parseObjectNext()
       return r
+    }
+
+    def parseStack[T](f: () => T): Stack[T] = {
+      val is = parseISZ(f)
+      return Stack(is)
+    }
+
+    def parseBag[T](f: () => T): Bag[T] = {
+      val map = parseMap(f, parseZ _)
+      return Bag(map)
+    }
+
+    def parseHashBag[T](f: () => T): HashBag[T] = {
+      val map = parseHashMap(f, parseZ _)
+      return HashBag(map)
+    }
+
+
+    def parsePoset[T](f: () => T): Poset[T] = {
+      def g(): HashSet[Poset.Index] = {
+        val r = parseHashSet(parseZ _)
+        return r
+      }
+      parseObjectType("Poset")
+      parseObjectKey("nodes")
+      val nodesInverse = parseISZ(f)
+      parseObjectNext()
+      parseObjectKey("parents")
+      val map = parseHashMap(parseZ _, g _)
+      parseObjectNext()
+      val size = nodesInverse.size
+      var nodes = HashMap.emptyInit[T, Poset.Index](size)
+      var parents = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var children = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var i: Z = 0
+      for (node <- nodesInverse) {
+        nodes = nodes + node ~> nodes.size
+        parents = parents + i ~> Poset.Internal.emptySet
+        children = children + i ~> Poset.Internal.emptySet
+        i = i + 1
+      }
+      var r = Poset[T](nodes, nodesInverse, parents, children)
+      for (e <- map.entries) {
+        val (n, s) = e
+        r = Poset.Internal.addParents(r, n, s.elements)
+      }
+      return r
+    }
+
+    def parseGraph[V, E](f: () => V, g: () => E): Graph[V, E] = {
+      def parseEdge(): Graph.Internal.Edge[E] = {
+        parseObjectBegin()
+        parseObjectKey("src")
+        val src = parseZ()
+        parseObjectNext()
+        parseObjectKey("dest")
+        val dest = parseZ()
+        val hasData = parseObjectNext()
+        if (hasData) {
+          val data = g()
+          return Graph.Internal.Edge.Data(src, dest, data)
+        } else {
+          return Graph.Internal.Edge.Plain(src, dest)
+        }
+      }
+
+      parseObjectBegin()
+      parseObjectKey("type")
+      val tipe = parseString()
+      parseObjectNext()
+      val multi = tipe == "Graph"
+      parseObjectKey("nodes")
+      val nodesInverse = parseISZ(f)
+      parseObjectNext()
+      parseObjectKey("edges")
+      val edges = parseISZ(parseEdge _)
+      parseObjectNext()
+      var r: Graph[V, E] = if (multi) Graph.emptyMulti else Graph.empty
+      for (node <- nodesInverse) {
+        r = r * node
+      }
+      for (e <- edges) {
+        r = Graph.Internal.addEdge(r, e)
+      }
+      return r
+    }
+
+    def parseUnionFind[T](f: () => T): UnionFind[T] = {
+      parseObjectType("UnionFind")
+      parseObjectKey("elements")
+      val elementsInverse = parseISZ(f)
+      parseObjectNext()
+      parseObjectKey("parentOf")
+      val parentOf = parseISZ(parseZ _)
+      parseObjectNext()
+      parseObjectKey("sizeOf")
+      val sizeOf = parseISZ(parseZ _)
+      parseObjectNext()
+      var elements = HashMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
+      for (e <- elementsInverse) {
+        elements = elements + e ~> elements.size
+      }
+      return UnionFind(elements, elementsInverse, parentOf, sizeOf)
     }
 
     def at(i: Z): C = {
