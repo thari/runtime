@@ -42,13 +42,13 @@ class DatatypeRecordTest extends SireumRuntimeSpec {
   }
 
   * {
-    var a = $Foo(5, $Bar(4, ISZ(1, 2, 3)))
+    var a = _Foo(5, _Bar(4, ISZ(1, 2, 3)))
 
     a = a(x = 6)
     a = a(y = a.y(z = 7))
     a = a(y = a.y(zz = a.y.zz(z"0" ~> z"8")))
 
-    a =~= $Foo(6, $Bar(7, ISZ(8, 2, 3)))
+    a =~= _Foo(6, _Bar(7, ISZ(8, 2, 3)))
   }
 
   * {

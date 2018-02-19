@@ -25,7 +25,6 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 package org.sireum
 
 @bits(signed = T, width = 16, min = -2, index = true) class S16_m2
@@ -40,11 +39,12 @@ package org.sireum
 
 @datatype class Bazz()
 
-@datatype class $Foo(x: Z, y: $Bar)
+@datatype class _Foo(x: Z, y: _Bar)
 
-@datatype class $Bar(z: Z, zz: ISZ[Z])
+@datatype class _Bar(z: Z, zz: ISZ[Z])
 
 @record class Bazzz[T](var x: T) {
+
   def updateX(newX: T): Unit = {
     x = newX
   }
@@ -72,12 +72,14 @@ package org.sireum
 @range(min = -1, max = 16) class M1_16
 
 object F2MessagePack {
+
   object Constants {
     val Foo: Z = 0
     val Bar: Z = 1
   }
 
   @record class Writer(writer: MessagePack.Writer) {
+
     def writeF2(o: F2): Unit = {
       o match {
         case o: Foo => writeFoo(o)
@@ -144,12 +146,11 @@ object F2MessagePack {
 
   }
 
-  def writer(poolString: B): Writer = {
-    return Writer(MessagePack.writer(poolString))
+  def writer(pooling: B): Writer = {
+    return Writer(MessagePack.writer(pooling))
   }
 
   def reader(data: ISZ[U8]): Reader = {
     return Reader(MessagePack.reader(data))
   }
 }
-
