@@ -552,6 +552,43 @@ object Json {
       )
     }
 
+    @pure def printMessage(o: message.Message): ST = {
+      return printObject(
+        ISZ(
+          ("type", printString("Message")),
+          ("level", printZ(o.level.ordinal)),
+          ("posOpt", printOption(o.posOpt, printPosition _)),
+          ("kind", printString(o.kind)),
+          ("message", printString(o.text))
+        )
+      )
+    }
+
+    @pure def printPosition(o: message.Position): ST = {
+      return printObject(
+        ISZ(
+          ("type", printString("Position")),
+          ("uriOpt", printOption(o.uriOpt, printString _)),
+          ("beginLine", printZ(o.beginLine)),
+          ("beginColumn", printZ(o.beginColumn)),
+          ("endLine", printZ(o.endLine)),
+          ("endColumn", printZ(o.endColumn)),
+          ("offset", printZ(o.offset)),
+          ("length", printZ(o.length))
+        )
+      )
+    }
+
+    @pure def printDocInfo(o: message.DocInfo): ST = {
+      return printObject(
+        ISZ(
+          ("type", printString("Position")),
+          ("uriOpt", printOption(o.uriOpt, printString _)),
+          ("lineOffsets", printISZ(T, o.lineOffsets, printU32 _))
+        )
+      )
+    }
+
     @pure def printString(s: String): ST = {
       var r = ISZ[C]()
       for (c <- conversions.String.toCis(s)) {
@@ -1676,7 +1713,6 @@ object Json {
       return HashBag(map)
     }
 
-
     def parsePoset[T](f: () => T): Poset[T] = {
       def g(): HashSet[Poset.Index] = {
         val r = parseHashSet(parseZ _)
@@ -1762,6 +1798,59 @@ object Json {
         elements = elements + e ~> elements.size
       }
       return UnionFind(elements, elementsInverse, parentOf, sizeOf)
+    }
+
+    def parseMessage(): message.Message = {
+      parseObjectType("Message")
+      parseObjectKey("level")
+      val level = message.Level.byOrdinal(parseZ()).getOrElse(message.Level.InternalError)
+      parseObjectNext()
+      parseObjectKey("posOpt")
+      val posOpt = parseOption(parsePosition _)
+      parseObjectNext()
+      parseObjectKey("kind")
+      val kind = parseString()
+      parseObjectNext()
+      parseObjectKey("message")
+      val msg = parseString()
+      return message.Message(level, posOpt, kind, msg)
+    }
+
+    def parsePosition(): message.Position = {
+      parseObjectType("Position")
+      parseObjectKey("uriOpt")
+      val uriOpt = parseOption(parseString _)
+      parseObjectNext()
+      parseObjectKey("beginLine")
+      val beginLine = parseU32()
+      parseObjectNext()
+      parseObjectKey("beginColumn")
+      val beginColumn = parseU32()
+      parseObjectNext()
+      parseObjectKey("endLine")
+      val endLine = parseU32()
+      parseObjectNext()
+      parseObjectKey("endColumn")
+      val endColumn = parseU32()
+      parseObjectNext()
+      parseObjectKey("offset")
+      val offset = parseU32()
+      parseObjectNext()
+      parseObjectKey("length")
+      val length = parseU32()
+      parseObjectNext()
+      return message.FlatPos(uriOpt, beginLine, beginColumn, endLine, endColumn, offset, length)
+    }
+
+    def parseDocInfo(): message.DocInfo = {
+      parseObjectType("Position")
+      parseObjectKey("uriOpt")
+      val uriOpt = parseOption(parseString _)
+      parseObjectNext()
+      parseObjectKey("lineOffsets")
+      val lineOffsets = parseISZ(parseU32 _)
+      parseObjectNext()
+      return message.DocInfo(uriOpt, lineOffsets)
     }
 
     def at(i: Z): C = {

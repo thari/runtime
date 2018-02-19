@@ -642,6 +642,36 @@ object MessagePack {
       writeISZ(o.sizeOf, writeZ _)
     }
 
+    def writeMessage(o: message.Message): Unit = {
+      writeZ(o.level.ordinal)
+      writeOption(o.posOpt, writePosition _)
+      writeString(o.kind)
+      writeString(o.text)
+    }
+
+    def writePosition(o: message.Position): Unit = {
+      o match {
+        case o: message.PosInfo =>
+          writeB(T)
+          writeDocInfo(o.info)
+          writeU64(o.offsetLength)
+        case o: message.FlatPos =>
+          writeB(F)
+          writeOption(o.uriOpt, writeString _)
+          writeU32(o.beginLine32)
+          writeU32(o.beginColumn32)
+          writeU32(o.endLine32)
+          writeU32(o.endColumn32)
+          writeU32(o.offset32)
+          writeU32(o.length32)
+      }
+    }
+
+    def writeDocInfo(o: message.DocInfo): Unit = {
+      writeOption(o.uriOpt, writeString _)
+      writeISZ(o.lineOffsets, writeU32 _)
+    }
+
     def writeArrayHeader(n: Z): Unit
 
     def writeBinary(array: ISZ[U8]): Unit
@@ -1812,6 +1842,38 @@ object MessagePack {
         elements = elements + e ~> elements.size
       }
       return UnionFind(elements, elementsInverse, parentOf, sizeOf)
+    }
+
+    def readMessage(): message.Message = {
+      val level = message.Level.byOrdinal(readZ()).getOrElse(message.Level.InternalError)
+      val posOpt = readOption(readPosition _)
+      val kind = readString()
+      val text = readString()
+      return message.Message(level, posOpt, kind, text)
+    }
+
+    def readPosition(): message.Position = {
+      val isPosInfo = readB()
+      if (isPosInfo) {
+        val info = readDocInfo()
+        val offsetLength = readU64()
+        return message.PosInfo(info, offsetLength)
+      } else {
+        val uriOpt = readOption(readString _)
+        val beginLine = readU32()
+        val beginColumn = readU32()
+        val endLine = readU32()
+        val endColumn = readU32()
+        val offset = readU32()
+        val length = readU32()
+        return message.FlatPos(uriOpt, beginLine, beginColumn, endLine, endColumn, offset, length)
+      }
+    }
+
+    def readDocInfo(): message.DocInfo = {
+      val uriOpt = readOption(readString _)
+      val lineOffsets = readISZ(readU32 _)
+      return message.DocInfo(uriOpt, lineOffsets)
     }
 
     def readArrayHeader(): Z

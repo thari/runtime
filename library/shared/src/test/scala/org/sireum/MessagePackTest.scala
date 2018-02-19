@@ -436,6 +436,23 @@ class MessagePackTest extends SireumRuntimeSpec {
       }
       check(poolString, o, (w) => w.writeUnionFind(o, w.writeZ _), (r) => r.readUnionFind(r.readZ _))
     }
+
+    {
+      import org.sireum.U32._
+      val o = message.FlatPos(Some("Hi.txt"), u32"1", u32"1", u32"1", u32"1", u32"1", u32"1")
+      check(poolString, o, (w) => w.writePosition(o), (r) => r.readPosition())
+    }
+
+    {
+      import org.sireum.U32._
+      val o = message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40"))
+      check(poolString, o, (w) => w.writeDocInfo(o), (r) => r.readDocInfo())
+    }
+
+    {
+      val o = message.Message(message.Level.Info, None(), "test", "test info")
+      check(poolString, o, (w) => w.writeMessage(o), (r) => r.readMessage())
+    }
   }
 
   def check[T](poolString: B, n: T, f: MessagePack.Writer => Unit, g: MessagePack.Reader => T)(

@@ -223,6 +223,31 @@ class JsonTest extends SireumRuntimeSpec {
     p.errorOpt.isEmpty && o == o2
   }
 
+  * {
+    import org.sireum.U32._
+    val o = message.FlatPos(Some("Hi.txt"), u32"1", u32"1", u32"1", u32"1", u32"1", u32"1")
+    val s = Json.Printer.printPosition(o).render
+    val p = Json.Parser.create(s)
+    val o2 = p.parsePosition()
+    p.errorOpt.isEmpty && o == o2
+  }
+
+  * {
+    import org.sireum.U32._
+    val o = message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40"))
+    val s = Json.Printer.printDocInfo(o).render
+    val p = Json.Parser.create(s)
+    val o2 = p.parseDocInfo()
+    p.errorOpt.isEmpty && o == o2
+  }
+
+  * {
+    val o = message.Message(message.Level.Info, None(), "test", "test info")
+    val s = Json.Printer.printMessage(o).render
+    val p = Json.Parser.create(s)
+    val o2 = p.parseMessage()
+    p.errorOpt.isEmpty && o == o2
+  }
 
   def oPrettyParse(s: Predef.String): Predef.String = Json.printAst(JsonAst.Binding, parseTopObject(s)).render.value
 
