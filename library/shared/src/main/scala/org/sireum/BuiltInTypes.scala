@@ -56,6 +56,8 @@ trait DatatypeSig extends Immutable with DatatypeMarker {
   def $content: scala.Seq[(_root_.java.lang.String, scala.Any)]
 
   def hash: Z = hashCode
+
+  override def string: String = halt("Infeasible")
 }
 
 
@@ -89,4 +91,6 @@ trait RecordSig extends Mutable {
   def $content: scala.Seq[(_root_.java.lang.String, scala.Any)]
 
   def hash: Z = hashCode
+
+  override def string: String = halt("Infeasible")
 }
