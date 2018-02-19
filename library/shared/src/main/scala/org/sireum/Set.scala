@@ -119,7 +119,7 @@ object Set {
     return map.keys
   }
 
-  @pure def string: String = {
+  @pure override def string: String = {
     val r =
       st"""{
       |  ${(elements, ",\n")}

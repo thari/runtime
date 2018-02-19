@@ -121,7 +121,7 @@ object HashSSet {
     return map.keys.elements
   }
 
-  @pure def string: String = {
+  @pure override def string: String = {
     val r =
       st"""{
       |  ${(elements, ",\n")}

@@ -145,7 +145,7 @@ object Map {
     return entries.size
   }
 
-  @pure def string: String = {
+  @pure override def string: String = {
     val r = st"""{
     |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
     |}"""
