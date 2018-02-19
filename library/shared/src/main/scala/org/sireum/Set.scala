@@ -99,6 +99,10 @@ object Set {
     return map.isEqual(other.map)
   }
 
+  @pure override def hash: Z = {
+    return map.hash
+  }
+
   @pure def isEmpty: B = {
     return size == z"0"
   }
