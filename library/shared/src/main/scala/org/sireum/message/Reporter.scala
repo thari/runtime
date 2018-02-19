@@ -28,6 +28,17 @@ package org.sireum.message
 
 import org.sireum._
 
+object Reporter {
+
+  @pure def create: Reporter = {
+    return Reporter(ISZ())
+  }
+
+  @pure def combine(r1: Reporter, r2: Reporter): Reporter = {
+    return Reporter(r1.messages ++ r2.messages)
+  }
+}
+
 @record class Reporter(var messages: ISZ[Message]) {
 
   def hasInternalError: B = {
