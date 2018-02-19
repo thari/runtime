@@ -51,6 +51,7 @@ object MessagePack {
 
   val TimestampExtType: S8 = s8"-1"
   val StringPoolExtType: S8 = s8"0"
+  val DocInfoExtType: S8 = s8"0"
 
   object Code {
     val POSFIXINT_MASK: U8 = u8"0x80"
@@ -649,28 +650,9 @@ object MessagePack {
       writeString(o.text)
     }
 
-    def writePosition(o: message.Position): Unit = {
-      o match {
-        case o: message.PosInfo =>
-          writeB(T)
-          writeDocInfo(o.info)
-          writeU64(o.offsetLength)
-        case o: message.FlatPos =>
-          writeB(F)
-          writeOption(o.uriOpt, writeString _)
-          writeU32(o.beginLine32)
-          writeU32(o.beginColumn32)
-          writeU32(o.endLine32)
-          writeU32(o.endColumn32)
-          writeU32(o.offset32)
-          writeU32(o.length32)
-      }
-    }
+    def writePosition(o: message.Position): Unit
 
-    def writeDocInfo(o: message.DocInfo): Unit = {
-      writeOption(o.uriOpt, writeString _)
-      writeISZ(o.lineOffsets, writeU32 _)
-    }
+    def writeDocInfo(o: message.DocInfo): Unit
 
     def writeArrayHeader(n: Z): Unit
 
@@ -687,11 +669,13 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(val poolString: B, val buf: MSZ[U8], var size: Z, var stringPool: HashSMap[String, Z])
-        extends Writer {
+    @record class Impl(val pooling: B, val buf: MSZ[U8], var size: Z) extends Writer {
+
+      var stringPool: HashSMap[String, Z] = HashSMap.emptyInit(1024)
+      var docInfoPool: HashSMap[message.DocInfo, Z] = HashSMap.emptyInit(1024)
 
       def result: ISZ[U8] = {
-        if (poolString) {
+        if (pooling) {
           val strings = stringPool.keys.elements
           val poolBufferSize: Z = {
             var r: Z = 0
@@ -700,24 +684,28 @@ object MessagePack {
             }
             r + 4
           }
-          val (stringPoolBuf, stringPoolBufSize): (MSZ[U8], Z) = {
-            val r = Impl(F, MSZ.create(poolBufferSize, u8"0"), 0, HashSMap.empty)
+          val (poolBuf, poolBufSize): (MSZ[U8], Z) = {
+            val r = Impl(F, MSZ.create(poolBufferSize, u8"0"), 0)
             r.writeExtTypeHeader(StringPoolExtType, strings.size)
             for (s <- strings) {
-              r.writeStringConstant(s)
+              r.writeStringNoPool(s)
+            }
+            r.writeExtTypeHeader(DocInfoExtType, docInfoPool.size)
+            for (di <- docInfoPool.keys.elements) {
+              r.writeDocInfoNoPool(di)
             }
             (r.buf, r.size)
           }
 
-          val r = MSZ.create(stringPoolBufSize + size, u8"0")
+          val r = MSZ.create(poolBufSize + size, u8"0")
           var i = 0
-          while (i < stringPoolBufSize) {
-            r(i) = stringPoolBuf(i)
+          while (i < poolBufSize) {
+            r(i) = poolBuf(i)
             i = i + 1
           }
           i = 0
           while (i < size) {
-            r(i + stringPoolBufSize) = buf(i)
+            r(i + poolBufSize) = buf(i)
             i = i + 1
           }
           return r.toIS
@@ -1011,7 +999,7 @@ object MessagePack {
         addU8(if (b) Code.TRUE else Code.FALSE)
       }
 
-      def writeStringConstant(s: String): Unit = {
+      def writeStringNoPool(s: String): Unit = {
         val size = s.size
         writeZ(size)
         val cis = conversions.String.toCis(s)
@@ -1021,7 +1009,7 @@ object MessagePack {
       }
 
       /*
-      def writeStringConstant(s: String): Unit = {
+      def writeStringNoPool(s: String): Unit = {
         val bis = conversions.String.toBis(s)
         val len = bis.size
         if (len < 32 /* 1 << 5 */ ) {
@@ -1045,11 +1033,11 @@ object MessagePack {
       def writeString(s: String): Unit = {
         l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
 
-        if (poolString) {
+        if (pooling) {
           val i = addString(s)
           writeZ(i)
         } else {
-          writeStringConstant(s)
+          writeStringNoPool(s)
         }
       }
 
@@ -1094,6 +1082,45 @@ object MessagePack {
           addU8(e)
         }
       }
+
+      def writePosition(o: message.Position): Unit = {
+        o match {
+          case o: message.PosInfo if pooling =>
+            writeB(T)
+            writeDocInfo(o.info)
+            writeU64(o.offsetLength)
+          case _ =>
+            writeB(F)
+            writeOption(o.uriOpt, writeString _)
+            writeU32(conversions.Z.toU32(o.beginLine))
+            writeU32(conversions.Z.toU32(o.beginColumn))
+            writeU32(conversions.Z.toU32(o.endLine))
+            writeU32(conversions.Z.toU32(o.endColumn))
+            writeU32(conversions.Z.toU32(o.offset))
+            writeU32(conversions.Z.toU32(o.length))
+        }
+      }
+
+      def writeDocInfoNoPool(o: message.DocInfo): Unit = {
+        writeOption(o.uriOpt, writeString _)
+        writeISZ(o.lineOffsets, writeU32 _)
+      }
+
+      def writeDocInfo(o: message.DocInfo): Unit = {
+        if (pooling) {
+          val n: Z = docInfoPool.get(o) match {
+            case Some(m) => m
+            case _ =>
+              val m = docInfoPool.size
+              docInfoPool = docInfoPool + o ~> m
+              m
+          }
+          writeZ(n)
+        } else {
+          writeDocInfoNoPool(o)
+        }
+      }
+
     }
 
   }
@@ -1870,11 +1897,7 @@ object MessagePack {
       }
     }
 
-    def readDocInfo(): message.DocInfo = {
-      val uriOpt = readOption(readString _)
-      val lineOffsets = readISZ(readU32 _)
-      return message.DocInfo(uriOpt, lineOffsets)
-    }
+    def readDocInfo(): message.DocInfo
 
     def readArrayHeader(): Z
 
@@ -1895,7 +1918,10 @@ object MessagePack {
 
   object Reader {
 
-    @record class Impl(buf: ISZ[U8], var curr: Z, val stringPool: MSZ[String], var poolString: B) extends Reader {
+    @record class Impl(buf: ISZ[U8], var curr: Z) extends Reader {
+      var pooling: B = F
+      val stringPool: MSZ[String] = MSZ()
+      val docInfoPool: MSZ[message.DocInfo] = MSZ()
 
       var errorOpt: Option[ErrorMsg] = None()
 
@@ -1904,17 +1930,30 @@ object MessagePack {
       def init(): Unit = {
         initialized = T
         val r = peek()
-        poolString = Code.isExt(r)
-        if (poolString) {
-          val pOpt = readExtTypeHeader()
+        pooling = Code.isExt(r)
+        if (pooling) {
+          var pOpt = readExtTypeHeader()
           pOpt match {
             case Some((t, size)) =>
               assert(t == StringPoolExtType)
               stringPool.expand(size, "")
               var i = 0
               while (i < size) {
-                val s = readStringConstant()
+                val s = readStringNoPool()
                 stringPool(i) = s
+                i = i + 1
+              }
+            case _ =>
+          }
+          pOpt = readExtTypeHeader()
+          pOpt match {
+            case Some((t, size)) =>
+              assert(t == DocInfoExtType)
+              docInfoPool.expand(size, message.DocInfo(None(), ISZ()))
+              var i = 0
+              while (i < size) {
+                val docInfo = readDocInfoNoPool()
+                docInfoPool(i) = docInfo
                 i = i + 1
               }
             case _ =>
@@ -2068,7 +2107,7 @@ object MessagePack {
         return conversions.U64.toRawF64(n)
       }
 
-      def readStringConstant(): String = {
+      def readStringNoPool(): String = {
         val size = readZ()
         val ms = MSZ.create[C](size, '\u0000')
         for (i <- z"0" until size) {
@@ -2079,7 +2118,7 @@ object MessagePack {
       }
 
       /*
-      def readStringConstant(): String = {
+      def readStringNoPool(): String = {
         val code = read8()
         val len: Z = {
           var r: Z = 0
@@ -2111,12 +2150,28 @@ object MessagePack {
       }
        */
 
+      def readDocInfo(): message.DocInfo = {
+        if (pooling) {
+          val n = readZ()
+          return docInfoPool(n)
+        } else {
+          val r = readDocInfoNoPool()
+          return r
+        }
+      }
+
+      def readDocInfoNoPool(): message.DocInfo = {
+        val uriOpt = readOption(readString _)
+        val lineOffsets = readISZ(readU32 _)
+        return message.DocInfo(uriOpt, lineOffsets)
+      }
+
       def readString(): String = {
-        if (poolString) {
+        if (pooling) {
           val index = readZ()
           return stringPool(index)
         } else {
-          val r = readStringConstant()
+          val r = readStringNoPool()
           return r
         }
       }
@@ -2252,11 +2307,11 @@ object MessagePack {
 
   }
 
-  def writer(poolString: B): Writer.Impl = {
-    return Writer.Impl(poolString, MS.create(1024, u8"0"), 0, HashSMap.emptyInit(1024))
+  def writer(pooling: B): Writer.Impl = {
+    return Writer.Impl(pooling, MS.create(1024, u8"0"), 0)
   }
 
   def reader(data: ISZ[U8]): Reader.Impl = {
-    return Reader.Impl(data, 0, MSZ(), F)
+    return Reader.Impl(data, 0)
   }
 }
