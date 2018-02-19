@@ -141,10 +141,6 @@ import org.sireum.U64._
   @pure override def length: Z = {
     return conversions.U32.toZ(length32)
   }
-
-  @pure override def string: String = {
-    return super.string
-  }
 }
 
 @datatype class PosInfo(info: DocInfo, offsetLength: U64) extends Position {
@@ -177,10 +173,6 @@ import org.sireum.U64._
 
   @pure override def length: Z = {
     return conversions.U64.toZ(offsetLength & u64"0xFFFFFFFF")
-  }
-
-  @pure override def string: String = {
-    return super.string
   }
 }
 
