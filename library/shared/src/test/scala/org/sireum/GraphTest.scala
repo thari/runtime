@@ -80,7 +80,7 @@ class GraphTest extends SireumRuntimeSpec {
       while (r == n) {
         r = Z.random
       }
-      return n
+      return r
     }
   }
 }
