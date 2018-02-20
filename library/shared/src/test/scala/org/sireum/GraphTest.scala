@@ -35,7 +35,7 @@ class GraphTest extends SireumRuntimeSpec {
     * {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
-      val n2 = n1 + Z.random + 1
+      val n2 = differentRandom(n1)
       val g = graph +@ n1 ~> n2 ~> "out"
       g.incoming(n1).isEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).isEmpty && g.incoming(n1) == g.outgoing(1)
@@ -44,7 +44,7 @@ class GraphTest extends SireumRuntimeSpec {
     * {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
-      val n2 = n1 + Z.random + 1
+      val n2 = differentRandom(n1)
       var g = graph + n1 ~> n2
       g = g + n2 ~> n1
       g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
@@ -54,7 +54,7 @@ class GraphTest extends SireumRuntimeSpec {
     * {
       val graph = Graph.empty[Z, String]
       val n1 = Z.random
-      val n2 = n1 + Z.random + 1
+      val n2 = differentRandom(n1)
       var g = graph + n1 ~> n2
       g = g + n2 ~> n1
       g = g + n1 ~> n2
@@ -66,13 +66,21 @@ class GraphTest extends SireumRuntimeSpec {
     * {
       val graph = Graph.emptyMulti[Z, String]
       val n1 = Z.random
-      val n2 = n1 + Z.random + 1
+      val n2 = differentRandom(n1)
       var g = graph + n1 ~> n2
       g = g + n2 ~> n1
       g = g + n1 ~> n2
       g.incoming(n1).nonEmpty && g.outgoing(n1).elements.forall(e => e.source == n1 && e.dest == n2) &&
         g.outgoing(n2).nonEmpty && g.incoming(n1) == g.outgoing(n2) && g.outgoing(n1) == g.incoming(n2) &&
         g.outgoing(n1).elements.size == 2
+    }
+
+    def differentRandom(n: Z): Z = {
+      var r = Z.random
+      while (r == n) {
+        r = Z.random
+      }
+      return n
     }
   }
 }
