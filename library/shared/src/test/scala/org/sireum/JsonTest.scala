@@ -81,7 +81,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   * {
     val o = Either.Left[Z, String](Z.random)
-    val s = Json.Printer.printEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
+    val s = Json.Printer.printEither(T, o, Json.Printer.printZ _, Json.Printer.printString _).render
     val p = Json.Parser.create(s)
     val o2 = p.parseEither[Z, String](p.parseZ _, p.parseString _)
     p.errorOpt.isEmpty && o == o2
@@ -89,7 +89,7 @@ class JsonTest extends SireumRuntimeSpec {
 
   * {
     val o = MEither.Right[Z, String](String.random)
-    val s = Json.Printer.printMEither(o, Json.Printer.printZ _, Json.Printer.printString _).render
+    val s = Json.Printer.printMEither(T, o, Json.Printer.printZ _, Json.Printer.printString _).render
     val p = Json.Parser.create(s)
     val o2 = p.parseMEither[Z, String](p.parseZ _, p.parseString _)
     p.errorOpt.isEmpty && o == o2

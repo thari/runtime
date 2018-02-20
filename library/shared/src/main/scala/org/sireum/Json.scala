@@ -334,7 +334,7 @@ object Json {
       return printMS(isSimple, s.map(printZ _))
     }
 
-    @pure def printOption[T](o: Option[T], f: T => ST): ST = {
+    @pure def printOption[T](isSimple: B, o: Option[T], f: T => ST): ST = {
       o match {
         case Some(t) =>
           return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
@@ -342,7 +342,7 @@ object Json {
       }
     }
 
-    @pure def printMOption[T](o: MOption[T], f: T => ST): ST = {
+    @pure def printMOption[T](isSimple: B, o: MOption[T], f: T => ST): ST = {
       o match {
         case MSome(t) =>
           return printObject(ISZ(("type", printString("Some")), ("value", f(t))))
@@ -350,7 +350,7 @@ object Json {
       }
     }
 
-    @pure def printEither[L, R](o: Either[L, R], f0: L => ST, f1: R => ST): ST = {
+    @pure def printEither[L, R](isSimple: B, o: Either[L, R], f0: L => ST, f1: R => ST): ST = {
       o match {
         case Either.Left(l) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
@@ -360,7 +360,7 @@ object Json {
       }
     }
 
-    @pure def printMEither[L, R](o: MEither[L, R], f0: L => ST, f1: R => ST): ST = {
+    @pure def printMEither[L, R](isSimple: B, o: MEither[L, R], f0: L => ST, f1: R => ST): ST = {
       o match {
         case MEither.Left(l) =>
           return printObject(ISZ(("type", printString("Or")), ("i", printZ(0)), ("value", f0(l))))
@@ -557,7 +557,7 @@ object Json {
         ISZ(
           ("type", printString("Message")),
           ("level", printZ(o.level.ordinal)),
-          ("posOpt", printOption(o.posOpt, printPosition _)),
+          ("posOpt", printOption(F, o.posOpt, printPosition _)),
           ("kind", printString(o.kind)),
           ("message", printString(o.text))
         )
@@ -568,7 +568,7 @@ object Json {
       return printObject(
         ISZ(
           ("type", printString("Position")),
-          ("uriOpt", printOption(o.uriOpt, printString _)),
+          ("uriOpt", printOption(T, o.uriOpt, printString _)),
           ("beginLine", printZ(o.beginLine)),
           ("beginColumn", printZ(o.beginColumn)),
           ("endLine", printZ(o.endLine)),
@@ -583,7 +583,7 @@ object Json {
       return printObject(
         ISZ(
           ("type", printString("Position")),
-          ("uriOpt", printOption(o.uriOpt, printString _)),
+          ("uriOpt", printOption(T, o.uriOpt, printString _)),
           ("lineOffsets", printISZ(T, o.lineOffsets, printU32 _))
         )
       )
