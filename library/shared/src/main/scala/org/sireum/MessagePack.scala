@@ -51,7 +51,8 @@ object MessagePack {
 
   val TimestampExtType: S8 = s8"-1"
   val StringPoolExtType: S8 = s8"0"
-  val DocInfoExtType: S8 = s8"0"
+  val DocInfoExtType: S8 = s8"1"
+  val LastExtType: S8 = DocInfoExtType
 
   object Code {
     val POSFIXINT_MASK: U8 = u8"0x80"
@@ -1129,6 +1130,10 @@ object MessagePack {
 
     def init(): Unit
 
+    def error(offset: Z, msg: String): Unit
+
+    def curr: Z
+
     def readB(): B
 
     def readC(): C = {
@@ -1963,6 +1968,10 @@ object MessagePack {
 
       def peek(): U8 = {
         if (errorOpt.nonEmpty) {
+          return u8"0"
+        }
+        if (curr >= buf.size) {
+          error(curr, "Attempted to read more byte than available.")
           return u8"0"
         }
         return buf(curr)
