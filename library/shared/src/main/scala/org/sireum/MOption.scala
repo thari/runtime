@@ -26,7 +26,19 @@
 
 package org.sireum
 
+object MOption {
+
+  @pure def some[T](value: T): MOption[T] = {
+    return MSome(value)
+  }
+
+  @pure def none[T](): MOption[T] = {
+    return MNone()
+  }
+}
+
 @record trait MOption[T] {
+
   @pure def isEmpty: B
 
   @pure def nonEmpty: B
@@ -98,7 +110,6 @@ package org.sireum
 
   def foreach(f: T => Unit): Unit = {}
 }
-
 
 @record class MSome[T](value: T) extends MOption[T] {
 

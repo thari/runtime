@@ -26,7 +26,19 @@
 
 package org.sireum
 
+object Option {
+
+  @pure def some[T](value: T): Option[T] = {
+    return Some(value)
+  }
+
+  @pure def none[T](): Option[T] = {
+    return None()
+  }
+}
+
 @datatype trait Option[T] {
+
   @pure def isEmpty: B
 
   @pure def nonEmpty: B
@@ -98,7 +110,6 @@ package org.sireum
 
   def foreach(f: T => Unit): Unit = {}
 }
-
 
 @datatype class Some[T](value: T) extends Option[T] {
 

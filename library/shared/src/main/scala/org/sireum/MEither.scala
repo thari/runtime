@@ -105,4 +105,12 @@ object MEither {
 
   }
 
+  @pure def left[L, R](value: L): MEither[L, R] = {
+    return Left(value)
+  }
+
+  @pure def right[L, R](value: R): MEither[L, R] = {
+    return Right(value)
+  }
+
 }

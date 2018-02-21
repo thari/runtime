@@ -105,4 +105,11 @@ object Either {
 
   }
 
+  @pure def left[L, R](value: L): Either[L, R] = {
+    return Left(value)
+  }
+
+  @pure def right[L, R](value: R): Either[L, R] = {
+    return Right(value)
+  }
 }
