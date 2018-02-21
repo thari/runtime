@@ -41,6 +41,8 @@ object Reporter {
 
 @record class Reporter(var messages: ISZ[Message]) {
 
+  var ignore: B = F
+
   def hasInternalError: B = {
     for (m <- messages) {
       m.level match {
@@ -105,7 +107,9 @@ object Reporter {
 
   def report(m: Message): Unit = {
     //assert(m.fileUriOpt.isEmpty || !ops.ISZOps(messages).contains(m))
-    messages = messages :+ m
+    if (!ignore) {
+      messages = messages :+ m
+    }
   }
 
   def messagesByFileUri: HashSMap[Option[String], ISZ[Message]] = {
@@ -172,19 +176,27 @@ object Reporter {
   }
 
   def internalError(posOpt: Option[Position], kind: String, message: String): Unit = {
-    report(Message(Level.InternalError, posOpt, kind, message))
+    if (!ignore) {
+      report(Message(Level.InternalError, posOpt, kind, message))
+    }
   }
 
   def error(posOpt: Option[Position], kind: String, message: String): Unit = {
-    report(Message(Level.Error, posOpt, kind, message))
+    if (!ignore) {
+      report(Message(Level.Error, posOpt, kind, message))
+    }
   }
 
   def warn(posOpt: Option[Position], kind: String, message: String): Unit = {
-    report(Message(Level.Warning, posOpt, kind, message))
+    if (!ignore) {
+      report(Message(Level.Warning, posOpt, kind, message))
+    }
   }
 
   def info(posOpt: Option[Position], kind: String, message: String): Unit = {
-    report(Message(Level.Info, posOpt, kind, message))
+    if (!ignore) {
+      report(Message(Level.Info, posOpt, kind, message))
+    }
   }
 
   def reports(ms: ISZ[Message]): Unit = {
