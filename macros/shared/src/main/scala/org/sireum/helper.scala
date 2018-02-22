@@ -26,13 +26,17 @@
 package org.sireum
 
 import org.sireum.$internal.{ImmutableMarker, MutableMarker}
-import spire.math._
 
 import scala.annotation.StaticAnnotation
 
 object helper {
 
   private val topValueError = "Unexpected a value not implementing either Slang Immutable or Mutable."
+  val BigInt0: BigInt = BigInt(0)
+  val UByteMax: BigInt = BigInt(255)
+  val UShortMax: BigInt = BigInt(65535)
+  val UIntMax: BigInt = BigInt(4294967295l)
+  val ULongMax: BigInt = BigInt("18446744073709551615")
 
   def halt(msg: Any): Nothing = {
     val e = new Error(msg.toString)
@@ -64,19 +68,19 @@ object helper {
     }
   }
 
-  def isUByte(n: BigInt): Boolean = UByte.MinValue.toBigInt <= n && n <= UByte.MaxValue.toBigInt
+  def isUByte(n: BigInt): Boolean = BigInt0 <= n && n <= UByteMax
 
   def isByte(n: BigInt): Boolean = Byte.MinValue.toInt <= n && n <= Byte.MaxValue.toInt
 
-  def isUShort(n: BigInt): Boolean = UShort.MinValue.toBigInt <= n && n <= UShort.MaxValue.toBigInt
+  def isUShort(n: BigInt): Boolean = BigInt0 <= n && n <= UShortMax
 
   def isShort(n: BigInt): Boolean = Short.MinValue.toInt <= n && n <= Short.MaxValue.toInt
 
-  def isUInt(n: BigInt): Boolean = UInt.MinValue.toBigInt <= n && n <= UInt.MaxValue.toBigInt
+  def isUInt(n: BigInt): Boolean = BigInt0 <= n && n <= UIntMax
 
   def isInt(n: BigInt): Boolean = Int.MinValue <= n && n <= Int.MaxValue
 
-  def isULong(n: BigInt): Boolean = ULong.MinValue.toBigInt <= n && n <= ULong.MaxValue.toBigInt
+  def isULong(n: BigInt): Boolean = BigInt0 <= n && n <= ULongMax
 
   def isLong(n: BigInt): Boolean = Long.MinValue <= n && n <= Long.MaxValue
 

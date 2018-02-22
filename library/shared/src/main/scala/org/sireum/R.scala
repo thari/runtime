@@ -25,16 +25,14 @@
 
 package org.sireum
 
-import spire.math.Real
-
 object R {
 
   object Boxer extends $internal.Boxer {
     def box[T](o: scala.Any): T = o match {
-      case o: Real => R(o).asInstanceOf[T]
+      case o: BigDecimal => R(o).asInstanceOf[T]
     }
 
-    def unbox(o: scala.Any): Real = o match {
+    def unbox(o: scala.Any): BigDecimal = o match {
       case o: R => o.value
     }
 
@@ -48,28 +46,28 @@ object R {
     case _: Throwable => None[R]()
   }
 
-  def apply(f: scala.Float): R = Real(f)
+  def apply(f: scala.Float): R = BigDecimal(f.toDouble)
 
-  def apply(d: scala.Double): R = Real(d)
+  def apply(d: scala.Double): R = BigDecimal(d)
 
-  def apply(n: Z): R = Real(n.toBigInt)
+  def apply(n: Z): R = R(BigDecimal(n.toBigInt))
 
   object $String {
-    def apply(s: Predef.String): R = Real(s)
+    def apply(s: Predef.String): R = R(BigDecimal(s))
   }
 
   def random: R = {
-    val d = Z.random.toBigInt
-    Real(spire.math.Rational(Z.random.toBigInt, if (d == 0) BigInt(1) else d))
+    val d = Z.random
+    R(Z.random) / (if (d == 0) R(Z.MP.one) else R(d))
   }
 
   import scala.language.implicitConversions
 
-  implicit def apply(r: Real): R = new R(r)
+  implicit def apply(r: BigDecimal): R = new R(r)
 
 }
 
-final class R(val value: Real) extends AnyVal with Number with $internal.HasBoxer {
+final class R(val value: BigDecimal) extends AnyVal with Number with $internal.HasBoxer {
 
   @inline def unary_- : R = -value
 

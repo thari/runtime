@@ -1532,11 +1532,11 @@ object R_Ext {
 
   @pure def toB(n: R): B = n != r"0.0"
 
-  @pure def toZ(n: R): Z = org.sireum.Z(n.value.floor.apply(0).toBigInt)
+  @pure def toZ(n: R): Z = org.sireum.Z(n.value.toBigInt)
 
   @pure def toN(n: R): N = {
     require(n >= r"0.0")
-    org.sireum.N(n.value.floor.apply(0).toBigInt)
+    org.sireum.N(n.value.toBigInt)
   }
 
   @pure def toR(n: R): R = n

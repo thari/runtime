@@ -60,8 +60,7 @@ lazy val sireumRuntime = {
 lazy val macros = crossProject.in(file("macros")).settings(commonSettings: _*).settings(
   name := "macros",
   libraryDependencies ++= Seq(
-    "org.scala-lang" % "scala-reflect" % scalaVer,
-    "org.spire-math" %%% "spire" % "0.13.0"
+    "org.scala-lang" % "scala-reflect" % scalaVer
   )
 )
 
@@ -73,6 +72,7 @@ lazy val library = crossProject.in(file("library")).settings(commonSettings: _*)
   libraryDependencies ++= Seq(
     "org.scala-lang.platform" %%% "scalajson" % "1.0.0-M4",
     "org.scalatest" %%% "scalatest" % "3.0.4" % "test",
+    "org.spire-math" %%% "spire" % "0.13.0" % "test"
   ),
   addCompilerPlugin("org.sireum" %% "scalac-plugin" % sireumScalacVersion)
 ).dependsOn(macros)

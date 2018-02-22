@@ -25,8 +25,6 @@
 
 package org.sireum
 
-import spire.math._
-
 object Z extends $ZCompanion[Z] {
 
   type Index = Z
@@ -323,6 +321,131 @@ object Z extends $ZCompanion[Z] {
 
   }
 
+  object U {
+
+    object _8 {
+
+      def apply(value: scala.Byte): _8 = new _8(value)
+
+      def apply(value: scala.Int): _8 = new _8(value.toByte)
+
+    }
+
+    class _8(val value: scala.Byte) extends AnyVal {
+      def unary_- : _8 = _8(-value)
+      def unary_~ : _8 = _8(~value)
+      def +(other: _8): _8 = _8(value + other.value)
+      def -(other: _8): _8 = _8(value - other.value)
+      def *(other: _8): _8 = _8(value * other.value)
+      def /(other: _8): _8 = _8(toInt / other.toInt)
+      def %(other: _8): _8 = _8(toInt % other.toInt)
+      def <<(n: scala.Int): _8 = _8((value & 0xff) << (n & 7))
+      def >>(n: scala.Int): _8 = _8((value & 0xff) >>> (n & 7))
+      def >>>(n: scala.Int): _8 = _8((value & 0xff) >>> (n & 7))
+      def &(other: _8): _8 = _8((value & 0xff) & (other.value & 0xff))
+      def |(other: _8): _8 = _8((value & 0xff) | (other.value & 0xff))
+      def ^(other: _8): _8 = _8((value & 0xff) ^ (other.value & 0xff))
+      def <(other: _8): scala.Boolean = toInt < other.toInt
+      def <=(other: _8): scala.Boolean = toInt <= other.toInt
+      def >(other: _8): scala.Boolean = toInt > other.toInt
+      def >=(other: _8): scala.Boolean = toInt >= other.toInt
+      def toInt: scala.Int = value & 0xff
+      override def toString: Predef.String = toInt.toString
+    }
+
+    object _16 {
+
+      def apply(value: scala.Short): _16 = new _16(value)
+
+      def apply(value: scala.Int): _16 = new _16(value.toShort)
+
+    }
+
+    class _16(val value: scala.Short) extends AnyVal {
+      def unary_- : _16 = _16(-value)
+      def unary_~ : _16 = _16(~value)
+      def +(other: _16): _16 = _16(value + other.value)
+      def -(other: _16): _16 = _16(value - other.value)
+      def *(other: _16): _16 = _16(value * other.value)
+      def /(other: _16): _16 = _16(toInt / other.toInt)
+      def %(other: _16): _16 = _16(toInt % other.toInt)
+      def <<(n: scala.Int): _16 = _16((value & 0xFFFF) << (n & 15))
+      def >>(n: scala.Int): _16 = _16((value & 0xFFFF) >>> (n & 15))
+      def >>>(n: scala.Int): _16 = _16((value & 0xFFFF) >>> (n & 15))
+      def &(other: _16): _16 = _16((value & 0xFFFF) & (other.value & 0xFFFF))
+      def |(other: _16): _16 = _16((value & 0xFFFF) | (other.value & 0xFFFF))
+      def ^(other: _16): _16 = _16((value & 0xFFFF) ^ (other.value & 0xFFFF))
+      def <(other: _16): scala.Boolean = toInt < other.toInt
+      def <=(other: _16): scala.Boolean = toInt <= other.toInt
+      def >(other: _16): scala.Boolean = toInt > other.toInt
+      def >=(other: _16): scala.Boolean = toInt >= other.toInt
+      def toInt: scala.Int = value & 0xFFFF
+      override def toString: Predef.String = toInt.toString
+    }
+
+    object _32 {
+
+      def apply(value: scala.Int): _32 = new _32(value)
+
+      def apply(value: scala.Long): _32 = new _32(value.toInt)
+
+    }
+
+    class _32(val value: scala.Int) extends AnyVal {
+      def unary_- : _32 = _32(-value)
+      def unary_~ : _32 = _32(~value)
+      def +(other: _32): _32 = _32(value + other.value)
+      def -(other: _32): _32 = _32(value - other.value)
+      def *(other: _32): _32 = _32(value * other.value)
+      def /(other: _32): _32 = _32(_root_.java.lang.Integer.divideUnsigned(value, other.value))
+      def %(other: _32): _32 = _32(_root_.java.lang.Integer.remainderUnsigned(value, other.value))
+      def <<(n: scala.Int): _32 = _32(value << n)
+      def >>(n: scala.Int): _32 = _32(value >> n)
+      def >>>(n: scala.Int): _32 = _32(value >>> n)
+      def &(other: _32): _32 = _32(value & other.value)
+      def |(other: _32): _32 = _32(value | other.value)
+      def ^(other: _32): _32 = _32(value ^ other.value)
+      def <(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) < 0
+      def <=(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) <= 0
+      def >(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) > 0
+      def >=(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) >= 0
+      def toLong: scala.Long = value & 0xFFFFFFFFl
+      override def toString: Predef.String = toLong.toString
+    }
+
+    object _64 {
+
+      val NumValues: scala.BigInt = scala.BigInt(1) << 64
+
+      def apply(value: scala.Long): _64 = new _64(value)
+
+    }
+
+    class _64(val value: scala.Long) extends AnyVal {
+      def unary_- : _64 = _64(-value)
+      def unary_~ : _64 = _64(~value)
+      def +(other: _64): _64 = _64(value + other.value)
+      def -(other: _64): _64 = _64(value - other.value)
+      def *(other: _64): _64 = _64(value * other.value)
+      def /(other: _64): _64 = _64(_root_.java.lang.Long.divideUnsigned(value, other.value))
+      def %(other: _64): _64 = _64(_root_.java.lang.Long.remainderUnsigned(value, other.value))
+      def <<(n: scala.Int): _64 = _64(value << n)
+      def >>(n: scala.Int): _64 = _64(value >> n)
+      def >>>(n: scala.Int): _64 = _64(value >>> n)
+      def &(other: _64): _64 = _64(value & other.value)
+      def |(other: _64): _64 = _64(value | other.value)
+      def ^(other: _64): _64 = _64(value ^ other.value)
+      def <(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) < 0
+      def <=(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) <= 0
+      def >(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) > 0
+      def >=(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) >= 0
+      def toBigInt: scala.BigInt =
+        if (value < 0) _64.NumValues + value else scala.BigInt(value)
+      override def toString: Predef.String = _root_.java.lang.Long.toUnsignedString(value)
+    }
+
+  }
+
   object BV {
 
     trait Byte[T <: Byte[T]] extends Any with ZLike[T] with $internal.HasBoxer {
@@ -352,7 +475,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toByte: scala.Byte = value
 
-      @inline private final def toUByte: UByte = UByte(toByte)
+      @inline private final def toU8: U._8 = U._8(toByte)
 
       @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
@@ -363,64 +486,64 @@ object Z extends $ZCompanion[Z] {
         })
       }
 
-      @inline private final def umake(value: UByte): T = make(value.toByte)
+      @inline private final def umake(value: U._8): T = make(value.value)
 
       @inline private final def makeByte(value: scala.Int): T =
-        if (isSigned) make(value.toByte) else make(UByte(value).toByte)
+        if (isSigned) make(value.toByte) else make(U._8(value).value)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) makeByte(-toByte)
-        else umake(-toUByte)
+        else umake(-toU8)
 
       final def +(other: T): T = {
         if (!isWrapped) make(toMP + other.toMP)
         else if (isSigned) makeByte(toByte + other.toByte)
-        else umake(toUByte + other.toUByte)
+        else umake(toU8 + other.toU8)
       }
 
       final def -(other: T): T = {
         if (!isWrapped) make(toMP - other.toMP)
         else if (isSigned) makeByte(toByte - other.toByte)
-        else umake(toUByte - other.toUByte)
+        else umake(toU8 - other.toU8)
       }
 
       final def *(other: T): T = {
         if (!isWrapped) make(toMP * other.toMP)
         else if (isSigned) makeByte(toByte * other.toByte)
-        else umake(toUByte * other.toUByte)
+        else umake(toU8 * other.toU8)
       }
 
       final def /(other: T): T = {
         if (!isWrapped) make(toMP / other.toMP)
         else if (isSigned) makeByte(toByte / other.toByte)
-        else umake(toUByte / other.toUByte)
+        else umake(toU8 / other.toU8)
       }
 
       final def %(other: T): T = {
         if (!isWrapped) make(toMP % other.toMP)
         else if (isSigned) makeByte(toByte % other.toByte)
-        else umake(toUByte % other.toUByte)
+        else umake(toU8 % other.toU8)
       }
 
       final def >(other: T): B = {
         if (isSigned) toByte > other.toByte
-        else toUByte > other.toUByte
+        else toU8 > other.toU8
       }
 
       final def >=(other: T): B = {
         if (isSigned) toByte >= other.toByte
-        else toUByte >= other.toUByte
+        else toU8 >= other.toU8
       }
 
       final def <(other: T): B = {
         if (isSigned) toByte < other.toByte
-        else toUByte < other.toUByte
+        else toU8 < other.toU8
       }
 
       final def <=(other: T): B = {
         if (isSigned) toByte <= other.toByte
-        else toUByte <= other.toUByte
+        else toU8 <= other.toU8
       }
 
       final def >>(other: T): T = {
@@ -430,52 +553,52 @@ object Z extends $ZCompanion[Z] {
 
       final def >>>(other: T): T = {
         if (isSigned) makeByte(toByte >>> other.toByte)
-        else umake(toUByte >>> other.toUByte.toInt)
+        else umake(toU8 >>> other.toU8.toInt)
       }
 
       final def <<(other: T): T = {
         if (isSigned) makeByte(toByte << other.toByte)
-        else umake(toUByte << other.toUByte.toInt)
+        else umake(toU8 << other.toU8.toInt)
       }
 
       final def &(other: T): T = {
         if (isSigned) makeByte(toByte & other.toByte)
-        else umake(toUByte & other.toUByte)
+        else umake(toU8 & other.toU8)
       }
 
       final def |(other: T): T = {
         if (isSigned) makeByte(toByte | other.toByte)
-        else umake(toUByte | other.toUByte)
+        else umake(toU8 | other.toU8)
       }
 
       final def |^(other: T): T = {
         if (isSigned) makeByte(toByte ^ other.toByte)
-        else umake(toUByte ^ other.toUByte)
+        else umake(toU8 ^ other.toU8)
       }
 
       final def unary_~ : T =
         if (isSigned) makeByte(~toByte)
-        else umake(~toUByte)
+        else umake(~toU8)
 
       final def increase: T =
         if (isSigned) makeByte(toByte + 1)
-        else umake(toUByte + UByte(1))
+        else umake(toU8 + U._8(1))
 
       final def decrease: T =
         if (isSigned) makeByte(toByte - 1)
-        else umake(toUByte - UByte(1))
+        else umake(toU8 - U._8(1))
 
       final override def toString: Predef.String =
         if (isSigned) toByte.toString
-        else toUByte.toString
+        else toU8.toString
 
       final override def toBigInt: scala.BigInt =
         if (isSigned) scala.BigInt(toByte)
-        else toUByte.toBigInt
+        else toU8.toInt.toBigInt
 
       final override def toMP: Z =
         if (isSigned) MP(toByte)
-        else MP(toUByte.toLong)
+        else MP(toU8.toInt)
 
       final override def toIndex: Z.Index =
         if (isZeroIndex) toMP else toMP - Index.toMP
@@ -506,7 +629,7 @@ object Z extends $ZCompanion[Z] {
 
       @inline private final def toShort: scala.Short = value
 
-      @inline private final def toUShort: UShort = UShort(toShort)
+      @inline private final def toU16: U._16 = U._16(toShort)
 
       @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
@@ -517,64 +640,64 @@ object Z extends $ZCompanion[Z] {
         })
       }
 
-      @inline private final def umake(value: UShort): T = make(value.toShort)
+      @inline private final def umake(value: U._16): T = make(value.value)
 
       @inline private final def makeShort(value: scala.Int): T =
-        if (isSigned) make(value.toShort) else make(UShort(value).toShort)
+        if (isSigned) make(value.toShort) else make(U._16(value).value)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) makeShort(-toShort)
-        else umake(-toUShort)
+        else umake(-toU16)
 
       final def +(other: T): T = {
         if (!isWrapped) make(toMP + other.toMP)
         else if (isSigned) makeShort(toShort + other.toShort)
-        else umake(toUShort + other.toUShort)
+        else umake(toU16 + other.toU16)
       }
 
       final def -(other: T): T = {
         if (!isWrapped) make(toMP - other.toMP)
         else if (isSigned) makeShort(toShort - other.toShort)
-        else umake(toUShort - other.toUShort)
+        else umake(toU16 - other.toU16)
       }
 
       final def *(other: T): T = {
         if (!isWrapped) make(toMP * other.toMP)
         else if (isSigned) makeShort(toShort * other.toShort)
-        else umake(toUShort * other.toUShort)
+        else umake(toU16 * other.toU16)
       }
 
       final def /(other: T): T = {
         if (!isWrapped) make(toMP / other.toMP)
         else if (isSigned) makeShort(toShort / other.toShort)
-        else umake(toUShort / other.toUShort)
+        else umake(toU16 / other.toU16)
       }
 
       final def %(other: T): T = {
         if (!isWrapped) make(toMP % other.toMP)
         else if (isSigned) makeShort(toShort % other.toShort)
-        else umake(toUShort % other.toUShort)
+        else umake(toU16 % other.toU16)
       }
 
       final def >(other: T): B = {
         if (isSigned) toShort > other.toShort
-        else toUShort > other.toUShort
+        else toU16 > other.toU16
       }
 
       final def >=(other: T): B = {
         if (isSigned) toShort >= other.toShort
-        else toUShort >= other.toUShort
+        else toU16 >= other.toU16
       }
 
       final def <(other: T): B = {
         if (isSigned) toShort < other.toShort
-        else toUShort < other.toUShort
+        else toU16 < other.toU16
       }
 
       final def <=(other: T): B = {
         if (isSigned) toShort <= other.toShort
-        else toUShort <= other.toUShort
+        else toU16 <= other.toU16
       }
 
       final def >>(other: T): T = {
@@ -584,52 +707,52 @@ object Z extends $ZCompanion[Z] {
 
       final def >>>(other: T): T = {
         if (isSigned) makeShort(toShort >>> other.toShort)
-        else umake(toUShort >>> other.toUShort.toInt)
+        else umake(toU16 >>> other.toU16.toInt)
       }
 
       final def <<(other: T): T = {
         if (isSigned) makeShort(toShort << other.toShort)
-        else umake(toUShort << other.toUShort.toInt)
+        else umake(toU16 << other.toU16.toInt)
       }
 
       final def &(other: T): T = {
         if (isSigned) makeShort(toShort & other.toShort)
-        else umake(toUShort & other.toUShort)
+        else umake(toU16 & other.toU16)
       }
 
       final def |(other: T): T = {
         if (isSigned) makeShort(toShort | other.toShort)
-        else umake(toUShort | other.toUShort)
+        else umake(toU16 | other.toU16)
       }
 
       final def |^(other: T): T = {
         if (isSigned) makeShort(toShort ^ other.toShort)
-        else umake(toUShort ^ other.toUShort)
+        else umake(toU16 ^ other.toU16)
       }
 
       final def unary_~ : T =
         if (isSigned) makeShort(~toShort)
-        else umake(~toUShort)
+        else umake(~toU16)
 
       final def increase: T =
         if (isSigned) makeShort(toShort + 1)
-        else umake(toUShort + UShort(1))
+        else umake(toU16 + U._16(1))
 
       final def decrease: T =
         if (isSigned) makeShort(toShort - 1)
-        else umake(toUShort - UShort(1))
+        else umake(toU16 - U._16(1))
 
       final override def toString: Predef.String =
         if (isSigned) toShort.toString
-        else toUShort.toString
+        else toU16.toString
 
       final override def toBigInt: scala.BigInt =
         if (isSigned) scala.BigInt(toShort)
-        else toUShort.toBigInt
+        else toU16.toInt.toBigInt
 
       final override def toMP: Z =
         if (isSigned) MP(toShort)
-        else MP(toUShort.toLong)
+        else MP(toU16.toInt)
 
       final override def toIndex: Z.Index =
         if (isZeroIndex) toMP else toMP - Index.toMP
@@ -658,7 +781,7 @@ object Z extends $ZCompanion[Z] {
 
       def isWrapped: scala.Boolean
 
-      @inline private final def toUInt: UInt = UInt(value)
+      @inline private final def toU32: U._32 = U._32(value)
 
       @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
@@ -669,61 +792,61 @@ object Z extends $ZCompanion[Z] {
         })
       }
 
-      @inline private final def umake(value: UInt): T = make(value.toInt)
+      @inline private final def umake(value: U._32): T = make(value.value)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) make(-value)
-        else umake(-toUInt)
+        else umake(-toU32)
 
       final def +(other: T): T = {
         if (!isWrapped) make(toMP + other.toMP)
         else if (isSigned) make(value + other.value)
-        else umake(toUInt + other.toUInt)
+        else umake(toU32 + other.toU32)
       }
 
       final def -(other: T): T = {
         if (!isWrapped) make(toMP - other.toMP)
         else if (isSigned) make(value - other.value)
-        else umake(toUInt - other.toUInt)
+        else umake(toU32 - other.toU32)
       }
 
       final def *(other: T): T = {
         if (!isWrapped) make(toMP * other.toMP)
         else if (isSigned) make(value * other.value)
-        else umake(toUInt * other.toUInt)
+        else umake(toU32 * other.toU32)
       }
 
       final def /(other: T): T = {
         if (!isWrapped) make(toMP / other.toMP)
         else if (isSigned) make(value / other.value)
-        else umake(toUInt / other.toUInt)
+        else umake(toU32 / other.toU32)
       }
 
       final def %(other: T): T = {
         if (!isWrapped) make(toMP % other.toMP)
         else if (isSigned) make(value % other.value)
-        else umake(toUInt % other.toUInt)
+        else umake(toU32 % other.toU32)
       }
 
       final def >(other: T): B = {
         if (isSigned) value > other.value
-        else toUInt > other.toUInt
+        else toU32 > other.toU32
       }
 
       final def >=(other: T): B = {
         if (isSigned) value >= other.value
-        else toUInt >= other.toUInt
+        else toU32 >= other.toU32
       }
 
       final def <(other: T): B = {
         if (isSigned) value < other.value
-        else toUInt < other.toUInt
+        else toU32 < other.toU32
       }
 
       final def <=(other: T): B = {
         if (isSigned) value <= other.value
-        else toUInt <= other.toUInt
+        else toU32 <= other.toU32
       }
 
       final def >>(other: T): T = {
@@ -733,52 +856,52 @@ object Z extends $ZCompanion[Z] {
 
       final def >>>(other: T): T = {
         if (isSigned) make(value >>> other.value)
-        else umake(toUInt >>> other.value)
+        else umake(toU32 >>> other.value)
       }
 
       final def <<(other: T): T = {
         if (isSigned) make(value << other.value)
-        else umake(toUInt << other.value)
+        else umake(toU32 << other.value)
       }
 
       final def &(other: T): T = {
         if (isSigned) make(value & other.value)
-        else umake(toUInt & other.toUInt)
+        else umake(toU32 & other.toU32)
       }
 
       final def |(other: T): T = {
         if (isSigned) make(value | other.value)
-        else umake(toUInt | other.toUInt)
+        else umake(toU32 | other.toU32)
       }
 
       final def |^(other: T): T = {
         if (isSigned) make(value ^ other.value)
-        else umake(toUInt ^ other.toUInt)
+        else umake(toU32 ^ other.toU32)
       }
 
       final def unary_~ : T =
         if (isSigned) make(~value)
-        else umake(~toUInt)
+        else umake(~toU32)
 
       final def increase: T =
         if (isSigned) make(value + 1)
-        else umake(toUInt + UInt(1))
+        else umake(toU32 + U._32(1))
 
       final def decrease: T =
         if (isSigned) make(value - 1)
-        else umake(toUInt - UInt(1))
+        else umake(toU32 - U._32(1))
 
       final override def toString: Predef.String =
         if (isSigned) value.toString
-        else toUInt.toString
+        else toU32.toString
 
       final override def toBigInt: scala.BigInt =
         if (isSigned) scala.BigInt(value)
-        else toUInt.toBigInt
+        else toU32.toLong.toBigInt
 
       final override def toMP: Z =
         if (isSigned) MP(value)
-        else MP(toUInt.toLong)
+        else MP(toU32.toLong)
 
       final override def toIndex: Z.Index =
         if (isZeroIndex) toMP else toMP - Index.toMP
@@ -807,7 +930,7 @@ object Z extends $ZCompanion[Z] {
 
       def isWrapped: scala.Boolean
 
-      @inline private final def toULong: ULong = ULong(value)
+      @inline private final def toU64: U._64 = U._64(value)
 
       @inline private final def make(value: Z): T = {
         assert(Min.toMP <= value, s"$value should not be less than $Name.Min ($Min)")
@@ -818,61 +941,61 @@ object Z extends $ZCompanion[Z] {
         })
       }
 
-      @inline private final def umake(value: ULong): T = make(value.toLong)
+      @inline private final def umake(value: U._64): T = make(value.value)
 
       final def unary_- : T =
         if (!isWrapped) make(-toMP)
         else if (isSigned) make(-value)
-        else umake(-toULong)
+        else umake(-toU64)
 
       final def +(other: T): T = {
         if (!isWrapped) make(toMP + other.toMP)
         else if (isSigned) make(value + other.value)
-        else umake(toULong + other.toULong)
+        else umake(toU64 + other.toU64)
       }
 
       final def -(other: T): T = {
         if (!isWrapped) make(toMP - other.toMP)
         else if (isSigned) make(value - other.value)
-        else umake(toULong - other.toULong)
+        else umake(toU64 - other.toU64)
       }
 
       final def *(other: T): T = {
         if (!isWrapped) make(toMP * other.toMP)
         else if (isSigned) make(value * other.value)
-        else umake(toULong * other.toULong)
+        else umake(toU64 * other.toU64)
       }
 
       final def /(other: T): T = {
         if (!isWrapped) make(toMP / other.toMP)
         else if (isSigned) make(value / other.value)
-        else umake(toULong / other.toULong)
+        else umake(toU64 / other.toU64)
       }
 
       final def %(other: T): T = {
         if (!isWrapped) make(toMP % other.toMP)
         else if (isSigned) make(value % other.value)
-        else umake(toULong % other.toULong)
+        else umake(toU64 % other.toU64)
       }
 
       final def >(other: T): B = {
         if (isSigned) value > other.value
-        else toULong > other.toULong
+        else toU64 > other.toU64
       }
 
       final def >=(other: T): B = {
         if (isSigned) value >= other.value
-        else toULong >= other.toULong
+        else toU64 >= other.toU64
       }
 
       final def <(other: T): B = {
         if (isSigned) value < other.value
-        else toULong < other.toULong
+        else toU64 < other.toU64
       }
 
       final def <=(other: T): B = {
         if (isSigned) value <= other.value
-        else toULong <= other.toULong
+        else toU64 <= other.toU64
       }
 
       final def >>(other: T): T = {
@@ -882,52 +1005,52 @@ object Z extends $ZCompanion[Z] {
 
       final def >>>(other: T): T = {
         if (isSigned) make(value >>> other.value)
-        else umake(toULong >>> other.toULong.toInt)
+        else umake(toU64 >>> (other.value & 0x3F).toInt)
       }
 
       final def <<(other: T): T = {
         if (isSigned) make(value << other.value)
-        else umake(toULong << other.toULong.toInt)
+        else umake(toU64 << (other.value & 0x3F).toInt)
       }
 
       final def &(other: T): T = {
         if (isSigned) make(value & other.value)
-        else umake(toULong & other.toULong)
+        else umake(toU64 & other.toU64)
       }
 
       final def |(other: T): T = {
         if (isSigned) make(value | other.value)
-        else umake(toULong | other.toULong)
+        else umake(toU64 | other.toU64)
       }
 
       final def |^(other: T): T = {
         if (isSigned) make(value ^ other.value)
-        else umake(toULong ^ other.toULong)
+        else umake(toU64 ^ other.toU64)
       }
 
       final def unary_~ : T =
         if (isSigned) make(~value)
-        else umake(~toULong)
+        else umake(~toU64)
 
       final def increase: T =
         if (isSigned) make(value + 1)
-        else umake(toULong + ULong(1))
+        else umake(toU64 + U._64(1))
 
       final def decrease: T =
         if (isSigned) make(value - 1)
-        else umake(toULong - ULong(1))
+        else umake(toU64 - U._64(1))
 
       final override def toString: Predef.String =
         if (isSigned) value.toString
-        else toULong.toString
+        else toU64.toString
 
       final override def toBigInt: scala.BigInt =
         if (isSigned) scala.BigInt(value)
-        else toULong.toBigInt
+        else toU64.toBigInt
 
       final override def toMP: Z =
         if (isSigned) MP(value)
-        else MP(toULong.toBigInt)
+        else MP(toU64.toBigInt)
 
       final override def toIndex: Z.Index =
         if (isZeroIndex) toMP else toMP - Index.toMP
@@ -1082,7 +1205,7 @@ object Z extends $ZCompanion[Z] {
   }
 
   def randomSeed(seed: Z): Z = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(ULong(-1).toBigInt + 1)).toLongOpt.get)
+    val r = new scala.util.Random((seed.toMP % Z.MP(U._64(-1).toBigInt + 1)).toLongOpt.get)
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
 

@@ -32,7 +32,6 @@ import U16._
 import N16._
 import Z8._
 import U8._
-import spire.math.Real
 
 class STest extends SireumRuntimeSpec {
 
@@ -98,7 +97,7 @@ class STest extends SireumRuntimeSpec {
 
     "ISZ[R]" - {
 
-      *(ISZ[R](r"1", r"2", r"3").data =~= scala.Array[Real](Real(1), Real(2), Real(3)))
+      *(ISZ[R](r"1", r"2", r"3").data =~= scala.Array[BigDecimal](BigDecimal(1), BigDecimal(2), BigDecimal(3)))
 
       *(ISZ[R](r"1", r"2", r"3")(1) =~= R(2))
 
