@@ -6,7 +6,7 @@
 /project/project
 /distros
 /.idea
-*.sc
+scratch.sc
 target
 .readme.md.html
 .DS_Store
@@ -18,4 +18,5 @@ project-dependency.dot
 .classpath
 .settings
 Scratch.scala
-scratch.sc
+out
+.idea_modules
