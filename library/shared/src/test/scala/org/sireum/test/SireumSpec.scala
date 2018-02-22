@@ -27,7 +27,7 @@ package org.sireum.test
 
 import org.scalatest.{FreeSpec, Tag}
 
-abstract class SireumSpec extends FreeSpec {
+trait SireumSpec extends FreeSpec {
 
   val ts: scala.Seq[Tag] = scala.Vector()
 

@@ -25,7 +25,7 @@
 
 package org.sireum.test
 
-abstract class SireumRcSpec extends SireumSpec {
+trait SireumRcSpec extends SireumSpec {
   def textResources: scala.collection.Map[scala.Seq[Predef.String], Predef.String]
 
   def check(path: scala.Seq[Predef.String], content: Predef.String): scala.Boolean
