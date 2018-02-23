@@ -27,26 +27,44 @@ package org.sireum
 
 import org.sireum.test._
 
-class HashSSetTest extends SireumRuntimeSpec {
-  *(HashSSet.empty[String].size =~= z"0")
+class HashSSetTest extends TestSuite {
 
-  *(!HashSSet.empty[String].contains("a"))
+  val tests = Tests {
 
-  *(HashSSet.empty[String].+("a").contains("a"))
+    * - assert(HashSSet.empty[String].size =~= z"0")
 
-  *(!HashSSet.empty[String].+("a").contains("A"))
+    * - assert(!HashSSet.empty[String].contains("a"))
 
-  *(HashSSet.empty[String].+("a").+("b").contains("a"))
+    * - assert(HashSSet.empty[String].+("a").contains("a"))
 
-  *(HashSSet.empty[String].+("a").+("b").contains("b"))
+    * - assert(!HashSSet.empty[String].+("a").contains("A"))
 
-  *(HashSSet.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
+    * - assert(HashSSet.empty[String].+("a").+("b").contains("a"))
 
-  *(HashSSet.empty[String].++(ISZ("a", "b")) =~= HashSSet.empty[String].+("b").+("a"))
+    * - assert(HashSSet.empty[String].+("a").+("b").contains("b"))
 
-  *(HashSSet.empty[String].∪(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String].+("A"))
+    * - assert(HashSSet.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(HashSSet.empty[String].∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
+    * - assert(
+      HashSSet
+        .empty[String]
+        .++(ISZ("a", "b")) =~= HashSSet.empty[String].+("b").+("a"))
 
-  *(HashSSet.empty[String].+("a").∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
+    * - assert(
+      HashSSet.empty[String].∪(HashSSet.empty[String].+("A")) =~= HashSSet
+        .empty[String]
+        .+("A"))
+
+    * - assert(
+      HashSSet.empty[String].∩(HashSSet.empty[String].+("A")) =~= HashSSet
+        .empty[String])
+
+    * - assert(
+      HashSSet
+        .empty[String]
+        .+("a")
+        .∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
+
+  }
+
 }

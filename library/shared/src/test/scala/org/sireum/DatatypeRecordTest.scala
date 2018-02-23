@@ -27,42 +27,44 @@ package org.sireum
 
 import org.sireum.test._
 
-class DatatypeRecordTest extends SireumRuntimeSpec {
+class DatatypeRecordTest extends TestSuite {
   val foo = Foo(1, Bar(2, 5))
 
-  * {
-    foo.x =~= 1
+  val tests = Tests {
+    * - {
+      assert(foo.x =~= 1)
+    }
+
+    * - {
+      assert(foo.x =~= 1)
+      val fooClone: Foo = foo.$clone
+      foo.bar.y = 4
+      assert(fooClone.bar.y != foo.bar.y)
+      assert(foo(bar = foo.bar(y = 4)) == foo)
+    }
+
+    * - {
+      var a = _Foo(5, _Bar(4, ISZ(1, 2, 3)))
+
+      a = a(x = 6)
+      a = a(y = a.y(z = 7))
+      a = a(y = a.y(zz = a.y.zz(z"0" ~> z"8")))
+
+      assert(a =~= _Foo(6, _Bar(7, ISZ(8, 2, 3))))
+    }
+
+    * - {
+      val bazzz = Bazzz[Z](5)
+      bazzz.updateX(4)
+      assert(bazzz.x =~= z"4")
+    }
+
+    * - {
+      val p = (Bar(1, 2), Bar(3, 4))
+      val q = (p._1.$clone, p._2.$clone)
+      assert(q ne p)
+      p._1.y = 3
+      assert(p !~= q)
+    }
   }
-
-  * {
-    assert(foo.x =~= 1)
-    val fooClone: Foo = foo.$clone
-    foo.bar.y = 4
-    fooClone.bar.y != foo.bar.y && foo(bar = foo.bar(y = 4)) == foo
-  }
-
-  * {
-    var a = _Foo(5, _Bar(4, ISZ(1, 2, 3)))
-
-    a = a(x = 6)
-    a = a(y = a.y(z = 7))
-    a = a(y = a.y(zz = a.y.zz(z"0" ~> z"8")))
-
-    a =~= _Foo(6, _Bar(7, ISZ(8, 2, 3)))
-  }
-
-  * {
-    val bazzz = Bazzz[Z](5)
-    bazzz.updateX(4)
-    bazzz.x =~= z"4"
-  }
-
-  * {
-    val p = (Bar(1, 2), Bar(3, 4))
-    val q = (p._1.$clone, p._2.$clone)
-    assert(q ne p)
-    p._1.y = 3
-    p !~= q
-  }
-
 }

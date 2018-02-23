@@ -27,29 +27,44 @@ package org.sireum
 
 import org.sireum.test._
 
-class UnionFindTest extends SireumRuntimeSpec {
+class UnionFindTest extends TestSuite {
 
-  {
-    implicit val _spec: SireumSpec = this
+  val tests = Tests {
 
-    * {
+    * - {
+
       var uf = UnionFind.create(ISZ(1, 2, 3, 4, 5))
       uf = uf.merge(1, 2)
       uf = uf.merge(3, 4)
       uf = uf.merge(4, 5)
-      uf.inSameSet(1, 1) && uf.inSameSet(2, 2) &&
-        uf.inSameSet(1, 2) && uf.inSameSet(2, 1) &&
-        uf.inSameSet(3, 3) && uf.inSameSet(4, 4) && uf.inSameSet(5, 5) &&
-        uf.inSameSet(3, 4) && uf.inSameSet(3, 5) &&
-        uf.inSameSet(4, 3) && uf.inSameSet(4, 5) &&
-        uf.inSameSet(5, 3) && uf.inSameSet(5, 4) &&
-        !uf.inSameSet(1, 3) && !uf.inSameSet(2, 3) &&
-        !uf.inSameSet(1, 4) && !uf.inSameSet(2, 4) &&
-        !uf.inSameSet(1, 5) && !uf.inSameSet(2, 5) &&
-        !uf.inSameSet(3, 1) && !uf.inSameSet(3, 2) &&
-        !uf.inSameSet(4, 1) && !uf.inSameSet(4, 2) &&
-        !uf.inSameSet(5, 1) && !uf.inSameSet(5, 2)
+      assert(uf.inSameSet(1, 1))
+      assert(uf.inSameSet(2, 2))
+      assert(uf.inSameSet(1, 2))
+      assert(uf.inSameSet(2, 1))
+      assert(uf.inSameSet(3, 3))
+      assert(uf.inSameSet(4, 4))
+      assert(uf.inSameSet(5, 5))
+      assert(uf.inSameSet(3, 4))
+      assert(uf.inSameSet(3, 5))
+      assert(uf.inSameSet(4, 3))
+      assert(uf.inSameSet(4, 5))
+      assert(uf.inSameSet(5, 3))
+      assert(uf.inSameSet(5, 4))
+      assert(!uf.inSameSet(1, 3))
+      assert(!uf.inSameSet(2, 3))
+      assert(!uf.inSameSet(1, 4))
+      assert(!uf.inSameSet(2, 4))
+      assert(!uf.inSameSet(1, 5))
+      assert(!uf.inSameSet(2, 5))
+      assert(!uf.inSameSet(3, 1))
+      assert(!uf.inSameSet(3, 2))
+      assert(!uf.inSameSet(4, 1))
+      assert(!uf.inSameSet(4, 2))
+      assert(!uf.inSameSet(5, 1))
+      assert(!uf.inSameSet(5, 2))
+
     }
+
   }
 
 }

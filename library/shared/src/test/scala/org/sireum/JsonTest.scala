@@ -26,236 +26,305 @@
 package org.sireum
 
 import org.sireum.test._
-
 import scalajson.ast.unsafe._
-
 import $internal.JsonAst
 
-class JsonTest extends SireumRuntimeSpec {
+object JsonTest extends TestSuite {
 
-  *(parseString("\"a\\rbc\"") =~= "a\rbc")
+  val tests = Tests {
 
-  *(parseString("\"a\\\"\\rbc\"") =~= "a\"\rbc")
+    * - assert(parseString("\"a\\rbc\"") =~= "a\rbc")
 
-  *(parseValue("\"a\\rbc\"") =~= JString("a\rbc"))
+    * - assert(parseString("\"a\\\"\\rbc\"") =~= "a\"\rbc")
 
-  *(parseValue("\"a\\\"\\rbc\"") =~= JString("a\"\rbc"))
+    * - assert(parseValue("\"a\\rbc\"") =~= JString("a\rbc"))
 
-  *(parseNumber("-0") =~= "-0")
+    * - assert(parseValue("\"a\\\"\\rbc\"") =~= JString("a\"\rbc"))
 
-  *(parseNumber("12.33") =~= "12.33")
+    * - assert(parseNumber("-0") =~= "-0")
 
-  *(parseNumber("12e23") =~= "12e23")
+    * - assert(parseNumber("12.33") =~= "12.33")
 
-  *(parseValue("-0") =~= JNumber("-0"))
+    * - assert(parseNumber("12e23") =~= "12e23")
 
-  *(parseValue("12.33") =~= JNumber("12.33"))
+    * - assert(parseValue("-0") =~= JNumber("-0"))
 
-  *(parseValue("12e23") =~= JNumber("12e23"))
+    * - assert(parseValue("12.33") =~= JNumber("12.33"))
 
-  *(parseValue("{}") =~= JObject())
+    * - assert(parseValue("12e23") =~= JNumber("12e23"))
 
-  *(parseValue("{ \"key\" : \"value\" }") =~= JObject(Array(JField("key", JString("value")))))
+    * - assert(parseValue("{}") =~= JObject())
 
-  *(parseValue("[]") =~= JArray())
+    * - assert(
+      parseValue("{ \"key\" : \"value\" }") =~= JObject(
+        Array(JField("key", JString("value")))))
 
-  *(parseValue("[ 1, 3.0, 4e-12 ]") =~= JArray(Array[JValue](JNumber("1"), JNumber("3.0"), JNumber("4e-12"))))
+    * - assert(parseValue("[]") =~= JArray())
 
-  val oString = "  { \"key\" : [ { \"prop\" : true } ], \"foo\" : false, \"bar\" : [ null, [] ] }  "
+    * - assert(
+      parseValue("[ 1, 3.0, 4e-12 ]") =~= JArray(
+        Array[JValue](JNumber("1"), JNumber("3.0"), JNumber("4e-12"))))
 
-  val oJson = JObject(
-    Array(
-      JField("key", JArray(JObject(Array(JField("prop", JTrue))))),
-      JField("foo", JFalse),
-      JField("bar", JArray(Array[JValue](JNull, JArray())))
+    val oString =
+      "  { \"key\" : [ { \"prop\" : true } ], \"foo\" : false, \"bar\" : [ null, [] ] }  "
+
+    val oJson = JObject(
+      Array(
+        JField("key", JArray(JObject(Array(JField("prop", JTrue))))),
+        JField("foo", JFalse),
+        JField("bar", JArray(Array[JValue](JNull, JArray())))
+      )
     )
-  )
 
-  *(parseTopObject(oString) =~= oJson)
+    * - assert(parseTopObject(oString) =~= oJson)
 
-  *(parseTopObject(oPrettyParse(oString)) =~= oJson)
+    * - assert(parseTopObject(oPrettyParse(oString)) =~= oJson)
 
-  *(oPrettyParse(oPrettyParse(oString)) =~= oPrettyParse(oString))
+    * - assert(oPrettyParse(oPrettyParse(oString)) =~= oPrettyParse(oString))
 
-  *(parseTopObject(oPrettyParse(oPrettyParse(oString))) =~= oJson)
+    * - assert(parseTopObject(oPrettyParse(oPrettyParse(oString))) =~= oJson)
 
-  * {
-    val o = Either.Left[Z, String](Z.random)
-    val s = Json.Printer.printEither(T, o, Json.Printer.printZ _, Json.Printer.printString _).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseEither[Z, String](p.parseZ _, p.parseString _)
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    val o = MEither.Right[Z, String](String.random)
-    val s = Json.Printer.printMEither(T, o, Json.Printer.printZ _, Json.Printer.printString _).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseMEither[Z, String](p.parseZ _, p.parseString _)
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-    * {
-      val o = Map ++ is
-      val s = Json.Printer.printMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+    * - {
+      val o = Either.Left[Z, String](Z.random)
+      val s = Json.Printer
+        .printEither(T, o, Json.Printer.printZ _, Json.Printer.printString _)
+        .render
       val p = Json.Parser.create(s)
-      val o2 = p.parseMap[String, Z](p.parseString _, p.parseZ _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseEither[Z, String](p.parseZ _, p.parseString _)
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = Set ++ is
-      val s = Json.Printer.printSet(B.random, o, Json.Printer.printString _).render
+    * - {
+      val o = MEither.Right[Z, String](String.random)
+      val s = Json.Printer
+        .printMEither(T, o, Json.Printer.printZ _, Json.Printer.printString _)
+        .render
       val p = Json.Parser.create(s)
-      val o2 = p.parseSet[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseMEither[Z, String](p.parseZ _, p.parseString _)
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-    * {
-      val o = HashMap ++ is
-      val s = Json.Printer.printHashMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+    * - {
+      for (is <- (0 until 3).map(i =>
+             (z"0" until i).map(_ => (String.random, Z.random)))) {
+        val o = Map ++ is
+        val s = Json.Printer
+          .printMap(B.random,
+                    o,
+                    Json.Printer.printString _,
+                    Json.Printer.printZ _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseMap[String, Z](p.parseString _, p.parseZ _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = Set ++ is
+        val s =
+          Json.Printer.printSet(B.random, o, Json.Printer.printString _).render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseSet[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i =>
+             (z"0" until i).map(_ => (String.random, Z.random)))) {
+        val o = HashMap ++ is
+        val s = Json.Printer
+          .printHashMap(B.random,
+                        o,
+                        Json.Printer.printString _,
+                        Json.Printer.printZ _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseHashMap[String, Z](p.parseString _, p.parseZ _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = HashSet ++ is
+        val s = Json.Printer
+          .printHashSet(B.random, o, Json.Printer.printString _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseHashSet[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i =>
+             (z"0" until i).map(_ => (String.random, Z.random)))) {
+        val o = HashSMap ++ is
+        val s = Json.Printer
+          .printHashSMap(B.random,
+                         o,
+                         Json.Printer.printString _,
+                         Json.Printer.printZ _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = HashSSet ++ is
+        val s = Json.Printer
+          .printHashSSet(B.random, o, Json.Printer.printString _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseHashSSet[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = Stack(is)
+        val s = Json.Printer
+          .printStack(B.random, o, Json.Printer.printString _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseStack[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = Bag ++ is
+        val s =
+          Json.Printer.printBag(B.random, o, Json.Printer.printString _).render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseBag[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
+        val o = HashBag ++ is
+        val s = Json.Printer
+          .printHashBag(B.random, o, Json.Printer.printString _)
+          .render
+        val p = Json.Parser.create(s)
+        val o2 = p.parseHashBag[String](p.parseString _)
+        assert(p.errorOpt.isEmpty)
+        assert(o == o2)
+      }
+    }
+
+    * - {
+      val o = PosetTest.poset
+      val s =
+        Json.Printer.printPoset(B.random, o, Json.Printer.printString _).render
       val p = Json.Parser.create(s)
-      val o2 = p.parseHashMap[String, Z](p.parseString _, p.parseZ _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parsePoset[String](p.parseString _)
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = HashSet ++ is
-      val s = Json.Printer.printHashSet(B.random, o, Json.Printer.printString _).render
+    * - {
+      val o = {
+        val graph = Graph.empty[Z, String]
+        val n1 = Z.random
+        val n2 = Z.random
+        var g = graph + n1 ~> n2
+        g = g + n2 ~> n1
+        g = g + n1 ~> n2
+        g
+      }
+      val s = Json.Printer
+        .printGraph(B.random,
+                    o,
+                    Json.Printer.printZ _,
+                    Json.Printer.printString _)
+        .render
       val p = Json.Parser.create(s)
-      val o2 = p.parseHashSet[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseGraph[Z, String](p.parseZ _, p.parseString _)
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => (String.random, Z.random)))) {
-    * {
-      val o = HashSMap ++ is
-      val s = Json.Printer.printHashSMap(B.random, o, Json.Printer.printString _, Json.Printer.printZ _).render
+    * - {
+      val o = {
+        var uf = UnionFind.create[Z](ISZ(1, 2, 3, 4, 5))
+        uf = uf.merge(1, 2)
+        uf = uf.merge(3, 4)
+        uf = uf.merge(4, 5)
+        uf
+      }
+      val s =
+        Json.Printer.printUnionFind(B.random, o, Json.Printer.printZ _).render
       val p = Json.Parser.create(s)
-      val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseUnionFind[Z](p.parseZ _)
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = HashSSet ++ is
-      val s = Json.Printer.printHashSSet(B.random, o, Json.Printer.printString _).render
+    * - {
+      import org.sireum.U32._
+      val o = message.FlatPos(Some("Hi.txt"),
+                              u32"1",
+                              u32"1",
+                              u32"1",
+                              u32"1",
+                              u32"1",
+                              u32"1")
+      val s = Json.Printer.printPosition(o).render
       val p = Json.Parser.create(s)
-      val o2 = p.parseHashSSet[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parsePosition()
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = Stack(is)
-      val s = Json.Printer.printStack(B.random, o, Json.Printer.printString _).render
+    * - {
+      import org.sireum.U32._
+      val o = message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40"))
+      val s = Json.Printer.printDocInfo(o).render
       val p = Json.Parser.create(s)
-      val o2 = p.parseStack[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseDocInfo()
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
-  }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = Bag ++ is
-      val s = Json.Printer.printBag(B.random, o, Json.Printer.printString _).render
+    * - {
+      val o = message.Message(message.Level.Info, None(), "test", "test info")
+      val s = Json.Printer.printMessage(o).render
       val p = Json.Parser.create(s)
-      val o2 = p.parseBag[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
+      val o2 = p.parseMessage()
+      assert(p.errorOpt.isEmpty)
+      assert(o == o2)
     }
   }
 
-  for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-    * {
-      val o = HashBag ++ is
-      val s = Json.Printer.printHashBag(B.random, o, Json.Printer.printString _).render
-      val p = Json.Parser.create(s)
-      val o2 = p.parseHashBag[String](p.parseString _)
-      p.errorOpt.isEmpty && o == o2
-    }
-  }
-
-  * {
-    val o = PosetTest.poset
-    val s = Json.Printer.printPoset(B.random, o, Json.Printer.printString _).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parsePoset[String](p.parseString _)
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    val o = {
-      val graph = Graph.empty[Z, String]
-      val n1 = Z.random
-      val n2 = Z.random
-      var g = graph + n1 ~> n2
-      g = g + n2 ~> n1
-      g = g + n1 ~> n2
-      g
-    }
-    val s = Json.Printer.printGraph(B.random, o, Json.Printer.printZ _, Json.Printer.printString _).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseGraph[Z, String](p.parseZ _, p.parseString _)
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    val o = {
-      var uf = UnionFind.create[Z](ISZ(1, 2, 3, 4, 5))
-      uf = uf.merge(1, 2)
-      uf = uf.merge(3, 4)
-      uf = uf.merge(4, 5)
-      uf
-    }
-    val s = Json.Printer.printUnionFind(B.random, o, Json.Printer.printZ _).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseUnionFind[Z](p.parseZ _)
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    import org.sireum.U32._
-    val o = message.FlatPos(Some("Hi.txt"), u32"1", u32"1", u32"1", u32"1", u32"1", u32"1")
-    val s = Json.Printer.printPosition(o).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parsePosition()
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    import org.sireum.U32._
-    val o = message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40"))
-    val s = Json.Printer.printDocInfo(o).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseDocInfo()
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  * {
-    val o = message.Message(message.Level.Info, None(), "test", "test info")
-    val s = Json.Printer.printMessage(o).render
-    val p = Json.Parser.create(s)
-    val o2 = p.parseMessage()
-    p.errorOpt.isEmpty && o == o2
-  }
-
-  def oPrettyParse(s: Predef.String): Predef.String = Json.printAst(JsonAst.Binding, parseTopObject(s)).render.value
+  def oPrettyParse(s: Predef.String): Predef.String =
+    Json.printAst(JsonAst.Binding, parseTopObject(s)).render.value
 
   def parseTopObject(s: Predef.String): JObject =
     Json.parseAst(JsonAst.Binding, String(s)) match {
       case Either.Left(o: JObject) => o
       case Either.Right(errMsg) =>
-        assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
+        halt(s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}")
       case _ => assert(F); null
     }
 
@@ -263,13 +332,15 @@ class JsonTest extends SireumRuntimeSpec {
     Json.parseAst(JsonAst.Binding, String(s)) match {
       case Either.Left(o) => o
       case Either.Right(errMsg) =>
-        assert(F, s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}"); null
+        halt(s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}")
       case _ => assert(F); null
     }
 
-  def parseString(s: Predef.String): Predef.String = parse(s, _.parseString().value)
+  def parseString(s: Predef.String): Predef.String =
+    parse(s, _.parseString().value)
 
-  def parseNumber(s: Predef.String): Predef.String = parse(s, _.parseNumber().value)
+  def parseNumber(s: Predef.String): Predef.String =
+    parse(s, _.parseNumber().value)
 
   def parse[T](s: Predef.String, f: Json.Parser => T): T = {
     val parser = Json.Parser(conversions.String.toCis(String(s)), 0, None())
@@ -277,5 +348,6 @@ class JsonTest extends SireumRuntimeSpec {
     parser.eof()
     assert(parser.errorOpt.isEmpty)
     r
+
   }
 }

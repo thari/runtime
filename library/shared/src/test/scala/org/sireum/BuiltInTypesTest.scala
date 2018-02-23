@@ -25,33 +25,37 @@
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
-class BuiltInTypesTest extends SireumRuntimeSpec {
+class BuiltInTypesTest extends TestSuite {
 
-  *(z"1" == Z(1))
+  val tests = Tests {
 
-  *(z"1" == Z(1l))
+    * - assert(z"1" == Z(1))
 
-  *(z"1" == Z(BigInt(1)))
+    * - assert(z"1" == Z(1l))
 
-  *(Z(1) match { case z"1" => true })
+    * - assert(z"1" == Z(BigInt(1)))
 
-  *(Z(2) match { case z"2" => true })
+    * - assertMatch(Z(1)) { case z"1" => }
 
-  *(c"0" == C('0'))
+    * - assertMatch(Z(2)) { case z"2" => }
 
-  *(C('0') match { case c"0" => true })
+    * - assert(c"0" == C('0'))
 
-  *(f32"0" == F32(0f))
+    * - assertMatch(C('0')) { case c"0" => }
 
-  *(F32(0f) match { case f32"0" => true })
+    * - assert(f32"0" == F32(0f))
 
-  *(f64"0" == F64(0d))
+    * - assertMatch(F32(0f)) { case f32"0" => }
 
-  *(F64(0d) match { case f64"0" => true })
+    * - assert(f64"0" == F64(0d))
 
-  *(string"abc" == String("abc"))
+    * - assertMatch(F64(0d)) { case f64"0" => }
 
-  *(String("abc") match { case string"abc" => true })
+    * - assert(string"abc" == String("abc"))
+
+    * - assertMatch(String("abc")) { case string"abc" => }
+
+  }
 }

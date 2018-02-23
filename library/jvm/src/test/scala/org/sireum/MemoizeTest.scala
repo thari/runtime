@@ -25,9 +25,9 @@
 
 package org.sireum
 
-import org.sireum.test.SireumRuntimeSpec
+import org.sireum.test._
 
-class MemoizeTest extends SireumRuntimeSpec {
+class MemoizeTest extends TestSuite {
 
   var first: B = T
 
@@ -36,10 +36,13 @@ class MemoizeTest extends SireumRuntimeSpec {
     first = F
   }
 
-  * {
-    val m = () => f()
-    MemoizeFoo.foo(4, m)
-    MemoizeFoo.foo(4, m)
-    true
+  val tests = Tests {
+
+    * - {
+      val m = () => f()
+      MemoizeFoo.foo(4, m)
+      MemoizeFoo.foo(4, m)
+    }
+
   }
 }

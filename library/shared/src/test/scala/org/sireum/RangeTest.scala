@@ -29,178 +29,216 @@ import org.sireum.test._
 
 import scala.util.{Failure, Success, Try}
 
-class RangeTest extends SireumRuntimeSpec {
+class RangeTest extends TestSuite {
 
   val numOfRandomTests = 64
 
-  "N" - {
+  val tests = Tests {
 
-    *(N.hasMin)
+    "N" - {
 
-    *(!N.hasMax)
+      * - assert(N.hasMin)
 
-    for (_ <- 0 until numOfRandomTests) {
-      *("random")(N.random >= N(0))
+      * - assert(!N.hasMax)
+
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          assert(N.random >= N(0))
+        }
+      }
+
     }
 
-  }
+    "One10i" - {
 
-  "One10i" - {
+      import One10i._
 
-    import One10i._
+      * - assert(!One10i.isSigned)
 
-    *(!One10i.isSigned)
+      * - assert(!One10i.isBitVector)
 
-    *(!One10i.isBitVector)
+      * - assert(One10i.hasMin)
 
-    *(One10i.hasMin)
+      * - assert(One10i.hasMax)
 
-    *(One10i.hasMax)
+      * - assert(One10i.Index =~= one10i"1")
 
-    *(One10i.Index =~= one10i"1")
+      * - assert(One10i.Min =~= one10i"1")
 
-    *(One10i.Min =~= one10i"1")
+      * - assert(One10i.Max =~= one10i"10")
 
-    *(One10i.Max =~= one10i"10")
+      * - assert(One10i.Name =~= "One10i")
 
-    *(One10i.Name =~= "One10i")
+      val x = one10i"10"
 
-    val x = one10i"10"
+      * - assert(x.toIndex =~= z"9")
 
-    *(x.toIndex =~= z"9")
+      * - assert(!x.isSigned)
 
-    *(!x.isSigned)
+      * - assert(!x.isBitVector)
 
-    *(!x.isBitVector)
+      * - assert(x.hasMin)
 
-    *(x.hasMin)
+      * - assert(x.hasMax)
 
-    *(x.hasMax)
+      * - assert(x.Index =~= one10i"1")
 
-    *(x.Index =~= one10i"1")
+      * - assert(x.Min =~= one10i"1")
 
-    *(x.Min =~= one10i"1")
+      * - assert(x.Max =~= one10i"10")
 
-    *(x.Max =~= one10i"10")
+      * - assert(x.Name =~= "One10i")
 
-    *(x.Name =~= "One10i")
+      * - assert(x.value =~= z"10")
 
-    *(x.value =~= z"10")
+      * - assert(x - one10i"9" =~= One10i.Min)
 
-    *(x - one10i"9" =~= One10i.Min)
+      * - assert(x.decrease.increase =~= x)
 
-    *(x.decrease.increase =~= x)
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          val v = One10i.random
+          assert(One10i.Min <= v)
+          assert(v <= One10i.Max)
+        }
+      }
 
-    for (_ <- 0 until numOfRandomTests) {
-      *("random"){
-        val v = One10i.random
-        val r = One10i.Min <= v && v <= One10i.Max
-        if (!r) println(s"One10i.random = $v")
-        r
+      val random = new _root_.java.util.Random
+
+      def rand(): Int = random.nextInt(10) + 1
+
+      * - {
+        for ((op, op1, op2) <- List[(Predef.String,
+                                     One10i => One10i => One10i,
+                                     Int => Int => Int)](("+", _.+, _.+),
+                                                         ("-", _.-, _.-),
+                                                         ("*", _.*, _.*),
+                                                         ("/", _./, _./),
+                                                         ("%", _.%, _.%))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            var m = rand()
+            while (m == 0 && (op == "/" || op == "%")) m = rand()
+            Try(op1(One10i(n))(One10i(m)).toBigInt.toInt) match {
+              case Success(r) => assert(r =~= op2(n)(m))
+              case Failure(_) =>
+                val ir = op2(n)(m)
+                assert(
+                  !(One10i.Min.toBigInt <= ir && ir <= One10i.Max.toBigInt))
+            }
+          }
+        }
+      }
+
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    One10i => One10i => B,
+                                    Int => Int => scala.Boolean)](
+               (">", _.>, _.>),
+               (">=", _.>=, _.>=),
+               ("<", _.<, _.<),
+               ("<=", _.<=, _.<=),
+               ("==", _.==, _.==),
+               ("!=", _.!=, _.!=))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            assert(op1(One10i(n))(One10i(m)).value =~= op2(n)(m))
+          }
+        }
       }
     }
 
-    val random = new _root_.java.util.Random
+    "M1_16" - {
 
-    def rand(): Int = random.nextInt(10) + 1
+      import M1_16._
 
-    for ((op, op1, op2) <- List[(Predef.String, One10i => One10i => One10i, Int => Int => Int)](
-      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = rand()
-        *(s"$n $op $m")(Try(op1(One10i(n))(One10i(m)).toBigInt.toInt) match {
-          case Success(r) => r =~= op2(n)(m)
-          case Failure(_) =>
-            val ir = op2(n)(m)
-            !(One10i.Min.toBigInt <= ir && ir <= One10i.Max.toBigInt)
-        })
+      * - assert(M1_16.isSigned)
+
+      * - assert(!M1_16.isBitVector)
+
+      * - assert(M1_16.hasMin)
+
+      * - assert(M1_16.hasMax)
+
+      * - assert(M1_16.Index =~= m1_16"0")
+
+      * - assert(M1_16.Min =~= m1_16"-1")
+
+      * - assert(M1_16.Max =~= m1_16"16")
+
+      * - assert(M1_16.Name =~= "M1_16")
+
+      val x = m1_16"10"
+
+      * - assert(x.toIndex =~= z"10")
+
+      * - assert(x.isSigned)
+
+      * - assert(x.Index =~= m1_16"0")
+
+      * - assert(x.Min =~= m1_16"-1")
+
+      * - assert(x.Max =~= m1_16"16")
+
+      * - assert(x.Name =~= "M1_16")
+
+      * - assert(x.value =~= z"10")
+
+      * - assert(x - m1_16"11" =~= M1_16.Min)
+
+      * - assert(x.decrease.increase =~= x)
+
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          val v = M1_16.random
+          assert(M1_16.Min <= v)
+          assert(v <= M1_16.Max)
+        }
       }
-    }
 
-    for ((op, op1, op2) <- List[(Predef.String, One10i => One10i => B, Int => Int => scala.Boolean)](
-      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m")(op1(One10i(n))(One10i(m)).value =~= op2(n)(m))
+      val random = new _root_.java.util.Random
+
+      def rand(): Int = random.nextInt(18) - 1
+
+      * - {
+        for ((op, op1, op2) <- List[(Predef.String,
+                                     M1_16 => M1_16 => M1_16,
+                                     Int => Int => Int)](("+", _.+, _.+),
+                                                         ("-", _.-, _.-),
+                                                         ("*", _.*, _.*),
+                                                         ("/", _./, _./),
+                                                         ("%", _.%, _.%))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            var m = rand()
+            while (m == 0 && (op == "/" || op == "%")) m = rand()
+            Try(op1(M1_16(n))(M1_16(m)).toBigInt.toInt) match {
+              case Success(r) => assert(r =~= op2(n)(m))
+              case Failure(_) =>
+                val ir = op2(n)(m)
+                assert(!(M1_16.Min.toBigInt <= ir && ir <= M1_16.Max.toBigInt))
+            }
+          }
+        }
       }
-    }
-  }
 
-  "M1_16" - {
-
-    import M1_16._
-
-    *(M1_16.isSigned)
-
-    *(!M1_16.isBitVector)
-
-    *(M1_16.hasMin)
-
-    *(M1_16.hasMax)
-
-    *(M1_16.Index =~= m1_16"0")
-
-    *(M1_16.Min =~= m1_16"-1")
-
-    *(M1_16.Max =~= m1_16"16")
-
-    *(M1_16.Name =~= "M1_16")
-
-    val x = m1_16"10"
-
-    *(x.toIndex =~= z"10")
-
-    *(x.isSigned)
-
-    *(x.Index =~= m1_16"0")
-
-    *(x.Min =~= m1_16"-1")
-
-    *(x.Max =~= m1_16"16")
-
-    *(x.Name =~= "M1_16")
-
-    *(x.value =~= z"10")
-
-    *(x - m1_16"11" =~= M1_16.Min)
-
-    *(x.decrease.increase =~= x)
-
-    for (_ <- 0 until numOfRandomTests) {
-      *("random"){
-        val v = M1_16.random
-        M1_16.Min <= v && v <= M1_16.Max
-      }
-    }
-
-    val random = new _root_.java.util.Random
-
-    def rand(): Int = random.nextInt(18) - 1
-
-    for ((op, op1, op2) <- List[(Predef.String, M1_16 => M1_16 => M1_16, Int => Int => Int)](
-      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = rand()
-        *(s"$n $op $m")(Try(op1(M1_16(n))(M1_16(m)).toBigInt.toInt) match {
-          case Success(r) => r =~= op2(n)(m)
-          case Failure(_) =>
-            val ir = op2(n)(m)
-            !(M1_16.Min.toBigInt <= ir && ir <= M1_16.Max.toBigInt)
-        })
-      }
-    }
-
-    for ((op, op1, op2) <- List[(Predef.String, M1_16 => M1_16 => B, Int => Int => scala.Boolean)](
-      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m")(op1(M1_16(n))(M1_16(m)).value =~= op2(n)(m))
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    M1_16 => M1_16 => B,
+                                    Int => Int => scala.Boolean)](
+               (">", _.>, _.>),
+               (">=", _.>=, _.>=),
+               ("<", _.<, _.<),
+               ("<=", _.<=, _.<=),
+               ("==", _.==, _.==),
+               ("!=", _.!=, _.!=))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            assert(op1(M1_16(n))(M1_16(m)).value =~= op2(n)(m))
+          }
+        }
       }
     }
   }

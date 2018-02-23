@@ -27,26 +27,39 @@ package org.sireum
 
 import org.sireum.test._
 
-class SetTest extends SireumRuntimeSpec {
-  *(Set.empty[String].size =~= z"0")
+class SetTest extends TestSuite {
 
-  *(!Set.empty[String].contains("a"))
+  val tests = Tests {
 
-  *(Set.empty[String].+("a").contains("a"))
+    * - assert(Set.empty[String].size =~= z"0")
 
-  *(!Set.empty[String].+("a").contains("A"))
+    * - assert(!Set.empty[String].contains("a"))
 
-  *(Set.empty[String].+("a").+("b").contains("a"))
+    * - assert(Set.empty[String].+("a").contains("a"))
 
-  *(Set.empty[String].+("a").+("b").contains("b"))
+    * - assert(!Set.empty[String].+("a").contains("A"))
 
-  *(Set.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
+    * - assert(Set.empty[String].+("a").+("b").contains("a"))
 
-  *(Set.empty[String].++(ISZ("a", "b")) =~= Set.empty[String].+("b").+("a"))
+    * - assert(Set.empty[String].+("a").+("b").contains("b"))
 
-  *(Set.empty[String].∪(Set.empty[String].+("A")) =~= Set.empty[String].+("A"))
+    * - assert(Set.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(Set.empty[String].∩(Set.empty[String].+("A")) =~= Set.empty[String])
+    * - assert(
+      Set.empty[String].++(ISZ("a", "b")) =~= Set.empty[String].+("b").+("a"))
 
-  *(Set.empty[String].+("a").∩(Set.empty[String].+("A")) =~= Set.empty[String])
+    * - assert(
+      Set.empty[String].∪(Set.empty[String].+("A")) =~= Set
+        .empty[String]
+        .+("A"))
+
+    * - assert(
+      Set.empty[String].∩(Set.empty[String].+("A")) =~= Set.empty[String])
+
+    * - assert(
+      Set.empty[String].+("a").∩(Set.empty[String].+("A")) =~= Set
+        .empty[String])
+
+  }
+
 }

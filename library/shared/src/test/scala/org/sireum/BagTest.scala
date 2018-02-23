@@ -27,36 +27,46 @@ package org.sireum
 
 import org.sireum.test._
 
-class BagTest extends SireumRuntimeSpec {
+class BagTest extends TestSuite {
 
-  *(Bag.empty[String].size =~= z"0")
+  val tests = Tests {
 
-  *(!Bag.empty[String].contains("a"))
+    * - assert(Bag.empty[String].size =~= z"0")
 
-  *((Bag ++ ISZ("a")).contains("a"))
+    * - assert(!Bag.empty[String].contains("a"))
 
-  *((Bag.empty[String] + "a" + "a").count("a") == 2)
+    * - assert((Bag ++ ISZ("a")).contains("a"))
 
-  *((Bag.empty[String] +# (string"a" ~> z"4") + "a").count("a") == 5)
+    * - assert((Bag.empty[String] + "a" + "a").count("a") == 2)
 
-  *((Bag.empty[String] +# (string"a" ~> z"4") - "a").count("a") == 3)
+    * - assert((Bag.empty[String] +# (string"a" ~> z"4") + "a").count("a") == 5)
 
-  *((Bag.empty[String] +# (string"a" ~> z"4") -# (string"a" ~> z"10")).count("a") == 0)
+    * - assert((Bag.empty[String] +# (string"a" ~> z"4") - "a").count("a") == 3)
 
-  *(!(Bag.empty[String] + "a").contains("A"))
+    * - assert(
+      (Bag.empty[String] +# (string"a" ~> z"4") -# (string"a" ~> z"10"))
+        .count("a") == 0)
 
-  *((Bag.empty[String] + "a" + "b").contains("a"))
+    * - assert(!(Bag.empty[String] + "a").contains("A"))
 
-  *((Bag.empty[String] + "a" + "b").contains("b"))
+    * - assert((Bag.empty[String] + "a" + "b").contains("a"))
 
-  *((Bag.empty[String] ++ ISZ("a", "b") - "a" - "b").isEmpty)
+    * - assert((Bag.empty[String] + "a" + "b").contains("b"))
 
-  *(Bag.empty[String] ++ ISZ("a", "b") =~= Bag.empty[String] + "b" + "a")
+    * - assert((Bag.empty[String] ++ ISZ("a", "b") - "a" - "b").isEmpty)
 
-  *((Bag.empty[String] ∪ Bag.empty[String] + "A") =~= Bag.empty[String] + "A")
+    * - assert(
+      Bag.empty[String] ++ ISZ("a", "b") =~= Bag.empty[String] + "b" + "a")
 
-  *((Bag.empty[String] ∩ (Bag.empty[String] + "A")) =~= Bag.empty[String])
+    * - assert(
+      (Bag.empty[String] ∪ Bag.empty[String] + "A") =~= Bag.empty[String] + "A")
 
-  *(((Bag.empty[String] + "a") ∩ (Bag.empty[String] + "A")) =~= Bag.empty[String])
+    * - assert(
+      (Bag.empty[String] ∩ (Bag.empty[String] + "A")) =~= Bag.empty[String])
+
+    * - assert(
+      ((Bag.empty[String] + "a") ∩ (Bag.empty[String] + "A")) =~= Bag
+        .empty[String])
+  }
 
 }

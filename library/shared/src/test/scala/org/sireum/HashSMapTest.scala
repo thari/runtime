@@ -27,26 +27,50 @@ package org.sireum
 
 import org.sireum.test._
 
-class HashSMapTest extends SireumRuntimeSpec {
-  *(HashSMap.empty[String, Z].size =~= z"0")
+class HashSMapTest extends TestSuite {
 
-  *(HashSMap.empty[String, Z].get("a") =~= None())
+  val tests = Tests {
 
-  *(HashSMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
+    * - assert(HashSMap.empty[String, Z].size =~= z"0")
 
-  *(HashSMap.empty[String, Z].+("a", 1).get("A") =~= None())
+    * - assert(HashSMap.empty[String, Z].get("a") =~= None())
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
+    * - assert(HashSMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
+    * - assert(HashSMap.empty[String, Z].+("a", 1).get("A") =~= None())
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashSMap.empty[String, Z].+("b", 2).+("a", 1))
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashSMap.empty[String, Z].+("b", 2))
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashSMap.empty[String, Z].+("a", 1))
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashSMap
+        .empty[String, Z]
+        .+("b", 2)
+        .+("a", 1))
 
-  *(HashSMap.empty[String, Z].+("a", 1).+("b", 2).--(ISZ("a", "b")) =~= HashSMap.empty[String, Z])
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashSMap
+        .empty[String, Z]
+        .+("b", 2))
+
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashSMap
+        .empty[String, Z]
+        .+("a", 1))
+
+    * - assert(
+      HashSMap
+        .empty[String, Z]
+        .+("a", 1)
+        .+("b", 2)
+        .--(ISZ("a", "b")) =~= HashSMap.empty[String, Z])
+
+  }
+
 }

@@ -27,36 +27,40 @@ package org.sireum
 
 import org.sireum.test._
 
-class HashBagTest extends SireumRuntimeSpec {
+class HashBagTest extends TestSuite {
 
-  *(HashBag.empty[String].size =~= z"0")
+  val tests = Tests {
 
-  *(!HashBag.empty[String].contains("a"))
+    * - assert(HashBag.empty[String].size =~= z"0")
 
-  *(HashBag.empty[String].+("a").contains("a"))
+    * - assert(!HashBag.empty[String].contains("a"))
 
-  *(HashBag.empty[String].+("a").+("a").count("a") == 2)
+    * - assert(HashBag.empty[String].+("a").contains("a"))
 
-  *(HashBag.empty[String].addN("a", 4).+("a").count("a") == 5)
+    * - assert(HashBag.empty[String].+("a").+("a").count("a") == 2)
 
-  *(HashBag.empty[String].addN("a", 4).-("a").count("a") == 3)
+    * - assert(HashBag.empty[String].addN("a", 4).+("a").count("a") == 5)
 
-  *(HashBag.empty[String].addN("a", 4).removeN("a", 10).count("a") == 0)
+    * - assert(HashBag.empty[String].addN("a", 4).-("a").count("a") == 3)
 
-  *(!HashBag.empty[String].+("a").contains("A"))
+    * - assert(HashBag.empty[String].addN("a", 4).removeN("a", 10).count("a") == 0)
 
-  *(HashBag.empty[String].+("a").+("b").contains("a"))
+    * - assert(!HashBag.empty[String].+("a").contains("A"))
 
-  *(HashBag.empty[String].+("a").+("b").contains("b"))
+    * - assert(HashBag.empty[String].+("a").+("b").contains("a"))
 
-  *(HashBag.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
+    * - assert(HashBag.empty[String].+("a").+("b").contains("b"))
 
-  *(HashBag.empty[String].++(ISZ("a", "b")) =~= HashBag.empty[String].+("b").+("a"))
+    * - assert(HashBag.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-  *(HashBag.empty[String].∪(HashBag.empty[String].+("A")) =~= HashBag.empty[String].+("A"))
+    * - assert(HashBag.empty[String].++(ISZ("a", "b")) =~= HashBag.empty[String].+("b").+("a"))
 
-  *(HashBag.empty[String].∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
+    * - assert(HashBag.empty[String].∪(HashBag.empty[String].+("A")) =~= HashBag.empty[String].+("A"))
 
-  *(HashBag.empty[String].+("a").∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
+    * - assert(HashBag.empty[String].∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
+
+    * - assert(HashBag.empty[String].+("a").∩(HashBag.empty[String].+("A")) =~= HashBag.empty[String])
+
+  }
 
 }

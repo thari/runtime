@@ -27,48 +27,67 @@ package org.sireum
 
 import org.sireum.test._
 
-class ZTest extends SireumRuntimeSpec {
+class ZTest extends TestSuite {
 
   val numOfRandomTests = 64
 
   val x: Z = Z.random
 
-  *(x.toIndex =~= x)
+  val tests = Tests {
 
-  *(!x.isBitVector)
+    * - assert(x.toIndex =~= x)
 
-  *(!x.hasMin)
+    * - assert(!x.isBitVector)
 
-  *(!x.hasMax)
+    * - assert(!x.hasMin)
 
-  *(x.isSigned)
+    * - assert(!x.hasMax)
 
-  *(x.Index =~= z"0")
+    * - assert(x.isSigned)
 
-  *(x.Name =~= "Z")
+    * - assert(x.Index =~= z"0")
 
-  *(x.decrease.increase =~= x)
+    * - assert(x.Name =~= "Z")
 
-  val random = new java.util.Random
+    * - assert(x.decrease.increase =~= x)
 
-  def rand(): scala.BigInt = Z.random.toBigInt
+    def rand(): scala.BigInt = Z.random.toBigInt
 
-  for ((op, op1, op2) <- List[(Predef.String, Z => Z => Z, scala.BigInt => scala.BigInt => scala.BigInt)](
-    ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-    for (_ <- 0 until numOfRandomTests) {
-      val n = rand()
-      var m = rand()
-      while (m == 0 && (op == "/" || op == "%")) m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).toBigInt =~= op2(n)(m))
+    * - {
+      for ((op, op1, op2) <- List[
+             (Predef.String,
+              Z => Z => Z,
+              scala.BigInt => scala.BigInt => scala.BigInt)](("+", _.+, _.+),
+                                                             ("-", _.-, _.-),
+                                                             ("*", _.*, _.*),
+                                                             ("/", _./, _./),
+                                                             ("%", _.%, _.%))) {
+        for (_ <- 0 until numOfRandomTests) {
+          val n = rand()
+          var m = rand()
+          while (m == 0 && (op == "/" || op == "%")) m = rand()
+          assert(op1(Z(n))(Z(m)).toBigInt == op2(n)(m))
+        }
+      }
     }
-  }
 
-  for ((op, op1, op2) <- List[(Predef.String, Z => Z => B, scala.BigInt => scala.BigInt => scala.Boolean)](
-    (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-    for (_ <- 0 until numOfRandomTests) {
-      val n = rand()
-      val m = rand()
-      *(s"$n $op $m")(op1(Z(n))(Z(m)).value =~= op2(n)(m))
+    * - {
+      for ((_, op1, op2) <- List[
+             (Predef.String,
+              Z => Z => B,
+              scala.BigInt => scala.BigInt => scala.Boolean)](
+             (">", _.>, _.>),
+             (">=", _.>=, _.>=),
+             ("<", _.<, _.<),
+             ("<=", _.<=, _.<=),
+             ("==", _.==, _.==),
+             ("!=", _.!=, _.!=))) {
+        for (_ <- 0 until numOfRandomTests) {
+          val n = rand()
+          val m = rand()
+          assert(op1(Z(n))(Z(m)).value == op2(n)(m))
+        }
+      }
     }
   }
 }

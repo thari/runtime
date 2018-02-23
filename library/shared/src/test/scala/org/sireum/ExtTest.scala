@@ -37,8 +37,11 @@ object NFoo_Ext {
   def foo[T](x: Z): T = Z(2).asInstanceOf[T]
 }
 
-class ExtTest extends SireumRuntimeSpec {
-  *(NFoo.x =~= Z(5))
+class ExtTest extends TestSuite {
 
-  *(NFoo.foo[Z](4) =~= Z(2))
+  val tests = Tests {
+    * - assert(NFoo.x =~= Z(5))
+
+    * - assert(NFoo.foo[Z](4) =~= Z(2))
+  }
 }

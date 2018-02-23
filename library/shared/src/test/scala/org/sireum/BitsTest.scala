@@ -29,307 +29,383 @@ import org.sireum.test._
 import spire.math._
 import scala.util.{Failure, Success, Try}
 
-class BitsTest extends SireumRuntimeSpec {
+class BitsTest extends TestSuite {
 
   val numOfRandomTests = 64
 
-  "S8" - {
+  val tests = Tests {
 
-    import S8._
+    "S8" - {
 
-    *(S8.isSigned)
+      import S8._
 
-    *(S8.isBitVector)
+      * - assert(S8.isSigned)
 
-    *(S8.hasMin)
+      * - assert(S8.isBitVector)
 
-    *(S8.hasMax)
+      * - assert(S8.hasMin)
 
-    *(S8.isWrapped)
+      * - assert(S8.hasMax)
 
-    *(S8.BitWidth =~= 8)
+      * - assert(S8.isWrapped)
 
-    *(S8.Index =~= s8"0")
+      * - assert(S8.BitWidth =~= 8)
 
-    *(S8.Min =~= s8"-128")
+      * - assert(S8.Index =~= s8"0")
 
-    *(S8.Max =~= s8"127")
+      * - assert(S8.Min =~= s8"-128")
 
-    *(S8.Name =~= "S8")
+      * - assert(S8.Max =~= s8"127")
 
-    val x = s8"-114"
+      * - assert(S8.Name =~= "S8")
 
-    *(x.toIndex =~= z"-114")
+      val x = s8"-114"
 
-    *(x.isSigned)
+      * - assert(x.toIndex =~= z"-114")
 
-    *(x.isBitVector)
+      * - assert(x.isSigned)
 
-    *(x.hasMin)
+      * - assert(x.isBitVector)
 
-    *(x.hasMax)
+      * - assert(x.hasMin)
 
-    *(x.isWrapped)
+      * - assert(x.hasMax)
 
-    *(x.BitWidth =~= 8)
+      * - assert(x.isWrapped)
 
-    *(x.Index =~= s8"0")
+      * - assert(x.BitWidth =~= 8)
 
-    *(x.Min =~= s8"-128")
+      * - assert(x.Index =~= s8"0")
 
-    *(x.Max =~= s8"127")
+      * - assert(x.Min =~= s8"-128")
 
-    *(x.Name =~= "S8")
+      * - assert(x.Max =~= s8"127")
 
-    *(x.value =~= -114)
+      * - assert(x.Name =~= "S8")
 
-    *(x - s8"15" =~= S8.Max)
+      * - assert(x.value =~= -114)
 
-    *(x + S8.Min * s8"-2" =~= x)
+      * - assert(x - s8"15" =~= S8.Max)
 
-    for (_ <- 0 until numOfRandomTests) {
-      *("random"){
-        val v = S8.random
-        S8.Min <= v && v <= S8.Max
+      * - assert(x + S8.Min * s8"-2" =~= x)
+
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          val v = S8.random
+          assert(S8.Min <= v)
+          assert(v <= S8.Max)
+        }
       }
-    }
 
-    val random = new _root_.java.util.Random
-    def rand(): Byte = random.nextInt.toByte
-
-    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => S8, Byte => Byte => Int)](
-      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = rand()
-        *(s"$n $op $m")(op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(op2(n)(m).toByte))
-      }
-    }
-
-    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => S8, Byte => Int => Int)](
-      (">>", _.>>, _.>>), (">>>", _.>>>, _.>>>), ("<<", _.<<, _.<<))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m")(op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(op2(n)(m.toInt).toByte))
-      }
-    }
-
-    for ((op, op1, op2) <- List[(Predef.String, S8 => S8 => B, Byte => Byte => scala.Boolean)](
-      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m")(op1(S8(n))(S8(m)).value =~= op2(n)(m))
-      }
-    }
-
-  }
-
-  "U16" - {
-
-    import U16._
-
-    *(!U16.isSigned)
-
-    *(U16.isBitVector)
-
-    *(U16.hasMin)
-
-    *(U16.hasMax)
-
-    *(U16.isWrapped)
-
-    *(U16.BitWidth =~= 16)
-
-    *(U16.Index =~= u16"0")
-
-    *(U16.Min =~= u16"0")
-
-    *(U16.Max =~= u16"65535")
-
-    *(U16.Name =~= "U16")
-
-    val x = u16"14"
-
-    *(x.toIndex =~= z"14")
-
-    *(!x.isSigned)
-
-    *(x.isBitVector)
-
-    *(x.hasMin)
-
-    *(x.hasMax)
-
-    *(x.isWrapped)
-
-    *(x.BitWidth =~= 16)
-
-    *(x.Index =~= u16"0")
-
-    *(x.Min =~= u16"0")
-
-    *(x.Max =~= u16"65535")
-
-    *(x.Name =~= "U16")
-
-    *(x.value =~= 14l)
-
-    *(x - u16"15" =~= U16.Max)
-
-    *(x + U16.Max =~= x.decrease)
-
-    for (_ <- 0 until numOfRandomTests) {
-      *("random"){
-        val v = U16.random
-        U16.Min <= v && v <= U16.Max
-      }
-    }
-
-    val random = new _root_.java.util.Random
-    def rand(): Short = random.nextInt.toShort
-
-    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => U16, UShort => UShort => UShort)](
-      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = rand()
-        val un = UShort(n)
-        val um = UShort(m)
-        *(s"$un $op $um")(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
-      }
-    }
-
-    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => U16, UShort => Int => UShort)](
-      (">>>", _.>>>, _.>>>), ("<<", _.<<, _.<<))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        val un = UShort(n)
-        val um = m.toInt
-        *(s"$un $op $um")(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
-      }
-    }
-
-    for ((op, op1, op2) <- List[(Predef.String, U16 => U16 => B, UShort => UShort => scala.Boolean)](
-      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        val un = UShort(n)
-        val um = UShort(m)
-        *(s"$un $op $um")(op1(U16(n))(U16(m)).value =~= op2(un)(um))
-      }
-    }
-
-  }
-
-  "S16_m2" - {
-
-    import S16_m2._
-
-    *(S16_m2.isSigned)
-
-    *(S16_m2.isBitVector)
-
-    *(S16_m2.hasMin)
-
-    *(S16_m2.hasMax)
-
-    *(!S16_m2.isWrapped)
-
-    *(S16_m2.BitWidth =~= 16)
-
-    *(S16_m2.Index =~= s16_m2"-2")
-
-    *(S16_m2.Min =~= s16_m2"-2")
-
-    *(S16_m2.Max =~= s16_m2"32767")
-
-    *(S16_m2.Name =~= "S16_m2")
-
-    val x = s16_m2"14"
-
-    *(x.toIndex =~= z"16")
-
-    *(x.isSigned)
-
-    *(x.isBitVector)
-
-    *(x.hasMin)
-
-    *(x.hasMax)
-
-    *(!x.isWrapped)
-
-    *(x.BitWidth =~= 16)
-
-    *(x.Index =~= s16_m2"-2")
-
-    *(x.Min =~= s16_m2"-2")
-
-    *(x.Max =~= s16_m2"32767")
-
-    *(x.Name =~= "S16_m2")
-
-    *(x.value =~= 14l)
-
-    *(x - s16_m2"15" =~= s16_m2"-1")
-
-    *(Try(x + S16_m2.Max).isFailure)
-
-    for (_ <- 0 until numOfRandomTests) {
-      *("random"){
-        val v = S16_m2.random
-        S16_m2.Min <= v && v <= S16_m2.Max
-      }
-    }
-
-    val random = new _root_.java.util.Random
-    def rand(): Short = (random.nextInt(16 + 3) - 2).toShort
-
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => S16_m2, Short => Short => Int)](
-      ("+", _.+, _.+), ("-", _.-, _.-), ("*", _.*, _.*), ("/", _./, _./), ("%", _.%, _.%))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        var m = rand()
-        while (m == 0 && (op == "/" || op == "%")) m = rand()
-        *(s"$n $op $m") {
-          val br = op2(n)(m).toShort.toInt
-          Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
-            case Success(r) => r =~= br
-            case Failure(_) => !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt)
+      val random = new _root_.java.util.Random
+
+      def rand(): Byte = random.nextInt.toByte
+
+      * - {
+        for ((op, op1, op2) <- List[(Predef.String,
+                                     S8 => S8 => S8,
+                                     Byte => Byte => Int)](("+", _.+, _.+),
+                                                           ("-", _.-, _.-),
+                                                           ("*", _.*, _.*),
+                                                           ("/", _./, _./),
+                                                           ("%", _.%, _.%))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            var m = rand()
+            while (m == 0 && (op == "/" || op == "%")) m = rand()
+            assert(
+              op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(op2(n)(m).toByte))
           }
         }
       }
-    }
 
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => S16_m2, Short => Int => Int)](
-      (">>", _.>>, _.>>), (">>>", _.>>>, _.>>>), ("*", _.<<, _.<<))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m") {
-          val br = op2(n)(m).toShort.toInt
-          Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
-            case Success(r) => r =~= br
-            case Failure(_) => !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt)
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    S8 => S8 => S8,
+                                    Byte => Int => Int)]((">>", _.>>, _.>>),
+                                                         (">>>", _.>>>, _.>>>),
+                                                         ("<<", _.<<, _.<<))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            assert(
+              op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(
+                op2(n)(m.toInt).toByte))
           }
         }
       }
-    }
 
-    for ((op, op1, op2) <- List[(Predef.String, S16_m2 => S16_m2 => B, Short => Short => scala.Boolean)](
-      (">", _.>, _.>), (">=", _.>=, _.>=), ("<", _.<, _.<), ("<=", _.<=, _.<=), ("==", _.==, _.==), ("!=", _.!=, _.!=))) {
-      for (_ <- 0 until numOfRandomTests) {
-        val n = rand()
-        val m = rand()
-        *(s"$n $op $m")(op1(S16_m2(n))(S16_m2(m)).value =~= op2(n)(m))
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    S8 => S8 => B,
+                                    Byte => Byte => scala.Boolean)](
+               (">", _.>, _.>),
+               (">=", _.>=, _.>=),
+               ("<", _.<, _.<),
+               ("<=", _.<=, _.<=),
+               ("==", _.==, _.==),
+               ("!=", _.!=, _.!=))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            assert(op1(S8(n))(S8(m)).value =~= op2(n)(m))
+          }
+        }
       }
+
     }
 
+    "U16" - {
+
+      import U16._
+
+      * - assert(!U16.isSigned)
+
+      * - assert(U16.isBitVector)
+
+      * - assert(U16.hasMin)
+
+      * - assert(U16.hasMax)
+
+      * - assert(U16.isWrapped)
+
+      * - assert(U16.BitWidth =~= 16)
+
+      * - assert(U16.Index =~= u16"0")
+
+      * - assert(U16.Min =~= u16"0")
+
+      * - assert(U16.Max =~= u16"65535")
+
+      * - assert(U16.Name =~= "U16")
+
+      val x = u16"14"
+
+      * - assert(x.toIndex =~= z"14")
+
+      * - assert(!x.isSigned)
+
+      * - assert(x.isBitVector)
+
+      * - assert(x.hasMin)
+
+      * - assert(x.hasMax)
+
+      * - assert(x.isWrapped)
+
+      * - assert(x.BitWidth =~= 16)
+
+      * - assert(x.Index =~= u16"0")
+
+      * - assert(x.Min =~= u16"0")
+
+      * - assert(x.Max =~= u16"65535")
+
+      * - assert(x.Name =~= "U16")
+
+      * - assert(x.value =~= 14l)
+
+      * - assert(x - u16"15" =~= U16.Max)
+
+      * - assert(x + U16.Max =~= x.decrease)
+
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          val v = U16.random
+          assert(U16.Min <= v)
+          assert(v <= U16.Max)
+        }
+      }
+
+      val random = new _root_.java.util.Random
+
+      def rand(): Short = random.nextInt.toShort
+
+      * - {
+        for ((op, op1, op2) <- List[(Predef.String,
+                                     U16 => U16 => U16,
+                                     UShort => UShort => UShort)](
+               ("+", _.+, _.+),
+               ("-", _.-, _.-),
+               ("*", _.*, _.*),
+               ("/", _./, _./),
+               ("%", _.%, _.%))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            var m = rand()
+            while (m == 0 && (op == "/" || op == "%")) m = rand()
+            val un = UShort(n)
+            val um = UShort(m)
+            assert(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
+          }
+        }
+      }
+
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    U16 => U16 => U16,
+                                    UShort => Int => UShort)](
+               (">>>", _.>>>, _.>>>),
+               ("<<", _.<<, _.<<))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            val un = UShort(n)
+            val um = m.toInt
+            assert(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
+          }
+        }
+      }
+
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    U16 => U16 => B,
+                                    UShort => UShort => scala.Boolean)](
+               (">", _.>, _.>),
+               (">=", _.>=, _.>=),
+               ("<", _.<, _.<),
+               ("<=", _.<=, _.<=),
+               ("==", _.==, _.==),
+               ("!=", _.!=, _.!=))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            val un = UShort(n)
+            val um = UShort(m)
+            assert(op1(U16(n))(U16(m)).value =~= op2(un)(um))
+          }
+        }
+      }
+
+    }
+
+    "S16_m2" - {
+
+      import S16_m2._
+
+      * - assert(S16_m2.isSigned)
+
+      * - assert(S16_m2.isBitVector)
+
+      * - assert(S16_m2.hasMin)
+
+      * - assert(S16_m2.hasMax)
+
+      * - assert(!S16_m2.isWrapped)
+
+      * - assert(S16_m2.BitWidth =~= 16)
+
+      * - assert(S16_m2.Index =~= s16_m2"-2")
+
+      * - assert(S16_m2.Min =~= s16_m2"-2")
+
+      * - assert(S16_m2.Max =~= s16_m2"32767")
+
+      * - assert(S16_m2.Name =~= "S16_m2")
+
+      val x = s16_m2"14"
+
+      * - assert(x.toIndex =~= z"16")
+
+      * - assert(x.isSigned)
+
+      * - assert(x.isBitVector)
+
+      * - assert(x.hasMin)
+
+      * - assert(x.hasMax)
+
+      * - assert(!x.isWrapped)
+
+      * - assert(x.BitWidth =~= 16)
+
+      * - assert(x.Index =~= s16_m2"-2")
+
+      * - assert(x.Min =~= s16_m2"-2")
+
+      * - assert(x.Max =~= s16_m2"32767")
+
+      * - assert(x.Name =~= "S16_m2")
+
+      * - assert(x.value =~= 14l)
+
+      * - assert(x - s16_m2"15" =~= s16_m2"-1")
+
+      * - assert(Try(x + S16_m2.Max).isFailure)
+
+      * - {
+        for (_ <- 0 until numOfRandomTests) {
+          val v = S16_m2.random
+          assert(S16_m2.Min <= v)
+          assert(v <= S16_m2.Max)
+        }
+      }
+
+      val random = new _root_.java.util.Random
+
+      def rand(): Short = (random.nextInt(16 + 3) - 2).toShort
+
+      * - {
+        for ((op, op1, op2) <- List[(Predef.String,
+                                     S16_m2 => S16_m2 => S16_m2,
+                                     Short => Short => Int)](("+", _.+, _.+),
+                                                             ("-", _.-, _.-),
+                                                             ("*", _.*, _.*),
+                                                             ("/", _./, _./),
+                                                             ("%", _.%, _.%))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            var m = rand()
+            while (m == 0 && (op == "/" || op == "%")) m = rand()
+            val br = op2(n)(m).toShort.toInt
+            Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
+              case Success(r) => assert(r =~= br)
+              case Failure(_) =>
+                assert(
+                  !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt))
+            }
+          }
+        }
+      }
+
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    S16_m2 => S16_m2 => S16_m2,
+                                    Short => Int => Int)]((">>", _.>>, _.>>),
+                                                          (">>>", _.>>>, _.>>>),
+                                                          ("*", _.<<, _.<<))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            val br = op2(n)(m).toShort.toInt
+            Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
+              case Success(r) => assert(r =~= br)
+              case Failure(_) =>
+                assert(
+                  !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt))
+            }
+          }
+        }
+      }
+
+      * - {
+        for ((_, op1, op2) <- List[(Predef.String,
+                                    S16_m2 => S16_m2 => B,
+                                    Short => Short => scala.Boolean)](
+               (">", _.>, _.>),
+               (">=", _.>=, _.>=),
+               ("<", _.<, _.<),
+               ("<=", _.<=, _.<=),
+               ("==", _.==, _.==),
+               ("!=", _.!=, _.!=))) {
+          for (_ <- 0 until numOfRandomTests) {
+            val n = rand()
+            val m = rand()
+            assert(op1(S16_m2(n))(S16_m2(m)).value =~= op2(n)(m))
+          }
+        }
+      }
+
+    }
   }
 }

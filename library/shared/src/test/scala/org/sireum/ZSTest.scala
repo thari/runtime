@@ -26,35 +26,42 @@ package org.sireum
 
 import org.sireum.test._
 
-class ZSTest extends SireumRuntimeSpec {
+class ZSTest extends TestSuite {
   final val size = Z(1024)
   final val zs123 = ZS(1, 2, 3)
   final val zs12 = ZS(1, 2)
   final val zs23 = ZS(2, 3)
 
-  "append" - {
-    * (zs123 =~= zs12 :+ 3)
+  val tests = Tests {
 
-    *(zs123.hashCode =~= (zs12 :+ 3).hashCode)
-  }
+    "append" - {
 
-  "prepend" - {
-    *(zs123 =~= 1 +: zs23)
-    *(zs123.hashCode =~= (1 +: zs23).hashCode)
-  }
+      * - assert(zs123 =~= zs12 :+ 3)
 
-  "impl" - {
+      * - assert(zs123.hashCode =~= (zs12 :+ 3).hashCode)
+    }
 
-    "zsArray" in {
-      var i = Z(0)
-      var append: ZS = ZS()
-      var prepend: ZS = ZS()
-      while (i < size) {
-        append :+= i
-        prepend +:= size - i - 1
-        i += 1
+    "prepend" - {
+
+      * - assert(zs123 =~= 1 +: zs23)
+
+      * - assert(zs123.hashCode =~= (1 +: zs23).hashCode)
+
+    }
+
+    "impl" - {
+
+      "zsArray" - {
+        var i = Z(0)
+        var append: ZS = ZS()
+        var prepend: ZS = ZS()
+        while (i < size) {
+          append :+= i
+          prepend +:= size - i - 1
+          i += 1
+        }
+        assert(append =~= prepend)
       }
-      assert(append =~= prepend)
     }
   }
 }

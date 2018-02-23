@@ -27,26 +27,42 @@ package org.sireum
 
 import org.sireum.test._
 
-class MapTest extends SireumRuntimeSpec {
-  *(Map.empty[String, Z].size =~= z"0")
+class MapTest extends TestSuite {
 
-  *(Map.empty[String, Z].get("a") =~= None())
+  val tests = Tests {
 
-  *(Map.empty[String, Z].+("a", 1).get("a") =~= Some(1))
+    * - assert(Map.empty[String, Z].size =~= z"0")
 
-  *(Map.empty[String, Z].+("a", 1).get("A") =~= None())
+    * - assert(Map.empty[String, Z].get("a") =~= None())
 
-  *(Map.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
+    * - assert(Map.empty[String, Z].+("a", 1).get("a") =~= Some(1))
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
+    * - assert(Map.empty[String, Z].+("a", 1).get("A") =~= None())
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
+    * - assert(Map.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2) =~= Map[String, Z](ISZ(("b", 2), ("a", 1))))
+    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= Map[String, Z](ISZ(("b", 2))))
+    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= Map[String, Z](ISZ(("a", 1))))
+    * - assert(
+      Map.empty[String, Z].+("a", 1).+("b", 2) =~= Map[String, Z](
+        ISZ(("b", 2), ("a", 1))))
 
-  *(Map.empty[String, Z].+("a", 1).+("b", 2).--(ISZ("a", "b")) =~= Map[String, Z](ISZ()))
+    * - assert(
+      Map.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= Map[String, Z](
+        ISZ(("b", 2))))
+
+    * - assert(
+      Map.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= Map[String, Z](
+        ISZ(("a", 1))))
+
+    * - assert(
+      Map
+        .empty[String, Z]
+        .+("a", 1)
+        .+("b", 2)
+        .--(ISZ("a", "b")) =~= Map[String, Z](ISZ()))
+
+  }
 }

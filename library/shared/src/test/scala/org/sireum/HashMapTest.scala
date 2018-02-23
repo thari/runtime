@@ -27,26 +27,45 @@ package org.sireum
 
 import org.sireum.test._
 
-class HashMapTest extends SireumRuntimeSpec {
-  *(HashMap.empty[String, Z].size =~= z"0")
+class HashMapTest extends TestSuite {
 
-  *(HashMap.empty[String, Z].get("a") =~= None())
+  val tests = Tests {
 
-  *(HashMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
+    * - assert(HashMap.empty[String, Z].size =~= z"0")
 
-  *(HashMap.empty[String, Z].+("a", 1).get("A") =~= None())
+    * - assert(HashMap.empty[String, Z].get("a") =~= None())
 
-  *(HashMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
+    * - assert(HashMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
+    * - assert(HashMap.empty[String, Z].+("a", 1).get("A") =~= None())
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashMap.empty[String, Z].+("b", 2).+("a", 1))
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashMap.empty[String, Z].+("b", 2))
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashMap.empty[String, Z].+("a", 1))
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashMap
+        .empty[String, Z]
+        .+("b", 2)
+        .+("a", 1))
 
-  *(HashMap.empty[String, Z].+("a", 1).+("b", 2).--(ISZ("a", "b")) =~= HashMap.empty[String, Z])
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashMap
+        .empty[String, Z]
+        .+("b", 2))
+
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashMap
+        .empty[String, Z]
+        .+("a", 1))
+
+    * - assert(
+      HashMap.empty[String, Z].+("a", 1).+("b", 2).--(ISZ("a", "b")) =~= HashMap
+        .empty[String, Z])
+  }
 }

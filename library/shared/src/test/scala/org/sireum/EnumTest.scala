@@ -27,8 +27,12 @@ package org.sireum
 
 import org.sireum.test._
 
-class EnumTest extends SireumRuntimeSpec {
+class EnumTest extends TestSuite {
   def isMonday(day: Day.Type): Boolean = day == Day.Monday
 
-  *(Day.Monday !~= Day.Tuesday)
+  val tests = Tests {
+
+    * - assert(Day.Monday !~= Day.Tuesday)
+
+  }
 }
