@@ -22,10 +22,11 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import $file.sireum.SireumModule._
+import $file.sireum
 
-trait RuntimeModule extends CrossJvmJsPublish {
+trait RuntimeModule extends sireum.SireumModule.CrossJvmJsPublish {
   import mill._
+  import sireum.SireumModule._
 
   final override def subUrl: String = "runtime"
 
@@ -41,6 +42,7 @@ trait MacrosModule extends RuntimeModule {
 
   import mill._
   import mill.scalalib._
+  import sireum.SireumModule._
 
   final override def description: String = "Sireum Runtime Macros"
 
@@ -71,6 +73,7 @@ trait MacrosModule extends RuntimeModule {
 trait LibraryModule extends RuntimeModule {
   import mill._
   import mill.scalalib._
+  import sireum.SireumModule._
 
   final override def description: String = "Sireum Runtime Library"
 
