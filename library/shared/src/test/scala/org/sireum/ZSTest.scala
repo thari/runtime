@@ -24,9 +24,10 @@
  */
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class ZSTest extends TestSuite {
+object ZSTest extends TestSuite {
   final val size = Z(1024)
   final val zs123 = ZS(1, 2, 3)
   final val zs12 = ZS(1, 2)

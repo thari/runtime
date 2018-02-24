@@ -25,35 +25,7 @@
 
 package org.sireum
 
-import org.scalactic.source.Position
-import org.scalatest.FreeSpec
-
 package object test {
-
-  trait TestSuite extends SireumSpec {
-
-    class Anonymous(position: Position) {
-      def -(f: => Unit): Unit = {
-        var fname = position.fileName
-        val i = fname.lastIndexOf('.')
-        if (i >= 0) {
-          fname = fname.substring(0, i)
-        }
-        registerTest(s"$fname L${position.lineNumber}")(f)(position)
-      }
-    }
-
-    def *(implicit position: Position): Anonymous = new Anonymous(position)
-
-    def Tests(f: => Unit): Unit = {
-      f
-    }
-
-    def assertMatch[T](o: T)(pf: PartialFunction[T, _]): Unit = {
-      assert(pf.isDefinedAt(o))
-    }
-
-  }
 
   implicit class Equiv(val result: scala.Any) extends AnyVal {
     def =~=(expected: scala.Any): scala.Boolean = (result, expected) match {

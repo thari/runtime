@@ -67,7 +67,7 @@ object SireumModule {
 
   final val scalaJsVersion = s"$scalaJsBinVersion.22"
 
-  final val scalaTestVersion = "3.0.4"
+  final val utestVersion = "0.6.3"
 
   final val scalaJsonVersion = "1.0.0-M4"
 

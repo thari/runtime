@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class EnumTest extends TestSuite {
+object EnumTest extends TestSuite {
   def isMonday(day: Day.Type): Boolean = day == Day.Monday
 
   val tests = Tests {

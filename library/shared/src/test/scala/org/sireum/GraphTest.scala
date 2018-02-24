@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class GraphTest extends TestSuite {
+object GraphTest extends TestSuite {
 
   val tests = Tests {
     * - {

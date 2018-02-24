@@ -25,11 +25,12 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 import scalajson.ast.unsafe._
 import $internal.JsonAst
 
-class JsonTest extends TestSuite {
+object JsonTest extends TestSuite {
 
   val tests = Tests {
 

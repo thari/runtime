@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 import org.sireum.ops.ISZOps
 import scala.collection.mutable.{BitSet => BS}
@@ -33,7 +34,7 @@ import N16._
 import Z8._
 import U8._
 
-class STest extends TestSuite {
+object STest extends TestSuite {
 
   val tests = Tests {
     "IS" - {

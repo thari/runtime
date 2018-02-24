@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class MessagePackTest extends TestSuite {
+object MessagePackTest extends TestSuite {
 
   val tests = Tests {
 

@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-object PosetTest {
+object PosetTest extends TestSuite {
   /*
         A   H     I
        / \  | \  / \
@@ -57,11 +58,6 @@ object PosetTest {
       .addNode("M")
       .addChildren("N", ISZ[String]("M"))
   }
-}
-
-import PosetTest._
-
-class PosetTest extends TestSuite {
 
   val tests = Tests {
 

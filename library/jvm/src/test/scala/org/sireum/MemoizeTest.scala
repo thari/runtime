@@ -25,7 +25,7 @@
 
 package org.sireum
 
-import org.sireum.test._
+import utest._
 
 class MemoizeTest extends TestSuite {
 

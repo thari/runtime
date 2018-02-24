@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
 object NFoo_Ext {
@@ -37,7 +38,7 @@ object NFoo_Ext {
   def foo[T](x: Z): T = Z(2).asInstanceOf[T]
 }
 
-class ExtTest extends TestSuite {
+object ExtTest extends TestSuite {
 
   val tests = Tests {
     * - assert(NFoo.x =~= Z(5))

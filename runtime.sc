@@ -83,11 +83,11 @@ trait LibraryModule extends RuntimeModule {
   )
 
   final override def jvmTestIvyDeps = Agg(
-    ivy"org.scalatest::scalatest:$scalaTestVersion"
+    ivy"com.lihaoyi::utest:$utestVersion"
   )
 
   final override def jsTestIvyDeps = Agg(
-    ivy"org.scalatest:scalatest_sjs${scalaJsBinVersion}_$scalaBinVersion:$scalaTestVersion"
+    ivy"com.lihaoyi:utest_sjs${scalaJsBinVersion}_$scalaBinVersion:$utestVersion"
   )
 
   final override lazy val scalacPluginIvyDeps = Agg(
@@ -96,7 +96,7 @@ trait LibraryModule extends RuntimeModule {
 
   final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
-  final override lazy val jvmTestFrameworks = Seq("org.scalatest.tools.Framework")
+  final override lazy val jvmTestFrameworks = Seq("utest.runner.Framework")
 
   final override def jsTestFrameworks = jvmTestFrameworks
 

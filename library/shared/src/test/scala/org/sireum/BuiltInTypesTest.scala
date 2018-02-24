@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class BuiltInTypesTest extends TestSuite {
+object BuiltInTypesTest extends TestSuite {
 
   val tests = Tests {
 

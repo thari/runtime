@@ -25,11 +25,12 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
 import scala.util.{Failure, Success, Try}
 
-class RangeTest extends TestSuite {
+object RangeTest extends TestSuite {
 
   val numOfRandomTests = 64
 

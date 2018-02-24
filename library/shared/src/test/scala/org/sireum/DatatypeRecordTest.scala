@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class DatatypeRecordTest extends TestSuite {
+object DatatypeRecordTest extends TestSuite {
   val foo = Foo(1, Bar(2, 5))
 
   val tests = Tests {

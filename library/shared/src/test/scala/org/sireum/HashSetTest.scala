@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class HashSetTest extends TestSuite {
+object HashSetTest extends TestSuite {
 
   val tests = Tests {
 

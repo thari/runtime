@@ -25,11 +25,12 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 import spire.math._
 import scala.util.{Failure, Success, Try}
 
-class BitsTest extends TestSuite {
+object BitsTest extends TestSuite {
 
   val numOfRandomTests = 64
 

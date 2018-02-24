@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class UnionFindTest extends TestSuite {
+object UnionFindTest extends TestSuite {
 
   val tests = Tests {
 

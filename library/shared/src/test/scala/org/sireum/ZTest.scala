@@ -25,9 +25,10 @@
 
 package org.sireum
 
+import utest._
 import org.sireum.test._
 
-class ZTest extends TestSuite {
+object ZTest extends TestSuite {
 
   val numOfRandomTests = 64
 
