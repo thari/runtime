@@ -33,6 +33,7 @@ import scala.language.experimental.macros
 import scala.collection.mutable.{Map => MMap}
 
 object RC {
+
   def toTrie(m: scala.collection.Map[Seq[String], String]): Trie.Node[String, String] = {
     val root = Trie.InNode[String, String](MMap())
 
@@ -53,53 +54,64 @@ object RC {
     root
   }
 
-  def text(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.textImpl
+  def text(relPaths: Seq[String])(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.textImpl
 
-  def base64(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.base64Impl
+  def base64(relPaths: Seq[String])(p: (Seq[String], File) => Boolean): Map[Seq[String], String] = macro RC.base64Impl
 }
 
 class RC(val c: scala.reflect.macros.blackbox.Context) {
 
   import c.universe._
 
-  def commonImpl(isText: Boolean, p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] = {
-    val anchorDir = new File(p.tree.pos.source.file.canonicalPath).getParentFile
-    val anchorPath = uriOf(anchorDir)
+  def commonImpl(
+    isText: Boolean,
+    relPaths: c.Expr[Seq[String]],
+    p: c.Expr[(Seq[String], File) => Boolean]
+  ): c.Expr[Map[Seq[String], String]] = {
     val pf = Macro.eval[(Seq[String], File) => Boolean](c)(p.tree)
+    val rps = Macro.eval[Seq[String]](c)(relPaths.tree)
     var args = Vector[c.Tree]()
 
-    def rec(file: File): Unit = {
-      if (file.isFile) {
-        val filePath = uriOf(file)
-        if (filePath.startsWith(anchorPath)) {
-          val path = filePath.substring(anchorPath.length).split('/')
-          if (pf(Seq(path: _*), file)) {
-            val pathSegments: Seq[c.Tree] = path.map(p => Literal(Constant(p)))
-            val content = if (isText) readText(file) else readBase64(file)
-            val s = content.grouped(20000).toSeq.map(c => Literal(Constant(c)))
-            val fs = s.indices.toVector.map(n => TermName("f" + n))
-            val ms = fs.zip(s).map(p => q"def ${p._1}: Predef.String = ${p._2}")
-            val b = q"..${ms :+ fs.map(f => Ident(f): c.Tree).reduce((f1, f2) => q"$f1 + $f2")}"
-            args :+= q"(Seq(..$pathSegments), $b)"
+    def it(rp: String): Unit = {
+      val anchorDir = new File(new File(p.tree.pos.source.file.canonicalPath).getParentFile, rp)
+      val anchorPath = uriOf(anchorDir)
+
+      def rec(file: File): Unit = {
+        if (file.isFile) {
+          val filePath = uriOf(file)
+          if (filePath.startsWith(anchorPath)) {
+            val path = filePath.substring(anchorPath.length).split('/')
+            if (pf(Seq(path: _*), file)) {
+              val pathSegments: Seq[c.Tree] = path.map(p => Literal(Constant(p)))
+              val content = if (isText) readText(file) else readBase64(file)
+              val s = content.grouped(20000).toSeq.map(c => Literal(Constant(c)))
+              val fs = s.indices.toVector.map(n => TermName("f" + n))
+              val ms = fs.zip(s).map(p => q"def ${p._1}: Predef.String = ${p._2}")
+              val b = q"..${ms :+ fs.map(f => Ident(f): c.Tree).reduce((f1, f2) => q"$f1 + $f2")}"
+              args :+= q"(Seq(..$pathSegments), $b)"
+            }
           }
+        } else if (file.isDirectory) {
+          file.listFiles.foreach(rec)
         }
-      } else if (file.isDirectory) {
-        file.listFiles.foreach(rec)
       }
+      rec(anchorDir)
     }
 
-    rec(anchorDir)
+    if (rps.nonEmpty) rps.foreach(it) else it(".")
 
     val r = q"scala.collection.immutable.ListMap[Seq[Predef.String], Predef.String](..$args)"
     //println(showCode(r))
     c.Expr(r)
   }
 
-  def textImpl(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
-    commonImpl(isText = true, p)
+  def textImpl(relPaths: c.Expr[Seq[String]])(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
+    commonImpl(isText = true, relPaths, p)
 
-  def base64Impl(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
-    commonImpl(isText = false, p)
+  def base64Impl(
+    relPaths: c.Expr[Seq[String]]
+  )(p: c.Expr[(Seq[String], File) => Boolean]): c.Expr[Map[Seq[String], String]] =
+    commonImpl(isText = false, relPaths, p)
 
   def uriOf(f: File): String = f.toURI.toASCIIString
 
