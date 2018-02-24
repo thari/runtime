@@ -22,6 +22,28 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+trait SireumModule extends mill.scalalib.ScalaModule {
+
+  import mill._
+
+  final override def scalaVersion = T { SireumModule.scalaVersion }
+
+  final override def javacOptions =
+    Seq("-source", "1.8", "-target", "1.8", "-encoding", "utf8")
+
+  final override def scalacOptions =
+    Seq("-target:jvm-1.8",
+      "-deprecation",
+      "-Yrangepos",
+      "-Ydelambdafy:method",
+      "-feature",
+      "-unchecked",
+      "-Xfatal-warnings")
+
+  def platformSegment: String
+}
+
 object SireumModule {
   import mill._
   import mill.scalalib._
@@ -55,7 +77,7 @@ object SireumModule {
 
   object Project {
 
-    trait Jvm extends ScalaModule { outer =>
+    trait Jvm extends ScalaModule with SireumModule { outer =>
 
       def platformSegment: String
 
@@ -91,7 +113,7 @@ object SireumModule {
 
     }
 
-    trait Js extends ScalaJSModule { outer =>
+    trait Js extends ScalaJSModule with SireumModule { outer =>
 
       def deps: Seq[Js]
 
@@ -127,13 +149,35 @@ object SireumModule {
 
     }
 
-    trait JvmPublish extends Jvm with PublishModule {
+    trait Publish extends PublishModule {
+
+      def description: String
+      def subUrl: String
+      def developers: Seq[Developer]
+
+      final def pomSettings = PomSettings(
+        description = description,
+        organization = "org.sireum",
+        url = s"https://github.com/sireum/$subUrl",
+        licenses = Seq(
+          License("BSD-2 License",
+            s"https://github.com/sireum/$subUrl/blob/master/license.txt")
+        ),
+        scm = SCM(
+          s"git://github.com/sireum/$subUrl.git",
+          s"scm:git://github.com/sireum/$subUrl.git"
+        ),
+        developers = developers
+      )
+    }
+
+    trait JvmPublish extends Jvm with Publish {
 
       def deps: Seq[JvmPublish]
 
     }
 
-    trait JsPublish extends Js with PublishModule {
+    trait JsPublish extends Js with Publish {
 
       def deps: Seq[JsPublish]
 
@@ -187,41 +231,38 @@ object SireumModule {
 
   }
 
-  trait Shared extends Project.Jvm with SireumModule {
+  trait Shared extends Project.Jvm {
 
     final override def platformSegment = "shared"
 
   }
 
-  trait Jvm extends Project.Jvm with SireumModule {
+  trait Jvm extends Project.Jvm {
 
     final override def platformSegment = "jvm"
 
   }
 
-  trait Js extends Project.Js with SireumModule with ScalaJSModule {
+  trait Js extends Project.Js {
 
     final override def platformSegment = "js"
 
     final override def scalaJSVersion = T { scalaJsVersion }
   }
 
-  trait SharedPublish extends Project.JvmPublish with SireumModule {
+  trait SharedPublish extends Project.JvmPublish {
 
     final override def platformSegment = "shared"
 
   }
 
-  trait JvmPublish extends Project.JvmPublish with SireumModule {
+  trait JvmPublish extends Project.JvmPublish {
 
     final override def platformSegment = "jvm"
 
   }
 
-  trait JsPublish
-      extends Project.JsPublish
-      with SireumModule
-      with ScalaJSModule {
+  trait JsPublish extends Project.JsPublish {
 
     final override def platformSegment = "js"
 
@@ -307,28 +348,6 @@ object SireumModule {
 
   }
 
-  trait Publish extends PublishModule {
-
-    def description: String
-    def subUrl: String
-    def developers: Seq[Developer]
-
-    final def pomSettings = PomSettings(
-      description = description,
-      organization = "org.sireum",
-      url = s"https://github.com/sireum/$subUrl",
-      licenses = Seq(
-        License("BSD-2 License",
-                s"https://github.com/sireum/$subUrl/blob/master/license.txt")
-      ),
-      scm = SCM(
-        s"git://github.com/sireum/$subUrl.git",
-        s"scm:git://github.com/sireum/$subUrl.git"
-      ),
-      developers = developers
-    )
-  }
-
   trait CrossJvmJsPublish extends Project.CrossJvmJsPublish { outer =>
 
     def developers: Seq[Developer]
@@ -339,7 +358,7 @@ object SireumModule {
 
     def subUrl: String
 
-    object shared extends SharedPublish with Publish {
+    object shared extends SharedPublish {
 
       final override def subUrl = outer.subUrl
 
@@ -372,7 +391,7 @@ object SireumModule {
 
     }
 
-    object jvm extends JvmPublish with Publish {
+    object jvm extends JvmPublish {
 
       final override def subUrl = outer.subUrl
 
@@ -407,7 +426,7 @@ object SireumModule {
 
     }
 
-    object js extends JsPublish with Publish {
+    object js extends JsPublish {
 
       final override def subUrl = outer.subUrl
 
@@ -445,25 +464,4 @@ object SireumModule {
 
   }
 
-}
-
-trait SireumModule extends mill.scalalib.ScalaModule {
-
-  import mill._
-
-  final override def scalaVersion = T { SireumModule.scalaVersion }
-
-  final override def javacOptions =
-    Seq("-source", "1.8", "-target", "1.8", "-encoding", "utf8")
-
-  final override def scalacOptions =
-    Seq("-target:jvm-1.8",
-        "-deprecation",
-        "-Yrangepos",
-        "-Ydelambdafy:method",
-        "-feature",
-        "-unchecked",
-        "-Xfatal-warnings")
-
-  def platformSegment: String
 }
