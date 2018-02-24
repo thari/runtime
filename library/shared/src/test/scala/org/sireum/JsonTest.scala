@@ -29,7 +29,7 @@ import org.sireum.test._
 import scalajson.ast.unsafe._
 import $internal.JsonAst
 
-object JsonTest extends TestSuite {
+class JsonTest extends TestSuite {
 
   val tests = Tests {
 
