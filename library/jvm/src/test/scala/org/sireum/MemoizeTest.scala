@@ -27,7 +27,7 @@ package org.sireum
 
 import utest._
 
-class MemoizeTest extends TestSuite {
+object MemoizeTest extends TestSuite {
 
   var first: B = T
 
