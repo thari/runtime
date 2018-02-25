@@ -26,6 +26,7 @@ import $file.sireum
 
 trait RuntimeModule extends sireum.SireumModule.CrossJvmJsPublish {
   import mill._
+  import mill.scalalib._
   import sireum.SireumModule._
 
   final override def subUrl: String = "runtime"
@@ -34,7 +35,21 @@ trait RuntimeModule extends sireum.SireumModule.CrossJvmJsPublish {
 
   final override def publishVersion = "4.0.0-SNAPSHOT"
 
-  final override def testIvyDeps = Agg.empty
+  final override def testIvyDeps = Agg(
+    ivy"com.lihaoyi::utest::$utestVersion"
+  )
+
+  final override def jvmTestIvyDeps = Agg.empty
+
+  final override def jsTestIvyDeps = Agg.empty
+
+  final override lazy val jvmTestFrameworks = Seq("utest.runner.Framework")
+
+  final override def jsTestFrameworks = jvmTestFrameworks
+
+  final override def jvmDeps = Seq()
+
+  final override def jsDeps = Seq()
 
 }
 
@@ -50,23 +65,11 @@ trait MacrosModule extends RuntimeModule {
     ivy"org.scala-lang:scala-reflect:$scalaVersion"
   )
 
-  final override def jvmTestFrameworks = Seq()
-
-  final override def jsTestFrameworks = Seq()
-
-  final override def jvmTestIvyDeps = Agg.empty
-
-  final override def jsTestIvyDeps = Agg.empty
-
   final override def scalacPluginIvyDeps = Agg.empty
 
   final override def testScalacPluginIvyDeps = Agg.empty
 
   final override def deps = Seq()
-
-  final override def jvmDeps = Seq()
-
-  final override def jsDeps = Seq()
 
 }
 
@@ -82,29 +85,13 @@ trait LibraryModule extends RuntimeModule {
     ivy"org.spire-math::spire:$spireVersion"
   )
 
-  final override def jvmTestIvyDeps = Agg(
-    ivy"com.lihaoyi::utest:$utestVersion"
-  )
-
-  final override def jsTestIvyDeps = Agg(
-    ivy"com.lihaoyi:utest_sjs${scalaJsBinVersion}_$scalaBinVersion:$utestVersion"
-  )
-
   final override lazy val scalacPluginIvyDeps = Agg(
     ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
   )
 
   final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
-  final override lazy val jvmTestFrameworks = Seq("utest.runner.Framework")
-
-  final override def jsTestFrameworks = jvmTestFrameworks
-
   final override def deps = Seq(macrosObject)
-
-  final override def jvmDeps = Seq()
-
-  final override def jsDeps = Seq()
 
   def macrosObject: RuntimeModule
 }
