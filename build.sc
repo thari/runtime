@@ -22,10 +22,17 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import $file.runtime
+import $file.Runtime
+import ammonite.ops.up
 
-object macros extends runtime.MacrosModule
+object runtime extends mill.Module {
 
-object library extends runtime.LibraryModule {
-  override def macrosObject = macros
+  final override def millSourcePath = super.millSourcePath / up
+
+  object macros extends Runtime.Module.Macros
+
+  object library extends Runtime.Module.Library {
+    override def macrosObject = macros
+  }
+
 }
