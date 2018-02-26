@@ -29,9 +29,9 @@ import mill.scalajslib._
 import mill.scalalib.publish._
 import ammonite.ops._
 
-trait Module extends ScalaModule {
+trait SireumModule extends ScalaModule {
 
-  final override def scalaVersion = T { Module.scalaVersion }
+  final override def scalaVersion = T { SireumModule.scalaVersion }
 
   final override def javacOptions =
     Seq("-source", "1.8", "-target", "1.8", "-encoding", "utf8")
@@ -48,7 +48,7 @@ trait Module extends ScalaModule {
   def platformSegment: String
 }
 
-object Module {
+object SireumModule {
 
   object Developers {
 
@@ -74,7 +74,7 @@ object Module {
 
   object Project {
 
-    trait Jvm extends ScalaModule with Module { outer =>
+    trait Jvm extends ScalaModule with SireumModule { outer =>
 
       def platformSegment: String
 
@@ -112,7 +112,7 @@ object Module {
 
     }
 
-    trait Js extends ScalaJSModule with Module { outer =>
+    trait Js extends ScalaJSModule with SireumModule { outer =>
 
       def deps: Seq[Js]
 

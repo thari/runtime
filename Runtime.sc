@@ -23,8 +23,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import $file.Sireum, Sireum.Module._
-
+import SireumModule._
 import mill._
 import mill.scalalib._
 
