@@ -22,12 +22,13 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import $file.sireum
 
-trait RuntimeModule extends sireum.SireumModule.CrossJvmJsPublish {
-  import mill._
-  import mill.scalalib._
-  import sireum.SireumModule._
+import $file.Sireum, Sireum.Module._
+
+import mill._
+import mill.scalalib._
+
+trait Module extends CrossJvmJsPublish {
 
   final override def subUrl: String = "runtime"
 
@@ -53,45 +54,42 @@ trait RuntimeModule extends sireum.SireumModule.CrossJvmJsPublish {
 
 }
 
-trait MacrosModule extends RuntimeModule {
+object Module {
 
-  import mill._
-  import mill.scalalib._
-  import sireum.SireumModule._
+  trait Macros extends Module {
 
-  final override def description: String = "Sireum Runtime Macros"
+    final override def description: String = "Sireum Runtime Macros"
 
-  final override def ivyDeps = Agg(
-    ivy"org.scala-lang:scala-reflect:$scalaVersion"
-  )
+    final override def ivyDeps = Agg(
+      ivy"org.scala-lang:scala-reflect:$scalaVersion"
+    )
 
-  final override def scalacPluginIvyDeps = Agg.empty
+    final override def scalacPluginIvyDeps = Agg.empty
 
-  final override def testScalacPluginIvyDeps = Agg.empty
+    final override def testScalacPluginIvyDeps = Agg.empty
 
-  final override def deps = Seq()
+    final override def deps = Seq()
 
-}
+  }
 
-trait LibraryModule extends RuntimeModule {
-  import mill._
-  import mill.scalalib._
-  import sireum.SireumModule._
+  trait Library extends Module {
 
-  final override def description: String = "Sireum Runtime Library"
+    final override def description: String = "Sireum Runtime Library"
 
-  final override def ivyDeps = Agg(
-    ivy"org.scala-lang.platform::scalajson:$scalaJsonVersion",
-    ivy"org.spire-math::spire:$spireVersion"
-  )
+    final override def ivyDeps = Agg(
+      ivy"org.scala-lang.platform::scalajson:$scalaJsonVersion",
+      ivy"org.spire-math::spire:$spireVersion"
+    )
 
-  final override lazy val scalacPluginIvyDeps = Agg(
-    ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
-  )
+    final override lazy val scalacPluginIvyDeps = Agg(
+      ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
+    )
 
-  final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
+    final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
-  final override def deps = Seq(macrosObject)
+    final override def deps = Seq(macrosObject)
 
-  def macrosObject: RuntimeModule
+    def macrosObject: Macros
+  }
+
 }
