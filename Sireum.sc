@@ -37,13 +37,15 @@ trait SireumModule extends ScalaModule {
     Seq("-source", "1.8", "-target", "1.8", "-encoding", "utf8")
 
   final override def scalacOptions =
-    Seq("-target:jvm-1.8",
-        "-deprecation",
-        "-Yrangepos",
-        "-Ydelambdafy:method",
-        "-feature",
-        "-unchecked",
-        "-Xfatal-warnings")
+    Seq(
+      "-target:jvm-1.8",
+      "-deprecation",
+      "-Yrangepos",
+      "-Ydelambdafy:method",
+      "-feature",
+      "-unchecked",
+      "-Xfatal-warnings"
+    )
 
   def platformSegment: String
 }
@@ -70,6 +72,8 @@ object SireumModule {
 
   final val scalaMetaVersion = "3.2.0"
 
+  final val diffVersion = "1.1.11"
+
   sealed trait Project
 
   object Project {
@@ -86,9 +90,7 @@ object SireumModule {
 
       def testFrameworks: Seq[String]
 
-      final override def sources = T.sources(
-        millSourcePath / "src" / "main" / "scala"
-      )
+      final override def sources = T.sources(millSourcePath / "src" / "main" / "scala")
 
       def tests: Tests
 
@@ -105,9 +107,7 @@ object SireumModule {
 
         final override def testFrameworks = T { outer.testFrameworks }
 
-        final override def sources = T.sources(
-          millSourcePath / "scala"
-        )
+        final override def sources = T.sources(millSourcePath / "scala")
       }
 
     }
@@ -142,10 +142,8 @@ object SireumModule {
 
         final override def testFrameworks = T { outer.testFrameworks }
 
-        final override def sources = T.sources(
-          millSourcePath / "scala",
-          millSourcePath / up / up / up / "shared" / "src" / "test" / "scala"
-        )
+        final override def sources =
+          T.sources(millSourcePath / "scala", millSourcePath / up / up / up / "shared" / "src" / "test" / "scala")
       }
 
     }
@@ -160,14 +158,8 @@ object SireumModule {
         description = description,
         organization = "org.sireum",
         url = s"https://github.com/sireum/$subUrl",
-        licenses = Seq(
-          License("BSD-2 License",
-                  s"https://github.com/sireum/$subUrl/blob/master/license.txt")
-        ),
-        scm = SCM(
-          s"git://github.com/sireum/$subUrl.git",
-          s"scm:git://github.com/sireum/$subUrl.git"
-        ),
+        licenses = Seq(License("BSD-2 License", s"https://github.com/sireum/$subUrl/blob/master/license.txt")),
+        scm = SCM(s"git://github.com/sireum/$subUrl.git", s"scm:git://github.com/sireum/$subUrl.git"),
         developers = developers
       )
     }
@@ -292,9 +284,7 @@ object SireumModule {
 
       object tests extends Tests {
 
-        final override def moduleDeps =
-          Seq(shared) ++
-            (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
+        final override def moduleDeps = Seq(shared) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
 
       }
     }
@@ -315,15 +305,11 @@ object SireumModule {
 
       override def moduleDeps = mDeps
 
-      final def mDeps =
-        (for (dep <- outer.deps) yield dep.shared) ++
-          (for (dep <- outer.deps) yield dep.jvm) ++ jvmDeps
+      final def mDeps = Seq(shared) ++ (for (dep <- outer.deps) yield Seq(dep.shared, dep.jvm)).flatten ++ jvmDeps
 
       object tests extends Tests {
 
-        final override def moduleDeps =
-          Seq(shared, jvm, shared.tests) ++
-            (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
+        final override def moduleDeps = Seq(jvm) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
 
       }
     }
@@ -348,8 +334,7 @@ object SireumModule {
 
       object tests extends Tests {
 
-        final override def moduleDeps =
-          Seq(js) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
+        final override def moduleDeps = Seq(js) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
 
       }
     }
@@ -394,9 +379,7 @@ object SireumModule {
 
       object tests extends Tests {
 
-        final override def moduleDeps =
-          Seq(shared) ++
-            (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
+        final override def moduleDeps = Seq(shared) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
 
       }
 
@@ -426,15 +409,12 @@ object SireumModule {
 
       override def moduleDeps = mDeps
 
-      final def mDeps =
-        (for (dep <- outer.deps) yield dep.shared) ++
-          (for (dep <- outer.deps) yield dep.jvm) ++ jvmDeps
+      final def mDeps = Seq(shared) ++ (for (dep <- outer.deps) yield Seq(dep.shared, dep.jvm)).flatten ++ jvmDeps
 
       object tests extends Tests {
 
         final override def moduleDeps =
-          Seq(shared, jvm, shared.tests) ++
-            (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
+          Seq(jvm) ++ (for (dep <- mDeps) yield Seq(dep, dep.tests)).flatten
 
       }
 
