@@ -71,19 +71,10 @@ object MS {
   def unapplySeq[I, V](o: MS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements.map(helper.cloneAssign))
 }
 
-final class MS[I, V](val companion: $ZCompanion[I], d: scala.AnyRef, l: Z, b: Boxer)
+final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
     extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
 
-  private var _data: scala.AnyRef = d
-  private var _length: Z = l
-  private var _boxer: Boxer = b
   private var isOwned: scala.Boolean = false
-
-  def data: scala.AnyRef = _data
-
-  def length: Z = _length
-
-  def boxer: Boxer = _boxer
 
   override def $owned: scala.Boolean = isOwned
 
@@ -102,20 +93,6 @@ final class MS[I, V](val companion: $ZCompanion[I], d: scala.AnyRef, l: Z, b: Bo
   def isEmpty: B = length == Z.MP.zero
 
   def nonEmpty: B = length != Z.MP.zero
-
-  def expand(n: I, default: V): Unit =
-    if (isEmpty) {
-      val a = MS.create(n, default)(companion)
-      this._data = a._data
-      this._length = a._length
-      this._boxer = a._boxer
-    } else {
-      val newLength: Z = length + n.asInstanceOf[ZLike[_]].toMP
-      MS.checkSize(newLength)
-      val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
-      _data = a
-      _length = newLength
-    }
 
   def :+(e: V): MS[I, V] =
     if (isEmpty) MS[I, V](e)(companion)

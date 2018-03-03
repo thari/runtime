@@ -670,7 +670,7 @@ object MessagePack {
 
   object Writer {
 
-    @record class Impl(val pooling: B, val buf: MSZ[U8], var size: Z) extends Writer {
+    @record class Impl(val pooling: B, var buf: MSZ[U8], var size: Z) extends Writer {
 
       var stringPool: HashSMap[String, Z] = HashSMap.emptyInit(1024)
       var docInfoPool: HashSMap[message.DocInfo, Z] = HashSMap.emptyInit(1024)
@@ -733,7 +733,11 @@ object MessagePack {
 
       def addU8(n: U8): Unit = {
         if (size == buf.size) {
-          buf.expand(size + 1, u8"0")
+          val newBuf = MSZ.create(buf.size * 2 + 1, u8"0")
+          for (i <- z"0" until buf.size) {
+            newBuf(i) = buf(i)
+          }
+          buf = newBuf
         }
         buf(size) = n
         size = size + 1
@@ -1925,8 +1929,8 @@ object MessagePack {
 
     @record class Impl(buf: ISZ[U8], var curr: Z) extends Reader {
       var pooling: B = F
-      val stringPool: MSZ[String] = MSZ()
-      val docInfoPool: MSZ[message.DocInfo] = MSZ()
+      var stringPool: MSZ[String] = MSZ()
+      var docInfoPool: MSZ[message.DocInfo] = MSZ()
 
       var errorOpt: Option[ErrorMsg] = None()
 
@@ -1941,7 +1945,7 @@ object MessagePack {
           pOpt match {
             case Some((t, size)) =>
               assert(t == StringPoolExtType)
-              stringPool.expand(size, "")
+              stringPool = MSZ.create(size, "")
               var i = 0
               while (i < size) {
                 val s = readStringNoPool()
@@ -1954,7 +1958,7 @@ object MessagePack {
           pOpt match {
             case Some((t, size)) =>
               assert(t == DocInfoExtType)
-              docInfoPool.expand(size, message.DocInfo(None(), ISZ()))
+              docInfoPool = MSZ.create(size, message.DocInfo(None(), ISZ()))
               var i = 0
               while (i < size) {
                 val docInfo = readDocInfoNoPool()
