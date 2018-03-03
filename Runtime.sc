@@ -76,8 +76,8 @@ object Module {
     final override def description: String = "Sireum Runtime Library"
 
     final override def ivyDeps = Agg(
-      ivy"org.scala-lang.platform::scalajson:$scalaJsonVersion",
-      ivy"org.spire-math::spire:$spireVersion"
+      ivy"org.scala-lang.platform::scalajson::$scalaJsonVersion",
+      ivy"org.spire-math::spire::$spireVersion"
     )
 
     final override lazy val scalacPluginIvyDeps = Agg(
