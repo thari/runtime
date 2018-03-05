@@ -331,7 +331,7 @@ object Graph {
     return (HashSet ++ thisEdges ++ otherEdges).size == thisEdges.size
   }
 
-  @pure def toST(f: V => ST @pure, g: E => ST @pure): ST = {
+  @pure def toST(attributes: ISZ[ST], f: V => ST @pure, g: E => ST @pure): ST = {
     @pure def e2st(e: Graph.Internal.Edge[E]): ST = {
       e match {
         case Graph.Internal.Edge.Data(source, dest, data) => return st"""n$source -> n$dest ${g(data)}"""
@@ -343,6 +343,8 @@ object Graph {
     val r =
       st"""digraph G {
       |
+      |  ${(attributes, "\n")}
+      |
       |  ${(nodes, "\n")}
       |
       |  ${(edges, "\n")}
@@ -353,6 +355,6 @@ object Graph {
   }
 
   @pure override def string: String = {
-    return toST(v => st"""[label="$v"]""", e => st"""[label="$e"]""").render
+    return toST(ISZ(), v => st"""[label="$v"]""", e => st"""[label="$e"]""").render
   }
 }
