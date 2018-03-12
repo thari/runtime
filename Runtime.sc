@@ -35,17 +35,9 @@ trait Module extends CrossJvmJsPublish {
 
   final override def publishVersion = "4.0.0-SNAPSHOT"
 
-  final override def testIvyDeps = Agg(
-    ivy"org.scalatest::scalatest::$scalaTestVersion"
-  )
-
   final override def jvmTestIvyDeps = Agg.empty
 
   final override def jsTestIvyDeps = Agg.empty
-
-  final override lazy val jvmTestFrameworks = Seq("org.scalatest.tools.Framework")
-
-  final override def jsTestFrameworks = jvmTestFrameworks
 
   final override def jvmDeps = Seq()
 
@@ -63,22 +55,29 @@ object Module {
       ivy"org.scala-lang:scala-reflect:$scalaVersion"
     )
 
+    final override def testIvyDeps = Agg.empty
+
     final override def scalacPluginIvyDeps = Agg.empty
 
     final override def testScalacPluginIvyDeps = Agg.empty
 
     final override def deps = Seq()
 
+    final override def jvmTestFrameworks = Seq()
+
+    final override def jsTestFrameworks = Seq()
   }
 
   trait Library extends Module {
 
     final override def description: String = "Sireum Runtime Library"
 
-    final override def ivyDeps = Agg(
-      ivy"org.scala-lang.platform::scalajson::$scalaJsonVersion",
+    final override def testIvyDeps = Agg(
+      ivy"org.scalatest::scalatest::$scalaTestVersion",
       ivy"org.spire-math::spire::$spireVersion"
     )
+
+    final override def ivyDeps = Agg.empty
 
     final override lazy val scalacPluginIvyDeps = Agg(
       ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
@@ -87,6 +86,10 @@ object Module {
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
     final override def deps = Seq(macrosObject)
+
+    final override val jvmTestFrameworks = Seq("org.scalatest.tools.Framework")
+
+    final override def jsTestFrameworks = jvmTestFrameworks
 
     def macrosObject: Macros
   }

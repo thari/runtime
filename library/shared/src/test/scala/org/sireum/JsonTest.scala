@@ -26,8 +26,6 @@
 package org.sireum
 
 import org.sireum.test._
-import scalajson.ast.unsafe._
-import $internal.JsonAst
 
 class JsonTest extends TestSuite {
 
@@ -37,52 +35,11 @@ class JsonTest extends TestSuite {
 
     * - assert(parseString("\"a\\\"\\rbc\"") =~= "a\"\rbc")
 
-    * - assert(parseValue("\"a\\rbc\"") =~= JString("a\rbc"))
-
-    * - assert(parseValue("\"a\\\"\\rbc\"") =~= JString("a\"\rbc"))
-
     * - assert(parseNumber("-0") =~= "-0")
 
     * - assert(parseNumber("12.33") =~= "12.33")
 
     * - assert(parseNumber("12e23") =~= "12e23")
-
-    * - assert(parseValue("-0") =~= JNumber("-0"))
-
-    * - assert(parseValue("12.33") =~= JNumber("12.33"))
-
-    * - assert(parseValue("12e23") =~= JNumber("12e23"))
-
-    * - assert(parseValue("{}") =~= JObject())
-
-    * - assert(
-      parseValue("{ \"key\" : \"value\" }") =~= JObject(
-        Array(JField("key", JString("value")))))
-
-    * - assert(parseValue("[]") =~= JArray())
-
-    * - assert(
-      parseValue("[ 1, 3.0, 4e-12 ]") =~= JArray(
-        Array[JValue](JNumber("1"), JNumber("3.0"), JNumber("4e-12"))))
-
-    val oString =
-      "  { \"key\" : [ { \"prop\" : true } ], \"foo\" : false, \"bar\" : [ null, [] ] }  "
-
-    val oJson = JObject(
-      Array(
-        JField("key", JArray(JObject(Array(JField("prop", JTrue))))),
-        JField("foo", JFalse),
-        JField("bar", JArray(Array[JValue](JNull, JArray())))
-      )
-    )
-
-    * - assert(parseTopObject(oString) =~= oJson)
-
-    * - assert(parseTopObject(oPrettyParse(oString)) =~= oJson)
-
-    * - assert(oPrettyParse(oPrettyParse(oString)) =~= oPrettyParse(oString))
-
-    * - assert(parseTopObject(oPrettyParse(oPrettyParse(oString))) =~= oJson)
 
     * - {
       val o = Either.Left[Z, String](Z.random)
@@ -316,25 +273,6 @@ class JsonTest extends TestSuite {
       assert(o == o2)
     }
   }
-
-  def oPrettyParse(s: Predef.String): Predef.String =
-    Json.printAst(JsonAst.Binding, parseTopObject(s)).render.value
-
-  def parseTopObject(s: Predef.String): JObject =
-    Json.parseAst(JsonAst.Binding, String(s)) match {
-      case Either.Left(o: JObject) => o
-      case Either.Right(errMsg) =>
-        halt(s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}")
-      case _ => assert(F); null
-    }
-
-  def parseValue(s: Predef.String): JValue =
-    Json.parseAst(JsonAst.Binding, String(s)) match {
-      case Either.Left(o) => o
-      case Either.Right(errMsg) =>
-        halt(s"[${errMsg.line}, ${errMsg.column}] ${errMsg.message}")
-      case _ => assert(F); null
-    }
 
   def parseString(s: Predef.String): Predef.String =
     parse(s, _.parseString().value)
