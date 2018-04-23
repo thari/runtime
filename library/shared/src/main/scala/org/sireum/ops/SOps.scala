@@ -90,6 +90,8 @@ import org.sireum._
 
   @pure def takeRight(size: Z): IS[Z, V]
 
+  @pure def zip[V2](other: IS[Z, V2]): IS[Z, (V, V2)]
+
 }
 
 @sig trait MSOps[I, V] {
@@ -125,6 +127,8 @@ import org.sireum._
   @pure def take(size: Z): MS[I, V]
 
   @pure def takeRight(size: Z): MS[Z, V]
+
+  @pure def zip[V2](other: MS[Z, V2]): MS[Z, (V, V2)]
 
 }
 
@@ -397,6 +401,20 @@ import org.sireum._
                   ∀i: [0, result.size)  result(i) ≡ s(s.size - size + i) """
 
     return laxSlice(s.size - size, s.size)
+  }
+
+  @pure def zip[V2](other: IS[Z, V2]): IS[Z, (V, V2)] = {
+    l""" requires s.size ≡ other.size
+         ensures  result ≡ s.size
+                  ∀i: [0, result.size)  result(i) ≡ ((s(i), other(i))) """
+    var i = 0
+    val sz = s.size
+    var r = ISZ[(V, V2)]()
+    while (i < sz) {
+      r = r :+ ((s(i), other(i)))
+      i = i + 1
+    }
+    return r
   }
 }
 
@@ -681,6 +699,20 @@ import org.sireum._
                   ∀i: [0, result.size)  result(i) ≡ s(s.size - size + i) """
 
     return laxSlice(s.size - size, s.size)
+  }
+
+  @pure def zip[V2](other: MS[Z, V2]): MS[Z, (V, V2)] = {
+    l""" requires s.size ≡ other.size
+         ensures  result ≡ s.size
+                  ∀i: [0, result.size)  result(i) ≡ ((s(i), other(i))) """
+    var i = 0
+    val sz = s.size
+    var r = MSZ[(V, V2)]()
+    while (i < sz) {
+      r = r :+ ((s(i), other(i)))
+      i = i + 1
+    }
+    return r
   }
 }
 
