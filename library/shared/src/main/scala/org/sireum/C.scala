@@ -80,6 +80,8 @@ final class C(val value: scala.Int) extends AnyVal with Immutable with $internal
     value.toChar
   }
 
+  @inline def unary_~(other: C): C = C(~value)
+
   @inline def +(other: C): C = C(value + other.value)
 
   @inline def -(other: C): C = C(value - other.value)
