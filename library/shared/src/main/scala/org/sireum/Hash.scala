@@ -87,7 +87,7 @@ object Hash {
 
   @pure def t1ha0(data: ISZ[U8], seed: U64): U64 = {
 
-    // Adapted from: https://github.com/leo-yuriev/t1ha
+    // Adapted from: https://github.com/leo-yuriev/t1ha/tree/v2.0.2
     /*
      *  Copyright (c) 2016-2018 Positive Technologies, https://www.ptsecurity.com,
      *  Fast Positive Hash.
@@ -234,9 +234,9 @@ object Hash {
     return l
   }
 
-  @pure def t1ha1(data: ISZ[U8], seed: U64): U64 = {
+  @pure def t1ha(isFirst: B, data: ISZ[U8], seed: U64): U64 = {
 
-    @pure def mux(a: U64, b: U64): U64 = {
+    @pure def mullu(a: U64, b: U64): (U64, U64) = {
       // Adapted from: https://golang.org/src/runtime/softfloat64.go (mullu)
       /*
         Copyright (c) 2009 The Go Authors. All rights reserved.
@@ -279,10 +279,10 @@ object Hash {
       var w1 = t & mask
       val w2 = t >> s
       w1 = w1 + a0 * b1
-      return (a * b) |^ (a1 * b1 + w2 + (w1 >> s))
+      return (a * b, a1 * b1 + w2 + (w1 >> s))
     }
 
-    // Adapted from: https://github.com/leo-yuriev/t1ha
+    // Adapted from: https://github.com/leo-yuriev/t1ha/tree/v2.0.2
     /*
      *  Copyright (c) 2016-2018 Positive Technologies, https://www.ptsecurity.com,
      *  Fast Positive Hash.
@@ -314,6 +314,11 @@ object Hash {
     @pure def mix(v: U64, p: U64): U64 = {
       val v2 = v * p
       return v2 |^ rot(v2, u64"41")
+    }
+
+    @pure def mux(v: U64, prime: U64): U64 = {
+      val p = mullu(v, prime)
+      return p._1 |^ p._2
     }
 
     @pure def fetch(i: Z): U64 = {
@@ -376,63 +381,147 @@ object Hash {
     val prime5: U64 = u64"0xC060724A8424F345"
     val prime6: U64 = u64"0xCB5AF53AE3AAAC31"
 
-    val dataSize = data.size
-    val dataSize64 = conversions.Z.toU64(dataSize)
+    @pure def first(): U64 = {
+      val dataSize = data.size
+      val dataSize64 = conversions.Z.toU64(dataSize)
 
-    var a: U64 = seed
-    var b: U64 = conversions.Z.toU64(dataSize)
+      var a: U64 = seed
+      var b: U64 = conversions.Z.toU64(dataSize)
 
-    var i = 0
-    if (dataSize > 32) {
-      var c = rot(dataSize64, u64"17") + seed
-      var d = dataSize64 |^ rot(seed, u64"17")
+      var i = 0
+      if (dataSize > 32) {
+        var c = rot(dataSize64, u64"17") + seed
+        var d = dataSize64 |^ rot(seed, u64"17")
 
-      do {
-        val w0 = fetch(i)
-        val w1 = fetch(i + 8)
-        val w2 = fetch(i + 16)
-        val w3 = fetch(i + 24)
+        do {
+          val w0 = fetch(i)
+          val w1 = fetch(i + 8)
+          val w2 = fetch(i + 16)
+          val w3 = fetch(i + 24)
 
-        val d02 = w0 |^ rot(w2 + d, u64"17")
-        val c13 = w1 |^ rot(w3 + c, u64"17")
-        c = c + (a |^ rot(w0, u64"41"))
-        d = d - (b |^ rot(w1, u64"31"))
-        a = a |^ (prime1 * (d02 + w3))
-        b = b |^ (prime0 * (c13 + w2))
-        i = i + 32
-      } while (dataSize - i >= 32)
+          val d02 = w0 |^ rot(w2 + d, u64"17")
+          val c13 = w1 |^ rot(w3 + c, u64"17")
+          c = c + (a |^ rot(w0, u64"41"))
+          d = d - (b |^ rot(w1, u64"31"))
+          a = a |^ (prime1 * (d02 + w3))
+          b = b |^ (prime0 * (c13 + w2))
+          i = i + 32
+        } while (dataSize - i >= 32)
 
-      a = a |^ (prime6 * (rot(c, u64"17") + d))
-      b = b |^ (prime5 * (c + rot(d, u64"17")))
-    }
+        a = a |^ (prime6 * (rot(c, u64"17") + d))
+        b = b |^ (prime5 * (c + rot(d, u64"17")))
+      }
 
-    val len = dataSize - i
-    (len - 1) / 8 match {
-      case z"3" =>
-        b = b + mux(fetch(i), prime4)
-        i = i + 8
-        a = a + mux(fetch(i), prime3)
-        i = i + 8
-        b = b + mux(fetch(i), prime2)
-        i = i + 8
-        a = a + mux(tail(i), prime1)
-      case z"2" =>
-        a = a + mux(fetch(i), prime3)
-        i = i + 8
-        b = b + mux(fetch(i), prime2)
-        i = i + 8
-        a = a + mux(tail(i), prime1)
-      case z"1" =>
-        b = b + mux(fetch(i), prime2)
-        i = i + 8
-        a = a + mux(tail(i), prime1)
-      case _ =>
-        if (len > 0) {
+      val len = dataSize - i
+      (len - 1) / 8 match {
+        case z"3" =>
+          b = b + mux(fetch(i), prime4)
+          i = i + 8
+          a = a + mux(fetch(i), prime3)
+          i = i + 8
+          b = b + mux(fetch(i), prime2)
+          i = i + 8
           a = a + mux(tail(i), prime1)
-        }
+        case z"2" =>
+          a = a + mux(fetch(i), prime3)
+          i = i + 8
+          b = b + mux(fetch(i), prime2)
+          i = i + 8
+          a = a + mux(tail(i), prime1)
+        case z"1" =>
+          b = b + mux(fetch(i), prime2)
+          i = i + 8
+          a = a + mux(tail(i), prime1)
+        case _ =>
+          if (len > 0) {
+            a = a + mux(tail(i), prime1)
+          }
+      }
+
+      return mux(rot(a + b, u64"17"), prime4) + mix(a |^ b, prime0)
     }
 
-    return mux(rot(a + b, u64"17"), prime4) + mix(a |^ b, prime0)
+    @pure def second(): U64 = {
+      val dataSize = data.size
+      val dataSize64 = conversions.Z.toU64(dataSize)
+
+      var a: U64 = seed
+      var b: U64 = dataSize64
+
+      var i = 0
+      if (dataSize > 32) {
+        var c: U64 = rot(dataSize64, u64"23") + ~seed
+        var d: U64 = ~dataSize64 + rot(seed, u64"19")
+
+        do {
+          val w0 = fetch(i + 0)
+          val w1 = fetch(i + 8)
+          val w2 = fetch(i + 16)
+          val w3 = fetch(i + 24)
+
+          val d02 = w0 + rot(w2 + d, u64"56")
+          val c13 = w1 + rot(w3 + c, u64"19")
+          d = d |^ (b + rot(w1, u64"38"))
+          c = c |^ (a + rot(w0, u64"57"))
+          b = b |^ (prime6 * (c13 + w2))
+          a = a |^ (prime5 * (d02 + w3))
+          i = i + 32
+        } while (dataSize - i >= 32)
+
+        a = a |^ (prime6 * (c + rot(d, u64"23")))
+        b = b |^ (prime5 * (rot(c, u64"19") + d))
+      }
+
+      val len = dataSize - i
+      (len - 1) / 8 match {
+        case z"3" =>
+          var p = mullu(b + fetch(i), prime4)
+          a = a |^ p._1
+          b = b + p._2
+          i = i + 8
+          p = mullu(a + fetch(i), prime3)
+          b = b |^ p._1
+          a = a + p._2
+          i = i + 8
+          p = mullu(b + fetch(i), prime2)
+          a = a |^ p._1
+          b = b + p._2
+          i = i + 8
+          p = mullu(a + tail(i), prime1)
+          b = b |^ p._1
+          a = a + p._2
+        case z"2" =>
+          var p = mullu(a + fetch(i), prime3)
+          b = b |^ p._1
+          a = a + p._2
+          i = i + 8
+          p = mullu(b + fetch(i), prime2)
+          a = a |^ p._1
+          b = b + p._2
+          i = i + 8
+          p = mullu(a + tail(i), prime1)
+          b = b |^ p._1
+          a = a + p._2
+        case z"1" =>
+          var p = mullu(b + fetch(i), prime2)
+          a = a |^ p._1
+          b = b + p._2
+          i = i + 8
+          p = mullu(a + tail(i), prime1)
+          b = b |^ p._1
+          a = a + p._2
+        case _ =>
+          if (len > 0) {
+            val p = mullu(a + tail(i), prime1)
+            b = b |^ p._1
+            a = a + p._2
+          }
+      }
+
+      return mux(((a + rot(b, u64"41")) * prime0) |^ ((rot(a, u64"23") + b) * prime6), prime5)
+    }
+
+    return if (isFirst) first() else second()
   }
 
 }
