@@ -2,18 +2,151 @@ package org.sireum
 
 import org.sireum.test.TestSuite
 
-import U8._
 import U32._
 
 class MurmurHash3aTest extends TestSuite {
 
+  val expected: ISZ[U32] = ISZ(
+    u32"0x00000000",
+    u32"0x514E28B7",
+    u32"0x70E1A2C0",
+    u32"0x51D4D0D7",
+    u32"0xF4C0EC39",
+    u32"0xCCA4DCCB",
+    u32"0x901CC302",
+    u32"0x8D7E4914",
+    u32"0xD161D673",
+    u32"0xE7E27A50",
+    u32"0xD5BA5EFB",
+    u32"0xF3BB4BFC",
+    u32"0x064EA88F",
+    u32"0x60F00008",
+    u32"0xF7C55EAD",
+    u32"0x5BD6952D",
+    u32"0x191573DD",
+    u32"0xCBE58DC6",
+    u32"0x253453E9",
+    u32"0xE467FFCD",
+    u32"0xA6312044",
+    u32"0x6771B202",
+    u32"0x8C018619",
+    u32"0x8667CAB6",
+    u32"0x8C2B510F",
+    u32"0xF462D717",
+    u32"0xFD14A2D5",
+    u32"0x4139A8C6",
+    u32"0x0CE294FA",
+    u32"0x7960E5BC",
+    u32"0x74F0ABAE",
+    u32"0x64426AD6",
+    u32"0xCAC37638",
+    u32"0x5460867A",
+    u32"0xC1C1ADC8",
+    u32"0x1A42E7CE",
+    u32"0x528CFCB0",
+    u32"0xB147E275",
+    u32"0x688F42D9",
+    u32"0x2486B774",
+    u32"0xCE736BD7",
+    u32"0xEFBFC7AB",
+    u32"0x3BBC88B1",
+    u32"0x97290F77",
+    u32"0x232AE518",
+    u32"0x06498194",
+    u32"0x0EFCD08B",
+    u32"0x3126F382",
+    u32"0x9556C5A6",
+    u32"0xA35477A2",
+    u32"0x10F558F3",
+    u32"0xAB6C9289",
+    u32"0x6AED49B4",
+    u32"0xB3661DED",
+    u32"0x6243A1EE",
+    u32"0xB675C9DD",
+    u32"0xDE312829",
+    u32"0x7EE03CF6",
+    u32"0x2F9E0C13",
+    u32"0x2ED99CA2",
+    u32"0x49C63E69",
+    u32"0x3DDB6CA9",
+    u32"0x6A352413",
+    u32"0x14ACD341",
+    u32"0x894EA70B",
+    u32"0x46F9B03B",
+    u32"0x668B9F66",
+    u32"0x89A465E6",
+    u32"0x3F56CA21",
+    u32"0xFAC52323",
+    u32"0x59C2A5A5",
+    u32"0x6E4E5476",
+    u32"0x1904D08A",
+    u32"0x6A59959D",
+    u32"0x0A4A702F",
+    u32"0x44B7FAB3",
+    u32"0x8D6C0B32",
+    u32"0x6B339845",
+    u32"0xC48EC9DF",
+    u32"0x133B9724",
+    u32"0x2A6B6C0C",
+    u32"0x541FD889",
+    u32"0xA6A2BA5E",
+    u32"0x0F2DCA28",
+    u32"0x12AB81F3",
+    u32"0x38C0E4E9",
+    u32"0xDD31C666",
+    u32"0x83644871",
+    u32"0xDEC80DAF",
+    u32"0xEC706342",
+    u32"0xAF7935B1",
+    u32"0xEF508D6A",
+    u32"0x23AFBB71",
+    u32"0x71CC65F5",
+    u32"0x525B72D1",
+    u32"0xAC186574",
+    u32"0x7AF8CBA1",
+    u32"0x7856F9B4",
+    u32"0xF3B41620",
+    u32"0xB183F8AD",
+    u32"0xFC653843",
+    u32"0x45C0C083",
+    u32"0x62B12A54",
+    u32"0x16A40878",
+    u32"0x3B6320FC",
+    u32"0x899F651D",
+    u32"0xE57B2164",
+    u32"0x8211EEEB",
+    u32"0xDCCADD7A",
+    u32"0xBDA833CD",
+    u32"0xC30803AD",
+    u32"0xEF18D03D",
+    u32"0x931173BF",
+    u32"0x08281A26",
+    u32"0x0BF594FD",
+    u32"0x702F1C69",
+    u32"0xB6A06E1C",
+    u32"0x90F52C62",
+    u32"0xD085CAA6",
+    u32"0x799950BF",
+    u32"0x7483A900",
+    u32"0xA4C1A7C2",
+    u32"0x2FC77921",
+    u32"0x5D8B37F7",
+    u32"0x60B267AE",
+    u32"0xB7F95665",
+    u32"0x06562BAA",
+    u32"0xCF321312"
+  )
+
   val tests = Tests {
-    * - assert(Hash.murmur3a(ISZ(u8"65"), u32"0") == u32"1423767502")
 
-    * - assert(Hash.murmur3a(ISZ(u8"65", u8"66"), u32"0") == u32"4094335635")
+    * - {
+      var data = ISZ[U8]()
+      for (i <- expected.indices) {
+        val result = Hash.murmur3a(data, u32"0")
+        assert(result == expected(i))
+        data = data :+ conversions.Z.toU8(i)
+      }
+    }
 
-    * - assert(Hash.murmur3a(ISZ(u8"65", u8"66", u8"67"), u32"0") == u32"1136772405")
-
-    * - assert(Hash.murmur3a(ISZ(u8"65", u8"66", u8"67", u8"68"), u32"0") == u32"1230572953")
   }
 }

@@ -36,7 +36,7 @@ object Hash {
     @pure def process(d0: U32, h: U32): U32 = {
       var d = d0
       d = d * u32"0xCC9E2D51"
-      d = (d << u32"15") | (d >> u32"17")
+      d = (d << u32"15") | (d >>> u32"17")
       d = d * u32"0x1B873593"
       return h |^ d
     }
@@ -44,35 +44,35 @@ object Hash {
     val dataSize = data.size
     var h = seed
 
-    dataSize match {
-      case z"0" =>
+    var i: Z = 0
+    if (dataSize > 3) {
+      do {
+        val d =
+          conversions.U8.toU32(data(i)) |
+            (conversions.U8.toU32(data(i + 1)) << u32"8") |
+            (conversions.U8.toU32(data(i + 2)) << u32"16") |
+            (conversions.U8.toU32(data(i + 3)) << u32"24")
+        i = i + 4
+        h = process(d, h)
+        h = (h << u32"13") | (h >> u32"19")
+        h = (h * u32"5") + u32"0xE6546B64"
+      } while (dataSize - i >= 4)
+    }
+
+    dataSize - i match {
       case z"1" =>
-        val d = conversions.U8.toU32(data(0))
+        val d = conversions.U8.toU32(data(i))
         h = process(d, h)
       case z"2" =>
-        val d = conversions.U8.toU32(data(0)) |
-          (conversions.U8.toU32(data(1)) << u32"8")
+        val d = conversions.U8.toU32(data(i)) |
+          (conversions.U8.toU32(data(i + 1)) << u32"8")
         h = process(d, h)
       case z"3" =>
-        val d = conversions.U8.toU32(data(0)) |
-          (conversions.U8.toU32(data(1)) << u32"8") |
-          (conversions.U8.toU32(data(2)) << u32"16")
+        val d = conversions.U8.toU32(data(i)) |
+          (conversions.U8.toU32(data(i + 1)) << u32"8") |
+          (conversions.U8.toU32(data(i + 2)) << u32"16")
         h = process(d, h)
       case _ =>
-        var i: Z = 0
-        var n = dataSize / 4
-        do {
-          val d =
-            conversions.U8.toU32(data(i)) |
-              (conversions.U8.toU32(data(i + 1)) << u32"8") |
-              (conversions.U8.toU32(data(i + 2)) << u32"16") |
-              (conversions.U8.toU32(data(i + 3)) << u32"24")
-          i = i + 4
-          h = process(d, h)
-          h = (h << u32"13") | (h >> u32"19")
-          h = (h * u32"5") + u32"0xE6546B64"
-          n = n - 1
-        } while (n > 0)
     }
 
     h = h |^ conversions.Z.toU32(dataSize)
@@ -150,7 +150,7 @@ object Hash {
     var b: U32 = dataSize32 |^ conversions.U64.toU32(seed >>> u64"32")
 
     var i = 0
-    if (dataSize - i > 16) {
+    if (dataSize > 16) {
       var c = ~a
       var d = rot(b, u32"5")
 
@@ -377,7 +377,7 @@ object Hash {
     var b: U64 = conversions.Z.toU64(dataSize)
 
     var i = 0
-    if (dataSize - i > 32) {
+    if (dataSize > 32) {
       var c = rot(dataSize64, u64"17") + seed
       var d = dataSize64 |^ rot(seed, u64"17")
 
