@@ -117,6 +117,13 @@ object Hash {
     }
 
     @pure def fetch(i: Z): U32 = {
+      return conversions.U8.toU32(data(i)) |
+        conversions.U8.toU32(data(i + 1)) << u32"8" |
+        conversions.U8.toU32(data(i + 2)) << u32"16" |
+        conversions.U8.toU32(data(i + 3)) << u32"24"
+    }
+
+    @pure def tail(i: Z): U32 = {
       data.size - i match {
         case z"1" =>
           return conversions.U8.toU32(data(i))
@@ -127,11 +134,7 @@ object Hash {
           return conversions.U8.toU32(data(i)) |
             conversions.U8.toU32(data(i + 1)) << u32"8" |
             conversions.U8.toU32(data(i + 2)) << u32"16"
-        case _ =>
-          return conversions.U8.toU32(data(i)) |
-            conversions.U8.toU32(data(i + 1)) << u32"8" |
-            conversions.U8.toU32(data(i + 2)) << u32"16" |
-            conversions.U8.toU32(data(i + 3)) << u32"24"
+        case _ => fetch(i)
       }
     }
 
@@ -190,7 +193,7 @@ object Hash {
         a = a |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         b = b + conversions.U64.toU32(l >>> u64"32")
         i = i + 4
-        l = conversions.U32.toU64(a + fetch(i)) * conversions.U32.toU64(prime1)
+        l = conversions.U32.toU64(a + tail(i)) * conversions.U32.toU64(prime1)
         b = b |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         a = a + conversions.U64.toU32(l >>> u64"32")
       case z"2" =>
@@ -202,7 +205,7 @@ object Hash {
         a = a |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         b = b + conversions.U64.toU32(l >>> u64"32")
         i = i + 4
-        l = conversions.U32.toU64(a + fetch(i)) * conversions.U32.toU64(prime1)
+        l = conversions.U32.toU64(a + tail(i)) * conversions.U32.toU64(prime1)
         b = b |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         a = a + conversions.U64.toU32(l >>> u64"32")
       case z"1" =>
@@ -210,12 +213,12 @@ object Hash {
         a = a |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         b = b + conversions.U64.toU32(l >>> u64"32")
         i = i + 4
-        l = conversions.U32.toU64(a + fetch(i)) * conversions.U32.toU64(prime1)
+        l = conversions.U32.toU64(a + tail(i)) * conversions.U32.toU64(prime1)
         b = b |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
         a = a + conversions.U64.toU32(l >>> u64"32")
       case _ =>
         if (len > 0) {
-          val l = conversions.U32.toU64(a + fetch(i)) * conversions.U32.toU64(prime1)
+          val l = conversions.U32.toU64(a + tail(i)) * conversions.U32.toU64(prime1)
           b = b |^ conversions.U64.toU32(l & u64"0xFFFFFFFF")
           a = a + conversions.U64.toU32(l >>> u64"32")
         }
@@ -314,6 +317,17 @@ object Hash {
     }
 
     @pure def fetch(i: Z): U64 = {
+      return conversions.U8.toU64(data(i)) |
+        conversions.U8.toU64(data(i + 1)) << u64"8" |
+        conversions.U8.toU64(data(i + 2)) << u64"16" |
+        conversions.U8.toU64(data(i + 3)) << u64"24" |
+        conversions.U8.toU64(data(i + 4)) << u64"32" |
+        conversions.U8.toU64(data(i + 5)) << u64"40" |
+        conversions.U8.toU64(data(i + 6)) << u64"48" |
+        conversions.U8.toU64(data(i + 7)) << u64"56"
+    }
+
+    @pure def tail(i: Z): U64 = {
       data.size - i match {
         case z"1" =>
           return conversions.U8.toU64(data(i))
@@ -350,15 +364,7 @@ object Hash {
             conversions.U8.toU64(data(i + 4)) << u64"32" |
             conversions.U8.toU64(data(i + 5)) << u64"40" |
             conversions.U8.toU64(data(i + 6)) << u64"48"
-        case _ =>
-          return conversions.U8.toU64(data(i)) |
-            conversions.U8.toU64(data(i + 1)) << u64"8" |
-            conversions.U8.toU64(data(i + 2)) << u64"16" |
-            conversions.U8.toU64(data(i + 3)) << u64"24" |
-            conversions.U8.toU64(data(i + 4)) << u64"32" |
-            conversions.U8.toU64(data(i + 5)) << u64"40" |
-            conversions.U8.toU64(data(i + 6)) << u64"48" |
-            conversions.U8.toU64(data(i + 7)) << u64"56"
+        case _ => return fetch(i)
       }
     }
 
@@ -409,20 +415,20 @@ object Hash {
         i = i + 8
         b = b + mux(fetch(i), prime2)
         i = i + 8
-        a = a + mux(fetch(i), prime1)
+        a = a + mux(tail(i), prime1)
       case z"2" =>
         a = a + mux(fetch(i), prime3)
         i = i + 8
         b = b + mux(fetch(i), prime2)
         i = i + 8
-        a = a + mux(fetch(i), prime1)
+        a = a + mux(tail(i), prime1)
       case z"1" =>
         b = b + mux(fetch(i), prime2)
         i = i + 8
-        a = a + mux(fetch(i), prime1)
+        a = a + mux(tail(i), prime1)
       case _ =>
         if (len > 0) {
-          a = a + mux(fetch(i), prime1)
+          a = a + mux(tail(i), prime1)
         }
     }
 
