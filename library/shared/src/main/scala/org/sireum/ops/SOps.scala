@@ -70,6 +70,10 @@ import org.sireum._
 
   @pure def dropRight(size: Z): IS[I, V]
 
+  @pure def filter(p: V => B @pure): IS[I, V]
+
+  @pure def filterNot(p: V => B @pure): IS[Z, V]
+
   @pure def insert(i: I, e: V): IS[I, V]
 
   @pure def laxSlice(from: I, til: I): IS[I, V]
@@ -107,6 +111,10 @@ import org.sireum._
   @pure def drop(size: Z): MS[I, V]
 
   @pure def dropRight(size: Z): MS[I, V]
+
+  @pure def filter(p: V => B @pure): MS[I, V]
+
+  @pure def filterNot(p: V => B @pure): MS[Z, V]
 
   @pure def insert(i: I, e: V): MS[I, V]
 
@@ -235,6 +243,28 @@ import org.sireum._
       }
     }
     return F
+  }
+
+  @pure def filter(p: V => B @pure): IS[Z, V] = {
+
+    var r = IS[Z, V]()
+    for (e <- s) {
+      if (p(e)) {
+        r = r :+ e
+      }
+    }
+    return r
+  }
+
+  @pure def filterNot(p: V => B @pure): IS[Z, V] = {
+
+    var r = IS[Z, V]()
+    for (e <- s) {
+      if (!p(e)) {
+        r = r :+ e
+      }
+    }
+    return r
   }
 
   @pure def first: V = {
@@ -522,6 +552,28 @@ import org.sireum._
       }
     }
     return F
+  }
+
+  @pure def filter(p: V => B @pure): MS[Z, V] = {
+
+    var r = MS[Z, V]()
+    for (e <- s) {
+      if (p(e)) {
+        r = r :+ e
+      }
+    }
+    return r
+  }
+
+  @pure def filterNot(p: V => B @pure): MS[Z, V] = {
+
+    var r = MS[Z, V]()
+    for (e <- s) {
+      if (!p(e)) {
+        r = r :+ e
+      }
+    }
+    return r
   }
 
   @pure def first: V = {
