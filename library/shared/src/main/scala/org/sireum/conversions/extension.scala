@@ -95,7 +95,6 @@ object C_Ext {
   @pure def toU32(c: C): U32 = org.sireum.U32(c.value)
 }
 
-
 object Z_Ext {
 
   @pure def isInRangeSigned8(n: Z): B = -128 <= n && n <= 127
@@ -193,7 +192,6 @@ object Z_Ext {
   }
 }
 
-
 object Z8_Ext {
 
   @pure def toB(n: Z8): B = n != z8"0"
@@ -268,7 +266,6 @@ object Z8_Ext {
 
   @pure def toR(n: Z8): R = org.sireum.R.$String(n.toString)
 }
-
 
 object Z16_Ext {
 
@@ -345,7 +342,6 @@ object Z16_Ext {
   @pure def toR(n: Z16): R = org.sireum.R.$String(n.toString)
 }
 
-
 object Z32_Ext {
 
   @pure def toB(n: Z32): B = n != z32"0"
@@ -420,7 +416,6 @@ object Z32_Ext {
 
   @pure def toR(n: Z32): R = org.sireum.R.$String(n.toString)
 }
-
 
 object Z64_Ext {
 
@@ -497,7 +492,6 @@ object Z64_Ext {
   @pure def toR(n: Z64): R = org.sireum.R.$String(n.toString)
 }
 
-
 object N_Ext {
 
   @pure def toB(n: N): B = n != n"0"
@@ -572,7 +566,6 @@ object N_Ext {
 
   @pure def toR(n: N): R = org.sireum.R.$String(n.toString)
 }
-
 
 object N8_Ext {
 
@@ -649,7 +642,6 @@ object N8_Ext {
   @pure def toR(n: N8): R = org.sireum.R.$String(n.toString)
 }
 
-
 object N16_Ext {
 
   @pure def toB(n: N16): B = n != n16"0"
@@ -724,7 +716,6 @@ object N16_Ext {
 
   @pure def toR(n: N16): R = org.sireum.R.$String(n.toString)
 }
-
 
 object N32_Ext {
 
@@ -801,7 +792,6 @@ object N32_Ext {
   @pure def toR(n: N32): R = org.sireum.R.$String(n.toString)
 }
 
-
 object N64_Ext {
 
   @pure def toB(n: N64): B = n != n64"0"
@@ -876,7 +866,6 @@ object N64_Ext {
 
   @pure def toR(n: N64): R = org.sireum.R.$String(n.toString)
 }
-
 
 object S8_Ext {
 
@@ -955,7 +944,6 @@ object S8_Ext {
   @pure def toRawU8(n: S8): U8 = org.sireum.U8(n.value)
 }
 
-
 object S16_Ext {
 
   @pure def toB(n: S16): B = n != s16"0"
@@ -1032,7 +1020,6 @@ object S16_Ext {
 
   @pure def toRawU16(n: S16): U16 = org.sireum.U16(n.value)
 }
-
 
 object S32_Ext {
 
@@ -1111,7 +1098,6 @@ object S32_Ext {
   @pure def toRawU32(n: S32): U32 = org.sireum.U32(n.value)
 }
 
-
 object S64_Ext {
 
   @pure def toB(n: S64): B = n != s64"0"
@@ -1188,7 +1174,6 @@ object S64_Ext {
 
   @pure def toRawU64(n: S64): U64 = org.sireum.U64(n.value)
 }
-
 
 object U8_Ext {
 
@@ -1267,7 +1252,6 @@ object U8_Ext {
   @pure def toRawS8(n: U8): S8 = org.sireum.S8(n.value)
 }
 
-
 object U16_Ext {
 
   @pure def toB(n: U16): B = n != u16"0"
@@ -1344,7 +1328,6 @@ object U16_Ext {
 
   @pure def toRawS16(n: U16): S16 = org.sireum.S16(n.value)
 }
-
 
 object U32_Ext {
 
@@ -1427,7 +1410,6 @@ object U32_Ext {
   @pure def toC(n: U32): C = org.sireum.C(n.value)
 }
 
-
 object U64_Ext {
 
   @pure def toB(n: U64): B = n != u64"0"
@@ -1507,7 +1489,6 @@ object U64_Ext {
   @pure def toRawF64(n: U64): F64 = org.sireum.F64(_root_.java.lang.Double.longBitsToDouble(n.value))
 }
 
-
 object F32_Ext {
 
   @pure def toB(n: F32): B = n != f32"0.0"
@@ -1517,7 +1498,6 @@ object F32_Ext {
   @pure def toF32(n: F32): F32 = n
 }
 
-
 object F64_Ext {
 
   @pure def toB(n: F64): B = n != f64"0.0"
@@ -1526,7 +1506,6 @@ object F64_Ext {
 
   @pure def toF64(n: F64): F64 = n
 }
-
 
 object R_Ext {
 
@@ -1544,15 +1523,7 @@ object R_Ext {
 
 object String_Ext {
 
-  @pure def fromBis[I](bs: IS[I, U8]): String = {
-    if (bs.isEmpty) return ""
-    new _root_.java.lang.String(bs.elements.toArray.map(_.value), "UTF-8")
-  }
-
-  @pure def fromBms[I](bs: MS[I, U8]): String = {
-    if (bs.isEmpty) return ""
-    new _root_.java.lang.String(bs.elements.toArray.map(_.value), "UTF-8")
-  }
+  import java.nio.charset.StandardCharsets.UTF_8
 
   @pure def fromCis[I](cs: IS[I, C]): String = {
     if (cs.isEmpty) return ""
@@ -1562,6 +1533,16 @@ object String_Ext {
   @pure def fromCms[I](cs: MS[I, C]): String = {
     if (cs.isEmpty) return ""
     new Predef.String(cs.data.asInstanceOf[scala.Array[scala.Int]], 0, cs.length.toInt)
+  }
+
+  @pure def fromU8is(u8s: IS[Z, U8]): String = {
+    if (u8s.isEmpty) return ""
+    new _root_.java.lang.String(u8s.elements.toArray.map(_.value), UTF_8)
+  }
+
+  @pure def fromU8ms(u8s: MS[Z, U8]): String = {
+    if (u8s.isEmpty) return ""
+    new _root_.java.lang.String(u8s.elements.toArray.map(_.value), UTF_8)
   }
 
   @pure def fromBase64(s: String): Either[IS[Z, U8], String] = {
@@ -1602,4 +1583,10 @@ object String_Ext {
     }
     ms
   }
+
+  @pure def toU8is(s: String): IS[Z, U8] =
+    IS[Z, U8](s.value.getBytes(UTF_8).map(org.sireum.U8(_)): _*)
+
+  @pure def toU8ms(s: String): MS[Z, U8] =
+    MS[Z, U8](s.value.getBytes(UTF_8).map(org.sireum.U8(_)): _*)
 }

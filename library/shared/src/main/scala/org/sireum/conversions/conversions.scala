@@ -101,7 +101,6 @@ import org.sireum._
   @pure def toU32(c: C): U32 = $
 }
 
-
 @ext object Z {
 
   @pure def isInRangeSigned8(n: Z): B =
@@ -210,7 +209,6 @@ import org.sireum._
   @pure def fromBinary(bin: ISZ[U8]): Z = $
 }
 
-
 @ext object Z8 {
 
   @pure def toB(n: Z8): B =
@@ -282,7 +280,6 @@ import org.sireum._
   @pure def toR(n: Z8): R =
     l""" ensures result ≡ Z.toR(toZ(n)) """
 }
-
 
 @ext object Z16 {
 
@@ -357,7 +354,6 @@ import org.sireum._
   @pure def toR(n: Z16): R =
     l""" ensures result ≡ Z.toR(toZ(n)) """
 }
-
 
 @ext object Z32 {
 
@@ -435,7 +431,6 @@ import org.sireum._
     l""" ensures result ≡ Z.toR(toZ(n)) """
 }
 
-
 @ext object Z64 {
 
   @pure def toB(n: Z64): B =
@@ -512,7 +507,6 @@ import org.sireum._
   @pure def toR(n: Z64): R =
     l""" ensures result ≡ Z.toR(toZ(n)) """
 }
-
 
 @ext object N {
 
@@ -593,7 +587,6 @@ import org.sireum._
   @pure def toR(n: N): R = $
 }
 
-
 @ext object N8 {
 
   @pure def toB(n: N8): B =
@@ -658,7 +651,6 @@ import org.sireum._
   @pure def toR(n: N8): R =
     l""" ensures result ≡ N.toR(toN(n)) """
 }
-
 
 @ext object N16 {
 
@@ -728,7 +720,6 @@ import org.sireum._
   @pure def toR(n: N16): R =
     l""" ensures result ≡ N.toR(toN(n)) """
 }
-
 
 @ext object N32 {
 
@@ -802,7 +793,6 @@ import org.sireum._
   @pure def toR(n: N32): R =
     l""" ensures result ≡ N.toR(toN(n)) """
 }
-
 
 @ext object N64 {
 
@@ -881,7 +871,6 @@ import org.sireum._
     l""" ensures result ≡ N.toR(toN(n)) """
 }
 
-
 @ext object S8 {
 
   @pure def toB(n: S8): B =
@@ -957,24 +946,23 @@ import org.sireum._
 
   /* @first */
   @pure def toU8(n: S8): U8 =
-  l""" requires n ≥ s8"0" """
+    l""" requires n ≥ s8"0" """
 
   /* @first */
   @pure def toRawU8(n: S8): U8 = $
 
   /* @first */
   @pure def toU16(n: S8): U16 =
-  l""" requires n ≥ s8"0" """
+    l""" requires n ≥ s8"0" """
 
   /* @first */
   @pure def toU32(n: S8): U32 =
-  l""" requires n ≥ s8"0" """
+    l""" requires n ≥ s8"0" """
 
   /* @first */
   @pure def toU64(n: S8): U64 =
-  l""" requires n ≥ s8"0" """
+    l""" requires n ≥ s8"0" """
 }
-
 
 @ext object S16 {
 
@@ -1064,7 +1052,7 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: S16): S8 =
-  l""" requires s16"-128" ≤ n ∧ n ≤ s16"127" """
+    l""" requires s16"-128" ≤ n ∧ n ≤ s16"127" """
 
   @pure def toS16(n: S16): S16 =
     l""" ensures result ≡ n """
@@ -1077,24 +1065,23 @@ import org.sireum._
 
   /* @first */
   @pure def toU8(n: S16): U8 =
-  l""" requires s16"0" ≤ n ∧ n ≤ s16"255" """
+    l""" requires s16"0" ≤ n ∧ n ≤ s16"255" """
 
   /* @first */
   @pure def toU16(n: S16): U16 =
-  l""" requires n ≥ s16"0" """
+    l""" requires n ≥ s16"0" """
 
   /* @first */
   @pure def toRawU16(n: S16): U16 = $
 
   /* @first */
   @pure def toU32(n: S16): U32 =
-  l""" requires n ≥ s16"0" """
+    l""" requires n ≥ s16"0" """
 
   /* @first */
   @pure def toU64(n: S16): U64 =
-  l""" requires n ≥ s16"0" """
+    l""" requires n ≥ s16"0" """
 }
-
 
 @ext object S32 {
 
@@ -1233,11 +1220,11 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: S32): S8 =
-  l""" requires s32"-128" ≤ n ∧ n ≤ s32"127" """
+    l""" requires s32"-128" ≤ n ∧ n ≤ s32"127" """
 
   /* @first */
   @pure def toS16(n: S32): S16 =
-  l""" requires s32"-32768" ≤ n ∧ n ≤ s32"32767" """
+    l""" requires s32"-32768" ≤ n ∧ n ≤ s32"32767" """
 
   @pure def toS32(n: S32): S32 =
     l""" ensures result ≡ n """
@@ -1247,24 +1234,23 @@ import org.sireum._
 
   /* @first */
   @pure def toU8(n: S32): U8 =
-  l""" requires s32"0" ≤ n ∧ n ≤ s32"255" """
+    l""" requires s32"0" ≤ n ∧ n ≤ s32"255" """
 
   /* @first */
   @pure def toU16(n: S32): U16 =
-  l""" requires s32"0" ≤ n ∧ n ≤ s32"65535" """
+    l""" requires s32"0" ≤ n ∧ n ≤ s32"65535" """
 
   /* @first */
   @pure def toU32(n: S32): U32 =
-  l""" requires n ≥ s32"0" """
+    l""" requires n ≥ s32"0" """
 
   /* @first */
   @pure def toRawU32(n: S32): U32 = $
 
   /* @first */
   @pure def toU64(n: S32): U64 =
-  l""" requires n ≥ s32"0" """
+    l""" requires n ≥ s32"0" """
 }
-
 
 @ext object S64 {
 
@@ -1499,39 +1485,38 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: S64): S8 =
-  l""" requires s64"-128" ≤ n ∧ n ≤ s64"127" """
+    l""" requires s64"-128" ≤ n ∧ n ≤ s64"127" """
 
   /* @first */
   @pure def toS16(n: S64): S16 =
-  l""" requires s64"-32768" ≤ n ∧ n ≤ s64"32767" """
+    l""" requires s64"-32768" ≤ n ∧ n ≤ s64"32767" """
 
   /* @first */
   @pure def toS32(n: S64): S32 =
-  l""" requires s64"-2147483648" ≤ n ∧ n ≤ s64"2147483647" """
+    l""" requires s64"-2147483648" ≤ n ∧ n ≤ s64"2147483647" """
 
   @pure def toS64(n: S64): S64 =
     l""" ensures result ≡ n """
 
   /* @first */
   @pure def toU8(n: S64): U8 =
-  l""" requires s64"0" ≤ n ∧ n ≤ s64"255" """
+    l""" requires s64"0" ≤ n ∧ n ≤ s64"255" """
 
   /* @first */
   @pure def toU16(n: S64): U16 =
-  l""" requires s64"0" ≤ n ∧ n ≤ s64"65535" """
+    l""" requires s64"0" ≤ n ∧ n ≤ s64"65535" """
 
   /* @first */
   @pure def toU32(n: S64): U32 =
-  l""" requires s64"0" ≤ n ∧ n ≤ s64"4294967295" """
+    l""" requires s64"0" ≤ n ∧ n ≤ s64"4294967295" """
 
   /* @first */
   @pure def toU64(n: S64): U64 =
-  l""" requires n ≥ s64"0" """
+    l""" requires n ≥ s64"0" """
 
   /* @first */
   @pure def toRawU64(n: S64): U64 = $
 }
-
 
 @ext object U8 {
 
@@ -1586,7 +1571,7 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: U8): S8 =
-  l""" requires n ≤ u8"127" """
+    l""" requires n ≤ u8"127" """
 
   /* @first */
   @pure def toRawS8(n: U8): S8 = $
@@ -1612,7 +1597,6 @@ import org.sireum._
   /* @first */
   @pure def toU64(n: U8): U64 = $
 }
-
 
 @ext object U16 {
 
@@ -1685,11 +1669,11 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: U16): S8 =
-  l""" requires n ≤ u16"127" """
+    l""" requires n ≤ u16"127" """
 
   /* @first */
   @pure def toS16(n: U16): S16 =
-  l""" requires n ≤ u16"32767" """
+    l""" requires n ≤ u16"32767" """
 
   /* @first */
   @pure def toRawS16(n: U16): S16 = $
@@ -1712,7 +1696,6 @@ import org.sireum._
   /* @first */
   @pure def toU64(n: U16): U64 = $
 }
-
 
 @ext object U32 {
 
@@ -1818,15 +1801,15 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: U32): S8 =
-  l""" requires n ≤ u32"127" """
+    l""" requires n ≤ u32"127" """
 
   /* @first */
   @pure def toS16(n: U32): S16 =
-  l""" requires n ≤ u32"32767" """
+    l""" requires n ≤ u32"32767" """
 
   /* @first */
   @pure def toS32(n: U32): S32 =
-  l""" requires n ≤ u32"2147483647" """
+    l""" requires n ≤ u32"2147483647" """
 
   /* @first */
   @pure def toRawS32(n: U32): S32 = $
@@ -1836,11 +1819,11 @@ import org.sireum._
 
   /* @first */
   @pure def toU8(n: U32): U8 =
-  l""" requires n ≤ u32"255" """
+    l""" requires n ≤ u32"255" """
 
   /* @first */
   @pure def toU16(n: U32): U16 =
-  l""" requires n ≤ u32"65535" """
+    l""" requires n ≤ u32"65535" """
 
   @pure def toU32(n: U32): U32 =
     l""" ensures result ≡ n """
@@ -1853,7 +1836,6 @@ import org.sireum._
 
   @pure def toC(n: U32): C = $
 }
-
 
 @ext object U64 {
 
@@ -2025,43 +2007,42 @@ import org.sireum._
 
   /* @first */
   @pure def toS8(n: U64): S8 =
-  l""" requires n ≤ u64"127" """
+    l""" requires n ≤ u64"127" """
 
   /* @first */
   @pure def toS16(n: U64): S16 =
-  l""" requires n ≤ u64"32767" """
+    l""" requires n ≤ u64"32767" """
 
   /* @first */
   @pure def toS32(n: U64): S32 =
-  l""" requires n ≤ u64"2147483647" """
+    l""" requires n ≤ u64"2147483647" """
 
   /* @first */
   @pure def toS64(n: U64): S64 =
-  l""" requires n ≤ u64"9223372036854775807" """
+    l""" requires n ≤ u64"9223372036854775807" """
 
   /* @first */
   @pure def toRawS64(n: U64): S64 = $
 
   /* @first */
   @pure def toU8(n: U64): U8 =
-  l""" requires n ≤ u64"255" """
+    l""" requires n ≤ u64"255" """
 
   /* @first */
   @pure def toU16(n: U64): U16 =
-  l""" requires n ≤ u64"65535" """
+    l""" requires n ≤ u64"65535" """
 
   /* @first */
   @pure def toU32(n: U64): U32 =
-  l""" requires n ≤ u64"4294967295" """
+    l""" requires n ≤ u64"4294967295" """
 
   /* @first */
   @pure def toU64(n: U64): U64 =
-  l""" ensures result ≡ n """
+    l""" ensures result ≡ n """
 
   /* @first */
   @pure def toRawF64(n: U64): F64 = $
 }
-
 
 @ext object F32 {
 
@@ -2075,7 +2056,6 @@ import org.sireum._
     l""" ensures result ≡ n """
 }
 
-
 @ext object F64 {
 
   @pure def toB(n: F64): B =
@@ -2088,7 +2068,6 @@ import org.sireum._
     l""" ensures result ≡ n """
 }
 
-
 @ext object R {
 
   @pure def toB(n: R): B =
@@ -2099,12 +2078,11 @@ import org.sireum._
 
   /* @first */
   @pure def toN(n: R): N =
-  l""" requires n ≥ r"0.0" """
+    l""" requires n ≥ r"0.0" """
 
   @pure def toR(n: R): R =
     l""" ensures result ≡ n """
 }
-
 
 @ext object String {
 
@@ -2116,8 +2094,15 @@ import org.sireum._
 
   @pure def fromCms[I](cs: MS[I, C]): String = $
 
+  @pure def fromU8is(u8s: IS[Z, U8]): String = $
+
+  @pure def fromU8ms(u8s: MS[Z, U8]): String = $
+
   @pure def toCis(s: String): IS[Z, C] = $
 
   @pure def toCms(s: String): MS[Z, C] = $
 
+  @pure def toU8is(s: String): IS[Z, U8] = $
+
+  @pure def toU8ms(s: String): MS[Z, U8] = $
 }
