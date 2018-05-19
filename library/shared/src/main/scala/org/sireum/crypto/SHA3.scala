@@ -120,7 +120,7 @@ object SHA3 {
   }
 
   @pure def init512: SHA3 = {
-    return SHA3(12)
+    return SHA3(16)
   }
 
   @pure def sum256(data: ISZ[U8]): ISZ[U8] = {
