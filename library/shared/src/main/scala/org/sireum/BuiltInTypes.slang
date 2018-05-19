@@ -270,6 +270,8 @@ package org.sireum
 
   def create[I, V](size: I, default: V): IS[I, V] = $
 
+  def zreate[I, V](size: Z, default: V): IS[I, V] = $
+
 }
 
 @ext trait IS[I, V] {
@@ -320,6 +322,8 @@ package org.sireum
 @ext object MS {
 
   def create[I, V](size: I, default: V): MS[I, V] = $
+
+  def zreate[I, V](size: I, default: V): MS[I, V] = $
 
 }
 
