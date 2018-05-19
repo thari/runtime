@@ -72,7 +72,7 @@ object SHA3 {
 
   def keccakf(s: MSZ[U64]): Unit = {
     var t = u64"0"
-    val bc = MSZ.create(5, u64"0")
+    val bc = MS.create(5, u64"0")
 
     for (round <- z"0" until rounds) {
       /* Theta */
@@ -152,7 +152,7 @@ import SHA3._
   var saved: U64 = u64"0"
   var byteIndex: U64 = u64"0"
   var wordIndex: Z = 0
-  var s: MSZ[U64] = MSZ.create(25, u64"0")
+  var s: MSZ[U64] = MS.create(25, u64"0")
 
   def update(buf: ISZ[U8]): Unit = {
 
@@ -230,8 +230,8 @@ import SHA3._
     s(spongeWords - capacityWords - 1) = s(spongeWords - capacityWords - 1) |^ u64"0x8000000000000000"
     keccakf(s)
 
-    val sb = MSZ.create(spongeWords * 8, u8"0")
-    for (i <- z"0" until spongeWords) {
+    val sb = MS.create(capacityWords * 4, u8"0")
+    for (i <- z"0" until (capacityWords / 2)) {
       val t = s(i)
       sb(i * 8) = conversions.U64.toU8(t & u64"0xFF")
       sb(i * 8 + 1) = conversions.U64.toU8((t >> u64"8") & u64"0xFF")
@@ -242,6 +242,6 @@ import SHA3._
       sb(i * 8 + 6) = conversions.U64.toU8((t >> u64"48") & u64"0xFF")
       sb(i * 8 + 7) = conversions.U64.toU8((t >> u64"56") & u64"0xFF")
     }
-    return ops.ISZOps(sb.toIS).take(capacityWords * 4)
+    return sb.toIS
   }
 }
