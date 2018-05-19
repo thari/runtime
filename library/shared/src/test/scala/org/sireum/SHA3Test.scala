@@ -51,20 +51,20 @@ class SHA3Test extends TestSuite {
 
     // @formatter:off
     * - {
-      val sha3 = SHA3.init(SHA3.Variant.V256)
+      val sha3 = SHA3.init256
       assert(sha3.finalise() == v256_empty)
     }
 
     * - {
       val buf = ISZ.create(200, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V256)
+      val sha3 = SHA3.init256
       sha3.update(buf)
       assert(sha3.finalise() == v256_0xa3_200_times)
     }
 
     * - {
       val buf = ISZ.create(100, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V256)
+      val sha3 = SHA3.init256
       sha3.update(buf)
       sha3.update(buf)
       assert(sha3.finalise() == v256_0xa3_200_times)
@@ -72,7 +72,7 @@ class SHA3Test extends TestSuite {
 
     * - {
       val buf = ISZ.create(1, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V256)
+      val sha3 = SHA3.init256
       for (_ <- 0 until 200) {
         sha3.update(buf)
       }
@@ -99,7 +99,7 @@ class SHA3Test extends TestSuite {
         u8"0x76", u8"0x3d", u8"0x52", u8"0xdb", u8"0x98", u8"0xd9", u8"0x49", u8"0xd3",
         u8"0xb0", u8"0xfe", u8"0xd6", u8"0xa8", u8"0x05", u8"0x2f", u8"0xbb"
       )
-      val sha3 = SHA3.init(SHA3.Variant.V256)
+      val sha3 = SHA3.init256
       sha3.update(buf)
       assert(sha3.finalise() == ISZ(
         u8"0xa1", u8"0x9e", u8"0xee", u8"0x92", u8"0xbb", u8"0x20", u8"0x97", u8"0xb6",
@@ -111,14 +111,14 @@ class SHA3Test extends TestSuite {
 
     * - {
       val buf = ISZ.create(200, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V384)
+      val sha3 = SHA3.init384
       sha3.update(buf)
       assert(sha3.finalise() == v384_0xa3_200_times)
     }
 
     * - {
       val buf = ISZ.create(100, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V384)
+      val sha3 = SHA3.init384
       sha3.update(buf)
       sha3.update(buf)
       assert(sha3.finalise() == v384_0xa3_200_times)
@@ -126,7 +126,7 @@ class SHA3Test extends TestSuite {
 
     * - {
       val buf = ISZ.create(1, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V384)
+      val sha3 = SHA3.init384
       for (_ <- 0 until 200) {
         sha3.update(buf)
       }
@@ -135,14 +135,14 @@ class SHA3Test extends TestSuite {
 
     * - {
       val buf = ISZ.create(200, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V512)
+      val sha3 = SHA3.init512
       sha3.update(buf)
       assert(sha3.finalise() == v512_0xa3_200_times)
     }
 
     * - {
       val buf = ISZ.create(100, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V512)
+      val sha3 = SHA3.init512
       sha3.update(buf)
       sha3.update(buf)
       assert(sha3.finalise() == v512_0xa3_200_times)
@@ -150,7 +150,7 @@ class SHA3Test extends TestSuite {
 
     * - {
       val buf = ISZ.create(1, u8"0xa3")
-      val sha3 = SHA3.init(SHA3.Variant.V512)
+      val sha3 = SHA3.init512
       for (_ <- 0 until 200) {
         sha3.update(buf)
       }

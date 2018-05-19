@@ -34,12 +34,6 @@ import org.sireum.U64._
 
 object SHA3 {
 
-  @enum object Variant {
-    'V256
-    'V384
-    'V512
-  }
-
   val spongeWords: Z = 25
   val rounds: Z = 24
 
@@ -117,21 +111,39 @@ object SHA3 {
     }
   }
 
-  @pure def init(variant: Variant.Type): SHA3 = {
-    val bits: Z = variant match {
-      case Variant.V256 => 256
-      case Variant.V384 => 384
-      case Variant.V512 => 512
-    }
-    return SHA3(2 * bits / 64)
+  @pure def init256: SHA3 = {
+    return SHA3(8)
   }
 
-  @pure def sum(variant: Variant.Type, data: ISZ[U8]): ISZ[U8] = {
-    val sha3 = init(variant)
+  @pure def init384: SHA3 = {
+    return SHA3(12)
+  }
+
+  @pure def init512: SHA3 = {
+    return SHA3(12)
+  }
+
+  @pure def sum256(data: ISZ[U8]): ISZ[U8] = {
+    val sha3 = init256
     sha3.update(data)
     val r = sha3.finalise()
     return r
   }
+
+  @pure def sum384(data: ISZ[U8]): ISZ[U8] = {
+    val sha3 = init256
+    sha3.update(data)
+    val r = sha3.finalise()
+    return r
+  }
+
+  @pure def sum512(data: ISZ[U8]): ISZ[U8] = {
+    val sha3 = init512
+    sha3.update(data)
+    val r = sha3.finalise()
+    return r
+  }
+
 }
 
 import SHA3._
