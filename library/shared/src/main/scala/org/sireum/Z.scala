@@ -1336,9 +1336,9 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def toMP: Z
 
-  def to(n: T): ZRange[T] = ZRange[T](this, n, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+  def to(n: T): ZRange[T] = ZRange[T](this, n, 1, _ => T, n => n.increase, n => n.decrease)
 
-  def until(n: T): ZRange[T] = ZRange[T](this, n.decrease, _ => T, (r, i) => if (r) i.decrease else i.increase, F)
+  def until(n: T): ZRange[T] = ZRange[T](this, n.decrease, 1, _ => T, n => n.increase, n => n.decrease)
 
   def compareTo(other: T): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0
@@ -1417,130 +1417,74 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
 
 }
 
-final case class ZRange[I](init: I, to: I, @pure cond: I => B, @pure step: (B, I) => I, isReverse: B) {
+final case class ZRange[I](init: I, to: I, by: Z, @pure cond: I => B, @pure increase: I => I, @pure decrease: I => I) {
 
   def foreach(f: I => Unit): Unit = {
-    if (isReverse) {
-      var i = to
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (toZ >= iZ && iZ >= initZ) {
-        if (cond(i)) {
-          f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+    val initZ = init.asInstanceOf[ZLike[_]].toMP
+    val toZ = to.asInstanceOf[ZLike[_]].toMP
+    var iZ = initZ
+    var i = init
+    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+      if (cond(i)) {
+        f(i)
       }
-    } else {
-      var i = init
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (initZ <= iZ && iZ <= toZ) {
-        if (cond(i)) {
-          f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
+      var j = Z.MP.zero
+      while (j < n) {
+        i = step(i)
+        j = j + 1
       }
+      iZ = i.asInstanceOf[ZLike[_]].toMP
     }
   }
 
   @pure def map[V](f: I => V): ISZ[V] = {
+    val initZ = init.asInstanceOf[ZLike[_]].toMP
+    val toZ = to.asInstanceOf[ZLike[_]].toMP
+    var iZ = initZ
+    var i = init
     var r = ISZ[V]()
-    if (isReverse) {
-      var i = to
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (toZ >= iZ && iZ >= initZ) {
-        if (cond(i)) {
-          r = r :+ f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+      if (cond(i)) {
+        r = r :+ f(i)
       }
-    } else {
-      var i = init
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (initZ <= iZ && iZ <= toZ) {
-        if (cond(i)) {
-          r = r :+ f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
+      var j = Z.MP.zero
+      while (j < n) {
+        i = step(i)
+        j = j + 1
       }
+      iZ = i.asInstanceOf[ZLike[_]].toMP
     }
     r
   }
 
   @pure def flatMap[V](f: I => ISZ[V]): ISZ[V] = {
+    val initZ = init.asInstanceOf[ZLike[_]].toMP
+    val toZ = to.asInstanceOf[ZLike[_]].toMP
+    var iZ = initZ
+    var i = init
     var r = ISZ[V]()
-    if (isReverse) {
-      var i = to
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (toZ >= iZ && iZ >= initZ) {
-        if (cond(i)) {
-          r = r ++ f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+      if (cond(i)) {
+        r = r ++ f(i)
       }
-    } else {
-      var i = init
-      val initZ = init.asInstanceOf[ZLike[_]].toMP
-      val toZ = to.asInstanceOf[ZLike[_]].toMP
-      var iZ = i.asInstanceOf[ZLike[_]].toMP
-      while (initZ <= iZ && iZ <= toZ) {
-        if (cond(i)) {
-          r = r ++ f(i)
-        }
-        i = step(isReverse, i)
-        iZ = i.asInstanceOf[ZLike[_]].toMP
+      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
+      var j = Z.MP.zero
+      while (j < n) {
+        i = step(i)
+        j = j + 1
       }
+      iZ = i.asInstanceOf[ZLike[_]].toMP
     }
     r
   }
 
-  @pure def by(n: I): ZRange[I] = {
-    val nMP = n.asInstanceOf[ZLike[_]].toMP
-    require(nMP != 0, "Cannot iterate by 0.")
-    ZRange[I](
-      init,
-      to,
-      cond,
-      (r: B, i: I) => {
-        val count = if (r) -nMP else nMP
-        if (count > 0) {
-          var j = 0
-          var r = i.asInstanceOf[ZLike[_]]
-          while (j < count) {
-            r = r.increase.asInstanceOf[ZLike[_]]
-            j = j + 1
-          }
-          r.asInstanceOf[I]
-        } else {
-          var j = 0
-          var r = i.asInstanceOf[ZLike[_]]
-          while (j > count) {
-            r = r.decrease.asInstanceOf[ZLike[_]]
-            j = j - 1
-          }
-          r.asInstanceOf[I]
-        }
-      },
-      isReverse
-    )
-  }
+  @pure def by(n: Z): ZRange[I] = ZRange(init, to, n, cond, increase, decrease)
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
-    ZRange(init, to, (i: I) => cond(i) && filter(i), step, isReverse)
+    ZRange(init, to, by, (i: I) => cond(i) && filter(i), increase, decrease)
 
-  @pure def reverse: ZRange[I] = ZRange(init, to, cond, step, !isReverse)
+  @pure def reverse: ZRange[I] = ZRange(to, init, -by, cond, increase, decrease)
 
 }

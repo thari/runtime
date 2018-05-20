@@ -174,10 +174,10 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     ZRange[I](
       companion.Index,
       j.decrease.asInstanceOf[I],
+      1,
       _ => T,
-      (r, i) =>
-        if (r) i.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I] else i.asInstanceOf[ZLike[_]].increase.asInstanceOf[I],
-      F
+      _.asInstanceOf[ZLike[_]].increase.asInstanceOf[I],
+      _.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I]
     )
   }
 
