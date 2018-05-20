@@ -42,7 +42,7 @@ class GraphTest extends TestSuite {
           .forall(e => e.source == n1 && e.dest == n2))
       assert(g.outgoing(n1).elements.map({ case Graph.Edge.Data(_, _, data) => data}) == Seq(string"out"))
       assert(g.outgoing(n2).isEmpty)
-      assert(g.incoming(n1) == g.outgoing(1))
+      assert(g.incoming(n1) == g.outgoing(n2 + 1))
     }
 
     * - {
