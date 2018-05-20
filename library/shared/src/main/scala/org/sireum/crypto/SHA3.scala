@@ -131,7 +131,7 @@ object SHA3 {
   }
 
   @pure def sum384(data: ISZ[U8]): ISZ[U8] = {
-    val sha3 = init256
+    val sha3 = init384
     sha3.update(data)
     val r = sha3.finalise()
     return r
