@@ -159,19 +159,19 @@ object Json {
     }
 
     @pure def printU8(n: U8): ST = {
-      return printNumber(n.string)
+      return printNumber(conversions.U8.toZ(n).string)
     }
 
     @pure def printU16(n: U16): ST = {
-      return printNumber(n.string)
+      return printNumber(conversions.U16.toZ(n).string)
     }
 
     @pure def printU32(n: U32): ST = {
-      return printNumber(n.string)
+      return printNumber(conversions.U32.toZ(n).string)
     }
 
     @pure def printU64(n: U64): ST = {
-      return printNumber(n.string)
+      return printNumber(conversions.U64.toZ(n).string)
     }
 
     @pure def printF32(n: F32): ST = {
