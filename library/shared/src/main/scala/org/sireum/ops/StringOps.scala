@@ -124,7 +124,7 @@ import org.sireum._
   }
 
   @pure def lastIndexOf(c: C): Z = {
-    return lastIndexOfFrom(c, s.size)
+    return lastIndexOfFrom(c, s.size - 1)
   }
 
   @pure def lastIndexOfFrom(c: C, offset: Z): Z = {
