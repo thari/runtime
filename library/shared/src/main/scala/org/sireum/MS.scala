@@ -172,6 +172,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       j = j.increase.asInstanceOf[ZLike[_]]
     }
     ZRange[I](
+      T,
       companion.Index,
       j.decrease.asInstanceOf[I],
       1,

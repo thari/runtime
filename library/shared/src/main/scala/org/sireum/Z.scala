@@ -439,6 +439,7 @@ object Z extends $ZCompanion[Z] {
       def <=(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) <= 0
       def >(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) > 0
       def >=(other: _64): scala.Boolean = _root_.java.lang.Long.compareUnsigned(value, other.value) >= 0
+
       def toBigInt: scala.BigInt =
         if (value < 0) _64.NumValues + value else scala.BigInt(value)
       override def toString: Predef.String = _root_.java.lang.Long.toUnsignedString(value)
@@ -1336,9 +1337,9 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def toMP: Z
 
-  def to(n: T): ZRange[T] = ZRange[T](this, n, 1, _ => T, n => n.increase, n => n.decrease)
+  def to(n: T): ZRange[T] = ZRange[T](T, this, n, 1, _ => T, n => n.increase, n => n.decrease)
 
-  def until(n: T): ZRange[T] = ZRange[T](this, n.decrease, 1, _ => T, n => n.increase, n => n.decrease)
+  def until(n: T): ZRange[T] = ZRange[T](F, this, n, 1, _ => T, n => n.increase, n => n.decrease)
 
   def compareTo(other: T): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0
@@ -1417,14 +1418,26 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
 
 }
 
-final case class ZRange[I](init: I, to: I, by: Z, @pure cond: I => B, @pure increase: I => I, @pure decrease: I => I) {
+final case class ZRange[I](
+  isInclusive: B,
+  init: I,
+  to: I,
+  by: Z,
+  @pure cond: I => B,
+  @pure increase: I => I,
+  @pure decrease: I => I
+) {
 
   def foreach(f: I => Unit): Unit = {
     val initZ = init.asInstanceOf[ZLike[_]].toMP
     val toZ = to.asInstanceOf[ZLike[_]].toMP
     var iZ = initZ
     var i = init
-    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    while (loopCond) {
       if (cond(i)) {
         f(i)
       }
@@ -1444,7 +1457,11 @@ final case class ZRange[I](init: I, to: I, by: Z, @pure cond: I => B, @pure incr
     var iZ = initZ
     var i = init
     var r = ISZ[V]()
-    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    while (loopCond) {
       if (cond(i)) {
         r = r :+ f(i)
       }
@@ -1465,7 +1482,11 @@ final case class ZRange[I](init: I, to: I, by: Z, @pure cond: I => B, @pure incr
     var iZ = initZ
     var i = init
     var r = ISZ[V]()
-    while ((iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)) {
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    while (loopCond) {
       if (cond(i)) {
         r = r ++ f(i)
       }
@@ -1480,11 +1501,12 @@ final case class ZRange[I](init: I, to: I, by: Z, @pure cond: I => B, @pure incr
     r
   }
 
-  @pure def by(n: Z): ZRange[I] = ZRange(init, to, n, cond, increase, decrease)
+  @pure def by(n: Z): ZRange[I] = ZRange(isInclusive, init, to, n, cond, increase, decrease)
 
   @pure def withFilter(@pure filter: I => B): ZRange[I] =
-    ZRange(init, to, by, (i: I) => cond(i) && filter(i), increase, decrease)
+    ZRange(isInclusive, init, to, by, (i: I) => cond(i) && filter(i), increase, decrease)
 
-  @pure def reverse: ZRange[I] = ZRange(to, init, -by, cond, increase, decrease)
+  @pure def reverse: ZRange[I] =
+    ZRange(T, if (isInclusive) to else if (by > 0) decrease(to) else increase(to), init, -by, cond, increase, decrease)
 
 }
