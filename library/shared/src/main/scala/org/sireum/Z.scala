@@ -350,7 +350,7 @@ object Z extends $ZCompanion[Z] {
       def >(other: _8): scala.Boolean = toInt > other.toInt
       def >=(other: _8): scala.Boolean = toInt >= other.toInt
       def toInt: scala.Int = value & 0xff
-      override def toString: Predef.String = toInt.toString
+      override def toString: Predef.String = f"$value%02x"
     }
 
     object _16 {
@@ -380,7 +380,7 @@ object Z extends $ZCompanion[Z] {
       def >(other: _16): scala.Boolean = toInt > other.toInt
       def >=(other: _16): scala.Boolean = toInt >= other.toInt
       def toInt: scala.Int = value & 0xFFFF
-      override def toString: Predef.String = toInt.toString
+      override def toString: Predef.String = f"$value%04x"
     }
 
     object _32 {
@@ -410,7 +410,7 @@ object Z extends $ZCompanion[Z] {
       def >(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) > 0
       def >=(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) >= 0
       def toLong: scala.Long = value & 0xFFFFFFFFl
-      override def toString: Predef.String = toLong.toString
+      override def toString: Predef.String =  f"$value%08x"
     }
 
     object _64 {
@@ -442,7 +442,7 @@ object Z extends $ZCompanion[Z] {
 
       def toBigInt: scala.BigInt =
         if (value < 0) _64.NumValues + value else scala.BigInt(value)
-      override def toString: Predef.String = _root_.java.lang.Long.toUnsignedString(value)
+      override def toString: Predef.String =  f"$value%016x"
     }
 
   }
