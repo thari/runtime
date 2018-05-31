@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import org.sireum.ops.GraphOps
 import org.sireum.test._
 
 class GraphTest extends TestSuite {
@@ -96,6 +97,94 @@ class GraphTest extends TestSuite {
       assert(g.incoming(n1) == g.outgoing(n2))
       assert(g.outgoing(n1) == g.incoming(n2))
       assert(g.outgoing(n1).elements.size == 2)
+    }
+
+    //GraphOps Tests : SCC smoke test
+    * - {
+      val graph = Graph.empty[Z, String]
+      val n1: Z = 1
+      val n2: Z = 2
+      val n3: Z = 3
+      val n4: Z = 4
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n3
+      g = g + n3 ~> n1
+      g = g + n1 ~> n4
+
+      val scc = GraphOps[Z, String](g).getSCC
+      assert(scc.nonEmpty)
+      assert(scc.size == Z.apply(2))
+      val entry1 = HashSet.empty ++ ISZ(n1, n2, n3)
+      val entry2 = HashSet.empty ++ ISZ(n4)
+      assert((Set.empty ++ scc).contains(entry1))
+      assert((Set.empty ++ scc).contains(entry2))
+    }
+
+    //GraphOps Tests : Cycle smoke test
+    * - {
+      val graph = Graph.empty[Z, String]
+      val n1: Z = 1
+      val n2: Z = 2
+      val n3: Z = 3
+      val n4: Z = 4
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n3
+      g = g + n3 ~> n1
+      g = g + n1 ~> n4
+
+      val cycle = GraphOps[Z, String](g).getCycles
+      assert(cycle.nonEmpty)
+      assert(cycle.size == Z.apply(2))
+
+      val entry1 = HashSet.empty ++ ISZ(n1, n2)
+      val entry2 = HashSet.empty ++ ISZ(n1, n3)
+      val cycleSets = Set.empty ++ cycle.map(HashSet.empty ++ _)
+
+      assert(cycleSets.contains(entry1))
+      assert(cycleSets.contains(entry2))
+    }
+
+    //GraphOps Tests : Forward reach smoke test
+    * - {
+      val graph = Graph.empty[Z, String]
+      val n1: Z = 1
+      val n2: Z = 2
+      val n3: Z = 3
+      val n4: Z = 4
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n3
+      g = g + n3 ~> n1
+      g = g + n1 ~> n4
+
+      val forwardFrom_n2 = GraphOps[Z, String](g).forwardReach(ISZ(n2))
+      val forwardFrom_n4 = GraphOps[Z, String](g).forwardReach(ISZ(n4))
+
+      assert((HashSet.empty ++ ISZ(n1, n2, n3, n4)) ==
+        (HashSet.empty ++ forwardFrom_n2))
+
+      assert(forwardFrom_n4.size == Z(1))
+      assert((HashSet.empty ++ forwardFrom_n4).contains(n4))
+    }
+
+    //GraphOps Tests : Backward reach smoke test
+    * - {
+      val graph = Graph.empty[Z, String]
+      val n1: Z = 1
+      val n2: Z = 2
+      val n3: Z = 3
+      val n4: Z = 4
+      var g = graph + n1 ~> n2
+      g = g + n2 ~> n1
+      g = g + n1 ~> n3
+      g = g + n3 ~> n1
+      g = g + n1 ~> n4
+
+      val backwardFrom_n4 = GraphOps[Z, String](g).backwardReach(ISZ(n4))
+      assert((HashSet.empty ++ ISZ(n1, n2, n3, n4)) ==
+        (HashSet.empty ++ backwardFrom_n4))
     }
   }
 
